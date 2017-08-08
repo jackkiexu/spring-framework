@@ -551,19 +551,27 @@ public class BeanDefinitionParserDelegate {
 				parent = ele.getAttribute(PARENT_ATTRIBUTE);
 			}
 			// 根据<Bean> 元素配置的class名称和 parent属性值创建 BeanDefinition
+			// 为了载入 Bean 定义信息做准备
 			AbstractBeanDefinition bd = createBeanDefinition(className, parent);
-
+			// 对当前的 <Bean> 元素中配置的一些属性进行解析和设置, 如配置单例 (singleton) 属性等
 			parseBeanDefinitionAttributes(ele, beanName, containingBean, bd);
 			bd.setDescription(DomUtils.getChildElementValueByTagName(ele, DESCRIPTION_ELEMENT));
 
+			// 为 <Bean> 元素解析的Bean设置 description信息, bd.setDescription(DomUtils.getChildElementValveByTagName(ele, DESCRIPTION_ELEMENT))
+			// 对 <Bean> 元素的 mate(元信息)属性解析
 			parseMetaElements(ele, bd);
+			// 对 <Bean> 元素的 loopup-method 属性解析
 			parseLookupOverrideSubElements(ele, bd.getMethodOverrides());
+			// 对 <Bean> 元素的 replaced-method 属性解析
 			parseReplacedMethodSubElements(ele, bd.getMethodOverrides());
-
+			// 解析 <Bean> 元素的构造方法
 			parseConstructorArgElements(ele, bd);
+			// 解析 <Bean> 元素的 <property> 属性
 			parsePropertyElements(ele, bd);
+			// 解析 <Bean> 元素的 qualifier 属性
 			parseQualifierElements(ele, bd);
 
+			// 为当前解析的 Bean 设置所需要的资源和依赖对象
 			bd.setResource(this.readerContext.getResource());
 			bd.setSource(extractSource(ele));
 
@@ -582,6 +590,7 @@ public class BeanDefinitionParserDelegate {
 			this.parseState.pop();
 		}
 
+		// 解析元素出错返回 null
 		return null;
 	}
 
@@ -764,10 +773,13 @@ public class BeanDefinitionParserDelegate {
 	/**
 	 * Parse property sub-elements of the given bean element.
 	 */
+	// 解析 <Bean> 元素中的 <property> 子元素
 	public void parsePropertyElements(Element beanEle, BeanDefinition bd) {
+		// 获取 <Bean> 元素中的所有的子元素
 		NodeList nl = beanEle.getChildNodes();
 		for (int i = 0; i < nl.getLength(); i++) {
 			Node node = nl.item(i);
+			// 如果子元素是 <property> 子元素, 则调用解析 <property> 子元素方法解析
 			if (isCandidateElement(node) && nodeNameEquals(node, PROPERTY_ELEMENT)) {
 				parsePropertyElement((Element) node, bd);
 			}
@@ -896,7 +908,9 @@ public class BeanDefinitionParserDelegate {
 	/**
 	 * Parse a property element.
 	 */
+	// 解析 <property> 元素
 	public void parsePropertyElement(Element ele, BeanDefinition bd) {
+		// 获取 <property> 元素的名字
 		String propertyName = ele.getAttribute(NAME_ATTRIBUTE);
 		if (!StringUtils.hasLength(propertyName)) {
 			error("Tag 'property' must have a 'name' attribute", ele);
@@ -904,6 +918,8 @@ public class BeanDefinitionParserDelegate {
 		}
 		this.parseState.push(new PropertyEntry(propertyName));
 		try {
+			// 如果一个 Bean 中已经有同名的 property 存在, 则不进行解析, 直接返回
+			// 即如果在同一个 Bean 中配置同名的 property, 
 			if (bd.getPropertyValues().contains(propertyName)) {
 				error("Multiple 'property' definitions for property '" + propertyName + "'", ele);
 				return;

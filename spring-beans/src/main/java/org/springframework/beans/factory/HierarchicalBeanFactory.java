@@ -28,6 +28,11 @@ package org.springframework.beans.factory;
  * @author Juergen Hoeller
  * @since 07.07.2003
  * @see org.springframework.beans.factory.config.ConfigurableBeanFactory#setParentBeanFactory
+ *
+ * HierarchicalBeanFactory 接口表示这些Bean是有继承关系, 每个Bean都有其父Bean
+ *
+ * 参考资料
+ * http://www.cnblogs.com/ITtangtang/p/3978349.html
  */
 public interface HierarchicalBeanFactory extends BeanFactory {
 

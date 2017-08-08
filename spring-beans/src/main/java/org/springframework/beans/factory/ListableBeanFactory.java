@@ -53,6 +53,11 @@ import org.springframework.core.ResolvableType;
  * @since 16 April 2001
  * @see HierarchicalBeanFactory
  * @see BeanFactoryUtils
+ *
+ * ListableBeanFactory 接口接口表示这些接口是可列表的
+ *
+ * 参考资料
+ * http://www.cnblogs.com/ITtangtang/p/3978349.html
  */
 public interface ListableBeanFactory extends BeanFactory {
 

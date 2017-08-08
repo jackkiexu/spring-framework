@@ -149,8 +149,11 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 */
 	public static final String APPLICATION_EVENT_MULTICASTER_BEAN_NAME = "applicationEventMulticaster";
 
-
+	// 静态初始化块, 在整个容器创建过程中只执行一次
 	static {
+		/**
+		 * 为了避免应用程序 WebLogic 8.1 在关闭时出现类加载异常加载的问题, 所以事先加载 IOC 容器关闭事件( ContextClosedEvent) 类
+		 */
 		// Eagerly load the ContextClosedEvent class to avoid weird classloader issues
 		// on application shutdown in WebLogic 8.1. (Reported by Dustin Woods.)
 		ContextClosedEvent.class.getName();
@@ -505,43 +508,63 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		return this.applicationListeners;
 	}
 
+	/**
+	 * 参考资料:
+	 * http://www.cnblogs.com/ITtangtang/p/3978349.html
+	 *
+	 * refresh(): 方法的作用: 在创建Ioc容器前, 如果已经有了容器的存在, 则需要把自己已有的容器销毁和关闭, 以保证在 refresh 之后使用的是新建立起来的 Ioc 容器.
+	 * refresh 的作用类似于对于 Ioc 容器的重启, 在新建立好的容器进行初始化, 对 Bean 定义资源进行载入
+	 */
 	@Override
 	public void refresh() throws BeansException, IllegalStateException {
 		synchronized (this.startupShutdownMonitor) {
+			// 调用容器准备刷新的方法, 获取容器的当前时间, 同时给容器设置同步标识
 			// Prepare this context for refreshing.
 			prepareRefresh();
 
+			// 告诉子类启动 refreshBeanFactory 方法, bean 定义资源文件的载入从子类的 refreshBeanFactory 方法启动
 			// Tell the subclass to refresh the internal bean factory.
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
+			// 为 BeanFactory 配置容器特性, 例如类加载器, 时间处理器等
 			// Prepare the bean factory for use in this context.
 			prepareBeanFactory(beanFactory);
 
 			try {
+				// 为容器的某些子类指定特殊的 BeanPost 事件处理器
 				// Allows post-processing of the bean factory in context subclasses.
 				postProcessBeanFactory(beanFactory);
 
+				// 调用所有注册的 BeanFactoryPostProcessor 的 Bean
 				// Invoke factory processors registered as beans in the context.
 				invokeBeanFactoryPostProcessors(beanFactory);
 
+				// 为 BeanFactory 注册 BeanPost 事件处理器
+				// BeanPostProcessor 是 Bean 后置处理器, 用于监听容器触发的事件
 				// Register bean processors that intercept bean creation.
 				registerBeanPostProcessors(beanFactory);
 
+				// 初始化信息源, 和国际化相关
 				// Initialize message source for this context.
 				initMessageSource();
 
+				// 初始化容器事件传播器
 				// Initialize event multicaster for this context.
 				initApplicationEventMulticaster();
 
+				// 调用子类的某些特殊 Bean 初始化方法
 				// Initialize other special beans in specific context subclasses.
 				onRefresh();
 
+				// 为事件传播器注册事件监听器
 				// Check for listener beans and register them.
 				registerListeners();
 
+				// 初始化所有剩余的 Bean
 				// Instantiate all remaining (non-lazy-init) singletons.
 				finishBeanFactoryInitialization(beanFactory);
 
+				// 初始化容器的生命周期事件处理器, 并发布容器的生命周期事件
 				// Last step: publish corresponding event.
 				finishRefresh();
 			}
@@ -553,8 +576,10 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				}
 
 				// Destroy already created singletons to avoid dangling resources.
+				// 销毁已经创建的 Bean
 				destroyBeans();
 
+				// 取消  refresh 事件, 重置容器的同步标识
 				// Reset 'active' flag.
 				cancelRefresh(ex);
 

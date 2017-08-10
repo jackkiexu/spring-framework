@@ -919,13 +919,16 @@ public class BeanDefinitionParserDelegate {
 		this.parseState.push(new PropertyEntry(propertyName));
 		try {
 			// 如果一个 Bean 中已经有同名的 property 存在, 则不进行解析, 直接返回
-			// 即如果在同一个 Bean 中配置同名的 property, 
+			// 即如果在同一个 Bean 中配置同名的 property,则只有第一个起作用
 			if (bd.getPropertyValues().contains(propertyName)) {
 				error("Multiple 'property' definitions for property '" + propertyName + "'", ele);
 				return;
 			}
+			// 解析获取 property 的值
 			Object val = parsePropertyValue(ele, bd, propertyName);
+			// 根据 property 的名字和值创建 property 实例
 			PropertyValue pv = new PropertyValue(propertyName, val);
+			// 解析 <property> 元素中的属性
 			parseMetaElements(ele, pv);
 			pv.setSource(extractSource(ele));
 			bd.getPropertyValues().addPropertyValue(pv);
@@ -981,28 +984,30 @@ public class BeanDefinitionParserDelegate {
 	 * Get the value of a property element. May be a list etc.
 	 * Also used for constructor arguments, "propertyName" being null in this case.
 	 */
+	// 解析获取 property 值
 	public Object parsePropertyValue(Element ele, BeanDefinition bd, String propertyName) {
 		String elementName = (propertyName != null) ?
 						"<property> element for property '" + propertyName + "'" :
 						"<constructor-arg> element";
-
+		// 获取 <property> 的所有子元素, 只能是其中一种类型: ref, value, list 等
 		// Should only have one child element: ref, value, list, etc.
 		NodeList nl = ele.getChildNodes();
 		Element subElement = null;
 		for (int i = 0; i < nl.getLength(); i++) {
 			Node node = nl.item(i);
+			// 子元素不是 description 和  meta 属性
 			if (node instanceof Element && !nodeNameEquals(node, DESCRIPTION_ELEMENT) &&
 					!nodeNameEquals(node, META_ELEMENT)) {
 				// Child element is what we're looking for.
 				if (subElement != null) {
 					error(elementName + " must not contain more than one sub-element", ele);
 				}
-				else {
+				else {	// 当前 <property> 元素包含有得到子元素
 					subElement = (Element) node;
 				}
 			}
 		}
-
+		// 判断 <property> 属性值是 ref 还是 value, 不允许 既是 ref 又是 value
 		boolean hasRefAttribute = ele.hasAttribute(REF_ATTRIBUTE);
 		boolean hasValueAttribute = ele.hasAttribute(VALUE_ATTRIBUTE);
 		if ((hasRefAttribute && hasValueAttribute) ||
@@ -1010,25 +1015,33 @@ public class BeanDefinitionParserDelegate {
 			error(elementName +
 					" is only allowed to contain either 'ref' attribute OR 'value' attribute OR sub-element", ele);
 		}
-
+		// 如果属性值是 ref, 创建一个 ref 的数据对象 RuntimeBeanReference, 这个对象封装了 ref 信息
 		if (hasRefAttribute) {
 			String refName = ele.getAttribute(REF_ATTRIBUTE);
 			if (!StringUtils.hasText(refName)) {
 				error(elementName + " contains empty 'ref' attribute", ele);
 			}
+			// 一个指向运行时所依赖对象的引用
 			RuntimeBeanReference ref = new RuntimeBeanReference(refName);
+			// 设置这个 ref 的数据对象是被当前的 property 对象引用
 			ref.setSource(extractSource(ele));
 			return ref;
 		}
+		// 如果属性是 value, 创建一个 value 的数据对象 TypedStringValue, 这个对象封装了 value 信息
 		else if (hasValueAttribute) {
+			// 一个持有 String 类型值的对象
 			TypedStringValue valueHolder = new TypedStringValue(ele.getAttribute(VALUE_ATTRIBUTE));
+			// 设置这个 value 数据对象是被当前的 property 对象引用
 			valueHolder.setSource(extractSource(ele));
 			return valueHolder;
 		}
+		// 如果当前 <property>元素还是子元素
 		else if (subElement != null) {
+			// 解析<property>的子元素
 			return parsePropertySubElement(subElement, bd);
 		}
 		else {
+			// property 属性中既不是 ref, 也不是 value 属性, 解析出错返回 null
 			// Neither child element nor "ref" or "value" attribute found.
 			error(elementName + " must specify a ref or value", ele);
 			return null;
@@ -1046,10 +1059,13 @@ public class BeanDefinitionParserDelegate {
 	 * @param defaultValueType the default type (class name) for any
 	 * {@code <value>} tag that might be created
 	 */
+	// 解析 <property> 元素中的 ref, value 或者集合等子元素
 	public Object parsePropertySubElement(Element ele, BeanDefinition bd, String defaultValueType) {
+		// 如果 <property> 没有使用 Spring 默认的命名空间, 则使用用户自定义的规则解析 // 内嵌元素
 		if (!isDefaultNamespace(ele)) {
 			return parseNestedCustomElement(ele, bd);
 		}
+		// 如果子元素是 bean, 则使用解析 <Bean> 元素的方法解析
 		else if (nodeNameEquals(ele, BEAN_ELEMENT)) {
 			BeanDefinitionHolder nestedBd = parseBeanDefinitionElement(ele, bd);
 			if (nestedBd != null) {
@@ -1057,14 +1073,20 @@ public class BeanDefinitionParserDelegate {
 			}
 			return nestedBd;
 		}
+		// 如果子元素是 ref, ref 中只能有以下 3 个属性: bean, local, parent
 		else if (nodeNameEquals(ele, REF_ELEMENT)) {
+			// 获取 <property> 元素中的 bean 属性值, 引用其他解析的 Bean 的名称
+			// 可以不在同一个 Spring 配置文件中, 具体请参考 Spring 对 ref 的配置规则
 			// A generic reference to any name of any bean.
 			String refName = ele.getAttribute(BEAN_REF_ATTRIBUTE);
 			boolean toParent = false;
 			if (!StringUtils.hasLength(refName)) {
+				// 获取 <property> 元素中的 local 属性值, 引用同一个 Xml 文件中的配置
+				// 的 Bean 的id, local 和 ref 不同, local 只能引用同一个配置文件中的 Bean
 				// A reference to the id of another bean in the same XML file.
 				refName = ele.getAttribute(LOCAL_REF_ATTRIBUTE);
 				if (!StringUtils.hasLength(refName)) {
+					// 获取 <property> 元素中 parent 属性值, 引用父级容器中的 Bean
 					// A reference to the id of another bean in a parent context.
 					refName = ele.getAttribute(PARENT_REF_ATTRIBUTE);
 					toParent = true;
@@ -1074,20 +1096,26 @@ public class BeanDefinitionParserDelegate {
 					}
 				}
 			}
+			// 没有配置 ref 的目标属性值
 			if (!StringUtils.hasText(refName)) {
 				error("<ref> element contains empty target attribute", ele);
 				return null;
 			}
+			// 创建 ref 类型数据, 指向被引用的对象
 			RuntimeBeanReference ref = new RuntimeBeanReference(refName, toParent);
+			// 设置引用类型值是被=当前子元素所引用
 			ref.setSource(extractSource(ele));
 			return ref;
 		}
+		// 如果子元素是 <id ref>, 使用解析 ref 元素的方法解析
 		else if (nodeNameEquals(ele, IDREF_ELEMENT)) {
 			return parseIdRefElement(ele);
 		}
+		// 如果子元素是 <value>, 使用解析 value 元素的方法解析
 		else if (nodeNameEquals(ele, VALUE_ELEMENT)) {
 			return parseValueElement(ele, defaultValueType);
 		}
+		// 如果子元素是 null, 为 <property> 设置一个 封装 null 值的字符串数据
 		else if (nodeNameEquals(ele, NULL_ELEMENT)) {
 			// It's a distinguished null value. Let's wrap it in a TypedStringValue
 			// object in order to preserve the source location.
@@ -1095,22 +1123,27 @@ public class BeanDefinitionParserDelegate {
 			nullHolder.setSource(extractSource(ele));
 			return nullHolder;
 		}
+		// 如果子元素是 <array>, 使用解析 array 集合子元素的方法解析
 		else if (nodeNameEquals(ele, ARRAY_ELEMENT)) {
 			return parseArrayElement(ele, bd);
 		}
+		// 如果子元素是 <list>, 使用解析 list 集合子元素的方法解析
 		else if (nodeNameEquals(ele, LIST_ELEMENT)) {
 			return parseListElement(ele, bd);
 		}
+		// 如果子元素是 <set>, 使用解析 set 集合子元素的方法解析
 		else if (nodeNameEquals(ele, SET_ELEMENT)) {
 			return parseSetElement(ele, bd);
 		}
+		// 如果子元素是 <map>, 使用解析 map 集合子元素的方法解析
 		else if (nodeNameEquals(ele, MAP_ELEMENT)) {
 			return parseMapElement(ele, bd);
 		}
+		// 如果子元素是 <props>, 使用解析 props 集合子元素的方法解析
 		else if (nodeNameEquals(ele, PROPS_ELEMENT)) {
 			return parsePropsElement(ele);
 		}
-		else {
+		else { // 即不是 ref, 又是 value, 也不是集合, 则子元素配置错误, 返回 null
 			error("Unknown property sub-element: [" + ele.getNodeName() + "]", ele);
 			return null;
 		}
@@ -1201,13 +1234,19 @@ public class BeanDefinitionParserDelegate {
 	/**
 	 * Parse a list element.
 	 */
+	// 解析 <list> 集合子元素
 	public List<Object> parseListElement(Element collectionEle, BeanDefinition bd) {
-		String defaultElementType = collectionEle.getAttribute(VALUE_TYPE_ATTRIBUTE);
+		// 获取 <list> 元素中的 value-type 属性, 即获取集合元素的数据类型
+ 		String defaultElementType = collectionEle.getAttribute(VALUE_TYPE_ATTRIBUTE);
+		// 获取 <list> 集合元素中的所有子节点
 		NodeList nl = collectionEle.getChildNodes();
+		// Spring 中将 List 封装为 ManagedList
 		ManagedList<Object> target = new ManagedList<Object>(nl.getLength());
 		target.setSource(extractSource(collectionEle));
+		// 设置集合目标数据类型
 		target.setElementTypeName(defaultElementType);
 		target.setMergeEnabled(parseMergeAttribute(collectionEle));
+		// 具体的 <list> 元素的解析
 		parseCollectionElements(nl, target, bd, defaultElementType);
 		return target;
 	}
@@ -1226,12 +1265,15 @@ public class BeanDefinitionParserDelegate {
 		return target;
 	}
 
+	// 具体解析 <list> 集合元素, <array>, <list> 和 <set> 都使用该方法解析
 	protected void parseCollectionElements(
 			NodeList elementNodes, Collection<Object> target, BeanDefinition bd, String defaultElementType) {
-
+		// 遍历所有节点
 		for (int i = 0; i < elementNodes.getLength(); i++) {
 			Node node = elementNodes.item(i);
+			// 节点不是 description 节点
 			if (node instanceof Element && !nodeNameEquals(node, DESCRIPTION_ELEMENT)) {
+				// 将解析的元素加到集合中, 递归调用写一个子元素
 				target.add(parsePropertySubElement((Element) node, bd, defaultElementType));
 			}
 		}

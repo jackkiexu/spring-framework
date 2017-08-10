@@ -140,8 +140,11 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
 		 * Create an enhanced subclass of the bean class for the provided bean
 		 * definition, using CGLIB.
 		 */
+		// 使用 CGLIB 进行 Bean 对象实例化
 		private Class<?> createEnhancedSubclass(RootBeanDefinition beanDefinition) {
+			// CGLIB 中的类
 			Enhancer enhancer = new Enhancer();
+			// 将 Bean 本身作为其基类
 			enhancer.setSuperclass(beanDefinition.getBeanClass());
 			enhancer.setNamingPolicy(SpringNamingPolicy.INSTANCE);
 			if (this.owner instanceof ConfigurableBeanFactory) {
@@ -150,6 +153,7 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
 			}
 			enhancer.setCallbackFilter(new MethodOverrideCallbackFilter(beanDefinition));
 			enhancer.setCallbackTypes(CALLBACK_TYPES);
+			// 使用CGLIB 的 create 方法生成实例对象
 			return enhancer.createClass();
 		}
 	}

@@ -191,17 +191,20 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	//---------------------------------------------------------------------
 	// Implementation of BeanFactory interface
 	//---------------------------------------------------------------------
-
+	// 获取 Ioc 容器中指定名称的 Bean
 	@Override
 	public Object getBean(String name) throws BeansException {
+		// doGetBean 才是正真向 Ioc 容器获取被管理 Bean 的过程
 		return doGetBean(name, null, null, false);
 	}
 
+	// 获取 Ioc 容器中指定名称和类型的 Bean
 	@Override
 	public <T> T getBean(String name, Class<T> requiredType) throws BeansException {
 		return doGetBean(name, requiredType, null, false);
 	}
 
+	// 获取 Ioc 容器中指定名称和参数的 Bean
 	@Override
 	public Object getBean(String name, Object... args) throws BeansException {
 		return doGetBean(name, null, args, false);
@@ -216,6 +219,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * @return an instance of the bean
 	 * @throws BeansException if the bean could not be created
 	 */
+	// 获取 Ioc 容器中指定名称, 类型 和 参数的 Bean
 	public <T> T getBean(String name, Class<T> requiredType, Object... args) throws BeansException {
 		return doGetBean(name, requiredType, args, false);
 	}
@@ -231,18 +235,25 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * @return an instance of the bean
 	 * @throws BeansException if the bean could not be created
 	 */
+	// 参考资料 http://www.cnblogs.com/ITtangtang/p/3978349.html
+	// 正真实现向 Ioc 容器获取 Bean 的功能, 也是触发依赖注入功能的地方
 	@SuppressWarnings("unchecked")
 	protected <T> T doGetBean(
 			final String name, final Class<T> requiredType, final Object[] args, boolean typeCheckOnly)
 			throws BeansException {
 
+		// 根据指定的名称获取被管理 bean 的名称, 剥离指定名称中对容器的相关依赖
+		// 如果指定的是别名, 将别名转换为规范的 Bean 名称
 		final String beanName = transformedBeanName(name);
 		Object bean;
 
+		// 先从缓存中取是否已经有被创建过的单例类型的 bean, 对于单例模型的 Bean 整个 Ioc 容器中只创建一次, 不需要重复创建
 		// Eagerly check singleton cache for manually registered singletons.
 		Object sharedInstance = getSingleton(beanName);
+		// Ioc 容器创建单例模式 Bean 实例对象
 		if (sharedInstance != null && args == null) {
 			if (logger.isDebugEnabled()) {
+				// 如果指定名称的 Bean 在 容器中已有单例模式的 bean 被创建, 直接返回已经创建的 Bean
 				if (isSingletonCurrentlyInCreation(beanName)) {
 					logger.debug("Returning eagerly cached instance of singleton bean '" + beanName +
 							"' that is not fully initialized yet - a consequence of a circular reference");
@@ -251,92 +262,132 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					logger.debug("Returning cached instance of singleton bean '" + beanName + "'");
 				}
 			}
+			/**
+			 * 获取给定 Bean 的实例对象, 主要是完成 FactoryBean 的相关处理
+			 * 注意: BeanFactory 是管理容器中的 Bean 的工厂, 而 FactoryBean 是
+			 * 创建对象的工厂 bean, 两者之间的区别
+			 */
 			bean = getObjectForBeanInstance(sharedInstance, name, beanName, null);
 		}
 
 		else {
+			/**
+			 * 缓存没有正在创建的单例Bean
+			 * 缓存中已经有已经创建的原型模式的 Bean, 但是由于循环引用的问题导致实例化对象失败
+			 */
 			// Fail if we're already creating this bean instance:
 			// We're assumably within a circular reference.
 			if (isPrototypeCurrentlyInCreation(beanName)) {
 				throw new BeanCurrentlyInCreationException(beanName);
 			}
-
+			/**
+			 * 对 Ioc 容器中是否存在指定名称的 BeanDefinition进行检查, 首先检查是否
+			 * 能在当前的 BeanFactory 中获取的所有需要的 bean, 如果不能则委托当前容器的
+			 * 父级容器去查找, 如果还是找不到则沿着容器的继承体系向父级容器查找
+			 */
 			// Check if bean definition exists in this factory.
 			BeanFactory parentBeanFactory = getParentBeanFactory();
+			// 当前容器的父级容器存在, 其当前容器中不存在指定名称的 Bean
 			if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {
+				// 解析指定的 bean 名称的原始名称
 				// Not found -> check parent.
 				String nameToLookup = originalBeanName(name);
 				if (args != null) {
 					// Delegation to parent with explicit args.
+					// 委派父级容器根据指定名称和显示的参数查找
 					return (T) parentBeanFactory.getBean(nameToLookup, args);
 				}
 				else {
+					// 委派父级容器根据指定名称和类型查找
 					// No args -> delegate to standard getBean method.
 					return parentBeanFactory.getBean(nameToLookup, requiredType);
 				}
 			}
 
+			// 创建的 bean 是否需要进行类型验证, 一般不需要
 			if (!typeCheckOnly) {
+				// 向容器标记指定的 Bean 已经创建
 				markBeanAsCreated(beanName);
 			}
 
 			try {
+				// 根据指定 Bean 名称获取其父级的 Bean 定义, 主要解决 Bean 继承时子类
+				// 合并父类公共属性问题
 				final RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
 				checkMergedBeanDefinition(mbd, beanName, args);
 
+				// 获取当前的 Bean 所依赖 Bean 的名称
 				// Guarantee initialization of beans that the current bean depends on.
 				String[] dependsOn = mbd.getDependsOn();
+				// 如果当前 Bean 有依赖 Bean
 				if (dependsOn != null) {
 					for (String dep : dependsOn) {
 						if (isDependent(beanName, dep)) {
 							throw new BeanCreationException(mbd.getResourceDescription(), beanName,
 									"Circular depends-on relationship between '" + beanName + "' and '" + dep + "'");
 						}
+						// 把被依赖 Bean 注册给当前依赖的 Bean
 						registerDependentBean(dep, beanName);
+						// 递归调用 getBean 方法, 获取当前 Bean 的依赖的 Bean
 						getBean(dep);
 					}
 				}
 
+				// 创建单例模式的 Bean 实例对象
 				// Create bean instance.
 				if (mbd.isSingleton()) {
+					// 这里使用一个匿名内部类, 创建 bean 实例对象, 并且注册给所依赖的对象
 					sharedInstance = getSingleton(beanName, new ObjectFactory<Object>() {
 						@Override
 						public Object getObject() throws BeansException {
 							try {
+								// 创建一个指定 Bean 实例对象, 如果父级继承, 则合并子类和父类的定义
 								return createBean(beanName, mbd, args);
 							}
 							catch (BeansException ex) {
 								// Explicitly remove instance from singleton cache: It might have been put there
 								// eagerly by the creation process, to allow for circular reference resolution.
 								// Also remove any beans that received a temporary reference to the bean.
+								// 显示的从容器单例模式 Bean 缓存中清除实例对象
 								destroySingleton(beanName);
 								throw ex;
 							}
 						}
 					});
+					// 获取给定 Bean 实例对象
 					bean = getObjectForBeanInstance(sharedInstance, name, beanName, mbd);
 				}
-
+				// Ioc 容器创建原型模式 bean 实例对象
 				else if (mbd.isPrototype()) {
+					// 原型模式(Prototype) 是每次都会创建一个新的对象
 					// It's a prototype -> create a new instance.
 					Object prototypeInstance = null;
 					try {
+						// 回调 beforePrototypeCreation 方法, 默认的功能是注册当前创建的原型对象
 						beforePrototypeCreation(beanName);
+						// 创建指定  bean 创建实例
 						prototypeInstance = createBean(beanName, mbd, args);
 					}
 					finally {
+						// 回调 afterPrototypeCreation 方法, 默认的功能告诉 Ioc 容器指定 Bean 的原型对象不再创建了
 						afterPrototypeCreation(beanName);
 					}
+					// 获取给定 Bean 的实例对象
 					bean = getObjectForBeanInstance(prototypeInstance, name, beanName, mbd);
 				}
-
+				/**
+				 *  要创建的 bean 即不是单例模式, 也不是原型模式, 则根据 bean 定义资源中
+				 *  配置的生命周期范围, 选择实例化 Bean 的合适方法, 这种在 Web 应用程序中
+				 *  比较常用: 如: request, session, application 等生命周期
+				 */
 				else {
 					String scopeName = mbd.getScope();
 					final Scope scope = this.scopes.get(scopeName);
+					// bean 定义资源中没有配置生命周期的范围, 则 Bean 定义不合法
 					if (scope == null) {
 						throw new IllegalStateException("No Scope registered for scope name '" + scopeName + "'");
 					}
-					try {
+					try { // 这里又使用一个匿名内部类, 获取一个指定生命周期范围的实例
 						Object scopedInstance = scope.get(beanName, new ObjectFactory<Object>() {
 							@Override
 							public Object getObject() throws BeansException {
@@ -349,6 +400,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 								}
 							}
 						});
+						// 获取 给定 Bean 的实例对象
 						bean = getObjectForBeanInstance(scopedInstance, name, beanName, mbd);
 					}
 					catch (IllegalStateException ex) {
@@ -365,6 +417,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			}
 		}
 
+		// 对创建的 Bean 实例对象进行类型检查
 		// Check if required type matches the type of the actual bean instance.
 		if (requiredType != null && bean != null && !requiredType.isAssignableFrom(bean.getClass())) {
 			try {
@@ -1604,9 +1657,15 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * @param mbd the merged bean definition
 	 * @return the object to expose for the bean
 	 */
+	// 获取给定 Bean 的实例对象, 主要是完成 FactoryBean 的相关处理
 	protected Object getObjectForBeanInstance(
 			Object beanInstance, String name, String beanName, RootBeanDefinition mbd) {
-
+		/**容器已经得到了 Bean 实例对象, 这个实例对象可能是一个普通的 Bean, 也可能是
+		 * 一个工厂 Bean, 如果是一个工厂 Bean, 则使用它创建一个 Bean 实例对象, 如果
+		 * 调用本身就像获得一个容器的引用, 则指定返回这个工厂 Bean 实例对象
+		 * 如果指定的名称是容器的解析引用(dereference, 即使对象本身而非内存地址)
+		 * 且Bean 实例也不是创建 Bean 实例对象的工厂 Bean
+		 */
 		// Don't let calling code try to dereference the factory if the bean isn't a factory.
 		if (BeanFactoryUtils.isFactoryDereference(name) && !(beanInstance instanceof FactoryBean)) {
 			throw new BeanIsNotAFactoryException(transformedBeanName(name), beanInstance.getClass());
@@ -1615,22 +1674,32 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		// Now we have the bean instance, which may be a normal bean or a FactoryBean.
 		// If it's a FactoryBean, we use it to create a bean instance, unless the
 		// caller actually wants a reference to the factory.
+		// 如果Bean 实例不是工厂 Bean, 或者指定名称是容器的解引用, 调用者向获取对容器的引用,
+		// 则直接返回当前的 bean 实例
 		if (!(beanInstance instanceof FactoryBean) || BeanFactoryUtils.isFactoryDereference(name)) {
 			return beanInstance;
 		}
-
+		// 处理指定名称不是容器的解引用, 或者根据名称获取的 bean 实例对象是一个工厂 Bean
+		// 使用工厂 bean 创建一个 Bean 实例对象
 		Object object = null;
 		if (mbd == null) {
+			// 从 bean 工厂缓存中获取给定名称的  bean 实例对象
 			object = getCachedObjectForFactoryBean(beanName);
 		}
+		// 让 bean 工厂生产给定名称的 bean 对象实例
 		if (object == null) {
 			// Return bean instance from factory.
 			FactoryBean<?> factory = (FactoryBean<?>) beanInstance;
+			// 如果从 Bean 工厂生产的 bean 是单例模式的, 则缓存
 			// Caches object obtained from FactoryBean if it is a singleton.
 			if (mbd == null && containsBeanDefinition(beanName)) {
+				// 从容器中获取指定名称的 bean 定义, 如果继承基类, 则合并基类相关属性
 				mbd = getMergedLocalBeanDefinition(beanName);
 			}
+			// 如果从容器得到 Bean 定义信息, 并且 Bean 定义信息不是虚构的, 则让工厂
+			// Bean 生产 bean 实例对象
 			boolean synthetic = (mbd != null && mbd.isSynthetic());
+			// 调用 FactoryBeanRegistrySupport 类的 getObjectFromFactoryBean 方法, 实现工厂 bean 生产 Bean 对象实例的过程
 			object = getObjectFromFactoryBean(factory, beanName, !synthetic);
 		}
 		return object;

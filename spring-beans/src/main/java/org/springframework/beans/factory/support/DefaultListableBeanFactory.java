@@ -161,6 +161,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	/** Map from dependency type to corresponding autowired value */
 	private final Map<Class<?>, Object> resolvableDependencies = new ConcurrentHashMap<Class<?>, Object>(16);
 
+	// 存储注册的 BeanDefinition
 	/** Map of bean definition objects, keyed by bean name */
 	private final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<String, BeanDefinition>(256);
 
@@ -724,6 +725,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		return (this.configurationFrozen || super.isBeanEligibleForMetadataCaching(beanName));
 	}
 
+	// 对配置 lazy-init 属性单例 Bean 的预实例化
 	@Override
 	public void preInstantiateSingletons() throws BeansException {
 		if (this.logger.isDebugEnabled()) {
@@ -736,12 +738,19 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 		// Trigger initialization of all non-lazy singleton beans...
 		for (String beanName : beanNames) {
+			// 获取指定名称的 Bean 定义
 			RootBeanDefinition bd = getMergedLocalBeanDefinition(beanName);
+			// Bean 不是抽象的, 是单例模式的, 其 lazy-init 属性配置为 false
 			if (!bd.isAbstract() && bd.isSingleton() && !bd.isLazyInit()) {
+				// 如果指定名称的 bean 是创建容器的 bean
 				if (isFactoryBean(beanName)) {
+					// FACTORY_BEAN_PREFIX 就是 "&", 当 bean 名称前面加 "&" 符号 时, 获取的是产生容器对象本身, 而不是容器产生的 Bean
+					// 调用 getBean 方法, 触发容器对 bean 实例化和依赖注入的过程
 					final FactoryBean<?> factory = (FactoryBean<?>) getBean(FACTORY_BEAN_PREFIX + beanName);
+					// 标识是否需要预实例化
 					boolean isEagerInit;
 					if (System.getSecurityManager() != null && factory instanceof SmartFactoryBean) {
+						// 匿名内部类
 						isEagerInit = AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
 							@Override
 							public Boolean run() {
@@ -754,10 +763,12 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 								((SmartFactoryBean<?>) factory).isEagerInit());
 					}
 					if (isEagerInit) {
+						// 调用 getBean 方法, 触发容器对 bean 实例化和依赖注入的过程
 						getBean(beanName);
 					}
 				}
 				else {
+					// 调用 getBean 方法, 触发容器对 bean 实例化和依赖注入的过程
 					getBean(beanName);
 				}
 			}
@@ -788,14 +799,14 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	//---------------------------------------------------------------------
 	// Implementation of BeanDefinitionRegistry interface
 	//---------------------------------------------------------------------
-
+	// 向 Ioc 容器注册解析的 BeanDefinition
 	@Override
 	public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition)
 			throws BeanDefinitionStoreException {
 
 		Assert.hasText(beanName, "Bean name must not be empty");
 		Assert.notNull(beanDefinition, "BeanDefinition must not be null");
-
+		// 校验解析的 BeanDefinition
 		if (beanDefinition instanceof AbstractBeanDefinition) {
 			try {
 				((AbstractBeanDefinition) beanDefinition).validate();
@@ -839,7 +850,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			}
 			this.beanDefinitionMap.put(beanName, beanDefinition);
 		}
-		else {
+		else { // 注册过程中需要线程同步, 以保证数据的一致性
 			if (hasBeanCreationStarted()) {
 				// Cannot modify startup-time collection elements anymore (for stable iteration)
 				synchronized (this.beanDefinitionMap) {
@@ -865,6 +876,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		}
 
 		if (oldBeanDefinition != null || containsSingleton(beanName)) {
+			// 重置所有已经注册过的 BeanDefinition 的缓存
 			resetBeanDefinition(beanName);
 		}
 	}

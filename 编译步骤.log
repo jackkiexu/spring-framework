@@ -1,0 +1,6 @@
+./gradlew -DsocksProxyHost=127.0.0.1 -DsocksProxyPort=1080 :spring-oxm:compileTestJava
+./gradlew -DsocksProxyHost=127.0.0.1 -DsocksProxyPort=1080 :spring-core:compileTestJava
+
+见
+https://youtrack.jetbrains.com/issue/IDEA-160605#u=1472744916604
+https://youtrack.jetbrains.com/issue/IDEA-160605#u=1472744916604

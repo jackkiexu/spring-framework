@@ -176,6 +176,12 @@ import org.springframework.util.StringUtils;
  * @see org.springframework.util.AntPathMatcher
  * @see org.springframework.core.io.ResourceLoader#getResource(String)
  * @see ClassLoader#getResources(String)
+ *
+ * 根据配置路径自动加载符合路径规则的 xml 文件, 类文件等
+ * 查找范围: 当前工程, 当前工程依赖的 jar 包
+ *
+ * 参考资料:
+ * http://www.cnblogs.com/question-sky/p/6959493.html
  */
 public class PathMatchingResourcePatternResolver implements ResourcePatternResolver {
 

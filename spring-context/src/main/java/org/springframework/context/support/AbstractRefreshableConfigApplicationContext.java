@@ -35,6 +35,8 @@ import org.springframework.util.StringUtils;
  * @see #setConfigLocation
  * @see #setConfigLocations
  * @see #getDefaultConfigLocations
+ *
+ * 从XML 读取 Bean 定义的容器, 这个容器实现了 loadBeanDefinitions 方法, 从 XML 资源中获取 Bean 定义
  */
 public abstract class AbstractRefreshableConfigApplicationContext extends AbstractRefreshableApplicationContext
 		implements BeanNameAware, InitializingBean {

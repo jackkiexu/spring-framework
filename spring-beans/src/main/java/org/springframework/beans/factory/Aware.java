@@ -33,6 +33,8 @@ package org.springframework.beans.factory;
  *
  * @author Chris Beams
  * @since 3.1
+ *
+ * Aware 是一个标记接口, 实现这个接口的对象提供通知 Spring 容器功能, 具体的通知策略由子类来定义
  */
 public interface Aware {
 

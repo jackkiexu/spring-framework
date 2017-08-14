@@ -32,6 +32,9 @@ package org.springframework.beans.factory;
  * @see BeanClassLoaderAware
  * @see BeanFactoryAware
  * @see InitializingBean
+ *
+ * Aware 的子接口, 当设置 BeanName 的时候, 创建通知
+ *
  */
 public interface BeanNameAware extends Aware {
 

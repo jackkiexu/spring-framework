@@ -30,6 +30,9 @@ package org.springframework.beans.factory;
  * @since 12.08.2003
  * @see org.springframework.beans.factory.support.RootBeanDefinition#getDestroyMethodName
  * @see org.springframework.context.ConfigurableApplicationContext#close
+ *
+ * Disposablebean 提供了在销毁 Ioc 容器的时候释放资源.
+ * ConfigurableApplicatonContext: 提供对 Ioc 容器的配置的支持. 包括设置父级容器, 设置上下文环境, 刷新容器, 注册关闭容器钩子
  */
 public interface DisposableBean {
 

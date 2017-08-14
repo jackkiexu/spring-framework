@@ -45,6 +45,9 @@ package org.springframework.context;
  * @see ConfigurableApplicationContext
  * @see org.springframework.jms.listener.AbstractMessageListenerContainer
  * @see org.springframework.scheduling.quartz.SchedulerFactoryBean
+ *
+ * 对 BeanFactory提供生命周期支持. 另外 其他任何对象那个都可以实现 Lifecycle 接口支持 开始/结束 控制
+ * 注意 Lifecycle 接口只支持顶层对象, 其他的 Lifecycle 将被忽略
  */
 public interface Lifecycle {
 

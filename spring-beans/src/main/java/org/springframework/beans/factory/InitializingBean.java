@@ -31,6 +31,8 @@ package org.springframework.beans.factory;
  * @see BeanFactory
  * @see org.springframework.beans.factory.support.RootBeanDefinition#getInitMethodName
  * @see org.springframework.context.ApplicationContextAware
+ *
+ * 这个接口作用是当 Bean 对象的属性都被设置完成, 可以立即做一些自定义的动作, 另一个替代方案是设置 init-method
  */
 public interface InitializingBean {
 

@@ -29,7 +29,7 @@ package org.springframework.beans.factory;
  * @since 07.07.2003
  * @see org.springframework.beans.factory.config.ConfigurableBeanFactory#setParentBeanFactory
  *
- * HierarchicalBeanFactory 接口表示这些Bean是有继承关系, 每个Bean都有其父Bean
+ * HierarchicalBeanFactory  继承 BeanFactory 并扩展使其支持层级结构, getParentBeanFactory 方法获取父级 BeanFactory, containLocalbean(String name) 查看当前 BeanFactory 是否包含给定名字的 bean(不会递归进行查找)
  *
  * 参考资料
  * http://www.cnblogs.com/ITtangtang/p/3978349.html

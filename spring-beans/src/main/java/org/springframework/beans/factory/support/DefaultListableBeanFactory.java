@@ -112,6 +112,11 @@ import org.springframework.util.StringUtils;
  * @see StaticListableBeanFactory
  * @see PropertiesBeanDefinitionReader
  * @see org.springframework.beans.factory.xml.XmlBeanDefinitionReader
+ *
+ * DefaultListableBeanFactory 包含了 Ioc 容器的重要内容, 很多容器都会用到它. 如
+ * AbstractApplicationContext.refresh() 方法就会销毁内部的容器, 并重新创建一个 DefaultListableBeanFactory 作为起内部表示
+ * DefaultListbaleBeanFactory 则直接继承它成为从 XML 读取资源的 Ioc 容器, 在 DefaultListablebeanFactory 有一个 ConcurrentHashMap 保存了
+ * Bean 的定义
  */
 @SuppressWarnings("serial")
 public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFactory

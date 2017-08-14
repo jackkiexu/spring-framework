@@ -40,6 +40,9 @@ import org.springframework.util.StringUtils;
  * @since 10.03.2004
  * @see FileSystemResourceLoader
  * @see org.springframework.context.support.ClassPathXmlApplicationContext
+ *
+ * ResourceLoader 的默认实现, 可以单独使用, 也可以通过扩展使其支持特殊的资源.
+ * 如: FileSystemResourceLoader, ClasPathXmlApplicationContext
  */
 public class DefaultResourceLoader implements ResourceLoader {
 

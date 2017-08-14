@@ -122,6 +122,10 @@ import org.springframework.util.StringValueResolver;
  * @see org.springframework.context.event.ApplicationEventMulticaster
  * @see org.springframework.context.ApplicationListener
  * @see org.springframework.context.MessageSource
+ *
+ * AbstractApplicationContext 是 IOC 容器的抽象实现, 这里实现了大部分的功能, 消息, 事件, 刷新容器, 生命周期等
+ * AbstractApplicationContext采用模板方法模式, 把一部分实现推迟到子类, AbstractRefreshableApplicationContext: 提供多线程同时刷新容器支持
+ * 每次刷新都会产生一个内部 BeanFactory(DefaultListableBeanFactory). 另外, 子类要实现 loadBeanDefinition 方法来正确加载 bean 定义
  */
 public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		implements ConfigurableApplicationContext, DisposableBean {

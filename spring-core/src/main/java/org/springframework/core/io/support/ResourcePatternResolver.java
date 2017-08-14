@@ -50,6 +50,8 @@ import org.springframework.core.io.ResourceLoader;
  * @see org.springframework.core.io.ResourceLoader
  * @see org.springframework.context.ApplicationContext
  * @see org.springframework.context.ResourceLoaderAware
+ *
+ * ResourcePatternResolver 是 ResourceLoader 的扩展, 其支持模式匹配的资源. 如; classpath*: 表示匹配路径下的所有的资源
  */
 public interface ResourcePatternResolver extends ResourceLoader {
 

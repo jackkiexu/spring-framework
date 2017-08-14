@@ -37,6 +37,9 @@ import org.springframework.util.ResourceUtils;
  * @see org.springframework.core.io.support.ResourcePatternResolver
  * @see org.springframework.context.ApplicationContext
  * @see org.springframework.context.ResourceLoaderAware
+ *
+ * 在 Spring Ioc 中, 资源被 Resource 引用, 获得 Resource 对象, 说明获得了资源的访问. Resource 提供资源的抽象, 具体资源可是从
+ * URL, classpath, file 等地方获取
  */
 public interface ResourceLoader {
 

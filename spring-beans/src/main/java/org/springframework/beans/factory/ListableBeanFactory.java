@@ -54,7 +54,8 @@ import org.springframework.core.ResolvableType;
  * @see HierarchicalBeanFactory
  * @see BeanFactoryUtils
  *
- * ListableBeanFactory 接口接口表示这些接口是可列表的
+ * ListableBeanFactory 同样扩展 BeanFactory, 使其支持迭代 Ioc容器持有的 Bean 对象,注意如果 ListableBeanFactory 同时也是 HierachicalBeanFactory, 那么
+ * 大多数情况下, 只迭代当前 Ioc 容器持有的 bean 对象, 不会再体系结构中对父 BeanFactory 进行迭代
  *
  * 参考资料
  * http://www.cnblogs.com/ITtangtang/p/3978349.html

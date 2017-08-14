@@ -37,6 +37,11 @@ package org.springframework.core.env;
  * @see Environment
  * @see ConfigurableEnvironment
  * @see org.springframework.context.ConfigurableApplicationContext#getEnvironment()
+ *
+ * 实现此接口的容器将支持上下文环境. 在 Spring Ioc 容器中, 都是支持上线文环境的. ApplicationContext: 从图来看,
+ * ApplicationContext 继承了上面描述的所有的接口, 因此 ApplicationContext 是一个接口集合, 提供所继承接口的功能.
+ * 另外 ApplicationContext 在启动后是只读的. 但是如果 ApplicationContext 实现支持 reload, 也可以刷新这个 ApplicationContext
+ *
  */
 public interface EnvironmentCapable {
 

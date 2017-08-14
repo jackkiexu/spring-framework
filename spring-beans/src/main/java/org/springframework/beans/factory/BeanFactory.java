@@ -111,6 +111,8 @@ import org.springframework.core.ResolvableType;
  * @see org.springframework.beans.factory.config.BeanPostProcessor#postProcessAfterInitialization
  * @see DisposableBean#destroy
  * @see org.springframework.beans.factory.support.RootBeanDefinition#getDestroyMethodName
+ *
+ * Spring 的 Bean 容器最顶层的接口, 定义了 Ioc 容器的基本规范, 实现这个接口的 Ioc 容器都会持有一些 beanDefinition 和一个唯一的字符串形式名字
  */
 public interface BeanFactory {
 

@@ -34,6 +34,8 @@ import java.util.Locale;
  * @author Juergen Hoeller
  * @see org.springframework.context.support.ResourceBundleMessageSource
  * @see org.springframework.context.support.ReloadableResourceBundleMessageSource
+ *
+ *  处理 Spring 中的消息, 支持 i18n 和参数化消息. 另外其子类 ReloadableResourceBundleMessageSource 支持不重启 JVM 刷新消息
  */
 public interface MessageSource {
 

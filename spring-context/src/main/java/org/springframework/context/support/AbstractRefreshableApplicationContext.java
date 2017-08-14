@@ -118,15 +118,20 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	 */
 	@Override
 	protected final void refreshBeanFactory() throws BeansException {
+		// 存在已有的 bean 工厂则销毁
 		if (hasBeanFactory()) {			// 若已经有了容器, 则销毁容器中的 Bean, 关闭容器
 			destroyBeans();
 			closeBeanFactory();
 		}
 		try {	// 创建 IOC 容器
+			// 创建默认的用 list 接口存放 bean 的工厂
 			DefaultListableBeanFactory beanFactory = createBeanFactory();
+			// 这里同 contextId
 			beanFactory.setSerializationId(getId());
+			// 配置 allowbeanDefinitionOverriding 和 allowCircularReferences 属性, 这里均不设置
 			// 对 IOC 容器进行定制化, 如设置启动参数, 开启注解的自动装配等
 			customizeBeanFactory(beanFactory);
+			// 调用子类的加载 bean 定义方法, 这里会调用 XmlWebApplicationContext 子类的复写方法
 			// 调用载入 Bean 定义的方法, 主要这里使用了一个 委派的模式, 在当前类中定义了抽象额 loadbeanDefinitions 方法, 具体的实现都在子类中
 			loadBeanDefinitions(beanFactory);
 			synchronized (this.beanFactoryMonitor) {

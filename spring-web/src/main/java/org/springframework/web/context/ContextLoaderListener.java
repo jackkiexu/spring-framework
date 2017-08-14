@@ -20,12 +20,16 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 /**
+ * 父级启动类, 可用 ContextLoader 启动和 ContextCleanListener 来关闭 Spring 的根 web 应用上下文
  * Bootstrap listener to start up and shut down Spring's root {@link WebApplicationContext}.
  * Simply delegates to {@link ContextLoader} as well as to {@link ContextCleanupListener}.
  *
+ * 这里给出提示, 如果需要用到自定义 log4j 的配置的话, 则 ContextListener 需要在 log4jConfigListener 之后
  * <p>This listener should be registered after {@link org.springframework.web.util.Log4jConfigListener}
  * in {@code web.xml}, if the latter is used.
  *
+ * 从 Spring 3.1 之后, 注入根 web 应用上下文可通过 WebApplicationInitializer, 容器在启动会加载此接口, 但是
+ * 有个要求是 容器的 Servlet 版本必须是 3.0+, 对  Tomcat来说必须是 7.0.15 版本以上
  * <p>As of Spring 3.1, {@code ContextLoaderListener} supports injecting the root web
  * application context via the {@link #ContextLoaderListener(WebApplicationContext)}
  * constructor, allowing for programmatic configuration in Servlet 3.0+ environments.
@@ -37,6 +41,22 @@ import javax.servlet.ServletContextListener;
  * @see #setContextInitializers
  * @see org.springframework.web.WebApplicationInitializer
  * @see org.springframework.web.util.Log4jConfigListener
+ */
+// 参考资料 : http://www.cnblogs.com/question-sky/p/6683345.html
+
+/**
+ * 这里有个关键的接口是 ServletContextListener, 我们应该知道实现此接口的类会在应用启动的时候, 自动调用其接口方法
+ * contextInitialized(ServletContextEvent event), 在关闭应用时则会调用其另外一个接口方法 contextDestroyed(ServletContextEvent event) 用来关闭 web 上下文信息
+ *
+ * 1. web.xml 的listner 节点具有先写先加载的特点, 类似于 Java 代码中的顺序执行
+ * 2. Log4jConfigListener 类加载必须在 ContextLoaderListener 类之前
+ * 3. ContextLoaderListener 启动 Spring 并生成 Spring 根  web 服务, 上下文则通过其父类 ContextLoader 来实现的, 其销毁也只会销毁具有
+ *  	org.springframework 前缀的属性
+ * 4. ServletContext 代表应用服务上线文, 其可以读取 <context-param> 级别的参数, 而 ServletConfig/FilterConfig 则会读取其相应
+ * 		servlet节点, filter节点 下的 <init-param> 参数
+ * 5. web.xml 中listner, servlet,filter 执行顺序为 listener > filter > servlet, 同类型的执行顺序为 listener 满足先写先加载, servlet, filter 则由
+ * 		mapping 节点的先后顺序加载
+ *
  */
 public class ContextLoaderListener extends ContextLoader implements ServletContextListener {
 
@@ -104,6 +124,7 @@ public class ContextLoaderListener extends ContextLoader implements ServletConte
 	 */
 	@Override
 	public void contextInitialized(ServletContextEvent event) {
+		// 调用的是父类 ContextLoader的方法,  看出来这是启动的关键
 		initWebApplicationContext(event.getServletContext());
 	}
 
@@ -113,7 +134,9 @@ public class ContextLoaderListener extends ContextLoader implements ServletConte
 	 */
 	@Override
 	public void contextDestroyed(ServletContextEvent event) {
+		// 与初始化相对
 		closeWebApplicationContext(event.getServletContext());
+		// 使用 ContextCleanupListener监听类来销毁 ServletContext的springwork属性信息
 		ContextCleanupListener.cleanupAttributes(event.getServletContext());
 	}
 

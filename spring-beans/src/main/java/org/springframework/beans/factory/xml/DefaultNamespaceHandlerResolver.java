@@ -75,6 +75,7 @@ public class DefaultNamespaceHandlerResolver implements NamespaceHandlerResolver
 	 * @see #DEFAULT_HANDLER_MAPPINGS_LOCATION
 	 */
 	public DefaultNamespaceHandlerResolver() {
+		// 第二个参数是 META-INF/spring.handlers
 		this(null, DEFAULT_HANDLER_MAPPINGS_LOCATION);
 	}
 
@@ -96,6 +97,7 @@ public class DefaultNamespaceHandlerResolver implements NamespaceHandlerResolver
 	 * may be {@code null}, in which case the thread context ClassLoader will be used)
 	 * @param handlerMappingsLocation the mapping file location
 	 */
+	// 此处所用的是 handlerMappingLocation, 指的是 handler 接口类加载文件资源
 	public DefaultNamespaceHandlerResolver(ClassLoader classLoader, String handlerMappingsLocation) {
 		Assert.notNull(handlerMappingsLocation, "Handler mappings location must not be null");
 		this.classLoader = (classLoader != null ? classLoader : ClassUtils.getDefaultClassLoader());
@@ -111,6 +113,7 @@ public class DefaultNamespaceHandlerResolver implements NamespaceHandlerResolver
 	 */
 	@Override
 	public NamespaceHandler resolve(String namespaceUri) {
+		// 调用的是 PropertiesLoaderUtils.loadAllProperties 读取所有 classpath下的 'META_INF/spring.handlers' 文件, 保存到 Map 集合
 		Map<String, Object> handlerMappings = getHandlerMappings();
 		Object handlerOrClassName = handlerMappings.get(namespaceUri);
 		if (handlerOrClassName == null) {
@@ -123,12 +126,16 @@ public class DefaultNamespaceHandlerResolver implements NamespaceHandlerResolver
 			String className = (String) handlerOrClassName;
 			try {
 				Class<?> handlerClass = ClassUtils.forName(className, this.classLoader);
+				// 声明的 handler 必须是 NamespaceHandler 的实现类
 				if (!NamespaceHandler.class.isAssignableFrom(handlerClass)) {
 					throw new FatalBeanException("Class [" + className + "] for namespace [" + namespaceUri +
 							"] does not implement the [" + NamespaceHandler.class.getName() + "] interface");
 				}
+				// 实例化 handler 类
 				NamespaceHandler namespaceHandler = (NamespaceHandler) BeanUtils.instantiateClass(handlerClass);
+				// 初始化
 				namespaceHandler.init();
+				// 缓存下
 				handlerMappings.put(namespaceUri, namespaceHandler);
 				return namespaceHandler;
 			}

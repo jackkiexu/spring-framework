@@ -440,6 +440,7 @@ public class BeanDefinitionParserDelegate {
 		// 获取 <Bean> 元素中的 id 属性值
 		String id = ele.getAttribute(ID_ATTRIBUTE);
 		// 获取 <Bean> 元素中的 name 的属性值
+		// 如果有 name 属性, 则获取 name, 并且 可有多个 name, 以 , ; 为分隔符号
 		String nameAttr = ele.getAttribute(NAME_ATTRIBUTE);
 
 		// 将 <Bean> 元素中的所有的 name 属性值存放到别名中
@@ -450,6 +451,7 @@ public class BeanDefinitionParserDelegate {
 		}
 
 		String beanName = id;
+		// 当 id 属性不存在且 name 属性有值时, 默认使用第一个 name 值
 		// 如果 <Bean> 元素中没有配置 id 属性时, 将别名中的第一个值赋值给 beanName
 		if (!StringUtils.hasText(beanName) && !aliases.isEmpty()) {
 			beanName = aliases.remove(0);
@@ -459,6 +461,7 @@ public class BeanDefinitionParserDelegate {
 			}
 		}
 
+		// 确保 beanName 的唯一性, 即在应用使用前不允许有两个 beanName 一致的
 		// 检查 <Bean> 元素所配置的 id 或者 name 的唯一性, containingBean 标识 <Bean>
 		// 元素中是否含子 <Bean> 元素
 		if (containingBean == null) {
@@ -1476,13 +1479,17 @@ public class BeanDefinitionParserDelegate {
 		return parseCustomElement(ele, null);
 	}
 
+	// 此处的 containingBd 为 null
 	public BeanDefinition parseCustomElement(Element ele, BeanDefinition containingBd) {
+		// 获取命名空间
 		String namespaceUri = getNamespaceURI(ele);
+		// 从 map 集合中获取 Namespacehandler 接口
 		NamespaceHandler handler = this.readerContext.getNamespaceHandlerResolver().resolve(namespaceUri);
 		if (handler == null) {
 			error("Unable to locate Spring NamespaceHandler for XML schema namespace [" + namespaceUri + "]", ele);
 			return null;
 		}
+		// 调用统一的解析接口
 		return handler.parse(ele, new ParserContext(this.readerContext, this, containingBd));
 	}
 

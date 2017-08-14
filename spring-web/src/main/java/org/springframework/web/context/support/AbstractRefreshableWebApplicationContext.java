@@ -154,14 +154,17 @@ public abstract class AbstractRefreshableWebApplicationContext extends AbstractR
 
 	/**
 	 * Register request/session scopes, a {@link ServletContextAwareProcessor}, etc.
+	 * 注册 request/session 环境
 	 */
 	@Override
 	protected void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
+		// 注册 ServletContextAwareProcessor
 		beanFactory.addBeanPostProcessor(new ServletContextAwareProcessor(this.servletContext, this.servletConfig));
 		beanFactory.ignoreDependencyInterface(ServletContextAware.class);
 		beanFactory.ignoreDependencyInterface(ServletConfigAware.class);
-
+		// 注册 web 环境, 包括 request, session, globalSession, application
 		WebApplicationContextUtils.registerWebApplicationScopes(beanFactory, this.servletContext);
+		// 注册 servletContext, contextParameters. contextAttributes, servletConfig 单例 bean
 		WebApplicationContextUtils.registerEnvironmentBeans(beanFactory, this.servletContext, this.servletConfig);
 	}
 
@@ -188,6 +191,7 @@ public abstract class AbstractRefreshableWebApplicationContext extends AbstractR
 	 */
 	@Override
 	protected void onRefresh() {
+		// 设置 themeSource, 设置情况与前文一致, 查找的 bean 为themeSource
 		this.themeSource = UiApplicationContextUtils.initThemeSource(this);
 	}
 

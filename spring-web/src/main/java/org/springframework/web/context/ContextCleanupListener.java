@@ -62,8 +62,10 @@ public class ContextCleanupListener implements ServletContextListener {
 		Enumeration<String> attrNames = sc.getAttributeNames();
 		while (attrNames.hasMoreElements()) {
 			String attrName = attrNames.nextElement();
+			// 刷选出专属 spring 的属性
 			if (attrName.startsWith("org.springframework.")) {
 				Object attrValue = sc.getAttribute(attrName);
+				// 基本的 WebApplication 都实现了 DisposableBean 接口, 表明所有的 Bean 都可以释放
 				if (attrValue instanceof DisposableBean) {
 					try {
 						((DisposableBean) attrValue).destroy();

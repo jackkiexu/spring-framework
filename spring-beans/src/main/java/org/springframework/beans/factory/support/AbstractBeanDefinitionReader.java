@@ -204,21 +204,25 @@ public abstract class AbstractBeanDefinitionReader implements EnvironmentCapable
 	 * @see #loadBeanDefinitions(org.springframework.core.io.Resource)
 	 * @see #loadBeanDefinitions(org.springframework.core.io.Resource[])
 	 */
+	// 此处的 actualResources 参数传过来为 null
 	public int loadBeanDefinitions(String location, Set<Resource> actualResources) throws BeanDefinitionStoreException {
 		// 获取在 Ioc 容器初始化过程中设置的 资源加载器
+		// 此处的 ResourceLoader 为 XmlWebApplicationContext
 		ResourceLoader resourceLoader = getResourceLoader();
 		if (resourceLoader == null) {
 			throw new BeanDefinitionStoreException(
 					"Cannot import bean definitions from location [" + location + "]: no ResourceLoader available");
 		}
-
+		// XmlWebApplicationContext 符合此条件
 		if (resourceLoader instanceof ResourcePatternResolver) {
 			// Resource pattern matching available.
 			try {
 				// 将指定位置的 Bean 定义资源文件解析为 Spring Ioc 容器封装的资源
 				// 加载多个指定位置的 Bean 定义资源文件
+				// 调用的是 AbstractApplicationContext 的getResource方法, 追溯一下调用的其实是 PathMatchingResourcePatternResolver.getResources 方法, 其会搜寻指定目录符合条件的文件集合
 				Resource[] resources = ((ResourcePatternResolver) resourceLoader).getResources(location);
 				// 委派调用其子类 XmlBeanDefinitionReader 的方法, 实现加载功能
+				// 加载某个 spring bean 文件
 				int loadCount = loadBeanDefinitions(resources);
 				if (actualResources != null) {
 					for (Resource resource : resources) {

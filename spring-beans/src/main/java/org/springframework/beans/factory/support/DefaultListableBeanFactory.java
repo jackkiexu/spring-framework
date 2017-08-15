@@ -730,7 +730,13 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		return (this.configurationFrozen || super.isBeanEligibleForMetadataCaching(beanName));
 	}
 
+	/**
+	 * 1. 主要是实例化 RootDefinition 中的 beanClass 类, 并完成相应的属性设置, 方法调用等等
+	 * 2. 调用所有实现 InitializingBean 接口的 afterPropertiesSet 方法
+	 * 3. 调用 BeanPostProcessors 接口, 其中涉及 @Resource, @Autowired 等注解的解析并进行相应的实例注入
+	 */
 	// 对配置 lazy-init 属性单例 Bean 的预实例化
+	// 确保实例化未实例化过的 beanName
 	@Override
 	public void preInstantiateSingletons() throws BeansException {
 		if (this.logger.isDebugEnabled()) {
@@ -739,15 +745,19 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 		// Iterate over a copy to allow for init methods which in turn register new bean definitions.
 		// While this may not be part of the regular factory bootstrap, it does otherwise work fine.
+		// 获取解析过的所有 beanName
 		List<String> beanNames = new ArrayList<String>(this.beanDefinitionNames);
 
 		// Trigger initialization of all non-lazy singleton beans...
 		for (String beanName : beanNames) {
 			// 获取指定名称的 Bean 定义
+			// 获取对应的 RootBeanDefinition, 其内部就含有 beanDefinition
 			RootBeanDefinition bd = getMergedLocalBeanDefinition(beanName);
 			// Bean 不是抽象的, 是单例模式的, 其 lazy-init 属性配置为 false
+			// 非抽象, 单例模式, 非 lazy-init 满足以上条件的进入到实例化
 			if (!bd.isAbstract() && bd.isSingleton() && !bd.isLazyInit()) {
 				// 如果指定名称的 bean 是创建容器的 bean
+				// 对 FactoryBean 的类型实例化
 				if (isFactoryBean(beanName)) {
 					// FACTORY_BEAN_PREFIX 就是 "&", 当 bean 名称前面加 "&" 符号 时, 获取的是产生容器对象本身, 而不是容器产生的 Bean
 					// 调用 getBean 方法, 触发容器对 bean 实例化和依赖注入的过程
@@ -774,6 +784,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 				}
 				else {
 					// 调用 getBean 方法, 触发容器对 bean 实例化和依赖注入的过程
+					// getBean 方法主要进行了对相应的 beanName 的实例化
 					getBean(beanName);
 				}
 			}
@@ -781,6 +792,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 		// Trigger post-initialization callback for all applicable beans...
 		for (String beanName : beanNames) {
+			// 获取上述的对应的实例化对象, 对 SmartInitializingSingleton 的实现类进行 afterSingletonInstantiated 方法调用
 			Object singletonInstance = getSingleton(beanName);
 			if (singletonInstance instanceof SmartInitializingSingleton) {
 				final SmartInitializingSingleton smartSingleton = (SmartInitializingSingleton) singletonInstance;
@@ -793,7 +805,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 						}
 					}, getAccessControlContext());
 				}
-				else {
+				else {	// 会调用 InitializingBean 的afterPropertiesSet 方法
 					smartSingleton.afterSingletonsInstantiated();
 				}
 			}

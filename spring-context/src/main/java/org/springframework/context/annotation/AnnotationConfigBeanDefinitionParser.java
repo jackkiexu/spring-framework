@@ -35,6 +35,16 @@ import org.springframework.beans.factory.xml.ParserContext;
  * @author Christian Dupuis
  * @since 2.5
  * @see AnnotationConfigUtils
+ *
+ * 参考:
+ * http://www.cnblogs.com/question-sky/p/7020022.html
+ * context:annotation-config 的解析
+ *
+ * ConfigurationClassPostProcessor解析@Configuration注解类
+ * AutowiredAnnotationBeanPostProcessor解析@Autowired/@Value注解
+ * RequiredAnnotationBeanPostProcessor解析@Required注解
+ * CommonAnnotationBeanPostProcessor解析@Resource注解
+ * PersistenceAnnotationBeanPostProcessor解析JPA注解，持久层
  */
 public class AnnotationConfigBeanDefinitionParser implements BeanDefinitionParser {
 
@@ -42,7 +52,7 @@ public class AnnotationConfigBeanDefinitionParser implements BeanDefinitionParse
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
 		Object source = parserContext.extractSource(element);
 
-		// Obtain bean definitions for all relevant BeanPostProcessors.
+		// Obtain bean definitions for all relevant BeanPostProcessors. 主要的作用是配置 BeanPostProcessors
 		Set<BeanDefinitionHolder> processorDefinitions =
 				AnnotationConfigUtils.registerAnnotationConfigProcessors(parserContext.getRegistry(), source);
 

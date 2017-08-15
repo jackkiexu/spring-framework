@@ -31,6 +31,17 @@ import org.springframework.util.StringUtils;
  * @author Dave Syer
  * @author Chris Beams
  * @since 2.5
+ *
+ * 参考地址
+ * http://www.cnblogs.com/question-sky/p/6994024.html
+ * 解析配置文件, 如
+ * <context:property-placeholder location="classpath:context.properties">
+ *
+ * PropertyPlaceholderBeanDefinitionParser 的继承关系
+ * AbstractBeanDefinitionParser
+ * 		AbstractSingleBeanDefinitionParser
+ * 			AbstractPropertyLoadingBeanDefinitionParser
+ * 				PropertyPlaceholderBeanDefinitionParser
  */
 class PropertyPlaceholderBeanDefinitionParser extends AbstractPropertyLoadingBeanDefinitionParser {
 
@@ -38,17 +49,19 @@ class PropertyPlaceholderBeanDefinitionParser extends AbstractPropertyLoadingBea
 
 	private static final String SYSTEM_PROPERTIES_MODE_DEFAULT = "ENVIRONMENT";
 
-
+	// 指定解析文件的 beanClass, beanClass 均是 beanFactoryPostProcessor 接口的实现类
 	@Override
 	protected Class<?> getBeanClass(Element element) {
 		// As of Spring 3.1, the default value of system-properties-mode has changed from
 		// 'FALLBACK' to 'ENVIRONMENT'. This latter value indicates that resolution of
 		// placeholders against system properties is a function of the Environment and
 		// its current set of PropertySources.
+		// 获取 system-properties-mode 属性是否为 ENVIRONMENT, 是采用 PropertySourcesPlaceHolderConfigurer.class
 		if (SYSTEM_PROPERTIES_MODE_DEFAULT.equals(element.getAttribute(SYSTEM_PROPERTIES_MODE_ATTRIBUTE))) {
 			return PropertySourcesPlaceholderConfigurer.class;
 		}
 
+		// 默认为 PropertyPlaceholderConfigurer.class 作为 beanClass
 		// The user has explicitly specified a value for system-properties-mode: revert to
 		// PropertyPlaceholderConfigurer to ensure backward compatibility with 3.0 and earlier.
 		return PropertyPlaceholderConfigurer.class;
@@ -57,10 +70,10 @@ class PropertyPlaceholderBeanDefinitionParser extends AbstractPropertyLoadingBea
 	@Override
 	protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
 		super.doParse(element, parserContext, builder);
-
+		// 获取 ignore-unresolvable 属性, 默认值 false, true 代表解析不了属性 不抛异常
 		builder.addPropertyValue("ignoreUnresolvablePlaceholders",
 				Boolean.valueOf(element.getAttribute("ignore-unresolvable")));
-
+		// 获取 system-properties-mode 属性
 		String systemPropertiesModeName = element.getAttribute(SYSTEM_PROPERTIES_MODE_ATTRIBUTE);
 		if (StringUtils.hasLength(systemPropertiesModeName) &&
 				!systemPropertiesModeName.equals(SYSTEM_PROPERTIES_MODE_DEFAULT)) {

@@ -56,15 +56,20 @@ public abstract class AbstractSingleBeanDefinitionParser extends AbstractBeanDef
 	 * {@link #getBeanClass(org.w3c.dom.Element)} is {@code null}
 	 * @see #doParse
 	 */
+	// 此方法主要是初始化一些准备工作, 并仍采用模板方法 doParse() 方法供子类去实现解析操作
 	@Override
 	protected final AbstractBeanDefinition parseInternal(Element element, ParserContext parserContext) {
+		// 类似于 StringBuilder 帮助创建 beanDefinition
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition();
+		// 为 null
 		String parentName = getParentName(element);
 		if (parentName != null) {
 			builder.getRawBeanDefinition().setParentName(parentName);
 		}
+		// 子类可复写此方法, 譬如 PropertyOverrideBeanDefinitionParser/PropertyPlaceholderBeanDefinitionParser
 		Class<?> beanClass = getBeanClass(element);
 		if (beanClass != null) {
+			// 设置 beanClass
 			builder.getRawBeanDefinition().setBeanClass(beanClass);
 		}
 		else {
@@ -78,10 +83,12 @@ public abstract class AbstractSingleBeanDefinitionParser extends AbstractBeanDef
 			// Inner bean definition must receive same scope as containing bean.
 			builder.setScope(parserContext.getContainingBeanDefinition().getScope());
 		}
+		// 是否需要随 spring 上下文设置 lazy-init 属性
 		if (parserContext.isDefaultLazyInit()) {
 			// Default-lazy-init applies to custom bean definitions as well.
 			builder.setLazyInit(true);
 		}
+		// 供子类调用实现解析, 并传入 BeanDefinitionBuilder 对象
 		doParse(element, parserContext, builder);
 		return builder.getBeanDefinition();
 	}

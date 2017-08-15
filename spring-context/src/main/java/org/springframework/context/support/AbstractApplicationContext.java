@@ -579,10 +579,12 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 				// 初始化所有剩余的 Bean
 				// Instantiate all remaining (non-lazy-init) singletons.
+				// 调用的是 AbstractRefreshableWebApplicationContext#finishBeanFactoryInitialization
 				finishBeanFactoryInitialization(beanFactory);
 
 				// 初始化容器的生命周期事件处理器, 并发布容器的生命周期事件
 				// Last step: publish corresponding event.
+				// 调用的是 AbstractApplicationContext#finishRefresh
 				finishRefresh();
 			}
 
@@ -946,15 +948,19 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * Finish the refresh of this context, invoking the LifecycleProcessor's
 	 * onRefresh() method and publishing the
 	 * {@link org.springframework.context.event.ContextRefreshedEvent}.
+	 * 功能: 完成 context的刷新, 并执行 LifecycleProcessor的onRefresh() 犯法和执行相关的 ContextRefreshedEvent事件,
+	 * 但可惜引导 DispatcherServlet 进行初始化的 ContextRefreshListener 并不是由 spring 来触发的, 而是由 tomcat 加载 web.xml 中的 spring mvc 配置文件启动的
 	 */
 	protected void finishRefresh() {
 		// Initialize lifecycle processor for this context.
+		// 会找寻 lifecycleProcessor 对应的 Bean, 否则默认采用 DefaultLifecycleProcessor
 		initLifecycleProcessor();
 
 		// Propagate refresh to lifecycle processor first.
 		getLifecycleProcessor().onRefresh();
 
 		// Publish the final event.
+		// 其实是执行 ContextRefreshedEvent 该事件时针对 spring mvc 来的
 		publishEvent(new ContextRefreshedEvent(this));
 
 		// Participate in LiveBeansView MBean, if active.

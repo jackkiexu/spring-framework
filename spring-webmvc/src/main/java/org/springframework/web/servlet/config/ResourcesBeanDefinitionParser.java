@@ -66,6 +66,13 @@ import org.springframework.web.servlet.resource.WebJarsResourceResolver;
  * @author Jeremy Grelle
  * @author Brian Clozel
  * @since 3.0.4
+ *
+ * 参考资料
+ * http://www.cnblogs.com/question-sky/p/7081709.html
+ * 解析 mvc:resources 节点, 控制对静态资源的映射访问
+ *
+ * 作用:将 mvc:resource 节点解析为
+ *
  */
 class ResourcesBeanDefinitionParser implements BeanDefinitionParser {
 

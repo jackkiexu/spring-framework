@@ -52,6 +52,7 @@ public interface NamespaceHandler {
 	 * construction but before any custom elements are parsed.
 	 * @see NamespaceHandlerSupport#registerBeanDefinitionParser(String, BeanDefinitionParser)
 	 */
+	// 初始化方法, 抽象类中没有对其进行复习, 主要有继承的子类去覆写, 目的是初始化自定义节点的相关解析类并保存至 NamespaceHandlerSupport#parsersMap 集合中
 	void init();
 
 	/**

@@ -1082,14 +1082,16 @@ public class DispatcherServlet extends FrameworkServlet {
 			HandlerExecutionChain mappedHandler, ModelAndView mv, Exception exception) throws Exception {
 
 		boolean errorView = false;
-
+		// 对存在异常的优先处理
 		if (exception != null) {
+			// 是否为 ModelAndViewDefinitionException 异常
 			if (exception instanceof ModelAndViewDefiningException) {
 				logger.debug("ModelAndViewDefiningException encountered", exception);
 				mv = ((ModelAndViewDefiningException) exception).getModelAndView();
 			}
 			else {
 				Object handler = (mappedHandler != null ? mappedHandler.getHandler() : null);
+				// 根据异常解析类来解析特定的异常
 				mv = processHandlerException(request, response, handler, exception);
 				errorView = (mv != null);
 			}
@@ -1097,8 +1099,10 @@ public class DispatcherServlet extends FrameworkServlet {
 
 		// Did the handler return a view to render?
 		if (mv != null && !mv.wasCleared()) {
+			// 对视图进行渲染
 			render(mv, request, response);
 			if (errorView) {
+				// 针对异常的视图, 清除 request 对象中额 error 属性
 				WebUtils.clearErrorRequestAttributes(request);
 			}
 		}
@@ -1113,7 +1117,7 @@ public class DispatcherServlet extends FrameworkServlet {
 			// Concurrent handling started during a forward
 			return;
 		}
-
+		// 执行拦截器中的 afterCompletion 方法
 		if (mappedHandler != null) {
 			mappedHandler.triggerAfterCompletion(request, response, null);
 		}
@@ -1209,6 +1213,11 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * <p>Tries all handler mappings in order.
 	 * @param request current HTTP request
 	 * @return the HandlerExecutionChain, or {@code null} if no handler could be found
+	 *
+	 * RequestMappingHandlerMapping 主要解析 @Controller 注解类并解析其中包含 @RequestMapping 的注解方法包装为 HandlerMethod 作为 handler 对象
+	 * BeanNameUrlHandlerMapping 对含有 "/" 开头的 beanName 注册为 handler, handler 对象则为其本身在 springMVC 上下文中读音的 class 类实例
+	 * SimpleUrlHandlerMapping 即采用 urlMap 保存路径与处理类的关系, 即可以直接指定 url 对应 handler 对象, 其中 对象多为 beanName 对应的 class 类
+	 *
 	 */
 	protected HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception {
 		for (HandlerMapping hm : this.handlerMappings) {
@@ -1216,6 +1225,7 @@ public class DispatcherServlet extends FrameworkServlet {
 				logger.trace(
 						"Testing handler map [" + hm + "] in DispatcherServlet with name '" + getServletName() + "'");
 			}
+			// 根据 HandlerMapping 对象获取处理链
 			HandlerExecutionChain handler = hm.getHandler(request);
 			if (handler != null) {
 				return handler;
@@ -1249,15 +1259,19 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * @param handler the handler object to find an adapter for
 	 * @throws ServletException if no HandlerAdapter can be found for the handler. This is a fatal error.
 	 */
+	// 获取适配器的目的是为了通过其获取视图对象, 参数 handler 一般为具体对象
 	protected HandlerAdapter getHandlerAdapter(Object handler) throws ServletException {
+		// 此处的 handler 可为 HandlerMethod/HttpRequestHandler/Controller/Servlet
 		for (HandlerAdapter ha : this.handlerAdapters) {
 			if (logger.isTraceEnabled()) {
 				logger.trace("Testing handler adapter [" + ha + "]");
 			}
+			// supports 方法代表其支持何种 handler 对象, 也就是适配器的意义所在
 			if (ha.supports(handler)) {
 				return ha;
 			}
 		}
+		// 此处可知当 HandlerAdapter 没有找到则会抛出 ServletException 异常
 		throw new ServletException("No adapter for handler [" + handler +
 				"]: The DispatcherServlet configuration needs to include a HandlerAdapter that supports this handler");
 	}
@@ -1272,22 +1286,28 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * @return a corresponding ModelAndView to forward to
 	 * @throws Exception if no error ModelAndView found
 	 */
+	// 通过已注册的 HandlerExceptionResolver 集合来解析异常返回视图
 	protected ModelAndView processHandlerException(HttpServletRequest request, HttpServletResponse response,
 			Object handler, Exception ex) throws Exception {
 
 		// Check registered HandlerExceptionResolvers...
 		ModelAndView exMv = null;
+		// 遍历异常类解析器集合, 解析成功则返回
 		for (HandlerExceptionResolver handlerExceptionResolver : this.handlerExceptionResolvers) {
+			// 解析器解析异常, 查找是否有匹配的异常视图
 			exMv = handlerExceptionResolver.resolveException(request, response, handler, ex);
 			if (exMv != null) {
 				break;
 			}
 		}
 		if (exMv != null) {
+			// 判断 model 和 view 是否为空
 			if (exMv.isEmpty()) {
 				request.setAttribute(EXCEPTION_ATTRIBUTE, ex);
 				return null;
 			}
+			// 尝试设置默认的 view 对象, 默认操作
+			// 比如 "/view/req" --> 设置 "view/req" 为 viewName
 			// We might still need view name translation for a plain error model...
 			if (!exMv.hasView()) {
 				exMv.setViewName(getDefaultViewName(request));
@@ -1295,10 +1315,11 @@ public class DispatcherServlet extends FrameworkServlet {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Handler execution resulted in exception - forwarding to resolved error view: " + exMv, ex);
 			}
+			// 将异常信息保存至 request 对象中
 			WebUtils.exposeErrorRequestAttributes(request, ex, getServletName());
 			return exMv;
 		}
-
+		// 如果解析器没有解析到何时的视图对象则直接抛出异常
 		throw ex;
 	}
 
@@ -1311,14 +1332,18 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * @throws ServletException if view is missing or cannot be resolved
 	 * @throws Exception if there's a problem rendering the view
 	 */
+	// 渲染视图返回给前端
 	protected void render(ModelAndView mv, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		// Determine locale for request and apply it to the response.
 		Locale locale = this.localeResolver.resolveLocale(request);
 		response.setLocale(locale);
 
 		View view;
+		// 判断mv 内部属性 view 是否为 string 类型
 		if (mv.isReference()) {
 			// We need to resolve the view name.
+			// 根据 mv 通过 viewResolvers 集合 (FreemakerResolver/VelocityResolver...) 解析获取视图对象
+			// 包括寻找页面
 			view = resolveViewName(mv.getViewName(), mv.getModelInternal(), locale, request);
 			if (view == null) {
 				throw new ServletException("Could not resolve view with name '" + mv.getViewName() +
@@ -1327,6 +1352,7 @@ public class DispatcherServlet extends FrameworkServlet {
 		}
 		else {
 			// No need to lookup: the ModelAndView object contains the actual View object.
+			// 表明存储在 ModelAndView对象内部的 view 要么是 String.class 类型要么是 View.class 类型
 			view = mv.getView();
 			if (view == null) {
 				throw new ServletException("ModelAndView [" + mv + "] neither contains a view name nor a " +
@@ -1342,6 +1368,7 @@ public class DispatcherServlet extends FrameworkServlet {
 			if (mv.getStatus() != null) {
 				response.setStatus(mv.getStatus().value());
 			}
+			// 最后才是对视图的渲染, 返回具体页面给前台
 			view.render(mv.getModelInternal(), request, response);
 		}
 		catch (Exception ex) {
@@ -1349,6 +1376,7 @@ public class DispatcherServlet extends FrameworkServlet {
 				logger.debug("Error rendering view [" + view + "] in DispatcherServlet with name '" +
 						getServletName() + "'", ex);
 			}
+			// 渲染失败仍会抛出异常直接返回给前端
 			throw ex;
 		}
 	}

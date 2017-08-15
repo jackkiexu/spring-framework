@@ -40,6 +40,9 @@ import org.springframework.beans.factory.config.BeanDefinitionHolder;
  * @since 2.0
  * @see #registerBeanDefinitionParser(String, BeanDefinitionParser)
  * @see #registerBeanDefinitionDecorator(String, BeanDefinitionDecorator)
+ *
+ * 参考资料 http://www.cnblogs.com/question-sky/p/6947008.html
+ *
  */
 public abstract class NamespaceHandlerSupport implements NamespaceHandler {
 
@@ -71,6 +74,7 @@ public abstract class NamespaceHandlerSupport implements NamespaceHandler {
 	 */
 	@Override
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
+		// 找到相应的解析器并进行解析
 		return findParserForElement(element, parserContext).parse(element, parserContext);
 	}
 
@@ -79,7 +83,9 @@ public abstract class NamespaceHandlerSupport implements NamespaceHandler {
 	 * the local name of the supplied {@link Element}.
 	 */
 	private BeanDefinitionParser findParserForElement(Element element, ParserContext parserContext) {
+		// 一般都是类似 context-component-scan, mvc-resources 这样的节点
 		String localName = parserContext.getDelegate().getLocalName(element);
+		// 此处显而易见可觉察到通过 parser 这个 map 集合获取相应的解析器
 		BeanDefinitionParser parser = this.parsers.get(localName);
 		if (parser == null) {
 			parserContext.getReaderContext().fatal(

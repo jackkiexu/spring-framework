@@ -115,10 +115,11 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
 	@Override
 	protected final void renderMergedOutputModel(
 			Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-
+		// 判断是否暴露 request 属性给前端, 是则将所有的 request 属性加到 model 中
 		if (this.exposeRequestAttributes) {
 			for (Enumeration<String> en = request.getAttributeNames(); en.hasMoreElements();) {
 				String attribute = en.nextElement();
+				// 当不允许 request 对象中的属性被覆盖且  model 存在相同 key 时, 则抛出异常
 				if (model.containsKey(attribute) && !this.allowRequestOverride) {
 					throw new ServletException("Cannot expose request attribute '" + attribute +
 						"' because of an existing model object of the same name");
@@ -128,10 +129,12 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
 					logger.debug("Exposing request attribute '" + attribute +
 							"' with value [" + attributeValue + "] to model");
 				}
+				// 允许则直接通过
 				model.put(attribute, attributeValue);
 			}
 		}
 
+		// 等同 request
 		if (this.exposeSessionAttributes) {
 			HttpSession session = request.getSession(false);
 			if (session != null) {
@@ -151,6 +154,7 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
 			}
 		}
 
+		// 设置 SPRING_MACRO_REQUEST_CONTEXT_ATTRIBUTE 属性到  model 中
 		if (this.exposeSpringMacroHelpers) {
 			if (model.containsKey(SPRING_MACRO_REQUEST_CONTEXT_ATTRIBUTE)) {
 				throw new ServletException(
@@ -161,9 +165,9 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
 			model.put(SPRING_MACRO_REQUEST_CONTEXT_ATTRIBUTE,
 					new RequestContext(request, response, getServletContext(), model));
 		}
-
+		// 设置返回给前端的内容类型, 可在 ViewResolver 中设置 contentType 属性
 		applyContentType(response);
-
+		// 抽象方法供子类调用实现
 		renderMergedTemplateModel(model, request, response);
 	}
 

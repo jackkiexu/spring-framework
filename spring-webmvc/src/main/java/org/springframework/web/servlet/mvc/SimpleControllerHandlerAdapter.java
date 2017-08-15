@@ -46,7 +46,7 @@ public class SimpleControllerHandlerAdapter implements HandlerAdapter {
 	@Override
 	public ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
-
+		// 调用 Controller 接口类的接口方法 handleRequest() 方法直接响应给前端
 		return ((Controller) handler).handleRequest(request, response);
 	}
 

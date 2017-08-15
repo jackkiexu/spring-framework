@@ -72,6 +72,9 @@ import org.springframework.web.servlet.resource.WebJarsResourceResolver;
  * 解析 mvc:resources 节点, 控制对静态资源的映射访问
  *
  * 作用:将 mvc:resource 节点解析为
+ * 		1.  ResourceHttpRequestHandler/SimpleUrlHandlerMapping 匹配 mapping 属性对应的访问请求
+ * 		2. HttpRequestHandlerAdapter-http 请求适配器
+ * 		3. ResourceResolver/ResourceTransformer 访问的资源查询处理器, 针对 lcoation
  *
  */
 class ResourcesBeanDefinitionParser implements BeanDefinitionParser {
@@ -95,20 +98,23 @@ class ResourcesBeanDefinitionParser implements BeanDefinitionParser {
 	@Override
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
 		Object source = parserContext.extractSource(element);
-
+		// 注册 ResourceUrlProvider 对象, 主要是设置对每个请求都设置上 RESOURCE_URL_PROVIDER_ATTR属性, 供获取池对象
+		// 在 ResourceResolver 中会使用
 		registerUrlProvider(parserContext, source);
 
+		// 解析 location 属性, 注册为 ResourceHttpRequestHandler 对象
 		String resourceHandlerName = registerResourceHandler(parserContext, element, source);
 		if (resourceHandlerName == null) {
 			return null;
 		}
-
+		// 解析 mapping 属性, 注册 SimpleUrlhandlerMapping 对象
 		Map<String, String> urlMap = new ManagedMap<String, String>();
 		String resourceRequestPath = element.getAttribute("mapping");
 		if (!StringUtils.hasText(resourceRequestPath)) {
 			parserContext.getReaderContext().error("The 'mapping' attribute is required.", parserContext.extractSource(element));
 			return null;
 		}
+		// mapping 对应值与 ResourceHttpRequestHandler 匹配
 		urlMap.put(resourceRequestPath, resourceHandlerName);
 
 		RuntimeBeanReference pathMatcherRef = MvcNamespaceUtils.registerPathMatcher(null, parserContext, source);
@@ -120,19 +126,23 @@ class ResourcesBeanDefinitionParser implements BeanDefinitionParser {
 		handlerMappingDef.getPropertyValues().add("urlMap", urlMap);
 		handlerMappingDef.getPropertyValues().add("pathMatcher", pathMatcherRef).add("urlPathHelper", pathHelperRef);
 
+		// order 属性-执行顺序, 越大优先级越低
 		String order = element.getAttribute("order");
 		// Use a default of near-lowest precedence, still allowing for even lower precedence in other mappings
 		handlerMappingDef.getPropertyValues().add("order", StringUtils.hasText(order) ? order : Ordered.LOWEST_PRECEDENCE - 1);
 
+		// SimpleUrlHandlerMapping 添加 corsConfiguration 属性
 		RuntimeBeanReference corsConfigurationsRef = MvcNamespaceUtils.registerCorsConfigurations(null, parserContext, source);
 		handlerMappingDef.getPropertyValues().add("corsConfigurations", corsConfigurationsRef);
 
+		// 注册 SimpleUrlhandlerMapping 到spring bean 工厂中
 		String beanName = parserContext.getReaderContext().generateBeanName(handlerMappingDef);
 		parserContext.getRegistry().registerBeanDefinition(beanName, handlerMappingDef);
 		parserContext.registerComponent(new BeanComponentDefinition(handlerMappingDef, beanName));
 
 		// Ensure BeanNameUrlHandlerMapping (SPR-8289) and default HandlerAdapters are not "turned off"
 		// Register HttpRequestHandlerAdapter
+		// 注册 beanNameUrlHandlerMapping/HttpRequestHandlerAdapter/SimpleControllerHandlerAdapter 到  Bean 工厂
 		MvcNamespaceUtils.registerDefaultComponents(parserContext, source);
 
 		return null;
@@ -161,43 +171,52 @@ class ResourcesBeanDefinitionParser implements BeanDefinitionParser {
 	}
 
 	private String registerResourceHandler(ParserContext parserContext, Element element, Object source) {
+		// 获取 location 属性, 此属性不可为 空
 		String locationAttr = element.getAttribute("location");
 		if (!StringUtils.hasText(locationAttr)) {
 			parserContext.getReaderContext().error("The 'location' attribute is required.", parserContext.extractSource(element));
 			return null;
 		}
-
+		// 支持 location多路径 和 classpath 前缀, 其中以 , 分隔
 		ManagedList<String> locations = new ManagedList<String>();
 		locations.addAll(Arrays.asList(StringUtils.commaDelimitedListToStringArray(locationAttr)));
 
+		// 创建 ResourceHttpRequestHandler bean
 		RootBeanDefinition resourceHandlerDef = new RootBeanDefinition(ResourceHttpRequestHandler.class);
 		resourceHandlerDef.setSource(source);
 		resourceHandlerDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
 
+		// 添加 locations 属性
 		MutablePropertyValues values = resourceHandlerDef.getPropertyValues();
 		values.add("locations", locations);
 
+		// 添加 cacheSeconds 属性 - cache 有效时间
 		String cacheSeconds = element.getAttribute("cache-period");
 		if (StringUtils.hasText(cacheSeconds)) {
 			values.add("cacheSeconds", cacheSeconds);
 		}
 
+		// 解析子节点 mvc:cache-control cache控制器
 		Element cacheControlElement = DomUtils.getChildElementByTagName(element, "cache-control");
 		if (cacheControlElement != null) {
 			CacheControl cacheControl = parseCacheControl(cacheControlElement);
 			values.add("cacheControl", cacheControl);
 		}
 
+		// 解析 mvc:resource-chain 包含 mvc:resolver/mvc:transformers
+		// 对应 ResourceHttpRequestHandler#resourceResolvers/resourceTransformers 属性
 		Element resourceChainElement = DomUtils.getChildElementByTagName(element, "resource-chain");
 		if (resourceChainElement != null) {
 			parseResourceChain(resourceHandlerDef, parserContext, resourceChainElement, source);
 		}
 
+		// 处理请求中的 media type
 		Object manager = MvcNamespaceUtils.getContentNegotiationManager(parserContext);
 		if (manager != null) {
 			values.add("contentNegotiationManager", manager);
 		}
 
+		// 注册 ResourceHttpRequestHandler
 		String beanName = parserContext.getReaderContext().generateBeanName(resourceHandlerDef);
 		parserContext.getRegistry().registerBeanDefinition(beanName, resourceHandlerDef);
 		parserContext.registerComponent(new BeanComponentDefinition(resourceHandlerDef, beanName));

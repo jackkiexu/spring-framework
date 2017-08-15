@@ -709,6 +709,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 	 */
 	@Override
 	protected boolean supportsInternal(HandlerMethod handlerMethod) {
+		// 直接返回 true, 表明 handler 为HandlerMethod 对象即可
 		return true;
 	}
 
@@ -717,6 +718,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 			HttpServletResponse response, HandlerMethod handlerMethod) throws Exception {
 
 		ModelAndView mav;
+		// 确定请求是否符合, 比如 是否 GET/POST 请求, 可配置
 		checkRequest(request);
 
 		// Execute invokeHandlerMethod in synchronized block if required.
@@ -734,10 +736,12 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 			}
 		}
 		else {
+			// 最终通过 invokeHandlerMethod() 方法创建 ModelAndView视图对象, 这里涉及到反射机制使用
 			// No synchronization on session demanded at all...
 			mav = invokeHandlerMethod(request, response, handlerMethod);
 		}
 
+		// 设置关于 cache 的头部信息
 		if (!response.containsHeader(HEADER_CACHE_CONTROL)) {
 			if (getSessionAttributesHandler(handlerMethod).hasSessionAttributes()) {
 				applyCacheSeconds(response, this.cacheSecondsForSessionAttributeHandlers);

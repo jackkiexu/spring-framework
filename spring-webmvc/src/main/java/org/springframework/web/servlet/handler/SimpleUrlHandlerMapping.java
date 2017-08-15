@@ -51,6 +51,12 @@ import org.springframework.util.CollectionUtils;
  * @see #setMappings
  * @see #setUrlMap
  * @see BeanNameUrlHandlerMapping
+ *
+ * http://www.cnblogs.com/question-sky/p/7132196.html
+ *
+ * SimpleUrlHandlerMapping 只是对路径进行细化的处理
+ * 	1. 对不以 "/" 开头的路径, 加上 "/" 前缀
+ * 	2. 对 beanName 进行去除空格字符的处理, 且 beanName 必须是 springMVC 上下文存在的, 否则在绑定的过程中会抛异常
  */
 public class SimpleUrlHandlerMapping extends AbstractUrlHandlerMapping {
 
@@ -99,7 +105,9 @@ public class SimpleUrlHandlerMapping extends AbstractUrlHandlerMapping {
 	 */
 	@Override
 	public void initApplicationContext() throws BeansException {
+		// 这在前文已知主要是获取 interceptors
 		super.initApplicationContext();
+		// 这里便是 将上述的配置注册到 AbstractUrlHandlerMapping#handlerMap 中的入口
 		registerHandlers(this.urlMap);
 	}
 
@@ -110,6 +118,7 @@ public class SimpleUrlHandlerMapping extends AbstractUrlHandlerMapping {
 	 * @throws IllegalStateException if there is a conflicting handler registered
 	 */
 	protected void registerHandlers(Map<String, Object> urlMap) throws BeansException {
+		// urlMap 不为空
 		if (urlMap.isEmpty()) {
 			logger.warn("Neither 'urlMap' nor 'mappings' set on SimpleUrlHandlerMapping");
 		}
@@ -125,6 +134,7 @@ public class SimpleUrlHandlerMapping extends AbstractUrlHandlerMapping {
 				if (handler instanceof String) {
 					handler = ((String) handler).trim();
 				}
+				// 调用父类的注册方法
 				registerHandler(url, handler);
 			}
 		}

@@ -57,6 +57,10 @@ import org.springframework.web.servlet.HandlerMapping;
  * @since 3.1
  * @param <T> The mapping for a {@link HandlerMethod} containing the conditions
  * needed to match the handler method to incoming request.
+ *
+ * 参考资料
+ *           http://www.cnblogs.com/question-sky/p/7133130.html
+ *  这个类实现了 InitializingBean 接口, 其实主要的注册操作则是通过 afterPropertiesSet() 接口方法来调用的
  */
 public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMapping implements InitializingBean {
 
@@ -181,6 +185,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	 */
 	@Override
 	public void afterPropertiesSet() {
+		// 初始化HandlerMethod对象
 		initHandlerMethods();
 	}
 
@@ -191,6 +196,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	 * @see #handlerMethodsInitialized(Map)
 	 */
 	protected void initHandlerMethods() {
+		// 获取 springMVC 上下文的所有注册的 Bean
 		if (logger.isDebugEnabled()) {
 			logger.debug("Looking for request mappings in application context: " + getApplicationContext());
 		}
@@ -210,11 +216,14 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 						logger.debug("Could not resolve target class for bean with name '" + beanName + "'", ex);
 					}
 				}
+				// isHandler() 是抽象方法, 主要供子类 需要扫描什么类型的 bean
 				if (beanType != null && isHandler(beanType)) {
+					// 解析其中的 handlerMethod 进行注册
 					detectHandlerMethods(beanName);
 				}
 			}
 		}
+		// 抽象方, 目前尚无实现
 		handlerMethodsInitialized(getHandlerMethods());
 	}
 
@@ -225,6 +234,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	protected void detectHandlerMethods(final Object handler) {
 		Class<?> handlerType = (handler instanceof String ?
 				getApplicationContext().getType((String) handler) : handler.getClass());
+		// 因为有些是 CGLIB 代理生成的, 获取真实类
 		final Class<?> userType = ClassUtils.getUserClass(handlerType);
 
 		Map<Method, T> methods = MethodIntrospector.selectMethods(userType,
@@ -232,6 +242,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 					@Override
 					public T inspect(Method method) {
 						try {
+							// 模板方法获取 handlerMethod 的 mapping 属性
 							return getMappingForMethod(method, userType);
 						}
 						catch (Throwable ex) {
@@ -244,7 +255,9 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 		if (logger.isDebugEnabled()) {
 			logger.debug(methods.size() + " request handler methods found on " + userType + ": " + methods);
 		}
+		// 对查找到的 HandlerMethod 进行注册，保存到内部类mappingRegistry 对象中
 		for (Map.Entry<Method, T> entry : methods.entrySet()) {
+			// 做下判断, method 是否从属于 userType
 			Method invocableMethod = AopUtils.selectInvocableMethod(entry.getKey(), userType);
 			T mapping = entry.getValue();
 			registerHandlerMethod(handler, invocableMethod, mapping);
@@ -305,12 +318,16 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	 */
 	@Override
 	protected HandlerMethod getHandlerInternal(HttpServletRequest request) throws Exception {
+		// 获取访问的路径, 一般类似于 request.getServletPath() 返回不含 contextPath 的访问路径
 		String lookupPath = getUrlPathHelper().getLookupPathForRequest(request);
 		if (logger.isDebugEnabled()) {
 			logger.debug("Looking up handler method for path " + lookupPath);
 		}
+		// 获取读锁
 		this.mappingRegistry.acquireReadLock();
 		try {
+			// 获取 HandlerMethod 作为 handler 对象, 这里涉及到路径匹配的优先级
+			// 优先级: 精确匹配 > 最长路径匹配 > 扩展名匹配
 			HandlerMethod handlerMethod = lookupHandlerMethod(lookupPath, request);
 			if (logger.isDebugEnabled()) {
 				if (handlerMethod != null) {
@@ -320,9 +337,11 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 					logger.debug("Did not find handler method for [" + lookupPath + "]");
 				}
 			}
+			// handlerMethod 内部含有 bean 对象, 其实指的是对应的 Controller
 			return (handlerMethod != null ? handlerMethod.createWithResolvedBean() : null);
 		}
 		finally {
+			// 释放 度锁
 			this.mappingRegistry.releaseReadLock();
 		}
 	}

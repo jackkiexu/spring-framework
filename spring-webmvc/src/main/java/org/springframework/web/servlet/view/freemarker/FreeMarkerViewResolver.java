@@ -45,6 +45,7 @@ public class FreeMarkerViewResolver extends AbstractTemplateViewResolver {
 	 * by default {@link FreeMarkerView}.
 	 */
 	public FreeMarkerViewResolver() {
+		// 设置的为 FreemarkView.class
 		setViewClass(requiredViewClass());
 	}
 

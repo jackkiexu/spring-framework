@@ -31,6 +31,11 @@ import org.springframework.web.servlet.support.WebContentGenerator;
  *
  * @author Arjen Poutsma
  * @since 3.1
+ *
+ *
+ * 参考资料
+ * http://www.cnblogs.com/question-sky/p/7170295.html
+ * 处理 HandlerMethod 业务
  */
 public abstract class AbstractHandlerMethodAdapter extends WebContentGenerator implements HandlerAdapter, Ordered {
 
@@ -81,7 +86,7 @@ public abstract class AbstractHandlerMethodAdapter extends WebContentGenerator i
 	@Override
 	public final ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
-
+		// 供子类实现调用
 		return handleInternal(request, response, (HandlerMethod) handler);
 	}
 
@@ -103,6 +108,7 @@ public abstract class AbstractHandlerMethodAdapter extends WebContentGenerator i
 	 */
 	@Override
 	public final long getLastModified(HttpServletRequest request, Object handler) {
+		// 供子类实现调用
 		return getLastModifiedInternal(request, (HandlerMethod) handler);
 	}
 

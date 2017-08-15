@@ -82,6 +82,9 @@ import org.springframework.web.servlet.view.AbstractTemplateView;
  * @see #setConfiguration
  * @see FreeMarkerConfig
  * @see FreeMarkerConfigurer
+ *
+ * 参考资料
+ * http://www.cnblogs.com/question-sky/p/7214798.html
  */
 public class FreeMarkerView extends AbstractTemplateView {
 
@@ -146,11 +149,13 @@ public class FreeMarkerView extends AbstractTemplateView {
 			this.taglibFactory = new TaglibFactory(servletContext);
 		}
 		else {
+			// 查询 springMVC 上下文中是否存在 FreeMarkerConfig 接口 bean, 其一般是通过 FreeMarkerConfigurer 来注册的
+			// 如果 不存在 在FreeMarkerConfig bean 对象则会抛出异常
 			FreeMarkerConfig config = autodetectConfiguration();
 			setConfiguration(config.getConfiguration());
 			this.taglibFactory = config.getTaglibFactory();
 		}
-
+		// 初始化 Servlet 对象, 其实是创建 ServletContextResourceLoader 对象, 帮助 可以获取 "/WEB_INF/" 下额资源
 		GenericServlet servlet = new GenericServletAdapter();
 		try {
 			servlet.init(new DelegatingServletConfig());
@@ -229,8 +234,9 @@ public class FreeMarkerView extends AbstractTemplateView {
 	@Override
 	protected void renderMergedTemplateModel(
 			Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-
+		// 默认为 kong, 待实现
 		exposeHelpers(model, request);
+		// 启动渲染程序
 		doRender(model, request, response);
 	}
 
@@ -272,15 +278,18 @@ public class FreeMarkerView extends AbstractTemplateView {
 	 */
 	protected void doRender(Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		// Expose model to JSP tags (as request attributes).
+		// 这里其实是将 model 中的所有属性都注册到 request 对象中
 		exposeModelAsRequestAttributes(model, request);
-		// Expose all standard FreeMarker hash models.
+		// Expose all standard FreeMarker hash models. 将 FreeMarker 的属性放到一个 Map 中
 		SimpleHash fmModel = buildTemplateModel(model, request, response);
 
+		// 此处 getUrl() 由 ViewResolver 来设定, 为 prefix+viewName+suffix
 		if (logger.isDebugEnabled()) {
 			logger.debug("Rendering FreeMarker template [" + getUrl() + "] in FreeMarkerView '" + getBeanName() + "'");
 		}
 		// Grab the locale-specific version of the template.
 		Locale locale = RequestContextUtils.getLocale(request);
+		// 此处的操作比较复杂, 需要慢慢分析
 		processTemplate(getTemplate(locale), fmModel, response);
 	}
 
@@ -346,6 +355,7 @@ public class FreeMarkerView extends AbstractTemplateView {
 	 * @throws IOException if the template file could not be retrieved
 	 */
 	protected Template getTemplate(String name, Locale locale) throws IOException {
+		// 最终是通过 FreeMarkerConfigurer 的内部属性 Configuration 来获取模板对象
 		return (getEncoding() != null ?
 				getConfiguration().getTemplate(name, locale, getEncoding()) :
 				getConfiguration().getTemplate(name, locale));

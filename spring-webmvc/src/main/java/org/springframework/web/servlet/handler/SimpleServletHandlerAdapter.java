@@ -61,7 +61,7 @@ public class SimpleServletHandlerAdapter implements HandlerAdapter {
 	@Override
 	public ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
-
+		// 直接调用 Servlet 的 service 接口返回
 		((Servlet) handler).service(request, response);
 		return null;
 	}

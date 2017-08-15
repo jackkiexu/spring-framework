@@ -146,6 +146,12 @@ import org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolv
  * @author Brian Clozel
  * @author Agim Emruli
  * @since 3.0
+ *
+ * mvc:annotation-driven 节点的解析器, 是 springMVC 的核心解析器
+ * 主要注册 HandlerMappings 路径匹配器, HandlerAdapters-路径匹配适配器, HandlerExceptionResolvers-异常解析器
+ * AntPathMatcher 路径解析器, UrlPathHelper 请求路径获取帮助类 等
+ *
+ * mvc:annotation-driven 一句话囊括了 springMVC 的基本处理组件注册成bean 到springMVC 上下文, 遮掩就好理解 springMVC 的逻辑源代码了
  */
 class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 
@@ -184,13 +190,16 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 		parserContext.pushContainingComponent(compDefinition);
 
 		RuntimeBeanReference contentNegotiationManager = getContentNegotiationManager(element, source, parserContext);
-
+		// 生成 RequestMappingHandlerMapping 组件对象
 		RootBeanDefinition handlerMappingDef = new RootBeanDefinition(RequestMappingHandlerMapping.class);
 		handlerMappingDef.setSource(source);
 		handlerMappingDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+		// 优先级设置为最高
 		handlerMappingDef.getPropertyValues().add("order", 0);
 		handlerMappingDef.getPropertyValues().add("contentNegotiationManager", contentNegotiationManager);
-
+		// 添加 contentNegotiationManager 属性, 处理 media type handlerMappingDef.getPropertyValues().add("contentNegotiationManager", contentNagotiationManager);
+		// 查看 mvc:annotation-driven 有无 enable-matrix-variables/enableMatrixVariables 表示是否开启多变量映射 /cars;a=1;b=1
+		// 默认值 removeSemicolonContent 为 false
 		if (element.hasAttribute("enable-matrix-variables")) {
 			Boolean enableMatrixVariables = Boolean.valueOf(element.getAttribute("enable-matrix-variables"));
 			handlerMappingDef.getPropertyValues().add("removeSemicolonContent", !enableMatrixVariables);
@@ -199,17 +208,25 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 			Boolean enableMatrixVariables = Boolean.valueOf(element.getAttribute("enableMatrixVariables"));
 			handlerMappingDef.getPropertyValues().add("removeSemicolonContent", !enableMatrixVariables);
 		}
-
+		// 配置路径匹配解析器等属性
 		configurePathMatchingProperties(handlerMappingDef, element, parserContext);
+		// 将 requestMappingHandlerMapping 注册为 bean 对象防止 bean 工厂中
 		readerContext.getRegistry().registerBeanDefinition(HANDLER_MAPPING_BEAN_NAME , handlerMappingDef);
 
 		RuntimeBeanReference corsConfigurationsRef = MvcNamespaceUtils.registerCorsConfigurations(null, parserContext, source);
 		handlerMappingDef.getPropertyValues().add("corsConfigurations", corsConfigurationsRef);
 
+
+		//HandlerAdapters组件注册
+		// 获取 conversion-service 属性, 默认为 FormattingConversionServiceFactoryBean
+		// 处理一些基本类的格式与转换, 比如时间, 数字等
 		RuntimeBeanReference conversionService = getConversionService(element, source, parserContext);
+		// 获取 validator, 默认为 OptionalValidatorFactorybean, 基于java自带的Validator 接口, 表示校验器, 可用于 javabean 的参数校验等
 		RuntimeBeanReference validator = getValidator(element, source, parserContext);
+		// 获取 message-codes-resolver 属性, 默认为 null
 		RuntimeBeanReference messageCodesResolver = getMessageCodesResolver(element);
 
+		// 设置 ConfigurableWebBindingInitializer 类用于数据绑定
 		RootBeanDefinition bindingDef = new RootBeanDefinition(ConfigurableWebBindingInitializer.class);
 		bindingDef.setSource(source);
 		bindingDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
@@ -217,14 +234,22 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 		bindingDef.getPropertyValues().add("validator", validator);
 		bindingDef.getPropertyValues().add("messageCodesResolver", messageCodesResolver);
 
+		// 获取 message-converters 子节点的配置, 消息转换器, 可用于向前端发送数据再次自定义组装
+		// 比如 MappingJackson2HttpMessageConverter json 转字符串
 		ManagedList<?> messageConverters = getMessageConverters(element, source, parserContext);
+		// argument-resolver 子节点配置, 参数解析
 		ManagedList<?> argumentResolvers = getArgumentResolvers(element, parserContext);
+		// return-value-handlers 自己诶单解析
 		ManagedList<?> returnValueHandlers = getReturnValueHandlers(element, parserContext);
+		// async-support 子节点解析, 获取其中的 default-timeout 属性, 作为一部处理超时时间, 默认 null
 		String asyncTimeout = getAsyncTimeout(element);
+		// async-support子节点解析, 获取其中的 task-executor 属性, 异步任务线程池
 		RuntimeBeanReference asyncExecutor = getAsyncExecutor(element);
+		// async-support子节点解析, 获取其中的 callable-interceptors 节点, 一步处理 callable 类型拦截器
 		ManagedList<?> callableInterceptors = getCallableInterceptors(element, source, parserContext);
 		ManagedList<?> deferredResultInterceptors = getDeferredResultInterceptors(element, source, parserContext);
 
+		// 将上述的属性添加到 requestMappingHandlerAdapter 中
 		RootBeanDefinition handlerAdapterDef = new RootBeanDefinition(RequestMappingHandlerAdapter.class);
 		handlerAdapterDef.setSource(source);
 		handlerAdapterDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
@@ -234,6 +259,7 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 		addRequestBodyAdvice(handlerAdapterDef);
 		addResponseBodyAdvice(handlerAdapterDef);
 
+		// ignoreDefaultModelonRedirect 属性配置
 		if (element.hasAttribute("ignore-default-model-on-redirect")) {
 			Boolean ignoreDefaultModel = Boolean.valueOf(element.getAttribute("ignore-default-model-on-redirect"));
 			handlerAdapterDef.getPropertyValues().add("ignoreDefaultModelOnRedirect", ignoreDefaultModel);
@@ -256,6 +282,12 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 		if (asyncExecutor != null) {
 			handlerAdapterDef.getPropertyValues().add("taskExecutor", asyncExecutor);
 		}
+
+		/**
+		 * ExceptionHandlerExceptionResolver- 处理 @ExceptionHandler 方法注解
+		 * ResponseStatusExceptionResolver 处理 @ResponseStatus 类型, 方法注解
+		 * DefaultHandlerExceptionResolver 处理普通的 spring 异常
+		 */
 
 		handlerAdapterDef.getPropertyValues().add("callableInterceptors", callableInterceptors);
 		handlerAdapterDef.getPropertyValues().add("deferredResultInterceptors", deferredResultInterceptors);
@@ -315,6 +347,7 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 		parserContext.registerComponent(new BeanComponentDefinition(exceptionHandlerExceptionResolver, methodExceptionResolverName));
 		parserContext.registerComponent(new BeanComponentDefinition(responseStatusExceptionResolver, responseStatusExceptionResolverName));
 		parserContext.registerComponent(new BeanComponentDefinition(defaultExceptionResolver, defaultExceptionResolverName));
+		// 格式转换处理拦截器, 比如时间, 数字等
 		parserContext.registerComponent(new BeanComponentDefinition(mappedCsInterceptorDef, mappedInterceptorName));
 
 		// Ensure BeanNameUrlHandlerMapping (SPR-8289) and default HandlerAdapters are not "turned off"
@@ -395,25 +428,30 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 		return beanRef;
 	}
 
+	// 路径匹配解析器配置
 	private void configurePathMatchingProperties(RootBeanDefinition handlerMappingDef, Element element,
 			ParserContext parserContext) {
-
+		// 获取 mvc:annotation-driven 下子节点 mvc:path-matching
 		Element pathMatchingElement = DomUtils.getChildElementByTagName(element, "path-matching");
 		if (pathMatchingElement != null) {
 			Object source = parserContext.extractSource(element);
+			// 是否采用 suffix-pattern, 即 .*, 比如 /user 也匹配 /user.* 默认为 true
 			if (pathMatchingElement.hasAttribute("suffix-pattern")) {
 				Boolean useSuffixPatternMatch = Boolean.valueOf(pathMatchingElement.getAttribute("suffix-pattern"));
 				handlerMappingDef.getPropertyValues().add("useSuffixPatternMatch", useSuffixPatternMatch);
 			}
+			// 是否采用分隔符, 特指 /, 比如 /user 也匹配 /user/. 默认 为 true
 			if (pathMatchingElement.hasAttribute("trailing-slash")) {
 				Boolean useTrailingSlashMatch = Boolean.valueOf(pathMatchingElement.getAttribute("trailing-slash"));
 				handlerMappingDef.getPropertyValues().add("useTrailingSlashMatch", useTrailingSlashMatch);
 			}
+			// 是否采用 contentNagotiationManager 中的格式, 比如 *.json/*.xml  默认为 false
 			if (pathMatchingElement.hasAttribute("registered-suffixes-only")) {
 				Boolean useRegisteredSuffixPatternMatch = Boolean.valueOf(pathMatchingElement.getAttribute("registered-suffixes-only"));
 				handlerMappingDef.getPropertyValues().add("useRegisteredSuffixPatternMatch", useRegisteredSuffixPatternMatch);
 			}
 			RuntimeBeanReference pathHelperRef = null;
+			// 路径解析帮助类, 可指定, 默认为 UrlPathHelper
 			if (pathMatchingElement.hasAttribute("path-helper")) {
 				pathHelperRef = new RuntimeBeanReference(pathMatchingElement.getAttribute("path-helper"));
 			}
@@ -421,6 +459,7 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 			handlerMappingDef.getPropertyValues().add("urlPathHelper", pathHelperRef);
 
 			RuntimeBeanReference pathMatcherRef = null;
+			// 路径解析器, 默认为 AntPathMatcher 解析器
 			if (pathMatchingElement.hasAttribute("path-matcher")) {
 				pathMatcherRef = new RuntimeBeanReference(pathMatchingElement.getAttribute("path-matcher"));
 			}

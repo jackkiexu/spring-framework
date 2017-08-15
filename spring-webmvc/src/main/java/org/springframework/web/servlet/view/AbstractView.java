@@ -293,13 +293,16 @@ public abstract class AbstractView extends WebApplicationObjectSupport implement
 	 */
 	@Override
 	public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		// 综合 model, 内部属性 staticAttributes 和 request 对象中的 ViewPathVARIABLES 都封装在同一个 Map 集合中
 		if (logger.isTraceEnabled()) {
 			logger.trace("Rendering view with name '" + this.beanName + "' with model " + model +
 				" and static attributes " + this.staticAttributes);
 		}
 
 		Map<String, Object> mergedModel = createMergedOutputModel(model, request, response);
+		// 为 response 做准备, 默认是针对 download请求
 		prepareResponse(request, response);
+		// 真实处理 render 操作,  供子类实现调用
 		renderMergedOutputModel(mergedModel, getRequestToExpose(request), response);
 	}
 

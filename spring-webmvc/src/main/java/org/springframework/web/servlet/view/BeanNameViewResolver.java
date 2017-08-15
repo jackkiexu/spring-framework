@@ -68,12 +68,14 @@ public class BeanNameViewResolver extends WebApplicationObjectSupport implements
 
 	@Override
 	public View resolveViewName(String viewName, Locale locale) throws BeansException {
+		// 获得 springMVC 上下文
 		ApplicationContext context = getApplicationContext();
 		if (!context.containsBean(viewName)) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("No matching bean found for view name '" + viewName + "'");
 			}
 			// Allow for ViewResolver chaining...
+			// viewName 不存在, 则直接返回 null
 			return null;
 		}
 		if (!context.isTypeMatch(viewName, View.class)) {
@@ -83,6 +85,7 @@ public class BeanNameViewResolver extends WebApplicationObjectSupport implements
 			}
 			// Since we're looking into the general ApplicationContext here,
 			// let's accept this as a non-match and allow for chaining as well...
+			// viewName 对应的 beanName, 不是 View.class 的实现类, 则直接返回
 			return null;
 		}
 		return context.getBean(viewName, View.class);

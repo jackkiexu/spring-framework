@@ -51,6 +51,8 @@ import org.springframework.web.servlet.mvc.method.RequestMappingInfoHandlerMappi
  * @author Rossen Stoyanchev
  * @author Sam Brannen
  * @since 3.1
+ *
+ * 主要处理 @Controller 和 @RequestMapping 注解的
  */
 public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMapping
 		implements MatchableHandlerMapping, EmbeddedValueResolverAware {
@@ -116,14 +118,21 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 
 	@Override
 	public void afterPropertiesSet() {
+		// config 为 RequestMappingInfo 的创建对象
 		this.config = new RequestMappingInfo.BuilderConfiguration();
+		// 设置 urlPathHelper 默认为 UrlPathHelper.class
 		this.config.setUrlPathHelper(getUrlPathHelper());
+		// 默认为 AntPathMatcher 路径匹配校验器
 		this.config.setPathMatcher(getPathMatcher());
+		// 是否支持后缀补充, 默认 true
 		this.config.setSuffixPatternMatch(this.useSuffixPatternMatch);
+		// 是否添加 "/" 后缀, 默认为 true
 		this.config.setTrailingSlashMatch(this.useTrailingSlashMatch);
+		// 是否采用 mediaType 匹配模式, 比如 .json/.xml 模式的匹配, 默认 false
 		this.config.setRegisteredSuffixPatternMatch(this.useRegisteredSuffixPatternMatch);
+		// mediaType 处理类
 		this.config.setContentNegotiationManager(getContentNegotiationManager());
-
+		// 调用父类进行 HandlerMethod 的注册工作
 		super.afterPropertiesSet();
 	}
 
@@ -170,6 +179,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 	 */
 	@Override
 	protected boolean isHandler(Class<?> beanType) {
+		// 优先匹配 @Controller
 		return (AnnotatedElementUtils.hasAnnotation(beanType, Controller.class) ||
 				AnnotatedElementUtils.hasAnnotation(beanType, RequestMapping.class));
 	}
@@ -182,8 +192,12 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 	 * @see #getCustomMethodCondition(Method)
 	 * @see #getCustomTypeCondition(Class)
 	 */
+	// 获取 HandlerMethod 对应的 mapping 属性
+	// 将拼装 Class 上的 @RequestMapping 和 Method 上的 @RequestMapping 组装成 RequestMappingInfo 对象
 	@Override
 	protected RequestMappingInfo getMappingForMethod(Method method, Class<?> handlerType) {
+		// 对 method 以及 class类都进行创建 RequestMappingInfo
+		// 因为 @RequestMapping 可以在方法上/类上应用注解
 		RequestMappingInfo info = createRequestMappingInfo(method);
 		if (info != null) {
 			RequestMappingInfo typeInfo = createRequestMappingInfo(handlerType);

@@ -113,6 +113,7 @@ public class FreeMarkerConfigurer extends FreeMarkerConfigurationFactory
 	@Override
 	public void afterPropertiesSet() throws IOException, TemplateException {
 		if (this.configuration == null) {
+			// 调用父类来实现 创建, 相关的配置则保存至 freemaker 包中的 Configuration 中
 			this.configuration = createConfiguration();
 		}
 	}

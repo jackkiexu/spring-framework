@@ -179,12 +179,14 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 		// Expose ModelAndView for chosen error view.
 		String viewName = determineViewName(ex, request);
 		if (viewName != null) {
+			// 如果配置了 statusCodes 属性, 则对此异常的状态码进行设置
 			// Apply HTTP status code for error views, if specified.
 			// Only apply it if we're processing a top-level request.
 			Integer statusCode = determineStatusCode(request, viewName);
 			if (statusCode != null) {
 				applyStatusCodeIfPossible(request, response, statusCode);
 			}
+			// 创建 ModelAndView 对象
 			return getModelAndView(viewName, ex, request);
 		}
 		else {
@@ -203,6 +205,7 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 	 */
 	protected String determineViewName(Exception ex, HttpServletRequest request) {
 		String viewName = null;
+		// 判断异常是否属于 excludeExceptions 集合内, 是则直接返回 null
 		if (this.excludedExceptions != null) {
 			for (Class<?> excludedEx : this.excludedExceptions) {
 				if (excludedEx.equals(ex.getClass())) {
@@ -211,9 +214,11 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 			}
 		}
 		// Check for specific exception mappings.
+		// 从 exceptionMapping 集合内根据 exception 获取到相应的 viewName
 		if (this.exceptionMappings != null) {
 			viewName = findMatchingViewName(this.exceptionMappings, ex);
 		}
+		// 当 exceptionMapping 集合内不存在指定的 exception 但是默认视图指定则直接返回默认视图
 		// Return default error view else, if defined.
 		if (viewName == null && this.defaultErrorView != null) {
 			if (logger.isDebugEnabled()) {
@@ -337,10 +342,12 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 	 */
 	protected ModelAndView getModelAndView(String viewName, Exception ex) {
 		ModelAndView mv = new ModelAndView(viewName);
+		// exceptionAttribute 默认为 exception
 		if (this.exceptionAttribute != null) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Exposing Exception as model attribute '" + this.exceptionAttribute + "'");
 			}
+			// 将 exception 信息添加到 model 中
 			mv.addObject(this.exceptionAttribute, ex);
 		}
 		return mv;

@@ -76,9 +76,9 @@ import org.springframework.util.CollectionUtils;
 public class FreeMarkerConfigurationFactory {
 
 	protected final Log logger = LogFactory.getLog(getClass());
-
+	// 可以直接指定某个配置文件路径, 直接读取
 	private Resource configLocation;
-
+	// 额外配置
 	private Properties freemarkerSettings;
 
 	private Map<String, Object> freemarkerVariables;
@@ -90,7 +90,7 @@ public class FreeMarkerConfigurationFactory {
 	private List<TemplateLoader> preTemplateLoaders;
 
 	private List<TemplateLoader> postTemplateLoaders;
-
+	// 可以简单的指定模板加载路径, 支持 分隔并支持 classpath模板加载
 	private String[] templateLoaderPaths;
 
 	private ResourceLoader resourceLoader = new DefaultResourceLoader();
@@ -250,6 +250,7 @@ public class FreeMarkerConfigurationFactory {
 		Configuration config = newConfiguration();
 		Properties props = new Properties();
 
+		// 直接通过 configLocation 加载 FreeMarker 的基本配置
 		// Load config file if specified.
 		if (this.configLocation != null) {
 			if (logger.isInfoEnabled()) {
@@ -263,6 +264,7 @@ public class FreeMarkerConfigurationFactory {
 			props.putAll(this.freemarkerSettings);
 		}
 
+		// 只会保存已有的内部属性, 比如 time_format, 更多的可查看 Configuration#setSetting 方法
 		// FreeMarker will only accept known keys in its setSettings and
 		// setAllSharedVariables methods.
 		if (!props.isEmpty()) {
@@ -287,11 +289,13 @@ public class FreeMarkerConfigurationFactory {
 		// Register default template loaders.
 		if (this.templateLoaderPaths != null) {
 			for (String path : this.templateLoaderPaths) {
+				// 加载 templateLoaderPath 指定的资源, 创建相应的加载器
 				templateLoaders.add(getTemplateLoaderForPath(path));
 			}
 		}
 		postProcessTemplateLoaders(templateLoaders);
 
+		// 选取一个 templateLoader 用于加载真实的 view 视图资源
 		// Register template loaders that are supposed to kick in late.
 		if (this.postTemplateLoaders != null) {
 			templateLoaders.addAll(this.postTemplateLoaders);
@@ -302,6 +306,7 @@ public class FreeMarkerConfigurationFactory {
 			config.setTemplateLoader(loader);
 		}
 
+		// 默认为空方法
 		postProcessConfiguration(config);
 		return config;
 	}
@@ -329,17 +334,22 @@ public class FreeMarkerConfigurationFactory {
 	 * @see freemarker.cache.FileTemplateLoader
 	 * @see SpringTemplateLoader
 	 */
+	// 创建模板资源加载器
 	protected TemplateLoader getTemplateLoaderForPath(String templateLoaderPath) {
+		// preferFileSystemAccess 属性默认为 true
 		if (isPreferFileSystemAccess()) {
 			// Try to load via the file system, fall back to SpringTemplateLoader
 			// (for hot detection of template changes, if possible).
 			try {
+				// 通过 DefaultResourceLoader 的 getResource() 来获取 Resource
 				Resource path = getResourceLoader().getResource(templateLoaderPath);
+				// 此 file 为目录
 				File file = path.getFile();  // will fail if not resolvable in the file system
 				if (logger.isDebugEnabled()) {
 					logger.debug(
 							"Template loader path [" + path + "] resolved to file path [" + file.getAbsolutePath() + "]");
 				}
+				// 默认为 FileTemplateLoader 加载器
 				return new FileTemplateLoader(file);
 			}
 			catch (Exception ex) {
@@ -347,10 +357,12 @@ public class FreeMarkerConfigurationFactory {
 					logger.debug("Cannot resolve template loader path [" + templateLoaderPath +
 							"] to [java.io.File]: using SpringTemplateLoader as fallback", ex);
 				}
+				// 获取文件异常时使用 SpringTemplateLoader
 				return new SpringTemplateLoader(getResourceLoader(), templateLoaderPath);
 			}
 		}
 		else {
+			// 也可以设置 preferFileSystemAccess 为 false 而直接使用 SpringTemplateLoadere
 			// Always load via SpringTemplateLoader (without hot detection of template changes).
 			logger.debug("File system access not preferred: using SpringTemplateLoader");
 			return new SpringTemplateLoader(getResourceLoader(), templateLoaderPath);

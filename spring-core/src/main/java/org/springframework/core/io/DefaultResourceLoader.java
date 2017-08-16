@@ -43,6 +43,9 @@ import org.springframework.util.StringUtils;
  *
  * ResourceLoader 的默认实现, 可以单独使用, 也可以通过扩展使其支持特殊的资源.
  * 如: FileSystemResourceLoader, ClasPathXmlApplicationContext
+ *
+ * 参考资料
+ * http://www.cnblogs.com/question-sky/p/7235634.html
  */
 public class DefaultResourceLoader implements ResourceLoader {
 
@@ -117,6 +120,7 @@ public class DefaultResourceLoader implements ResourceLoader {
 	// 获取 Resource 的具体实现方法
 	@Override
 	public Resource getResource(String location) {
+		// 此处 location 代表 templateLoaderPath
 		Assert.notNull(location, "Location must not be null");
 
 		for (ProtocolResolver protocolResolver : this.protocolResolvers) {
@@ -125,11 +129,13 @@ public class DefaultResourceLoader implements ResourceLoader {
 				return resource;
 			}
 		}
-
+		// 如果 路径 以 "/" 开头, 通常此处多指加载 WEB_INF 目录下的资源
 		if (location.startsWith("/")) {
+			// 此处的加载是通过ServletContextResourceLoader 加载的, 具体如何加载可查看源码
 			return getResourceByPath(location);
 		}
 		else if (location.startsWith(CLASSPATH_URL_PREFIX)) {	// 如果是类路径的方法, 那需要使用 ClassPathResource 来得到 bean 文件的资源对象
+			// 加载 classpath: 为前缀的路径资源
 			return new ClassPathResource(location.substring(CLASSPATH_URL_PREFIX.length()), getClassLoader());
 		}
 		else {
@@ -142,6 +148,7 @@ public class DefaultResourceLoader implements ResourceLoader {
 				// No URL -> resolve as resource path.
 				// 如果既不是 classpath 标识, 又不是URL标识的Resource定位, 则调用
 				// 容器本身的 getResourceByPath 方法获取 Resource
+				// 最终都由 ServletContextResourceLoader 来加载资源
 				return getResourceByPath(location);
 			}
 		}

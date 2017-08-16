@@ -46,6 +46,10 @@ import org.springframework.web.servlet.handler.AbstractHandlerExceptionResolver;
  * @author Sam Brannen
  * @since 3.0
  * @see ResponseStatus
+ *
+ * 参考资料
+ * http://www.cnblogs.com/question-sky/p/7240628.html
+ * 
  */
 public class ResponseStatusExceptionResolver extends AbstractHandlerExceptionResolver implements MessageSourceAware {
 
@@ -61,7 +65,7 @@ public class ResponseStatusExceptionResolver extends AbstractHandlerExceptionRes
 	@Override
 	protected ModelAndView doResolveException(HttpServletRequest request, HttpServletResponse response,
 			Object handler, Exception ex) {
-
+		// 获取相应类上的注解  @ResponseStatus
 		ResponseStatus responseStatus = AnnotatedElementUtils.findMergedAnnotation(ex.getClass(), ResponseStatus.class);
 		if (responseStatus != null) {
 			try {
@@ -73,6 +77,7 @@ public class ResponseStatusExceptionResolver extends AbstractHandlerExceptionRes
 		}
 		else if (ex.getCause() instanceof Exception) {
 			ex = (Exception) ex.getCause();
+			// 递归
 			return doResolveException(request, response, handler, ex);
 		}
 		return null;
@@ -94,11 +99,14 @@ public class ResponseStatusExceptionResolver extends AbstractHandlerExceptionRes
 	 * @return a corresponding ModelAndView to forward to, or {@code null}
 	 * for default processing
 	 */
+	// 读取 @ResponseStatus 注解信息, 返回异常内容给客户端
 	protected ModelAndView resolveResponseStatus(ResponseStatus responseStatus, HttpServletRequest request,
 			HttpServletResponse response, Object handler, Exception ex) throws Exception {
-
+		// 状态码
 		int statusCode = responseStatus.code().value();
+		// 异常原因描述
 		String reason = responseStatus.reason();
+		// 通过 response 对象直接返回错误信息给客户端
 		if (!StringUtils.hasLength(reason)) {
 			response.sendError(statusCode);
 		}
@@ -106,6 +114,7 @@ public class ResponseStatusExceptionResolver extends AbstractHandlerExceptionRes
 			String resolvedReason = (this.messageSource != null ?
 					this.messageSource.getMessage(reason, null, reason, LocaleContextHolder.getLocale()) :
 					reason);
+			// 通过 response 对象直接返回错误信息给客户端
 			response.sendError(statusCode, resolvedReason);
 		}
 		return new ModelAndView();

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -42,6 +43,8 @@ import static org.junit.Assert.*;
  */
 public class PathMatchingResourcePatternResolverTests {
 
+	private static final Logger logger = Logger.getLogger(PathMatchingResourcePatternResolverTests.class);
+
 	private static final String[] CLASSES_IN_CORE_IO_SUPPORT =
 			new String[] {"EncodedResource.class", "LocalizedResourceHelper.class",
 					"PathMatchingResourcePatternResolver.class", "PropertiesLoaderSupport.class",
@@ -58,16 +61,18 @@ public class PathMatchingResourcePatternResolverTests {
 
 	private PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
 
-
+	// 没有找到文件
 	@Test(expected = FileNotFoundException.class)
 	public void invalidPrefixWithPatternElementInIt() throws IOException {
 		resolver.getResources("xx**:**/*.xy");
 	}
 
+	// 根据文件名直接获取文件(PS: 这里不考虑通配符)
 	@Test
 	public void singleResourceOnFileSystem() throws IOException {
 		Resource[] resources =
 				resolver.getResources("org/springframework/core/io/support/PathMatchingResourcePatternResolverTests.class");
+		logger.info("resources.size:" + resources.length);
 		assertEquals(1, resources.length);
 		assertProtocolAndFilenames(resources, "file", "PathMatchingResourcePatternResolverTests.class");
 	}
@@ -75,6 +80,7 @@ public class PathMatchingResourcePatternResolverTests {
 	@Test
 	public void singleResourceInJar() throws IOException {
 		Resource[] resources = resolver.getResources("java/net/URL.class");
+		logger.info("resources.size:" + resources.length);
 		assertEquals(1, resources.length);
 		assertProtocolAndFilenames(resources, "jar", "URL.class");
 	}
@@ -86,7 +92,9 @@ public class PathMatchingResourcePatternResolverTests {
 		// Have to exclude Clover-generated class files here,
 		// as we might be running as part of a Clover test run.
 		List<Resource> noCloverResources = new ArrayList<Resource>();
+		logger.info("resources.size:" + resources.length);
 		for (Resource resource : resources) {
+			logger.info("resource:" + resource);
 			if (!resource.getFilename().contains("$__CLOVER_")) {
 				noCloverResources.add(resource);
 			}

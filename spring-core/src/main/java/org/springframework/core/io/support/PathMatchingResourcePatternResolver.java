@@ -285,8 +285,8 @@ public class PathMatchingResourcePatternResolver implements ResourcePatternResol
         // 判断查找路径是否以 classpath*: 开头
 		if (locationPattern.startsWith(CLASSPATH_ALL_URL_PREFIX)) {
             // 判断查找多个文件还是单个, 即判断是否含有 * 或者 ?
-			// a class path resource (multiple resources for same name possible)
-			if (getPathMatcher().isPattern(locationPattern.substring(CLASSPATH_ALL_URL_PREFIX.length()))) {
+			// a class path resource (multiple resources for same name possible)	这里的 getPathMatcher 其实是 AntPathMatcher
+			if (getPathMatcher().isPattern(locationPattern.substring(CLASSPATH_ALL_URL_PREFIX.length()))) {		// 这里就是检测 locationPattern 是否含有 */? 字符串
 				// a class path resource pattern
                 // 即还需获取根目录
 				return findPathMatchingResources(locationPattern);
@@ -326,7 +326,7 @@ public class PathMatchingResourcePatternResolver implements ResourcePatternResol
 	protected Resource[] findAllClassPathResources(String location) throws IOException {
 		String path = location;
         // 例如 com/question/
-		if (path.startsWith("/")) {
+		if (path.startsWith("/")) {			// 若目录是根目录, 则直接转换成当前目录
 			path = path.substring(1);
 		}
         // 真实查找方法
@@ -344,7 +344,7 @@ public class PathMatchingResourcePatternResolver implements ResourcePatternResol
 	 * @return a mutable Set of matching Resource instances
 	 * @since 4.1.1
 	 */
-	protected Set<Resource> doFindAllClassPathResources(String path) throws IOException {
+	protected Set<Resource> doFindAllClassPathResources(String path) throws IOException {		// 这里其实就是通过 ClassLoader 来查找 URLClassPath 下面所有加载的 路径中包含 path 的资源
 		Set<Resource> result = new LinkedHashSet<Resource>(16);
 		ClassLoader cl = getClassLoader();
         // 通过 classLoader 来加载资源目录, 这里也会去找寻 classpath 路径下的 jar 包 或 zip 包
@@ -476,11 +476,11 @@ public class PathMatchingResourcePatternResolver implements ResourcePatternResol
      *
      * 查找指定路径下的所有资源, 同时支持 zip, jar 中资源的查找
 	 */
-	protected Resource[] findPathMatchingResources(String locationPattern) throws IOException {
+	protected Resource[] findPathMatchingResources(String locationPattern) throws IOException { // 例如这里的参数 classpath*:com/question/xjk*/*.class
         // 首先定位根目录路径 例如 classpath*:com/question/
-		String rootDirPath = determineRootDir(locationPattern);
+		String rootDirPath = determineRootDir(locationPattern);						// 获取没有含有 */? 的 文件目录
         // 默认 **/*.class
-		String subPattern = locationPattern.substring(rootDirPath.length());
+		String subPattern = locationPattern.substring(rootDirPath.length());		// 获取含有 */? 的目录字符串
         // 递归函数的调用, 此处会调用 PathMathingresourcePatternResolver#findAllClassPathResources 方法加载根目录, 找寻classpath路径下的根目录全路径, 包含 jar, zip 包
 		Resource[] rootDirResources = getResources(rootDirPath);
 		Set<Resource> result = new LinkedHashSet<Resource>(16);
@@ -527,9 +527,9 @@ public class PathMatchingResourcePatternResolver implements ResourcePatternResol
 	 */
 	protected String determineRootDir(String location) {
 		int prefixEnd = location.indexOf(":") + 1;
-		int rootDirEnd = location.length();
+		int rootDirEnd = location.length();					// 下面的 loop 里面有两个判断, 1: 是否一级一级目录都检查过了; 2: 是否下一级目录是否满足 Ant-style
 		while (rootDirEnd > prefixEnd && getPathMatcher().isPattern(location.substring(prefixEnd, rootDirEnd))) {
-			rootDirEnd = location.lastIndexOf('/', rootDirEnd - 2) + 1;
+			rootDirEnd = location.lastIndexOf('/', rootDirEnd - 2) + 1;			// 这里其实就是从字符串的尾部开始, 一个一个分割 字符串目录, 通过 AntPathMatcher 来判断剩余的 directory 是否满足 Ant-style
 		}
 		if (rootDirEnd == 0) {
 			rootDirEnd = prefixEnd;
@@ -838,7 +838,7 @@ public class PathMatchingResourcePatternResolver implements ResourcePatternResol
 					doRetrieveMatchingFiles(fullPattern, content, result);
 				}
 			}   // 查看当前文件路径是否满足 **/*.class格式, 满足则添加
-			if (getPathMatcher().match(fullPattern, currPath)) {
+			if (getPathMatcher().match(fullPattern, currPath)) {				// 这里就是用文件的全路径名称 与 Ant-style 风格的字符串进行比较 ,判断是否满足
 				result.add(content);
 			}
 		}

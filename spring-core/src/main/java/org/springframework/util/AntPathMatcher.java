@@ -357,7 +357,7 @@ public class AntPathMatcher implements PathMatcher {
 		return skipped;
 	}
 
-	private boolean isWildcardChar(char c) {
+	private boolean isWildcardChar(char c) {				// 判断 是否是 * ? { 字符串
 		for (char candidate : WILDCARD_CHARS) {
 			if (c == candidate) {
 				return true;
@@ -380,7 +380,7 @@ public class AntPathMatcher implements PathMatcher {
 			tokenized = this.tokenizedPatternCache.get(pattern);
 		}
 		if (tokenized == null) {
-			tokenized = tokenizePath(pattern);
+			tokenized = tokenizePath(pattern);							// 利用 "/" 进行划分 目录字符串
 			if (cachePatterns == null && this.tokenizedPatternCache.size() >= CACHE_TURNOFF_THRESHOLD) {
 				// Try to adapt to the runtime situation that we're encountering:
 				// There are obviously too many different patterns coming in here...

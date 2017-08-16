@@ -49,7 +49,7 @@ import org.springframework.web.servlet.handler.AbstractHandlerExceptionResolver;
  *
  * 参考资料
  * http://www.cnblogs.com/question-sky/p/7240628.html
- * 
+ *
  */
 public class ResponseStatusExceptionResolver extends AbstractHandlerExceptionResolver implements MessageSourceAware {
 

@@ -58,6 +58,10 @@ public class DelegatingEntityResolver implements EntityResolver {
 	 * (can be {@code null}) to use the default ClassLoader)
 	 */
 	public DelegatingEntityResolver(ClassLoader classLoader) {
+		// 这里有两种 Resolver, 一个是 DTD 的, 一个是 Schema 的, spring 会根据参数 systemId(一个 XML 定义的参数) 来选择使用
+		// BeanDtdResolver内部在 jar 包里找 Spring-beans-4.0.dtd 和 spring-beans.dtd
+		// 而 PluggableSchemaResolver 内部则是找 jar 包里面 的 META-INF/springs.schemas 文件, 里面的 Schema 文件(XSD)对应 jar 包里的路径, 通过这个来解析我们在
+		// spring 配置文件中定义的 xsd
 		this.dtdResolver = new BeansDtdResolver();
 		this.schemaResolver = new PluggableSchemaResolver(classLoader);
 	}

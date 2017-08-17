@@ -43,6 +43,9 @@ import java.net.URL;
  * @see PathResource
  * @see ByteArrayResource
  * @see InputStreamResource
+ *
+ * 参考资料: http://www.cnblogs.com/VergiLyn/p/6130188.html
+ *
  */
 public interface Resource extends InputStreamSource {
 
@@ -52,6 +55,7 @@ public interface Resource extends InputStreamSource {
 	 * existence of a {@code Resource} handle only guarantees a valid
 	 * descriptor handle.
 	 */
+	// 返回的资源是否存在
 	boolean exists();
 
 	/**
@@ -63,6 +67,7 @@ public interface Resource extends InputStreamSource {
 	 * that the resource content cannot be read.
 	 * @see #getInputStream()
 	 */
+	// 返回的资源是否可读
 	boolean isReadable();
 
 	/**
@@ -71,6 +76,7 @@ public interface Resource extends InputStreamSource {
 	 * and must be read and closed to avoid resource leaks.
 	 * <p>Will be {@code false} for typical resource descriptors.
 	 */
+	// 返回这个资源是否有已打开流的处理, 若果是 true, 则此 InputStream 就不能被多次读取, 而且只能被读取和关闭以免资源泄露
 	boolean isOpen();
 
 	/**
@@ -78,6 +84,7 @@ public interface Resource extends InputStreamSource {
 	 * @throws IOException if the resource cannot be resolved as URL,
 	 * i.e. if the resource is not available as descriptor
 	 */
+	// 转换 Resource 到 URL
 	URL getURL() throws IOException;
 
 	/**
@@ -95,6 +102,7 @@ public interface Resource extends InputStreamSource {
 	 * @throws IOException in case of general resolution/reading failures
 	 * @see #getInputStream()
 	 */
+	// 转换 Resource 到File
 	File getFile() throws IOException;
 
 	/**
@@ -102,6 +110,7 @@ public interface Resource extends InputStreamSource {
 	 * @throws IOException if the resource cannot be resolved
 	 * (in the file system or as some other known physical resource type)
 	 */
+	// 返回资源内容的长度
 	long contentLength() throws IOException;
 
 	/**
@@ -109,6 +118,7 @@ public interface Resource extends InputStreamSource {
 	 * @throws IOException if the resource cannot be resolved
 	 * (in the file system or as some other known physical resource type)
 	 */
+	// 资源上次修改时间
 	long lastModified() throws IOException;
 
 	/**
@@ -117,6 +127,7 @@ public interface Resource extends InputStreamSource {
 	 * @return the resource handle for the relative resource
 	 * @throws IOException if the relative resource cannot be determined
 	 */
+	// 创建资源相对于这个资源
 	Resource createRelative(String relativePath) throws IOException;
 
 	/**
@@ -134,6 +145,7 @@ public interface Resource extends InputStreamSource {
 	 * from their {@code toString} method.
 	 * @see Object#toString()
 	 */
+	// 返回资源的描述, 用于错误处理中打印的信息
 	String getDescription();
 
 }

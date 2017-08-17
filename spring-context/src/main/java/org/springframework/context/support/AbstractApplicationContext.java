@@ -452,7 +452,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * @see org.springframework.core.io.support.PathMatchingResourcePatternResolver
 	 */
 	protected ResourcePatternResolver getResourcePatternResolver() {
-		return new PathMatchingResourcePatternResolver(this);
+		return new PathMatchingResourcePatternResolver(this);		// 这个 PathMatchingResourcePatternResolver 就负责资源的匹配加载
 	}
 
 

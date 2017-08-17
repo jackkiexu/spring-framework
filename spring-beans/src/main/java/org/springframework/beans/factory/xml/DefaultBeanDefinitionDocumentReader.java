@@ -130,8 +130,10 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		// 具体的解析过程由 BeanDefinitionParserDelegate 实现
 		// BeanDefinitionParserDelegate中定义了 Spring Bean 定义 XML 文件的各种元素
 		BeanDefinitionParserDelegate parent = this.delegate;
+
 		// 创建 BeanDefinitionParserDelegate, 用于完成正真的解析过程
 		// 读取 <Beans> 标签中的 default-* 属性
+		// 创建解析的委托处理工具类
 		this.delegate = createDelegate(getReaderContext(), root, parent);
 
 		if (this.delegate.isDefaultNamespace(root)) {
@@ -151,12 +153,15 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		}
 		// 在解析 Bean 定义之前, 进行自定义的解析, 增强解析过程的可扩展性
 		// 预处理 bean xml配置文件中的自定义标签, 默认是空的
+		// 解析前置处理, 这里是空实现
 		preProcessXml(root);
 		// 解析 Bean.xml 配置文件
 		// 从 Document 的根元素开始进行 bean 定义的 Document 对象
+		// 解析整个文档, 轮询各个子节点分别解析,
 		parseBeanDefinitions(root, this.delegate);
 		// 在解析 Bean 定义之后, 进行自定义的解析, 增加解析过程的可扩展性
 		// 处理 bean xml 配置文件中的自定义标签, 默认是空的
+		// 解析后置处理, 也是空实现
 		postProcessXml(root);
 
 		this.delegate = parent;
@@ -191,6 +196,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 					Element ele = (Element) node;
 					//	Bean 定义的Document的元素节点使用的是 Spring 默认的 XML 命名空间
 					// 每个子节点都有自己的命名空间
+					// 若果是默认命名空间(beans), 则直接解析
 					if (delegate.isDefaultNamespace(ele)) {
 						// 使用 Spring 的 Bean 规则解析元素节点
 						// 解析 import 标签, alias 标签, bean 标签, 内置 <beans> 标签
@@ -199,6 +205,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 					else {
 						// 没有使用 Spring 默认的 XML 命名空间, 则使用用户自定义的解析规则解析元素节点
 						// 解析自定义标签, 例如 <context:component-scan basePackage="" />
+						// 如果是非默认空间, 则使用解析框架完成解析
 						delegate.parseCustomElement(ele);
 					}
 				}

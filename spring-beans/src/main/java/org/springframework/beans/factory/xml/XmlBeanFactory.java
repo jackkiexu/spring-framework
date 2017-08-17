@@ -49,6 +49,9 @@ import org.springframework.core.io.Resource;
  * @see XmlBeanDefinitionReader
  * @deprecated as of Spring 3.1 in favor of {@link DefaultListableBeanFactory} and
  * {@link XmlBeanDefinitionReader}
+ *
+ * 参考资料
+ * http://www.cnblogs.com/VergiLyn/p/6130188.html
  */
 @Deprecated
 @SuppressWarnings({"serial", "all"})
@@ -75,8 +78,21 @@ public class XmlBeanFactory extends DefaultListableBeanFactory {
 	 * @throws BeansException in case of loading or parsing errors
 	 */
 	public XmlBeanFactory(Resource resource, BeanFactory parentBeanFactory) throws BeansException {
-		super(parentBeanFactory);
-		this.reader.loadBeanDefinitions(resource);
+		// 调用父类的构造函数, 进行一个 重要的处理
+		/**
+		 * 在 AbstractAutowireCapableBeanFactory.class构造函数中有如下设置
+		 * 		ignoreDependencyInterface(BeanNameWare.class)
+		 * 		ignoreDependencyInterface(BeanFactoryAwrae.class)
+		 * 		ignoreDependencyInterface(BeanClassLoaderAware.class)
+		 *
+		 * 	为什么会有上面的 ignore 接口初始化呢?
+		 * 	当 A 中有属性B时, 在 Spring 获取A的Bean的时候, 如果属性 B还没有初始化, 则 Spring 会自动初始化B(这是Spring 的一个重要特性)
+		 * 	但是, 某些情况下, B 不会被初始化, 其中一种情况就是 B 实现了 BeanNameAware 接口
+		 * 	ignoreDependencyInterface 中注释说明了, 忽略给定依赖接口的自动装配功能, 典型的是通过其他凡是解析 ApplicationContext
+		 * 	比如: BeanFactory 通过 BeanFactoryAware 进行注入, 或者 ApplicationContext 通过 ApplicationContextAware 进行注入
+		 */
+		super(parentBeanFactory);						// 此处调用 AbstractAutowireCapableBeanFactory.class
+		this.reader.loadBeanDefinitions(resource);		// 整个资源加载的核心
 	}
 
 }

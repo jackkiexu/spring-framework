@@ -30,6 +30,18 @@ import org.springframework.util.StringUtils;
  * @author Rob Harrop
  * @author Juergen Hoeller
  * @since 2.0
+ *
+ * 参考资料: http://www.cnblogs.com/VergiLyn/p/6130188.html
+ *
+ * 为了保证文件的正确性, 一般对 xml 的验证模式有2种
+ * 1. DTD: Document Type Definition 类型定义
+ * 2. XSD: XML Schemas Definition XML 结构定义
+ *
+ * 在 spring XMLBeanDefinitionreader 中 setValidationMode(int x) 可以设置 XML 的验证方式, 如果为设置, 则自动检测模式
+ * XmlBeanDefinitionReader.getValidationModeForResource(Resource resource) 可以获取xml的验证方式
+ * 在其内部又把自动检测 detectValidationMode(resource resource) 交给专门用于处理 xml 验证的类 XmlvalidationModeDetector
+ * 在 XmlValidationModeDetector.class内部, 判断 xml 验证模式的标准是: xml 中是否包含 "DOCTYPE", 如果包含则 DTD 验证, 否则用 XSD
+ *
  */
 public class XmlValidationModeDetector {
 
@@ -85,6 +97,11 @@ public class XmlValidationModeDetector {
 	 * @throws IOException in case of I/O failure
 	 * @see #VALIDATION_DTD
 	 * @see #VALIDATION_XSD
+	 *
+	 * 参考资料
+	 * http://www.infocool.net/kb/Java/201607/167680.html#自带命名空间标签的解析
+	 *
+	 * 如果找到 DOCTYPE 定义, 那么就是 DTD的, 否则就是 Schema 模式
 	 */
 	public int detectValidationMode(InputStream inputStream) throws IOException {
 		// Peek into the file to look for DOCTYPE.
@@ -93,14 +110,17 @@ public class XmlValidationModeDetector {
 			boolean isDtdValidated = false;
 			String content;
 			while ((content = reader.readLine()) != null) {
-				content = consumeCommentTokens(content);
+				content = consumeCommentTokens(content);				// 这里的 consumeCommentTokens 其实就是去掉 注解
+				// 读取的行是 null, 或者是注释, 则滤过
 				if (this.inComment || !StringUtils.hasText(content)) {
 					continue;
 				}
+				// 如果包含 DOCTYPE 则验证模式是 DTD, 否则是XSD
 				if (hasDoctype(content)) {
 					isDtdValidated = true;
 					break;
 				}
+				// 读取到 < 开始符号, 验证模式会在开始符号之前(分析 xml 结构)
 				if (hasOpeningTag(content)) {
 					// End of meaningful data...
 					break;
@@ -136,6 +156,7 @@ public class XmlValidationModeDetector {
 			return false;
 		}
 		int openTagIndex = content.indexOf('<');
+		// Character.isLetter 确定字符是字母, 是字母返回 true
 		return (openTagIndex > -1 && (content.length() > openTagIndex + 1) &&
 				Character.isLetter(content.charAt(openTagIndex + 1)));
 	}
@@ -147,10 +168,12 @@ public class XmlValidationModeDetector {
 	 * the DOCTYPE declaration or the root element of the document.
 	 */
 	private String consumeCommentTokens(String line) {
+		// 首先如果没有带 <!-- 或 --> 的直接返回内容代表没有在注解里面
 		if (!line.contains(START_COMMENT) && !line.contains(END_COMMENT)) {
 			return line;
 		}
 		while ((line = consume(line)) != null) {
+			// 没有在注解中或者不是由注解开头的返回内容, inComment 的这个标识位标识当前是否在注解中
 			if (!this.inComment && !line.trim().startsWith(START_COMMENT)) {
 				return line;
 			}
@@ -163,6 +186,7 @@ public class XmlValidationModeDetector {
 	 * and return the remaining content.
 	 */
 	private String consume(String line) {
+		// 如果当前在注解中, 消费注释结尾标记 -->, 否则消费 <!--
 		int index = (this.inComment ? endComment(line) : startComment(line));
 		return (index == -1 ? null : line.substring(index));
 	}
@@ -171,11 +195,14 @@ public class XmlValidationModeDetector {
 	 * Try to consume the {@link #START_COMMENT} token.
 	 * @see #commentToken(String, String, boolean)
 	 */
+	// 注: inComment 这个标注主要是为了多行注释处理
 	private int startComment(String line) {
+		// 如果找到注释开头标记, 把 inComment 设置为 true
 		return commentToken(line, START_COMMENT, true);
 	}
 
 	private int endComment(String line) {
+		// 如果找到 注释结尾标记, 把 inComment 设置为 false, 代表 这个注释块结束
 		return commentToken(line, END_COMMENT, false);
 	}
 
@@ -185,10 +212,12 @@ public class XmlValidationModeDetector {
 	 * which is after the token or -1 if the token is not found.
 	 */
 	private int commentToken(String line, String token, boolean inCommentIfPresent) {
+		// 如果找到注释标记
 		int index = line.indexOf(token);
 		if (index > - 1) {
 			this.inComment = inCommentIfPresent;
 		}
+		// 得到去掉注释后内容的开头 index
 		return (index == -1 ? index : index + token.length());
 	}
 

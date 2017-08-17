@@ -91,6 +91,7 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
 		beanDefinitionReader.setEnvironment(this.getEnvironment());
 		// 为 Bean 读取器设置 Spring 资源加载器, AbstractXmlApplicationContext的
 		// 祖先父类 AbstractApplicationContext继承DefaultResourceLoader, 因此, 容器本身也是一种资源加载器
+		// resourceLoadeer 用于加载配置文件为 Resource
 		beanDefinitionReader.setResourceLoader(this);
 		// 为 Bean 读取器设置 SAX.xml 解析器
 		beanDefinitionReader.setEntityResolver(new ResourceEntityResolver(this));
@@ -100,6 +101,7 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
 		// 当 Bean 读取器读取 Bean 定义的 xml 资源文件时, 使用的 XML 的校验机制
 		initBeanDefinitionReader(beanDefinitionReader);
 		// Bean 读取器真正实现加载的方法
+		// 调用 XmlBeanDefinitionReader 的 loadBeanDefinitions 方法开始加载配置文件
 		loadBeanDefinitions(beanDefinitionReader);
 	}
 

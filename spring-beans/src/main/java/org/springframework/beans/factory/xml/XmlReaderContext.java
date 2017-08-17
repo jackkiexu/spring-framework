@@ -40,11 +40,16 @@ import org.springframework.core.io.ResourceLoader;
  * @author Rob Harrop
  * @author Juergen Hoeller
  * @since 2.0
+ *
+ * 参考资料
+ * http://acooly.iteye.com/blog/1707354
+ *
  */
 public class XmlReaderContext extends ReaderContext {
-
+	// 里面保存了 beanFactoryRegister 的实现 DefaultListableBeanFactory, 也就是 ICO 容器的内部 beanFactory, 注册的 BeanDefinition 就放在这里面
 	private final XmlBeanDefinitionReader reader;
-
+	// XML 配置文件中的各种名字空间(如 : context) 定义的节点(如: context:property-placeholder) 的对应解析器的分解器, 实现通过 Namespace systemId 找到对应的解析器的类路径
+	// 主要还是通过读取各个 JAR 文件的 META-INF/spring.handlers 文件实现
 	private final NamespaceHandlerResolver namespaceHandlerResolver;
 
 

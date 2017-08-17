@@ -40,6 +40,11 @@ import org.springframework.util.ObjectUtils;
  * @see Resource#getInputStream()
  * @see java.io.Reader
  * @see java.nio.charset.Charset
+ *
+ * 参考资料: http://www.cnblogs.com/VergiLyn/p/6130188.html
+ *
+ * 对 Resource 进行封装, 考虑到 可能对编码有要求, 所以 EncodedResource 可以指定 encoding 可以指定 encoding 编码, charset 字符集
+ * 当指定后, 获取 Reader 会根据 charset, encoding, default 的顺序去获取 InputStreamReader 看局土代码 getReader()
  */
 public class EncodedResource implements InputStreamSource {
 
@@ -123,6 +128,7 @@ public class EncodedResource implements InputStreamSource {
 	}
 
 	/**
+	 * 当设置了encoding 或者 charset 后, 会通过指定的去获取 InputStreamreader
 	 * Open a {@code java.io.Reader} for the specified resource, using the specified
 	 * {@link #getCharset() Charset} or {@linkplain #getEncoding() encoding}
 	 * (if any).

@@ -25,15 +25,19 @@ import org.springframework.core.io.Resource;
  * @author Rob Harrop
  * @author Juergen Hoeller
  * @since 2.0
+ *
+ * 参开资料
+ * http://acooly.iteye.com/blog/1707354
+ *
  */
 public class ReaderContext {
 
 	private final Resource resource;
-
+	// 错误处理 FailFastProblemReporter
 	private final ProblemReporter problemReporter;
-
+	// 时间处理 EmptyReaderEventListener 空实现
 	private final ReaderEventListener eventListener;
-
+	// 源抽取器 NullSourceExtractor 空实现
 	private final SourceExtractor sourceExtractor;
 
 

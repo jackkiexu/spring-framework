@@ -4,3 +4,20 @@ http://www.cnblogs.com/question-sky/tag/Spring/
 
 SpringMVC
 http://www.cnblogs.com/question-sky/tag/SpringMVC/
+
+Document 读取 XML, 用 DTD 校验 XML
+http://blog.csdn.net/disiwei1012/article/details/75209030
+http://www.cnblogs.com/nerxious/archive/2013/05/03/3057191.html
+http://acooly.iteye.com/blog/1707354
+(下面这个非常好)
+http://uuu999ggg.iteye.com/blog/1003626
+
+Spring 解析自定义 XSD 的步骤
+1. 查看 schema 中 "xsi:schemaLocation" 前面的域名, 后面是具体文件名.
+2. 通过 PluggableSchemaResolver 会根据 "META-INF/spring-schemas" 里面的值. 通过前面的文件名对应 properties 的值找到具体本地的 xsd 文件, 然后进行 resolve
+
+通过三个类
+PluggableSchemaResolver 继承 EntityResolver 通过一个 properties 文件把 url 映射为本地文件
+DelegatingEntityResolver 继承 EntityResolver
+ResourceEntityResolver 继承 DelegatingEntityResolver
+

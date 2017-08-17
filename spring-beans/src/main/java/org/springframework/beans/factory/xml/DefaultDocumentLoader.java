@@ -43,6 +43,8 @@ import org.springframework.util.xml.XmlValidationModeDetector;
  * @author Rob Harrop
  * @author Juergen Hoeller
  * @since 2.0
+ *
+ * 参考资料: http://www.cnblogs.com/VergiLyn/p/6130188.html
  */
 public class DefaultDocumentLoader implements DocumentLoader {
 
@@ -68,13 +70,20 @@ public class DefaultDocumentLoader implements DocumentLoader {
 	@Override
 	public Document loadDocument(InputSource inputSource, EntityResolver entityResolver,
 			ErrorHandler errorHandler, int validationMode, boolean namespaceAware) throws Exception {
+
+		/**
+		 * 利用给定的 validationMode, namespaceAware, 创建一个 javax.xml.parsers.DocumentBuilderFactory 的实例
+		 * 主要是对验证模式是 XSD 的处理
+		 */
 		// 创建文件解析工厂
 		DocumentBuilderFactory factory = createDocumentBuilderFactory(validationMode, namespaceAware);
 		if (logger.isDebugEnabled()) {
 			logger.debug("Using JAXP provider [" + factory.getClass().getName() + "]");
 		}
+		// 利用创建的 DocuementBuilderFactory 和给定的 entityresolver, errorhandler 构造 javax.xml.parsers.DocumentBuilder
 		// 创建文档解析器
 		DocumentBuilder builder = createDocumentBuilder(factory, entityResolver, errorHandler);
+		// 用得到额 DocumentBuilder 解析InputSource 返回 Document
 		// 解析 Spring 的 bean 定义资源
 		return builder.parse(inputSource);
 	}
@@ -86,19 +95,27 @@ public class DefaultDocumentLoader implements DocumentLoader {
 	 * @param namespaceAware whether the returned factory is to provide support for XML namespaces
 	 * @return the JAXP DocumentBuilderFactory
 	 * @throws ParserConfigurationException if we failed to build a proper DocumentBuilderFactory
+	 *
+	 * 参考资料
+	 * http://acooly.iteye.com/blog/1707354
+	 * 创建一个 javax.xml.parsers.DocumentBuilderFactory 的实例
+	 * 主要对验证模式是 XSD 的处理
 	 */
 	protected DocumentBuilderFactory createDocumentBuilderFactory(int validationMode, boolean namespaceAware)
 			throws ParserConfigurationException {
 		// 创建文档解析工厂
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		// 是否支持命名空间
 		factory.setNamespaceAware(namespaceAware);
+
+		// 如果需要进行 XML 验证, 而且是 XSD 验证, 强制支持命名空间
 		// 设置解析 XML 的校验
 		if (validationMode != XmlValidationModeDetector.VALIDATION_NONE) {
 			factory.setValidating(true);
 			if (validationMode == XmlValidationModeDetector.VALIDATION_XSD) {
 				// Enforce namespace aware for XSD...
 				factory.setNamespaceAware(true);
-				try {
+				try { // 注意这里设置 XSD 的样子采用 W3C 标准验证方式: http://www.w3.org/2001/XMLSchema
 					factory.setAttribute(SCHEMA_LANGUAGE_ATTRIBUTE, XSD_SCHEMA_LANGUAGE);
 				}
 				catch (IllegalArgumentException ex) {
@@ -125,15 +142,22 @@ public class DefaultDocumentLoader implements DocumentLoader {
 	 * @param errorHandler the SAX ErrorHandler to use
 	 * @return the JAXP DocumentBuilder
 	 * @throws ParserConfigurationException if thrown by JAXP methods
+	 *
+	 * 参考资料
+	 * http://acooly.iteye.com/blog/1707354
+	 * 创建一个 JAXP 的 DocumentBuilder, 这个 bean 定义阅读将用于解析 xml 文档
 	 */
 	protected DocumentBuilder createDocumentBuilder(
 			DocumentBuilderFactory factory, EntityResolver entityResolver, ErrorHandler errorHandler)
 			throws ParserConfigurationException {
 
 		DocumentBuilder docBuilder = factory.newDocumentBuilder();
+		// 设置 XML 验证文件 XSD 的本地映射转换的实体分解器
+		// （PS: http://www.springframework.org/schema/context/spring-context-3.0.xsd 转换为 包路径下org/springframework/context/config/spring-context-3.0.xsd）
 		if (entityResolver != null) {
 			docBuilder.setEntityResolver(entityResolver);
 		}
+		// 设置 JAXP 解析的错误处理回调
 		if (errorHandler != null) {
 			docBuilder.setErrorHandler(errorHandler);
 		}

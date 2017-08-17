@@ -39,6 +39,10 @@ import org.springframework.util.StringUtils;
  * @since 28.12.2003
  * @see ClassLoader#getResourceAsStream(String)
  * @see Class#getResourceAsStream(String)
+ *
+ * 参考资料: http://www.cnblogs.com/VergiLyn/p/6130188.html
+ * Resource 的实现类, 使用给定的 ClassLoader 或者 Class 去加载资源文件
+ *
  */
 public class ClassPathResource extends AbstractFileResolvingResource {
 
@@ -158,6 +162,7 @@ public class ClassPathResource extends AbstractFileResolvingResource {
 	 */
 	@Override
 	public InputStream getInputStream() throws IOException {
+		// 下面通过 class/ClassLoader 来判断怎么去读取资源
 		InputStream is;
 		if (this.clazz != null) {
 			is = this.clazz.getResourceAsStream(this.path);

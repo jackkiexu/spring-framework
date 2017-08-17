@@ -73,6 +73,10 @@ import org.springframework.util.xml.XmlValidationModeDetector;
  * @see BeanDefinitionRegistry
  * @see org.springframework.beans.factory.support.DefaultListableBeanFactory
  * @see org.springframework.context.support.GenericApplicationContext
+ *
+ * 参考资料: http://www.cnblogs.com/VergiLyn/p/6130188.html
+ *
+ * 整个 XML 加载的核心代码
  */
 public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 
@@ -113,7 +117,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	private SourceExtractor sourceExtractor = new NullSourceExtractor();
 
 	private NamespaceHandlerResolver namespaceHandlerResolver;
-
+	// DocumentLoader 是一个接口, spring 唯一实现类是 DefaultDocumentLoader
 	private DocumentLoader documentLoader = new DefaultDocumentLoader();
 
 	private EntityResolver entityResolver;
@@ -122,6 +126,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 
 	private final XmlValidationModeDetector validationModeDetector = new XmlValidationModeDetector();
 
+	// 记录加载过的资源(PS: 这里使用了 ThreadLocal)
 	private final ThreadLocal<Set<EncodedResource>> resourcesCurrentlyBeingLoaded =
 			new NamedThreadLocal<Set<EncodedResource>>("XML bean definition resources currently being loaded");
 
@@ -231,6 +236,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	}
 
 	/**
+	 * 可以自己实现 DocumentLoader, 然后通过该方法设置 documentLoader
 	 * Specify the {@link DocumentLoader} to use.
 	 * <p>The default implementation is {@link DefaultDocumentLoader}
 	 * which loads {@link Document} instances using JAXP.
@@ -251,6 +257,13 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	/**
 	 * Return the EntityResolver to use, building a default resolver
 	 * if none specified.
+	 * 参考资料
+	 * http://www.infocool.net/kb/Java/201607/167680.html#自带命名空间标签的解析
+	 *
+	 * EntityResolver 是个什么概念呢? 我们定义的 XML 文件由引用相关的 DTD 和 XSD, 他们都是 一个 URL, 那么一般会从网络上下载这些 DTD 和 XSD, 但是
+	 * 但网络不好的时候或者网络断网的时候就体验不好或者无法做到, 这里使用了 EntityResolver 解析本地 DTD 和 XSD(Schema)
+	 * 这里有两种 EntityResolver: ResourceEntityResolver 和 DelegatingEntityResolver, 而实际上前者是后者的子类. 前者的作用是如果
+	 * DelegatingEntityResolver 加载不到资源, 那么再使用已设置的 ResourceLoader 尝试加载资源
 	 */
 	protected EntityResolver getEntityResolver() {
 		if (this.entityResolver == null) {
@@ -302,6 +315,12 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	// XmlBeanDefinitionReader 加载资源的入口方法
 	@Override
 	public int loadBeanDefinitions(Resource resource) throws BeanDefinitionStoreException {
+		/**
+		 * 1. 把 Resource 进一步封装为 EncodeResource
+		 * 		原因: 考虑到 Resource 可能对 编码有要求, 所有 EncodedResource 可以指定 encoding编码, charset字符集
+		 * 		EncodedResource 中的重要的方法是getReader(), 返回 InoutStreamReader.class
+		 * 2. 再调用加载资源的方法
+		 */
 		return loadBeanDefinitions(new EncodedResource(resource));		// 将读入的XML资源进行特殊的编码处理
 	}
 
@@ -318,23 +337,30 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 		if (logger.isInfoEnabled()) {
 			logger.info("Loading XML bean definitions from " + encodedResource.getResource());
 		}
-
+		// 通过类属性 resourcesCurrentlyBeingLoaded 记录已加载的资源
 		Set<EncodedResource> currentResources = this.resourcesCurrentlyBeingLoaded.get();
 		if (currentResources == null) {
 			currentResources = new HashSet<EncodedResource>(4);
 			this.resourcesCurrentlyBeingLoaded.set(currentResources);
 		}
+		// 添加新资源到类属性, 最后 finally 中有 remove() 处理循环加载 exception
 		if (!currentResources.add(encodedResource)) {
+			// 循环加载 exception
 			throw new BeanDefinitionStoreException(
 					"Detected cyclic loading of " + encodedResource + " - check your import definitions!");
 		}
-		try {	// 将资源文件转为 InputStream 的 IO 流
+		try {
+			// 封装的 EncodedResource 先获取 Resource, 再通过 Resource 获取 InputStream
+			// 将资源文件转为 InputStream 的 IO 流
 			InputStream inputStream = encodedResource.getResource().getInputStream();
-			try {	// 从 InputStream 中得到XML的解析源
+			try {
+				// 从 InputStream 中得到XML的解析源
+				// 把 InputStream 封装成 InputSource
 				InputSource inputSource = new InputSource(inputStream);
 				if (encodedResource.getEncoding() != null) {
 					inputSource.setEncoding(encodedResource.getEncoding());
 				}
+				// doLoadbeanDefinitions 才是核心加载资源文件的方法
 				return doLoadBeanDefinitions(inputSource, encodedResource.getResource());		// 这里是具体的读取过程
 			}
 			finally {
@@ -428,6 +454,29 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * @throws Exception when thrown from the DocumentLoader
 	 * @see #setDocumentLoader
 	 * @see DocumentLoader#loadDocument
+	 *
+	 * 参考资料
+	 * https://duqingfeng.me/2017/07/19/spring%E6%BA%90%E7%A0%81%E2%80%94%E2%80%94%E4%BB%8Exml%E5%88%B0org.w3c.dom.Document/
+	 * http://blog.csdn.net/disiwei1012/article/details/75209030
+	 *
+	 * 常见的 XML 解析方法有 DOM, SAX, dom4j 等, 那么 Spring 采用的是哪一种方式?
+	 * spring 中采用的是 Dom 方法, 所要做的一切就是得到  org.w3c.dom.Document
+	 *
+	 * loaDocument 传递的参数有
+	 * 1. EntityResolver: 指定XML验证方法,  实现先从本地获取 XSD 或者 DTD 文件
+	 * 2. errorHandler: 解析错误处理类
+	 * 3. ValidationMode: 验证方式 XSD, DTD
+	 * 4. isNamespaceAware: 是否支持命名空间
+	 *
+	 * inputSource: 就是通过Resource.getInputStream() 再用 InputStream 构造 InputSource
+	 * getEntityResolver: 得到一个实体解析器(org.xml.sax.EntityResolver), 可以通过 AbstractBeanDefinitionReader.setResourceLoader() 设置
+	 * EntityResolver: DelegatingEntityResolver 实现对文档验证实体的转换 ,可以自动实现转换 http.. 形式的 DTD 和 XSD 文件到本地, 对无互联网环境的支持
+	 * ErrorHandler: SimpleSaxErrorHandler 进行错误回调处理
+	 * getValidationModeForResource: 判断 XML 文档内定义的验证类型(DTD和 XSD), 其实就是逐行判断文档里面是否有 "DOCTYPE", 有则是 DTD 否则是 XSD
+	 * 		获取对 XML 文件验证模式
+	 *
+	 * 利用 spring 核心的 DocumentLoader 加载XMl, 得到对应 org.w3c.dom.Document
+	 *
 	 */
 	protected Document doLoadDocument(InputSource inputSource, Resource resource) throws Exception {
 		return this.documentLoader.loadDocument(inputSource, getEntityResolver(), this.errorHandler,
@@ -441,12 +490,17 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * {@link #detectValidationMode detected}.
 	 * <p>Override this method if you would like full control over the validation
 	 * mode, even when something other than {@link #VALIDATION_AUTO} was set.
+	 *
+	 * 获取指定的 Resource 的验证模式, 如果没有配置明确的验证模式, 则使用自动检测
 	 */
 	protected int getValidationModeForResource(Resource resource) {
+		// 如果手动指定了 验证模式, 则使用指定的
+		// 可在 XMlBeanDefinitionReader.setValidationMode() 方法设置
 		int validationModeToUse = getValidationMode();
 		if (validationModeToUse != VALIDATION_AUTO) {
 			return validationModeToUse;
-		}
+		}	// 判断 XML 文档内定义的验证类型(DTD和 XSD), 其实就是逐行判断文档里面是否有 "DOCTYPE", 有则是 DTD 否则是 XSD
+		// 未指定, 则使用自动检测
 		int detectedMode = detectValidationMode(resource);
 		if (detectedMode != VALIDATION_AUTO) {
 			return detectedMode;
@@ -464,6 +518,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * <p>Override this method if you would like to customize resolution
 	 * of the {@link #VALIDATION_AUTO} mode.
 	 */
+	// 判断 XML 文档内定义的验证类型(DTD和 XSD), 其实就是逐行判断文档里面是否有 "DOCTYPE", 有则是 DTD 否则是 XSD
 	protected int detectValidationMode(Resource resource) {
 		if (resource.isOpen()) {
 			throw new BeanDefinitionStoreException(
@@ -484,7 +539,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 					"validationMode on your XmlBeanDefinitionReader instance?", ex);
 		}
 
-		try {
+		try {	// 判断 XML 文档内定义的验证类型(DTD和 XSD), 其实就是逐行判断文档里面是否有 "DOCTYPE", 有则是 DTD 否则是 XSD
 			return this.validationModeDetector.detectValidationMode(inputStream);
 		}
 		catch (IOException ex) {
@@ -505,18 +560,30 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * @see #loadBeanDefinitions
 	 * @see #setDocumentReaderClass
 	 * @see BeanDefinitionDocumentReader#registerBeanDefinitions
+	 *
+	 * 参考资料: http://acooly.iteye.com/blog/1707354
+	 * 可以开始真正的解析了. 对 Document 的解析分为两种情况, 一种是默认的名字空间 beans (http://www.springframework.org/schema/beans, 无前缀的配置如: bean)
+	 * 和其他命名空间的节点的解析(有前缀, 如 context:property-placeholder)
+	 *
+	 * 无前缀的 beans 默认命名空间节点: 采用 BeanDefinitionParserDelegate(解析工具类) 完成节点的解析
+	 * 有前缀的其他命名空间节点: 使用解析框架完成解析, 具体逻辑为首先使用 namespace的 SystemId(就是URL 全路径) 通过 NamespacehandlerResolver 找到对应 Namespacehandler,
+	 * 		然后通过具体的 NamespaceHandler 的 parse 方法解析节点, 在Namespacehandler 内部通过节点名称找到对应 BeanDefinitionParser 解析器完成节点的解析并完成 beanDefinition
 	 */
 	// 按照 Spring 的 Bean 语义要求将 Bean 定义资源解析并转换为容器内部的数据结构
 	public int registerBeanDefinitions(Document doc, Resource resource) throws BeanDefinitionStoreException {
 		// 得到  BeanDefinitionDocumentReader 来对 XML 格式的 BeanDefinition解析
+		// 实际实现类是: DefaultBeanDefinitionDocumentReader
 		BeanDefinitionDocumentReader documentReader = createBeanDefinitionDocumentReader();
 		// 获取容器中注册的 bean 的数量
 		// 此处的 getRegistry() 方法返回的实例为 DefaultListableBeanFactory 类型
+		// 获取 BeanFactory 已经注册的 BeanDefinition 数量
 		int countBefore = getRegistry().getBeanDefinitionCount();
 		// 解析过程入口, 这里使用了委派模式, BeanDefinitionDocumentReader 只是一个接口, 具体的解析实现过程由实现类 DefaultbeanDefinitionDocumentReader 完成
 		// 调用 DefaultBeanDefinitionDocumentReader.registerBeanDefinition 方法
+		// 核心方法: 通过 BeanDefinitionDocumentReader 注册 doc 中定义的 bean 到 BeanFactory 中
 		documentReader.registerBeanDefinitions(doc, createReaderContext(resource));
 		// 统计解析的 Bean 数量
+		// 返回 本次注册的 BeanDefinition 的数量 = 目前 BeanFactory 中的总数 - countBefore
 		return getRegistry().getBeanDefinitionCount() - countBefore;
 	}
 

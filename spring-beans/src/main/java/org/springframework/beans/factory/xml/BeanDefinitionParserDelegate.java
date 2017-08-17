@@ -1479,6 +1479,14 @@ public class BeanDefinitionParserDelegate {
 		return parseCustomElement(ele, null);
 	}
 
+	/**
+	 * 参考资料 : http://acooly.iteye.com/blog/1707354
+	 *
+	 * Demo
+	 * context:property-placeholder 节点在解析过程中使用的 NamespaceHandler 和 beanDefinitionParser 可以直接查看 Spring-context-4.3.x.jar 的 META-INF/spring.handlers 文件内容
+	 * （http://www.springframework.org/schema/context=org.springframework.context.config.ContextNamespaceHandler），可以知道context名字空间使用的是ContextNamespaceHandler
+	 */
+	// 实现对非默认命名空间节点的通用解析框架
 	// 此处的 containingBd 为 null
 	public BeanDefinition parseCustomElement(Element ele, BeanDefinition containingBd) {
 		// 获取命名空间

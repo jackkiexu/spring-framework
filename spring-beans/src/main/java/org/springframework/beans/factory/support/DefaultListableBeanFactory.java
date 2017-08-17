@@ -814,7 +814,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 
 	//---------------------------------------------------------------------
-	// Implementation of BeanDefinitionRegistry interface
+	// Implementation of BeanDefinitionRegistry interface 实现 BeanDefinition 的注册
 	//---------------------------------------------------------------------
 	// 向 Ioc 容器注册解析的 BeanDefinition
 	@Override
@@ -888,10 +888,10 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 				this.beanDefinitionMap.put(beanName, beanDefinition);
 				this.beanDefinitionNames.add(beanName);
 				this.manualSingletonNames.remove(beanName);
-			}
+			}	// 新注册的 bean-definition
 			this.frozenBeanDefinitionNames = null;
 		}
-
+		// 处理允许 重复 bean-definition 的情况
 		if (oldBeanDefinition != null || containsSingleton(beanName)) {
 			// 重置所有已经注册过的 BeanDefinition 的缓存
 			resetBeanDefinition(beanName);

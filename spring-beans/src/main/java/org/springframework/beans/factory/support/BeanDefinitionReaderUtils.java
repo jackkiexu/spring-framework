@@ -147,6 +147,7 @@ public class BeanDefinitionReaderUtils {
 		// 获取解析的 BeanDefinition 的名称
 		// Register bean definition under primary name.
 		String beanName = definitionHolder.getBeanName();
+		// 最终的 bean 注册, 把 bean definition 保存到 map 中
 		// 向 Ioc 容器注册 BeanDefinition
 		registry.registerBeanDefinition(beanName, definitionHolder.getBeanDefinition());
 		// 如果解析的 BeanDefinition 有别名, 向容器为其注册别名

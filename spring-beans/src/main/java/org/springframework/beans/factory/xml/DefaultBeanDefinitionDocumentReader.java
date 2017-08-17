@@ -53,6 +53,9 @@ import org.springframework.util.StringUtils;
  * @author Rob Harrop
  * @author Erik Wiersma
  * @since 18.12.2003
+ *
+ * 参考资料: http://www.cnblogs.com/VergiLyn/p/6130188.html
+ *
  */
 public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocumentReader {
 
@@ -81,8 +84,13 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 
 
 	/**
+	 * 注册 bean definition 的核心, 该方法提取 Document 中的 org.w3c.dom.Element 及设置 XmlReaderContext readerContext = XX
+	 * 然后把提取的 Element 传入核心的 doRegisterBeanDefinition(element) 进一步处理
+	 *
+	 * 根据 XSD / DTD 解析除 Bean Definition
 	 * This implementation parses bean definitions according to the "spring-beans" XSD
 	 * (or DTD, historically).
+	 * 打开一个 DOM 文档, 然后初始化在默认的指定的 <bean/> 中, 最后解析包含的 bean definition
 	 * <p>Opens a DOM Document; then initializes the default settings
 	 * specified at the {@code <beans/>} level; then parses the contained bean definitions.
 	 */
@@ -118,6 +126,10 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 
 
 	/**
+	 * 注册的核心方法, 利用了模板方法
+	 * 注册每个 bean definition 从给定的元素 <bean/> 中
+	 * 如果想在 XML 解析前后对 Element 元素做一些处理
+	 * 	则在 DefaultBeanDefinitionDocumentreader 的子类重写 preProcessXml(...) postProcessXml(..) 即可
 	 * Register each bean definition within the given root {@code <beans/>} element.
 	 */
 	protected void doRegisterBeanDefinitions(Element root) {
@@ -153,7 +165,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		}
 		// 在解析 Bean 定义之前, 进行自定义的解析, 增强解析过程的可扩展性
 		// 预处理 bean xml配置文件中的自定义标签, 默认是空的
-		// 解析前置处理, 这里是空实现
+		// 解析前置处理, 这里是空实现 留给子类实现
 		preProcessXml(root);
 		// 解析 Bean.xml 配置文件
 		// 从 Document 的根元素开始进行 bean 定义的 Document 对象
@@ -161,12 +173,13 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		parseBeanDefinitions(root, this.delegate);
 		// 在解析 Bean 定义之后, 进行自定义的解析, 增加解析过程的可扩展性
 		// 处理 bean xml 配置文件中的自定义标签, 默认是空的
-		// 解析后置处理, 也是空实现
+		// 解析后置处理, 也是空实现 留给子类实现
 		postProcessXml(root);
 
 		this.delegate = parent;
 	}
 
+	// 创建 BeanDefinitionParserDelegate 用于解析 默认标签
 	protected BeanDefinitionParserDelegate createDelegate(
 			XmlReaderContext readerContext, Element root, BeanDefinitionParserDelegate parentDelegate) {
 
@@ -196,7 +209,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 					Element ele = (Element) node;
 					//	Bean 定义的Document的元素节点使用的是 Spring 默认的 XML 命名空间
 					// 每个子节点都有自己的命名空间
-					// 若果是默认命名空间(beans), 则直接解析
+					// 若果是默认命名空间(beans), 则直接解析 比如 <bean id="b1" class="..."></bean>
 					if (delegate.isDefaultNamespace(ele)) {
 						// 使用 Spring 的 Bean 规则解析元素节点
 						// 解析 import 标签, alias 标签, bean 标签, 内置 <beans> 标签
@@ -371,18 +384,26 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	/**
 	 * Process the given bean element, parsing the bean definition
 	 * and registering it with the registry.
+	 *
+	 * 处理给定的 bean 元素, 并且 解析 bean definition 和调用 beanDefinitionregistry.registryBeanDefinition(...) 方法相应的 Map 中
 	 */
 	// <bean> 标签的解析处理
 	// 解析 Bean 定义资源 Document 对象的普通元素
 	protected void processBeanDefinition(Element ele, BeanDefinitionParserDelegate delegate) {
+		/**
+		 * 利用 BeanDefinitionParserDelegate.parseBeanDefinitionElement(Element e)
+		 * 解析给定的 bean 元素信息为, BeanDefinitionHolder, 这其中就包含了 id, class, alias, name 等属性
+		 */
 		// BeanDefinitionHolder 是对 BeanDefinition 的封装, 即 Bean 定义的封装类
 		// 对 Document 对象中 <Bean> 元素的解析由 BeanDefinitionParserDelegate实现,
 		// 初始化 bean 标签的相应内容
 		BeanDefinitionHolder bdHolder = delegate.parseBeanDefinitionElement(ele);
 		if (bdHolder != null) {
+			// 若默认标签的子节点下游 自定义属性, 还需要再次对自定义标签进行解析
 			// 对 bean 标签中的属性和子标签, 进行相应的具体解析, 例如 property, constructor-arhs
 			bdHolder = delegate.decorateBeanDefinitionIfRequired(ele, bdHolder);
 			try {
+				// 调用 BeanDefinitionRegistry.registerBeanDefinition(...) 放到相应的 Map 中
 				// 向 Spring Ioc 容器注册解析得到 Bean 定义, 这是 Bean 定义向 Ioc 容器注册的入口
 				// Register the final decorated instance.
 				BeanDefinitionReaderUtils.registerBeanDefinition(bdHolder, getReaderContext().getRegistry());
@@ -391,6 +412,8 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 				getReaderContext().error("Failed to register bean definition with name '" +
 						bdHolder.getBeanName() + "'", ele, ex);
 			}
+			// 发送注册事件
+			// 通知相关的监听器, 这个 Bean 已经注册完成
 			// 在完成向 Spring Ioc 容器注册解析得到的 bean 定义之后, 发送注册事件
 			// Send registration event.
 			// 目前尚无实现

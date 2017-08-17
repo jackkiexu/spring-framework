@@ -44,6 +44,19 @@ import org.springframework.core.AliasRegistry;
  * @see org.springframework.context.support.GenericApplicationContext
  * @see org.springframework.beans.factory.xml.XmlBeanDefinitionReader
  * @see PropertiesBeanDefinitionReader
+ *
+ * 参考资料: http://www.cnblogs.com/VergiLyn/p/6130188.html
+ * BeanDefinitionRegistry 是一个接口,  spring 用来统一管理 bean definition 注册的
+ *
+ * 这个接口主要由下面3个实现类
+ *
+ * 1. DefaultListableBeanFactory
+ * 2. GenericApplicationContext
+ * 3. SimpleBeanDefinitionRegistry
+ *
+ * 都是保存到 map 中, DefaultListableBeanFactory相对于 SimpleBeanDefinitionRegistry 做了一些逻辑处理
+ * 且 DefaultListableBeanFactory中提供了更多的信息
+ * 比如 private final List<String> beanDefinitionNames = new ArrayList<String> 保存了已注册的 bean definition 的 beanName
  */
 public interface BeanDefinitionRegistry extends AliasRegistry {
 

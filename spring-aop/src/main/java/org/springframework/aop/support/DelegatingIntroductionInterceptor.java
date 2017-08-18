@@ -95,18 +95,23 @@ public class DelegatingIntroductionInterceptor extends IntroductionInfoSupport
 
 
 	/**
+	 * delegate 这个对象方法将会引入到目标对象中, spring 中只能进行接口的引入, 这意味着 delegate 或其超累必须
+	 * 实现至少一个接口, 在对目标类执行这些接口中的方法的时候 spring 会将其委托给 deegate 去执行, 这样看上去就像是
+	 * 将一个类的方法(接口中的方法) 动态赋予给目标类一样
 	 * Subclasses may need to override this if they want to perform custom
 	 * behaviour in around advice. However, subclasses should invoke this
 	 * method, which handles introduced interfaces and forwarding to the target.
 	 */
 	@Override
 	public Object invoke(MethodInvocation mi) throws Throwable {
+		// 如果 mi 中执行的方法是 delegate 对象实现的接口中的方法
 		if (isMethodOnIntroducedInterface(mi)) {
+			// 将此方法的执行委托给 delegate 对象
 			// Using the following method rather than direct reflection, we
 			// get correct handling of InvocationTargetException
 			// if the introduced method throws an exception.
 			Object retVal = AopUtils.invokeJoinpointUsingReflection(this.delegate, mi.getMethod(), mi.getArguments());
-
+			// 处理返回 this 的情况
 			// Massage return value if possible: if the delegate returned itself,
 			// we really want to return the proxy.
 			if (retVal == this.delegate && mi instanceof ProxyMethodInvocation) {
@@ -117,7 +122,7 @@ public class DelegatingIntroductionInterceptor extends IntroductionInfoSupport
 			}
 			return retVal;
 		}
-
+		// 执行目标方法
 		return doProceed(mi);
 	}
 

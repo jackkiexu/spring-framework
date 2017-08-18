@@ -271,9 +271,11 @@ public abstract class AopUtils {
 	 * @return whether the pointcut can apply on any method
 	 */
 	public static boolean canApply(Advisor advisor, Class<?> targetClass, boolean hasIntroductions) {
+		// 如果是 IntroductionAdvisor 则调用 AspectJExpressionPointcut 的 mathches 方法
 		if (advisor instanceof IntroductionAdvisor) {
 			return ((IntroductionAdvisor) advisor).getClassFilter().matches(targetClass);
 		}
+		// 如果是 PointcutAdvisor 则调用 AspectJExpressionPointcut 的matches方法(与上面相比非同一个方法)
 		else if (advisor instanceof PointcutAdvisor) {
 			PointcutAdvisor pca = (PointcutAdvisor) advisor;
 			return canApply(pca.getPointcut(), targetClass, hasIntroductions);
@@ -297,8 +299,10 @@ public abstract class AopUtils {
 			return candidateAdvisors;
 		}
 		List<Advisor> eligibleAdvisors = new LinkedList<Advisor>();
+		// 遍历
 		for (Advisor candidate : candidateAdvisors) {
 			if (candidate instanceof IntroductionAdvisor && canApply(candidate, clazz)) {
+				// 是否 IntroductionAdvisor
 				eligibleAdvisors.add(candidate);
 			}
 		}
@@ -308,6 +312,7 @@ public abstract class AopUtils {
 				// already processed
 				continue;
 			}
+			// 执行
 			if (canApply(candidate, clazz, hasIntroductions)) {
 				eligibleAdvisors.add(candidate);
 			}

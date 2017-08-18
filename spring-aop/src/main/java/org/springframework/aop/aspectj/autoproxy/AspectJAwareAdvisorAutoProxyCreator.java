@@ -42,6 +42,15 @@ import org.springframework.util.ClassUtils;
  * @author Juergen Hoeller
  * @author Ramnivas Laddad
  * @since 2.0
+ *
+ * 参考资料 http://www.zzcode.cn/springaop/thread-113.html
+ * BeanPostProcessor 接口的作用是: 如果我们需要在 Spring 容器完成 bean 的实例化, 配置和其他的初始化前后添加一些自己的逻辑处理
+ * 我们就可以定义一个或者多个 BeanPostProcessor 接口实现, 然后注册到容器中, 所以在创建类之前会调用 BeanPostProcessor 的 postProcessBeforeInstantiation 方法
+ *
+ * 当调用者通过 getBean(name) 向容器寻找 bean 时, 如果容器注册了
+ * org.springframework.beans.factory.config.instantiationAwareBeanPostProcessor 接口, 在实例 Bean 之前
+ * 将调用该接口的 postProcessBeforeInstantiation() 方法, AspectJAwareAdvisorAutoProxyCreator 实现了
+ * InstantiationAwareBeanPostProcessor. 所以当 getbean 时就会执行 postProcessBeforeInstantiation 方法
  */
 @SuppressWarnings("serial")
 public class AspectJAwareAdvisorAutoProxyCreator extends AbstractAdvisorAutoProxyCreator {

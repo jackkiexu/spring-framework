@@ -42,10 +42,14 @@ import org.springframework.aop.support.MethodMatchers;
  * @author Rod Johnson
  * @author Adrian Colyer
  * @since 2.0.3
+ *
+ * 参考资料 http://xsh5324.iteye.com/blog/1846862
+ *
  */
 @SuppressWarnings("serial")
 public class DefaultAdvisorChainFactory implements AdvisorChainFactory, Serializable {
 
+	// 获取匹配 targetClass 与 method 的所有切面的通知
 	@Override
 	public List<Object> getInterceptorsAndDynamicInterceptionAdvice(
 			Advised config, Method method, Class<?> targetClass) {
@@ -55,19 +59,28 @@ public class DefaultAdvisorChainFactory implements AdvisorChainFactory, Serializ
 		List<Object> interceptorList = new ArrayList<Object>(config.getAdvisors().length);
 		Class<?> actualClass = (targetClass != null ? targetClass : method.getDeclaringClass());
 		boolean hasIntroductions = hasMatchingIntroductions(config, actualClass);
+		// 下面这个适配器将通知 [Advice] 包装成拦截器 [MethodInterceptor] [DefaultAdvisorAdapterRegistry] 适配器的默认实现
 		AdvisorAdapterRegistry registry = GlobalAdvisorAdapterRegistry.getInstance();
 
 		for (Advisor advisor : config.getAdvisors()) {
 			if (advisor instanceof PointcutAdvisor) {
 				// Add it conditionally.
 				PointcutAdvisor pointcutAdvisor = (PointcutAdvisor) advisor;
+				// 判断此切面 [advisor] 是否匹配 targetClass
 				if (config.isPreFiltered() || pointcutAdvisor.getPointcut().getClassFilter().matches(actualClass)) {
+					/** 通过对适配器将通知 [Advice] 包装成 MethodInterceptor, 这里为什么是个数组? 因为一个通知类
+					 *  可能同时实现了前置通知[MethodBeforeAdvice], 后置通知[AfterReturingAdvice], 异常通知接口[ThrowsAdvice]
+					 *   环绕通知 [MethodInterceptor], 这里会将每个通知统一包装成 MethodInterceptor
+					 */
 					MethodInterceptor[] interceptors = registry.getInterceptors(advisor);
 					MethodMatcher mm = pointcutAdvisor.getPointcut().getMethodMatcher();
+					// 是否匹配 targetClass 类的 method 方法
 					if (MethodMatchers.matches(mm, method, actualClass, hasIntroductions)) {
 						if (mm.isRuntime()) {
 							// Creating a new object instance in the getInterceptors() method
 							// isn't a problem as we normally cache created chains.
+							// 如果需要在运行时动态拦截方法的执行则创建一个简单的对象封装相关的数据, 它将延时
+							// 到方法执行的时候验证要不要执行此通知
 							for (MethodInterceptor interceptor : interceptors) {
 								interceptorList.add(new InterceptorAndDynamicMethodMatcher(interceptor, mm));
 							}
@@ -79,6 +92,8 @@ public class DefaultAdvisorChainFactory implements AdvisorChainFactory, Serializ
 				}
 			}
 			else if (advisor instanceof IntroductionAdvisor) {
+				// 如果是引入切面的话则判断它是否适用于目标类, Spring 中默认的引入切面实现是 DefaultIntroductionAdvisor 类
+				// 默认的引入通知是 DelegatingIntroductionInterceptor 它实现了 MethodInterceptor 接口s
 				IntroductionAdvisor ia = (IntroductionAdvisor) advisor;
 				if (config.isPreFiltered() || ia.getClassFilter().matches(actualClass)) {
 					Interceptor[] interceptors = registry.getInterceptors(advisor);

@@ -57,6 +57,9 @@ import org.springframework.util.CollectionUtils;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @see org.springframework.aop.framework.AopProxy
+ *
+ * 参考资料 http://xsh5324.iteye.com/blog/1846862
+ * 动态 增加 修改 删除 通知和动态切换目标对象, 即使代理对象已经创建
  */
 public class AdvisedSupport extends ProxyConfig implements Advised {
 
@@ -399,11 +402,13 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 
 	/**
 	 * Cannot add introductions this way unless the advice implements IntroductionInfo.
+	 * 所有 addAdvice 方法的重载都会将参数 Advice 转成 包装成 Advisor 并调用 addAdvisor 方法
 	 */
 	@Override
 	public void addAdvice(int pos, Advice advice) throws AopConfigException {
 		Assert.notNull(advice, "Advice must not be null");
 		if (advice instanceof IntroductionInfo) {
+			// 如果是一个引入通知, 则将其包装成默认的实现引入切面
 			// We don't need an IntroductionAdvisor for this kind of introduction:
 			// It's fully self-describing.
 			addAdvisor(pos, new DefaultIntroductionAdvisor(advice, (IntroductionInfo) advice));
@@ -413,6 +418,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 			throw new AopConfigException("DynamicIntroductionAdvice may only be added as part of IntroductionAdvisor");
 		}
 		else {
+			// 创建默认的切面实现
 			addAdvisor(pos, new DefaultPointcutAdvisor(advice));
 		}
 	}
@@ -476,6 +482,8 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 
 
 	/**
+	 * 这个将会在目标类方法执行之前被调用, 它返回匹配 targetClass 和 method 的拦截器(其实就是通知 Advice) 对
+	 * 对象封装,
 	 * Determine a list of {@link org.aopalliance.intercept.MethodInterceptor} objects
 	 * for the given method, based on this configuration.
 	 * @param method the proxied method
@@ -483,9 +491,12 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 	 * @return List of MethodInterceptors (may also include InterceptorAndDynamicMethodMatchers)
 	 */
 	public List<Object> getInterceptorsAndDynamicInterceptionAdvice(Method method, Class<?> targetClass) {
+		// 创建一个缓存 key
 		MethodCacheKey cacheKey = new MethodCacheKey(method);
+		// 从缓存中取出拦截器
 		List<Object> cached = this.methodCache.get(cacheKey);
 		if (cached == null) {
+			// 缓存中不存在则调用 DefaultAdvisorChainFactory 工厂类的 getInterceptorsAndDynamicInterceptionAdvice 方法获取
 			cached = this.advisorChainFactory.getInterceptorsAndDynamicInterceptionAdvice(
 					this, method, targetClass);
 			this.methodCache.put(cacheKey, cached);
@@ -494,6 +505,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 	}
 
 	/**
+	 * 对所有 Advisor 的变化操作都会调用此方法, 清空拦截器链缓存
 	 * Invoked when advice has changed.
 	 */
 	protected void adviceChanged() {

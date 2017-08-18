@@ -42,12 +42,16 @@ import org.springframework.aop.SpringProxy;
  * @see AdvisedSupport#setOptimize
  * @see AdvisedSupport#setProxyTargetClass
  * @see AdvisedSupport#setInterfaces
+ *
+ * 参考资料 http://xsh5324.iteye.com/blog/1846862
+ * 它是创建 Aop 代理工厂的默认实现, 它会自动判断是否使用 jdk 代理对象还是使用 cglib 的动态代理
  */
 @SuppressWarnings("serial")
 public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
 
 	@Override
 	public AopProxy createAopProxy(AdvisedSupport config) throws AopConfigException {
+		// 启用了 优化配置 || 启用了直接代理目标类模式 || 没有指定要代理的接口, 则进入 if
 		if (config.isOptimize() || config.isProxyTargetClass() || hasNoUserSuppliedProxyInterfaces(config)) {
 			Class<?> targetClass = config.getTargetClass();
 			if (targetClass == null) {
@@ -57,9 +61,11 @@ public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
 			if (targetClass.isInterface() || Proxy.isProxyClass(targetClass)) {
 				return new JdkDynamicAopProxy(config);
 			}
+			// 创建 cglib 代理的工厂对象
 			return new ObjenesisCglibAopProxy(config);
 		}
 		else {
+			// 返回创建 JDK 代理的工厂对象
 			return new JdkDynamicAopProxy(config);
 		}
 	}

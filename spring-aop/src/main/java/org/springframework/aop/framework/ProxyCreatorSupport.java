@@ -28,6 +28,11 @@ import org.springframework.util.Assert;
  * @author Juergen Hoeller
  * @since 2.0.3
  * @see #createAopProxy()
+ *
+ * 参考资料 : http://xsh5324.iteye.com/blog/1846862
+ *
+ * 这个类继承自 AdvisedSupport 提供创建代理对象的支持, 默认情况下它是使用 DefaultAopProxyFactory 工厂类
+ * 来创建代理的, 它还有一个功能就是在创建代理对象之前触发 Listener
  */
 @SuppressWarnings("serial")
 public class ProxyCreatorSupport extends AdvisedSupport {
@@ -100,6 +105,7 @@ public class ProxyCreatorSupport extends AdvisedSupport {
 	 */
 	protected final synchronized AopProxy createAopProxy() {
 		if (!this.active) {
+			// 触发 Listener
 			activate();
 		}
 		return getAopProxyFactory().createAopProxy(this);

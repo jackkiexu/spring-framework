@@ -252,6 +252,7 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
 		return this.pointcutExpression;
 	}
 
+	// ClassFilter 实现
 	@Override
 	public boolean matches(Class<?> targetClass) {
 		checkReadyToMatch();
@@ -274,6 +275,7 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
 		return false;
 	}
 
+	// MethodMatcher 实现
 	@Override
 	public boolean matches(Method method, Class<?> targetClass, boolean beanHasIntroductions) {
 		checkReadyToMatch();

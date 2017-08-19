@@ -114,7 +114,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 @SuppressWarnings("serial")
 public class TransactionProxyFactoryBean extends AbstractSingletonProxyFactoryBean
 		implements BeanFactoryAware {
-
+	// 这个拦截器 TransactionInterceptor 通过 AOP 发挥作用, 通过这个拦截器的实现, Spring封装了事务处里实现
 	private final TransactionInterceptor transactionInterceptor = new TransactionInterceptor();
 
 	private Pointcut pointcut;
@@ -125,6 +125,7 @@ public class TransactionProxyFactoryBean extends AbstractSingletonProxyFactoryBe
 	 * transaction management: This class is just a way of invoking it.
 	 * @see TransactionInterceptor#setTransactionManager
 	 */
+	// 通过依赖注入 PlatformTransactionManager
 	public void setTransactionManager(PlatformTransactionManager transactionManager) {
 		this.transactionInterceptor.setTransactionManager(transactionManager);
 	}
@@ -142,6 +143,8 @@ public class TransactionProxyFactoryBean extends AbstractSingletonProxyFactoryBe
 	 * @see TransactionAttributeEditor
 	 * @see NameMatchTransactionAttributeSource
 	 */
+	// 通过依赖注入的事务属性以 Properties 的形式出现
+	// 把从 BeanDefinition 中读到的事务管理的属性信息注入到 TransactionInterceptor 中
 	public void setTransactionAttributes(Properties transactionAttributes) {
 		this.transactionInterceptor.setTransactionAttributes(transactionAttributes);
 	}
@@ -188,13 +191,16 @@ public class TransactionProxyFactoryBean extends AbstractSingletonProxyFactoryBe
 	/**
 	 * Creates an advisor for this FactoryBean's TransactionInterceptor.
 	 */
+	// 这是创建 Spring AOP 对事务处理的 Advisor
 	@Override
 	protected Object createMainInterceptor() {
 		this.transactionInterceptor.afterPropertiesSet();
 		if (this.pointcut != null) {
+			// 这里使用默认的通知器 DefaultPointcutAdvisor, 并为通知器配置事务处理拦截器
 			return new DefaultPointcutAdvisor(this.pointcut, this.transactionInterceptor);
 		}
 		else {
+			// 如果没有配置 pointcut, 使用 TransactionAttributeSourceAdvisor 作为通知器 , 并为通知器设置 TransactionAttributeSourceAdvisor
 			// Rely on default pointcut.
 			return new TransactionAttributeSourceAdvisor(this.transactionInterceptor);
 		}

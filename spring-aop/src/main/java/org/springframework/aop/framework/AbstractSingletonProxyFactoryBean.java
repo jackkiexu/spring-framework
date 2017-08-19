@@ -132,6 +132,7 @@ public abstract class AbstractSingletonProxyFactoryBean extends ProxyConfig
 
 	@Override
 	public void afterPropertiesSet() {
+		// 必需配置 target 的属性, 同事需要 target 是一个 bean reference
 		if (this.target == null) {
 			throw new IllegalArgumentException("Property 'target' is required");
 		}
@@ -142,6 +143,10 @@ public abstract class AbstractSingletonProxyFactoryBean extends ProxyConfig
 			this.proxyClassLoader = ClassUtils.getDefaultClassLoader();
 		}
 
+		/**
+		 * TransactionProxyFactoryBean 使用 ProxyFactory 完成 AOP 的基本功能
+		 * 这个 ProxyFactory 提供 Proxy 对象, 并将 TransactionInterceptor 设置为 target 方法调用的拦截器
+		 */
 		ProxyFactory proxyFactory = new ProxyFactory();
 
 		if (this.preInterceptors != null) {
@@ -150,6 +155,13 @@ public abstract class AbstractSingletonProxyFactoryBean extends ProxyConfig
 			}
 		}
 
+		/**
+		 * 这是 Spring 加入 通知器的地方
+		 * 可以加入两种通知器 分别是 DefaultPointcutAdvisor 和 TransactionAttributeSourceAdvisor
+		 * 这里调用 TransactionProxyFactoryBean 的 createMainInterceptor 方法来生成需要的 Advisor
+		 * 在 ProxyFactory 的基类 AdvisedSupport 中维护了一个用来持有 advice 的 LinkedList, 通过对这个 LinkedList 的元素执行添加, 修改, 删除等操作, 用来管理
+		 * 配置给 ProxyFactory 的通知器
+		 */
 		// Add the main interceptor (typically an Advisor).
 		proxyFactory.addAdvisor(this.advisorAdapterRegistry.wrap(createMainInterceptor()));
 
@@ -160,7 +172,7 @@ public abstract class AbstractSingletonProxyFactoryBean extends ProxyConfig
 		}
 
 		proxyFactory.copyFrom(this);
-
+		// 这里创建 AOP 的目标源, 与在其他地方使用 ProxyFactory 没有什么差别
 		TargetSource targetSource = createTargetSource(this.target);
 		proxyFactory.setTargetSource(targetSource);
 
@@ -168,13 +180,14 @@ public abstract class AbstractSingletonProxyFactoryBean extends ProxyConfig
 			proxyFactory.setInterfaces(this.proxyInterfaces);
 		}
 		else if (!isProxyTargetClass()) {
+			// 需要根据 AOP 基础设施来确定使用哪一个接口作为代理
 			// Rely on AOP infrastructure to tell us what interfaces to proxy.
 			proxyFactory.setInterfaces(
 					ClassUtils.getAllInterfacesForClass(targetSource.getTargetClass(), this.proxyClassLoader));
 		}
 
 		postProcessProxyFactory(proxyFactory);
-
+		// 这里设置代理对象
 		this.proxy = proxyFactory.getProxy(this.proxyClassLoader);
 	}
 
@@ -202,7 +215,7 @@ public abstract class AbstractSingletonProxyFactoryBean extends ProxyConfig
 	protected void postProcessProxyFactory(ProxyFactory proxyFactory) {
 	}
 
-
+	// 返回一个 Proxy, 这个 Proxy 是 ProxyFactory 生成的 AOP 代理, 已经封装了对事务处理的拦截器设置
 	@Override
 	public Object getObject() {
 		if (this.proxy == null) {

@@ -209,6 +209,7 @@ public class AspectJProxyFactory extends ProxyCreatorSupport {
 	 * @param classLoader the class loader to create the proxy with
 	 * @return the new proxy
 	 */
+	// ProxyFactory 是如何生成 Proxy 对象的, 可以到 ProxyFactory 的实现中去了解一下
 	@SuppressWarnings("unchecked")
 	public <T> T getProxy(ClassLoader classLoader) {
 		return (T) createAopProxy().getProxy(classLoader);

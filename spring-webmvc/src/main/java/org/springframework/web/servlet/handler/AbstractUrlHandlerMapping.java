@@ -114,12 +114,18 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 	 */
 	@Override
 	protected Object getHandlerInternal(HttpServletRequest request) throws Exception {
+		// 从 Request 中得到 请求的 URL 路径
 		String lookupPath = getUrlPathHelper().getLookupPathForRequest(request);
+		/**
+		 *  将得到的 URL 路径与 Handler 进行匹配, 得到对应的 Handler, 如果没有对应的 Handler, 返回
+		 *  null, 这样默认的 Handler 会被使用
+		 */
 		// 从 handlerMap 查找路径对应的 beanName
 		Object handler = lookupHandler(lookupPath, request);
 		if (handler == null) {
 			// We need to care for the default handler directly, since we need to
 			// expose the PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE for it as well.
+			// 这里需要注意的是对默认 handler 的处理
 			Object rawHandler = null;
 			if ("/".equals(lookupPath)) {
 				rawHandler = getRootHandler();
@@ -159,6 +165,8 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 	 * @see #exposePathWithinMapping
 	 * @see org.springframework.util.AntPathMatcher
 	 */
+	// lookupHandler  根据 URL 路径启动在 handlerMap 中对 handler 的检索, 并最终返回 handler对象
+
 	protected Object lookupHandler(String urlPath, HttpServletRequest request) throws Exception {
 		// Direct match?
 		Object handler = this.handlerMap.get(urlPath);
@@ -330,6 +338,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 		Assert.notNull(handler, "Handler object must not be null");
 		Object resolvedHandler = handler;
 
+		// 如果直接用 bean 名称进行映射, 那就直接从容器中获取 handler
 		// Eagerly resolve handler if referencing singleton via name.
 		if (!this.lazyInitHandlers && handler instanceof String) {
 			String handlerName = (String) handler;
@@ -348,6 +357,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 			}
 		}
 		else {
+			// 处理 URL 是 "/" 地映射, 把这个 "/" 映射地 controller 设置到 rootHandler 中
 			// 未存在
 			if (urlPath.equals("/")) {
 				// "/" --> 设置为 rootHandler
@@ -356,6 +366,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 				}
 				setRootHandler(resolvedHandler);
 			}
+			// 处理 URL 是 "/*" 地映射, 把这个 "/*" 映射地 controller 设置到 rootHandler 中
 			else if (urlPath.equals("/*")) {
 				// 对 "/*" 的匹配 设置默认的 handler
 				if (logger.isInfoEnabled()) {
@@ -363,6 +374,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 				}
 				setDefaultHandler(resolvedHandler);
 			}
+			// 处理正常地 URL 映射, 设置 handlerMap 的 key 和 value, 分别对应 URL 和 映射的 controller
 			else {
 				// 其余 的路径绑定关系则存入 handlerMap
 				this.handlerMap.put(urlPath, resolvedHandler);

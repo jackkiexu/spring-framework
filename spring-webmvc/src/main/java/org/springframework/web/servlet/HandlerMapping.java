@@ -126,6 +126,10 @@ public interface HandlerMapping {
 	 * any interceptors, or {@code null} if no mapping found
 	 * @throws Exception if there is an internal error
 	 */
+	/**
+	 * 调用 getHandler 实际返回地是 一个 HandlerExecutionChain, 这是典型地 Command 地模式地使用
+	 * 这个 HandlerExecutionChain 不但持有 handler 本身, 还包括了处理这个 HTTP 请求相关地拦截器
+	 */
 	HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception;
 
 }

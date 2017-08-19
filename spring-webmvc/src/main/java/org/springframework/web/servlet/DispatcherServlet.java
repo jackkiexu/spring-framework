@@ -593,6 +593,11 @@ public class DispatcherServlet extends FrameworkServlet {
 	private void initHandlerMappings(ApplicationContext context) {
 		this.handlerMappings = null;
 		/**
+		 * 这里导入所有的 HandlerMapping Bean, 这些 Bean 可用在当前的 DispatcherServlet 的 Ioc 容器中
+		 * , 也可能在其双亲上下文中
+		 * 这个 DetectAllHandlerMapping 的默认值设置为 true, 即默认地从所有地 Ioc 容器中取
+		 */
+		/**
 		 * 默认为 true, 表示从 beanFactory 和其父类获取所有 HandlerMapping
 		 * beans
 		 * <init-param>
@@ -612,7 +617,7 @@ public class DispatcherServlet extends FrameworkServlet {
 				AnnotationAwareOrderComparator.sort(this.handlerMappings);
 			}
 		}
-		else {
+		else { // 可以根据名称从当前地 Ioc 容器中通过 getBean 获取 handlerMapping
 			try {
 				// 否则获取本 springmvc 的上下文中的单个 'id = handlerMapping' 的 HandlerMapping Bean
 				HandlerMapping hm = context.getBean(HANDLER_MAPPING_BEAN_NAME, HandlerMapping.class);
@@ -623,6 +628,10 @@ public class DispatcherServlet extends FrameworkServlet {
 			}
 		}
 
+		/**
+		 * 如果没有找到 handerMapping, 那么需要为 Servlet 设定默认地 handlerMappings, 这些默认地值可以设置在
+		 * DispatcherServlet.properties 中
+		 */
 		// 如果 detectAllHandlerMappings=false 且 springMVC 不包含相应的 'handlerMapping ' bean 则取默认的 handlerMappings
 		// Ensure we have at least one HandlerMapping, by registering
 		// a default HandlerMapping if no other mappings are found.
@@ -919,6 +928,7 @@ public class DispatcherServlet extends FrameworkServlet {
 			}
 		}
 
+		// 对 HTTP 请求参数进行快照处理
 		// Make framework objects available to handlers and view objects.
 		request.setAttribute(WEB_APPLICATION_CONTEXT_ATTRIBUTE, getWebApplicationContext());
 		request.setAttribute(LOCALE_RESOLVER_ATTRIBUTE, this.localeResolver);
@@ -932,7 +942,7 @@ public class DispatcherServlet extends FrameworkServlet {
 		request.setAttribute(OUTPUT_FLASH_MAP_ATTRIBUTE, new FlashMap());
 		request.setAttribute(FLASH_MAP_MANAGER_ATTRIBUTE, this.flashMapManager);
 
-		try {
+		try { // 这个 doDispatch 是分发请求的入口
 			doDispatch(request, response);
 		}
 		finally {
@@ -970,6 +980,7 @@ public class DispatcherServlet extends FrameworkServlet {
 		WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);
 
 		try {
+			// 这里为视图准备好一个 ModelAndView, 这个 ModelAndView 持有的handler处理请求的结果
 			// 视图对象
 			ModelAndView mv = null;
 			// 异常对象
@@ -978,7 +989,7 @@ public class DispatcherServlet extends FrameworkServlet {
 			try {
 				processedRequest = checkMultipart(request);
 				multipartRequestParsed = (processedRequest != request);
-
+				// 根据请求得到对应的 handler, handler 的注册以及 getHandler 的实现
 				// Determine handler for the current request. 优先从 HandlerMapping 中获取处理器对象
 				mappedHandler = getHandler(processedRequest);
 				// 这里找不到 handler 则会出现我们熟悉的 "no mapping found " 日志打印
@@ -988,6 +999,11 @@ public class DispatcherServlet extends FrameworkServlet {
 					return;
 				}
 
+				/**
+				 * 这里是实际调用 handler 的地方, 在执行 handler 之前, 用 HandlerAdapter 先检查一下 handler的合法性
+				 * 是不是按 Spring 的要求编写 的handler
+				 * handler 处理的结果封装到 ModelAndView 对象中, 为视图提供展现数据
+				 */
 				// HandlerAdapter 必须拥有, 否则会抛出异常
 				// 最终通过此对象来获取视图对象
 				// Determine handler adapter for the current request.
@@ -1012,6 +1028,7 @@ public class DispatcherServlet extends FrameworkServlet {
 					return;
 				}
 
+				// 通过调用 HandlerAdapter 的handle方法 实际上触发对 Controller 的 handlerRequest方法的调用
 				// Actually invoke the handler. 通过 HandlerAdapter 处理请求返回逻辑视图
 				mv = ha.handle(processedRequest, response, mappedHandler.getHandler());
 
@@ -1069,6 +1086,7 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * Do we need view name translation?
 	 */
 	private void applyDefaultViewName(HttpServletRequest request, ModelAndView mv) throws Exception {
+		// 判断是否需要进行视图名的翻译和转换
 		if (mv != null && !mv.hasView()) {
 			mv.setViewName(getDefaultViewName(request));
 		}
@@ -1097,6 +1115,7 @@ public class DispatcherServlet extends FrameworkServlet {
 			}
 		}
 
+		// 使用视图对 ModelAndView 的数据展现
 		// Did the handler return a view to render?
 		if (mv != null && !mv.wasCleared()) {
 			// 对视图进行渲染
@@ -1220,6 +1239,7 @@ public class DispatcherServlet extends FrameworkServlet {
 	 *
 	 */
 	protected HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception {
+		// 这里是从 HandlerMapping 中去取 handler 的调用, 与前面对 handlerMapping 的分析在这里衔接上
 		for (HandlerMapping hm : this.handlerMappings) {
 			if (logger.isTraceEnabled()) {
 				logger.trace(
@@ -1261,6 +1281,7 @@ public class DispatcherServlet extends FrameworkServlet {
 	 */
 	// 获取适配器的目的是为了通过其获取视图对象, 参数 handler 一般为具体对象
 	protected HandlerAdapter getHandlerAdapter(Object handler) throws ServletException {
+		// 对持有的所有 adapter 进行匹配
 		// 此处的 handler 可为 HandlerMethod/HttpRequestHandler/Controller/Servlet
 		for (HandlerAdapter ha : this.handlerAdapters) {
 			if (logger.isTraceEnabled()) {

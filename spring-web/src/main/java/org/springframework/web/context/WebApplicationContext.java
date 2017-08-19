@@ -51,6 +51,7 @@ public interface WebApplicationContext extends ApplicationContext {
 	 * @see org.springframework.web.context.support.WebApplicationContextUtils#getWebApplicationContext
 	 * @see org.springframework.web.context.support.WebApplicationContextUtils#getRequiredWebApplicationContext
 	 */
+	// 这里定义的常量用于在 ServletContext 中存取根上下文
 	String ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE = WebApplicationContext.class.getName() + ".ROOT";
 
 	/**
@@ -106,6 +107,7 @@ public interface WebApplicationContext extends ApplicationContext {
 	 * Return the standard Servlet API ServletContext for this application.
 	 * <p>Also available for a Portlet application, in addition to the PortletContext.
 	 */
+	// 对 WebApplicationContext 来说, 需要得到 Web 容器的 ServletContext, 通过这个方法可以取得 Web 容器的 ServletContext
 	ServletContext getServletContext();
 
 }

@@ -95,6 +95,9 @@ public abstract class WebApplicationContextUtils {
 	 * @see org.springframework.web.context.WebApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE
 	 */
 	public static WebApplicationContext getWebApplicationContext(ServletContext sc) {
+		/**
+		 * 使用了 ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE 这个属性代表的根上下文在 ContextLoaderLiatener 初始化的过程中建立, 并被设置到 ServletContext 中
+		 */
 		return getWebApplicationContext(sc, WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
 	}
 

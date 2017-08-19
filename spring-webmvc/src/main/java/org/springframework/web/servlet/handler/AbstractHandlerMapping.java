@@ -361,6 +361,7 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 		// getHandlerInternal(request) 方法为抽象方法, 供子类实现
 		// 获取到的 handler 对象一般wei bean/HandlerMathod
 		Object handler = getHandlerInternal(request);			// 正真调用的是 AbstractHandlerMethodMapping#getHandlerInternal()
+		// 使用默认 handler, 也就是 "/" 对应的 handler
 		// 上述找不到则使用默认的处理类, 没有设定则返回 null, 则会返回前台 404 错误
 		if (handler == null) {
 			handler = getDefaultHandler();
@@ -368,6 +369,7 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 		if (handler == null) {
 			return null;
 		}
+		// 通过 名称取出 对应的 Handler bean
 		// Bean name or resolved handler?
 		if (handler instanceof String) {
 			String handlerName = (String) handler;

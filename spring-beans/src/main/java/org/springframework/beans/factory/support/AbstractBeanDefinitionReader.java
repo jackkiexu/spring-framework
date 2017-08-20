@@ -175,6 +175,8 @@ public abstract class AbstractBeanDefinitionReader implements EnvironmentCapable
 
 	@Override
 	public int loadBeanDefinitions(Resource... resources) throws BeanDefinitionStoreException {
+		// 如果 resources 是 空, 则停止 BeanDefinition 的载入
+		// 然后启动载入 BeanDefinition 的过程, 这个过程会遍历整个 Resource 集合所包含的 BeanDefinition 信息
 		Assert.notNull(resources, "Resource array must not be null");
 		int counter = 0;
 		for (Resource resource : resources) {
@@ -208,15 +210,21 @@ public abstract class AbstractBeanDefinitionReader implements EnvironmentCapable
 	public int loadBeanDefinitions(String location, Set<Resource> actualResources) throws BeanDefinitionStoreException {
 		// 获取在 Ioc 容器初始化过程中设置的 资源加载器
 		// 此处的 ResourceLoader 为 XmlWebApplicationContext
+		// 这里取得 ResourceLoader , 使用的是 DefaultResourceLoader
 		ResourceLoader resourceLoader = getResourceLoader();
 		if (resourceLoader == null) {
 			throw new BeanDefinitionStoreException(
 					"Cannot import bean definitions from location [" + location + "]: no ResourceLoader available");
 		}
+		/**
+		 * 这里对 Resource 的路径模式进行解析, 比如我们设定的各种 Ant 格式的路径定义, 得到需要的
+		 * Resource 集合, 这些 Resource 集合指向我们已经定义好的 BeanDefinition 信息, 可以是多个文件
+		 */
 		// XmlWebApplicationContext 符合此条件
 		if (resourceLoader instanceof ResourcePatternResolver) {
 			// Resource pattern matching available.
 			try {
+				// 调用 DefaultResourceLoader 的 getResource 完成具体的 Resource 定位
 				// 将指定位置的 Bean 定义资源文件解析为 Spring Ioc 容器封装的资源
 				// 加载多个指定位置的 Bean 定义资源文件
 				// 调用的是 AbstractApplicationContext 的getResource方法, 追溯一下调用的其实是 PathMatchingResourcePatternResolver.getResources 方法, 其会搜寻指定目录符合条件的文件集合
@@ -240,6 +248,7 @@ public abstract class AbstractBeanDefinitionReader implements EnvironmentCapable
 			}
 		}
 		else {
+			// 调用 DefaultResourceLoader 的 getResource 完成具体的 Resource 定位
 			// Can only load single resources by absolute URL.
 			// 将指定位置的 Bean 定义资源文件解析为 spring Ioc 容器封装的资源
 			// 加载单个指定位置的 Bean 定义资源文件

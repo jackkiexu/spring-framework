@@ -142,6 +142,7 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
 		 */
 		// 使用 CGLIB 进行 Bean 对象实例化
 		private Class<?> createEnhancedSubclass(RootBeanDefinition beanDefinition) {
+			// 生成 Enhancer 对象, 并为 Enhancer 对象设置生成 Java 对象的参数, 比如基类, 回调方法等
 			// CGLIB 中的类
 			Enhancer enhancer = new Enhancer();
 			// 将 Bean 本身作为其基类

@@ -437,6 +437,7 @@ public class BeanDefinitionParserDelegate {
 	 */
 	// 解析 Bean 定义资源文件中的 <Bean> 元素, 这个方法中主要处理 <Bean> 元素的 id, name
 	public BeanDefinitionHolder parseBeanDefinitionElement(Element ele, BeanDefinition containingBean) {
+		// 这里取得 <bean> 元素中定义的 id, name 和 alias 属性的值
 		// 获取 <Bean> 元素中的 id 属性值
 		String id = ele.getAttribute(ID_ATTRIBUTE);
 		// 获取 <Bean> 元素中的 name 的属性值
@@ -469,6 +470,7 @@ public class BeanDefinitionParserDelegate {
 			checkNameUniqueness(beanName, aliases, ele);
 		}
 
+		// 这个方法会引发对 Bean 元素的 详细解析
 		// 详细对 <Bean> 元素中配置的 Bean 定义进行解析的地方
 		AbstractBeanDefinition beanDefinition = parseBeanDefinitionElement(ele, beanName, containingBean);
 		if (beanDefinition != null) {
@@ -538,6 +540,10 @@ public class BeanDefinitionParserDelegate {
 	// 详细对 <Bean> 元素中配置的 Bean 定义其他属性进行解析, 由于 上面的方法中已经对 Bean 的id, name 和别名等属性进行处理, 该方法主要处理除了这三个以外的其他属性数据
 	public AbstractBeanDefinition parseBeanDefinitionElement(
 			Element ele, String beanName, BeanDefinition containingBean) {
+		/**
+		 * 这里只读取定义的 <bean> 中设置的 class 名字,然后再到载入到 BeanDefinition 中去, 只是做这个记录
+		 * 并不涉及对象的实例化过程, 对象的实例化实际上是在依赖注入时完成的
+		 */
 		// 记录解析的 <Bean>
 		this.parseState.push(new BeanEntry(beanName));
 		// 这里只读去 <Bean> 元素中配置的 class 名字, 然后载入到 BeanDefinition 中去
@@ -553,13 +559,16 @@ public class BeanDefinitionParserDelegate {
 			if (ele.hasAttribute(PARENT_ATTRIBUTE)) {
 				parent = ele.getAttribute(PARENT_ATTRIBUTE);
 			}
+			// 这里生成需要的 BeanDefinition 对象, 为 Bean 定义信息的载入做准备
 			// 根据<Bean> 元素配置的class名称和 parent属性值创建 BeanDefinition
 			// 为了载入 Bean 定义信息做准备
 			AbstractBeanDefinition bd = createBeanDefinition(className, parent);
+			// 这里对当前的 Bean 元素进行属性的解析, 并设置 description 的信息
 			// 对当前的 <Bean> 元素中配置的一些属性进行解析和设置, 如配置单例 (singleton) 属性等
 			parseBeanDefinitionAttributes(ele, beanName, containingBean, bd);
 			bd.setDescription(DomUtils.getChildElementValueByTagName(ele, DESCRIPTION_ELEMENT));
 
+			// 从名字可以清楚的看到, 这里是对各种 <bean> 元素的信息进行解析的地方
 			// 为 <Bean> 元素解析的Bean设置 description信息, bd.setDescription(DomUtils.getChildElementValveByTagName(ele, DESCRIPTION_ELEMENT))
 			// 对 <Bean> 元素的 mate(元信息)属性解析
 			parseMetaElements(ele, bd);
@@ -580,6 +589,10 @@ public class BeanDefinitionParserDelegate {
 
 			return bd;
 		}
+		/**
+		 * 下面这些异常是在配置 Bean 出现问题时经常看到的, 原来是在这里抛出异常
+		 * 是在 createBeanDefinition 时进行的, 会检查 Bean 的 class 设置是否正确, 比如这个类是否能找到
+		 */
 		catch (ClassNotFoundException ex) {
 			error("Bean class [" + className + "] not found", ele, ex);
 		}
@@ -927,6 +940,11 @@ public class BeanDefinitionParserDelegate {
 				error("Multiple 'property' definitions for property '" + propertyName + "'", ele);
 				return;
 			}
+			/**
+			 * 这里是 解析 property 值的地方, 返回的对象对应对 Bean 定义的 property 属性设置的
+			 * 解析结果, 这个解析结果会封装在 PropertyValue对象中, 然后设置
+			 * 到 BeanDefinitionHolder 中去
+			 */
 			// 解析获取 property 的值
 			Object val = parsePropertyValue(ele, bd, propertyName);
 			// 根据 property 的名字和值创建 property 实例
@@ -987,7 +1005,7 @@ public class BeanDefinitionParserDelegate {
 	 * Get the value of a property element. May be a list etc.
 	 * Also used for constructor arguments, "propertyName" being null in this case.
 	 */
-	// 解析获取 property 值
+	// 解析获取 property 值, 也许是一个 list 或其他
 	public Object parsePropertyValue(Element ele, BeanDefinition bd, String propertyName) {
 		String elementName = (propertyName != null) ?
 						"<property> element for property '" + propertyName + "'" :
@@ -1010,6 +1028,7 @@ public class BeanDefinitionParserDelegate {
 				}
 			}
 		}
+		// 这里判断 property 的属性值, 是ref 还是 value, 不允许同时是 ref 和 value
 		// 判断 <property> 属性值是 ref 还是 value, 不允许 既是 ref 又是 value
 		boolean hasRefAttribute = ele.hasAttribute(REF_ATTRIBUTE);
 		boolean hasValueAttribute = ele.hasAttribute(VALUE_ATTRIBUTE);
@@ -1018,6 +1037,7 @@ public class BeanDefinitionParserDelegate {
 			error(elementName +
 					" is only allowed to contain either 'ref' attribute OR 'value' attribute OR sub-element", ele);
 		}
+		// 如果是 ref, 创建一个 ref 数据对象 RuntimeBeanReference 这个对象封装了 ref 的信息
 		// 如果属性值是 ref, 创建一个 ref 的数据对象 RuntimeBeanReference, 这个对象封装了 ref 信息
 		if (hasRefAttribute) {
 			String refName = ele.getAttribute(REF_ATTRIBUTE);
@@ -1274,8 +1294,10 @@ public class BeanDefinitionParserDelegate {
 		// 遍历所有节点
 		for (int i = 0; i < elementNodes.getLength(); i++) {
 			Node node = elementNodes.item(i);
-			// 节点不是 description 节点
+			// 判断节点类型是否为 Element
 			if (node instanceof Element && !nodeNameEquals(node, DESCRIPTION_ELEMENT)) {
+				// 加入到 target 中, target 是一个 ManagerList, 同时触发对下一层子元素的解析过程
+				// 这是一个递归调用的过程
 				// 将解析的元素加到集合中, 递归调用写一个子元素
 				target.add(parsePropertySubElement((Element) node, bd, defaultElementType));
 			}

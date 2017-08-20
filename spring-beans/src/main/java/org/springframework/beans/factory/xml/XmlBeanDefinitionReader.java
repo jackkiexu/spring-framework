@@ -350,6 +350,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 					"Detected cyclic loading of " + encodedResource + " - check your import definitions!");
 		}
 		try {
+			// 这里得到 XML 文件, 并得到 IO 的 InputSource 准备进行读取
 			// 封装的 EncodedResource 先获取 Resource, 再通过 Resource 获取 InputStream
 			// 将资源文件转为 InputStream 的 IO 流
 			InputStream inputStream = encodedResource.getResource().getInputStream();
@@ -413,11 +414,24 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * @see #doLoadDocument
 	 * @see #registerBeanDefinitions
 	 */
+	/**
+	 * 具体的读取过程可以在 doLoadBeanDefinitions 方法中找到
+	 * 这是从特定的 XML 文件中实际载入 BeanDefinition 的地方
+	 */
 	// 从特定 XML 文件中实际载入 Bean 定义资源的方法
 	protected int doLoadBeanDefinitions(InputSource inputSource, Resource resource)
 			throws BeanDefinitionStoreException {
-		try {	// 将 XML 文件转换为 DOM 对象, 解析过程由 documentLoader 实现
+		try {
+			/**
+			 * 这里取得 XML 文件的 Document 对象, 这个解析过程是由 documentLoader 完成
+			 * 的这个 documentLoader 是 DefaultDocumentLoader, 在定义 documentLoader 的地方创建
+			 */
+			// 将 XML 文件转换为 DOM 对象, 解析过程由 documentLoader 实现
 			Document doc = doLoadDocument(inputSource, resource);
+			/**
+			 * 这里启动的是对 BeanDefinition 解析的详细过程, 这个解析会使用到 Spring 的 Bean
+			 * 配置规则
+			 */
 			// 这里是启动对 Bean 定义解析的详细过程, 该解析过程会用到 Spring 的 Bean 配置规则
 			return registerBeanDefinitions(doc, resource);
 		}
@@ -571,6 +585,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 */
 	// 按照 Spring 的 Bean 语义要求将 Bean 定义资源解析并转换为容器内部的数据结构
 	public int registerBeanDefinitions(Document doc, Resource resource) throws BeanDefinitionStoreException {
+		// 这里得到 BeanDefinitionDocumentReader 来对 XML 的 BeanDefinition 解析解析
 		// 得到  BeanDefinitionDocumentReader 来对 XML 格式的 BeanDefinition解析
 		// 实际实现类是: DefaultBeanDefinitionDocumentReader
 		BeanDefinitionDocumentReader documentReader = createBeanDefinitionDocumentReader();
@@ -578,6 +593,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 		// 此处的 getRegistry() 方法返回的实例为 DefaultListableBeanFactory 类型
 		// 获取 BeanFactory 已经注册的 BeanDefinition 数量
 		int countBefore = getRegistry().getBeanDefinitionCount();
+		// 具体的解析过程在 registerBeanDefinitions 中完成
 		// 解析过程入口, 这里使用了委派模式, BeanDefinitionDocumentReader 只是一个接口, 具体的解析实现过程由实现类 DefaultbeanDefinitionDocumentReader 完成
 		// 调用 DefaultBeanDefinitionDocumentReader.registerBeanDefinition 方法
 		// 核心方法: 通过 BeanDefinitionDocumentReader 注册 doc 中定义的 bean 到 BeanFactory 中

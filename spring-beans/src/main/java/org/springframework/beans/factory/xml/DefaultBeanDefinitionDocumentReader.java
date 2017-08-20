@@ -391,6 +391,11 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	// 解析 Bean 定义资源 Document 对象的普通元素
 	protected void processBeanDefinition(Element ele, BeanDefinitionParserDelegate delegate) {
 		/**
+		 * BeanDefinitionHolder 是 BeanDefinition 对象的封装类, 封装了 BeanDefinition, Bean的名字和别名,
+		 * 用它来完成 Ioc 容器注册. 得到这个 BeanDefinitionHolder 就意味着 BeanDefinition 是通过
+		 * BeanDefinitionParserDelegate 对 XML 元素的信息 按照 Spring 的 Bean 规则进行解析得到
+		 */
+		/**
 		 * 利用 BeanDefinitionParserDelegate.parseBeanDefinitionElement(Element e)
 		 * 解析给定的 bean 元素信息为, BeanDefinitionHolder, 这其中就包含了 id, class, alias, name 等属性
 		 */
@@ -403,6 +408,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 			// 对 bean 标签中的属性和子标签, 进行相应的具体解析, 例如 property, constructor-arhs
 			bdHolder = delegate.decorateBeanDefinitionIfRequired(ele, bdHolder);
 			try {
+				// 这里是向 Ioc 容器注册解析得到 BeanDefinition 的地方
 				// 调用 BeanDefinitionRegistry.registerBeanDefinition(...) 放到相应的 Map 中
 				// 向 Spring Ioc 容器注册解析得到 Bean 定义, 这是 Bean 定义向 Ioc 容器注册的入口
 				// Register the final decorated instance.
@@ -412,6 +418,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 				getReaderContext().error("Failed to register bean definition with name '" +
 						bdHolder.getBeanName() + "'", ele, ex);
 			}
+			// 向 BeanDefinition 向 Ioc 容器 注册完成以后, 发送消息
 			// 发送注册事件
 			// 通知相关的监听器, 这个 Bean 已经注册完成
 			// 在完成向 Spring Ioc 容器注册解析得到的 bean 定义之后, 发送注册事件

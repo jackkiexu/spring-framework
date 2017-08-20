@@ -239,6 +239,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 */
 	// 参考资料 http://www.cnblogs.com/ITtangtang/p/3978349.html
 	// 正真实现向 Ioc 容器获取 Bean 的功能, 也是触发依赖注入功能的地方
+	// 这里是实际取得 Bean 的地方, 也是触发依赖注入的地方
 	@SuppressWarnings("unchecked")
 	protected <T> T doGetBean(
 			final String name, final Class<T> requiredType, final Object[] args, boolean typeCheckOnly)
@@ -261,6 +262,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		// 先从缓存中取是否已经有被创建过的单例类型的 bean, 对于单例模型的 Bean 整个 Ioc 容器中只创建一次, 不需要重复创建
 		// Eagerly check singleton cache for manually registered singletons.
 		// 检查缓存中是否有单例对象 bean 实例
+		// 先从缓存中取得 Bean, 处理那些已经创建过的单例模式的 Bean, 对这种 Bean 请求不需要重复创建
 		Object sharedInstance = getSingleton(beanName);
 		// Ioc 容器创建单例模式 Bean 实例对象
 		// 如果能从缓存中获得已缓存的单例 bean, 并且参数 args == null (只能在创建 prototype 时创建), 那么直接返回缓存中的 bean, 否则继续创建 bean
@@ -281,6 +283,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			 * 创建对象的工厂 bean, 两者之间的区别
 			 */
 			// 返回对应的实例, 可能存在是 FactoryBean 的情况, 返回的实际shi通过 Factorybean 创建的 bean 实例(如果 beanName 的命名是 &开头, 那么返回的是 Factorybean 实例)
+			// 这里的 getObjectForBeanInstance 完成是 FactoryBean 的相关处理, 以取得 FactoryBean 的生产结果
 			bean = getObjectForBeanInstance(sharedInstance, name, beanName, null);
 		}
 
@@ -338,13 +341,14 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			}
 
 			try {
+				// 根据 Bean 的名字取得 BeanDefinition
 				// 根据指定 Bean 名称获取其父级的 Bean 定义, 主要解决 Bean 继承时子类
 				// 合并父类公共属性问题
 				// 将存储XML配置文件的 GenericBeanDefinition 转换成 RootBeanDefinition, 如果指定的 beanName 是子 bean 的话, 还会合并父类的信息
 				final RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
 				checkMergedBeanDefinition(mbd, beanName, args);
 
-				// 获取当前的 Bean 所依赖 Bean 的名称
+				// 获取当前的 Bean 所依赖 Bean, 这样会触发getBean 的递归调用, 直到取到一个都没有任何依赖的 Bean 为止
 				// Guarantee initialization of beans that the current bean depends on.
 				String[] dependsOn = mbd.getDependsOn();
 				// 如果当前 Bean 有依赖 Bean
@@ -361,6 +365,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					}
 				}
 
+				// 这里通过 createBean 方法创建 Singleton bean 的实例, 这里有一个会调函数 getObject, 会在 getSingleton 中调用 ObjectFactory 的 createBean
 				// 创建单例模式的 Bean 实例对象
 				// Create bean instance.
 				// 依赖的 bean 实例化以后, 就可以创建bean自身的实例
@@ -448,7 +453,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		}
 
 		// 检查需要的类型是否匹配实际的 bean 实例化类型
-		// 对创建的 Bean 实例对象进行类型检查
+		// 对创建的 Bean 实例对象进行类型检查, 如果没问题就返回这个新建创建的 Bean, 这个 Bean 已经包含依赖的关系
 		// Check if required type matches the type of the actual bean instance.
 		if (requiredType != null && bean != null && !requiredType.isAssignableFrom(bean.getClass())) {
 			try {
@@ -1722,6 +1727,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		 * 如果指定的名称是容器的解析引用(dereference, 即使对象本身而非内存地址)
 		 * 且Bean 实例也不是创建 Bean 实例对象的工厂 Bean
 		 */
+		// 如果这里不是对 FactoryBean 的调用, 那么结束处理
 		// Don't let calling code try to dereference the factory if the bean isn't a factory.
 		if (BeanFactoryUtils.isFactoryDereference(name) && !(beanInstance instanceof FactoryBean)) {
 			throw new BeanIsNotAFactoryException(transformedBeanName(name), beanInstance.getClass());

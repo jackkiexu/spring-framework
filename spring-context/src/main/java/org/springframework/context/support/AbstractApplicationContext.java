@@ -522,6 +522,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	@Override
 	public void refresh() throws BeansException, IllegalStateException {
 		synchronized (this.startupShutdownMonitor) {
+			// 这是在子类中启动 refreshBeanFactory 的地方
 			// 调用容器准备刷新的方法, 获取容器的当前时间, 同时给容器设置同步标识
 			// 调用的是 AbstractApplicationContext#refresh
 			// Prepare this context for refreshing.
@@ -540,48 +541,57 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			prepareBeanFactory(beanFactory);
 
 			try {
+				// 设置 BeanFactory 的后置处理器
 				// 为容器的某些子类指定特殊的 BeanPost 事件处理器
 				// Allows post-processing of the bean factory in context subclasses.
 				// 主要添加 ServletContextAwareProcessor 处理类
 				// 调用的是 AbstractRefreshableWebApplicationContext#postProcessBeanFactory
 				postProcessBeanFactory(beanFactory);
 
+				// 调用 BeanFactory 的后置处理器, 这些后置处理器实在 Bean 定义中向容器注册的
 				// 调用所有注册的 BeanFactoryPostProcessor 的 Bean
 				// Invoke factory processors registered as beans in the context.
 				// 其实调用 PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors (PS: 里面很复杂)
 				invokeBeanFactoryPostProcessors(beanFactory);
 
+				// 注册 Bean 的后主处理器, 这些后置处理器在 Bean 的创建过程中调用
 				// 为 BeanFactory 注册 BeanPost 事件处理器
 				// BeanPostProcessor 是 Bean 后置处理器, 用于监听容器触发的事件
 				// Register bean processors that intercept bean creation.
 				// 调用的是 PostProcessorRegistrationDelegate.registerBeanPostProcessors
 				registerBeanPostProcessors(beanFactory);
 
+				// 对上下文中的消息源进行初始化
 				// 初始化信息源, 和国际化相关
 				// Initialize message source for this context.
 				// 初始化 MessageSource消息源, 如果 beanFactory 不存在此 bean 则采用默认的配置并社会父类 messageSource
 				initMessageSource();
 
+				// 初始化上下文中的事件机制
 				// 初始化容器事件传播器
 				// Initialize event multicaster for this context.
 				// 初始化 ApplicationEventMulticaster 事件, 默认使用 SimpleApplicationEventMulticaster 事件
 				initApplicationEventMulticaster();
 
+				// 初始化其他的特殊 Bean
 				// 调用子类的某些特殊 Bean 初始化方法
 				// Initialize other special beans in specific context subclasses.
 				// 其实调用的是 AbstractRefreshableWebApplicationContext.onRefresh
 				onRefresh();
 
+				// 检查监听 Bean 并且将这些 Bean 向容器中注册
 				// 为事件传播器注册事件监听器
 				// Check for listener beans and register them.
 				// 其实调用的是 AbstractRefreshableWebApplicationContext#registerListeners
 				registerListeners();
 
+				// 实例化所有的 (non-lazy-init) 单件
 				// 初始化所有剩余的 Bean
 				// Instantiate all remaining (non-lazy-init) singletons.
 				// 调用的是 AbstractRefreshableWebApplicationContext#finishBeanFactoryInitialization
 				finishBeanFactoryInitialization(beanFactory);
 
+				// 发布容器事件, 结束 refresh 过程
 				// 初始化容器的生命周期事件处理器, 并发布容器的生命周期事件
 				// Last step: publish corresponding event.
 				// 调用的是 AbstractApplicationContext#finishRefresh
@@ -939,6 +949,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		// Allow for caching all bean definition metadata, not expecting further changes.
 		beanFactory.freezeConfiguration();
 
+		// 这里调用 的是 BeanFactory 的 preInstantiateSingletons 这个方法是由 DefaultListableBeanFactory 实现的
 		// 对配置了 lazy-init 属性的单例模式 Bean 进行预实例化处理
 		// Instantiate all remaining (non-lazy-init) singletons.
 		beanFactory.preInstantiateSingletons();

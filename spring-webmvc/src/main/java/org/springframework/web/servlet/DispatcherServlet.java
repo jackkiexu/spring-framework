@@ -1355,25 +1355,30 @@ public class DispatcherServlet extends FrameworkServlet {
 	 */
 	// 渲染视图返回给前端
 	protected void render(ModelAndView mv, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		// 从 request 中读取locale信息, 并设置 response 的locale值
 		// Determine locale for request and apply it to the response.
 		Locale locale = this.localeResolver.resolveLocale(request);
 		response.setLocale(locale);
 
 		View view;
+		// 根据 ModelAndView 中设置的视图名称进行解析, 得到对应的视图对象
 		// 判断mv 内部属性 view 是否为 string 类型
 		if (mv.isReference()) {
 			// We need to resolve the view name.
 			// 根据 mv 通过 viewResolvers 集合 (FreemakerResolver/VelocityResolver...) 解析获取视图对象
 			// 包括寻找页面
+			// 需要对视图名进行解析
 			view = resolveViewName(mv.getViewName(), mv.getModelInternal(), locale, request);
 			if (view == null) {
 				throw new ServletException("Could not resolve view with name '" + mv.getViewName() +
 						"' in servlet with name '" + getServletName() + "'");
 			}
 		}
+		// ModelAndView 中可能有已经直接包含了 View 对象, 那就可以直接使用
 		else {
 			// No need to lookup: the ModelAndView object contains the actual View object.
 			// 表明存储在 ModelAndView对象内部的 view 要么是 String.class 类型要么是 View.class 类型
+			// 直接从 ModelAndView 对象中取得实际的视图对象
 			view = mv.getView();
 			if (view == null) {
 				throw new ServletException("ModelAndView [" + mv + "] neither contains a view name nor a " +
@@ -1381,6 +1386,7 @@ public class DispatcherServlet extends FrameworkServlet {
 			}
 		}
 
+		// 提交视图对象进行展示
 		// Delegate to the View object for rendering.
 		if (logger.isDebugEnabled()) {
 			logger.debug("Rendering view [" + view + "] in DispatcherServlet with name '" + getServletName() + "'");
@@ -1389,6 +1395,7 @@ public class DispatcherServlet extends FrameworkServlet {
 			if (mv.getStatus() != null) {
 				response.setStatus(mv.getStatus().value());
 			}
+			// 调用 view 实现对数据进行呈现, 并通过 HttpResponse 把视图呈现给 Http 客户端
 			// 最后才是对视图的渲染, 返回具体页面给前台
 			view.render(mv.getModelInternal(), request, response);
 		}
@@ -1430,6 +1437,7 @@ public class DispatcherServlet extends FrameworkServlet {
 			HttpServletRequest request) throws Exception {
 
 		for (ViewResolver viewResolver : this.viewResolvers) {
+			// 调用 ViewResolver 进行解析
 			View view = viewResolver.resolveViewName(viewName, locale);
 			if (view != null) {
 				return view;

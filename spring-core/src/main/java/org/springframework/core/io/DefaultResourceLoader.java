@@ -139,7 +139,9 @@ public class DefaultResourceLoader implements ResourceLoader {
 			return new ClassPathResource(location.substring(CLASSPATH_URL_PREFIX.length()), getClassLoader());
 		}
 		else {
-			try {	// 如果是 URL 方式, 使用 UrlResource 作为 Bean 文件的资源对象
+			try {
+				// 处理 URL 标示的 resource
+				// 如果是 URL 方式, 使用 UrlResource 作为 Bean 文件的资源对象
 				// Try to parse the location as a URL...
 				URL url = new URL(location);
 				return new UrlResource(url);
@@ -147,7 +149,7 @@ public class DefaultResourceLoader implements ResourceLoader {
 			catch (MalformedURLException ex) {
 				// No URL -> resolve as resource path.
 				// 如果既不是 classpath 标识, 又不是URL标识的Resource定位, 则调用
-				// 容器本身的 getResourceByPath 方法获取 Resource
+				// 容器本身的 getResourceByPath 方法获取 Resource, 这个方法是一个 protected方法, 默认的实现是得到 一个 ClassPathContextResource 这个方法常常会用子类来实现
 				// 最终都由 ServletContextResourceLoader 来加载资源
 				return getResourceByPath(location);
 			}

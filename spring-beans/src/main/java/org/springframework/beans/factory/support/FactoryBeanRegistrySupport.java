@@ -177,7 +177,7 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 				}
 			}
 			else {
-				// 调用 BeanFactory 接口实现类的创建对象房啊
+				// 调用 BeanFactory 接口实现类的创建对象
 				object = factory.getObject();
 			}
 		}

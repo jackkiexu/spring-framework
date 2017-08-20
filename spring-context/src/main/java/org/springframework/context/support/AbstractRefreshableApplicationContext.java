@@ -118,12 +118,17 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	 */
 	@Override
 	protected final void refreshBeanFactory() throws BeansException {
+		// 这里判断, 如果已经建立了 BeanFactory, 则销毁并关闭该 BeanFactory
 		// 存在已有的 bean 工厂则销毁
 		if (hasBeanFactory()) {			// 若已经有了容器, 则销毁容器中的 Bean, 关闭容器
 			destroyBeans();
 			closeBeanFactory();
 		}
-		try {	// 创建 IOC 容器
+		try {
+			// 创建 Ioc 容器, 这里使用的是 DefaultListableBeanFactory
+			// 这里是创建并设置持有的 DefaultListableBeanFactory 的地方同时调用
+			// loadBeanDefinitions 再载入 BeanDefinition 的信息
+			// 创建 IOC 容器
 			// 创建默认的用 list 接口存放 bean 的工厂
 			DefaultListableBeanFactory beanFactory = createBeanFactory();
 			// 这里同 contextId
@@ -131,6 +136,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 			// 配置 allowbeanDefinitionOverriding 和 allowCircularReferences 属性, 这里均不设置
 			// 对 IOC 容器进行定制化, 如设置启动参数, 开启注解的自动装配等
 			customizeBeanFactory(beanFactory);
+			// 启动 对 BeanDefinition 的载入
 			// 调用子类的加载 bean 定义方法, 这里会调用 XmlWebApplicationContext 子类的复写方法
 			// 调用载入 Bean 定义的方法, 主要这里使用了一个 委派的模式, 在当前类中定义了抽象额 loadbeanDefinitions 方法, 具体的实现都在子类中
 			loadBeanDefinitions(beanFactory);
@@ -203,6 +209,11 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	 * @see org.springframework.beans.factory.support.DefaultListableBeanFactory#setAllowCircularReferences
 	 * @see org.springframework.beans.factory.support.DefaultListableBeanFactory#setAllowRawInjectionDespiteWrapping
 	 */
+	/**
+	 * 这就是再上下文中创建 DefaultListableBeanFactory 的地方, 而 getInternalParentBeanFactory 的具体实现可以
+	 * 参看 AbstractApplicationContext 中的实现, 会根据已有的双亲 Ioc 容器的信息生成
+	 * DefaultListableBeanFactory 的双亲 Ioc 容器
+	 */
 	protected DefaultListableBeanFactory createBeanFactory() {
 		return new DefaultListableBeanFactory(getInternalParentBeanFactory());
 	}
@@ -238,6 +249,10 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	 * @throws IOException if loading of bean definition files failed
 	 * @see org.springframework.beans.factory.support.PropertiesBeanDefinitionReader
 	 * @see org.springframework.beans.factory.xml.XmlBeanDefinitionReader
+	 */
+	/**
+	 * 这里是使用 BeanDefinitionReader 载入Bean 定义的地方, 因为允许有多种载入方式, 虽然用得
+	 * 最多的是 XML 定义的形式, 这里通过一个抽象函数把具体的实现委托给子类来完成
 	 */
 	protected abstract void loadBeanDefinitions(DefaultListableBeanFactory beanFactory)
 			throws BeansException, IOException;

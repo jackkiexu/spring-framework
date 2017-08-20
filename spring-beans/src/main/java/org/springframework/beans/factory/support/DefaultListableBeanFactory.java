@@ -748,6 +748,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		// 获取解析过的所有 beanName
 		List<String> beanNames = new ArrayList<String>(this.beanDefinitionNames);
 
+		// 这里就开始 getBean, 也就是触发 Bean 的依赖注入
 		// Trigger initialization of all non-lazy singleton beans...
 		for (String beanName : beanNames) {
 			// 获取指定名称的 Bean 定义
@@ -835,7 +836,10 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		}
 
 		BeanDefinition oldBeanDefinition;
-
+		/**
+		 * 这里检查是不是有相同名字的 BeanDefinition 已经在 Ioc 容器注册过, 如果有相同名字的 BeanDefinition
+		 * 但又不允许覆盖, 那么就会抛出异常
+		 */
 		oldBeanDefinition = this.beanDefinitionMap.get(beanName);
 		if (oldBeanDefinition != null) {
 			if (!isAllowBeanDefinitionOverriding()) {
@@ -884,6 +888,10 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 				}
 			}
 			else {
+				/**
+				 * 这是正常注册 BeanDefinition 的过程, 把 Bean 名字存在 beanDefinitionNames 的同时, 把
+				 * beanName 作为 Map 的 key, 把 beanDefinition 作为 value 存入到 Ioc 容器持有的 beanDefinitionMap 中去
+				 */
 				// Still in startup registration phase
 				this.beanDefinitionMap.put(beanName, beanDefinition);
 				this.beanDefinitionNames.add(beanName);

@@ -104,6 +104,9 @@ class BeanDefinitionValueResolver {
 	public Object resolveValueIfNecessary(Object argName, Object value) {
 		// We must check each value to see whether it requires a runtime reference
 		// to another bean to be resolved.
+		/**
+		 * 这里对 RuntimeBeanReference 进行解析, RuntimeBeanReference 在对 BeanDefinition 进行解析是生成的数据对象
+		 */
 		// 对引用类型的属性进行解析
 		if (value instanceof RuntimeBeanReference) {
 			RuntimeBeanReference ref = (RuntimeBeanReference) value;
@@ -356,12 +359,18 @@ class BeanDefinitionValueResolver {
 	 * Resolve a reference to another bean in the factory.
 	 */
 	// 参考资料
+	// 对 RuntimeBeanReference 的注入在 resolveReference 中
 	// 解析引用类型的属性值
 	private Object resolveReference(Object argName, RuntimeBeanReference ref) {
 		try {
+			/**
+			 * 从 RuntimeBeanReference 取得 reference 的名字, 这个 RuntimeBeanReference 是在
+			 * 载入 BeanDefinition 时根据配置生成的
+			 */
 			// 获取引用的 Bean 名称
 			String refName = ref.getBeanName();
 			refName = String.valueOf(doEvaluate(refName));
+			// 如果 ref 是在双亲 Ioc 容器中, 那就到双亲 Ioc 容器中获取
 			// 如果引用的对象在父类容器中, 则从父类容器中获取指定的引用对象
 			if (ref.isToParent()) {
 				if (this.beanFactory.getParentBeanFactory() == null) {
@@ -372,6 +381,9 @@ class BeanDefinitionValueResolver {
 				}
 				return this.beanFactory.getParentBeanFactory().getBean(refName);
 			}
+			/**
+			 * 在当前 Ioc 容器中去获取 Bean， 这里会触发一个 getBean 的过程, 如果依赖注入没有发生, 这里会触发相应的依赖注入的发生
+			 */
 			// 从当前的容器中获取指定的引用 Bean 对象, 如果指定的 bean 没有被实例化
 			// 则会递归触发引用 Bean 的初始化和依赖注入
 			else {
@@ -406,6 +418,7 @@ class BeanDefinitionValueResolver {
 	/**
 	 * For each element in the managed list, resolve reference if necessary.
 	 */
+	// 对于每个在 list 中的元素, 都会依次进行解析
 	// 解析 list 类型的属性
 	private List<?> resolveManagedList(Object argName, List<?> ml) {
 		List<Object> resolved = new ArrayList<Object>(ml.size());

@@ -478,6 +478,7 @@ project("spring-context") {
 		compile(project(":spring-expression"))
 		compile(project(":spring-core"))
 		compile(files(project(":spring-core").cglibRepackJar))
+		compile(project(":spring-beans-groovy"))
 		optional(project(":spring-instrument"))
 		optional("javax.inject:javax.inject:1")
 		optional("javax.ejb:ejb-api:${ejbVersion}")

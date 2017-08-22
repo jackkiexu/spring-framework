@@ -1751,6 +1751,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	// 获取给定 Bean 的实例对象, 主要是完成 FactoryBean 的相关处理
 	protected Object getObjectForBeanInstance(
 			Object beanInstance, String name, String beanName, RootBeanDefinition mbd) {
+		/**
+		 * 如果指定 name 是工厂相关(以 &为前缀), 又不是 FactoryBean 类型则验证不通过
+		 */
 		/**容器已经得到了 Bean 实例对象, 这个实例对象可能是一个普通的 Bean, 也可能是
 		 * 一个工厂 Bean, 如果是一个工厂 Bean, 则使用它创建一个 Bean 实例对象, 如果
 		 * 调用本身就像获得一个容器的引用, 则指定返回这个工厂 Bean 实例对象
@@ -1763,6 +1766,11 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			throw new BeanIsNotAFactoryException(transformedBeanName(name), beanInstance.getClass());
 		}
 
+		/**
+		 * 现在我们有了个 bean 的实例, 这个实例可能会是正常的 bean 或者是 Factorybean
+		 * 如果是 Factorybean 我们使用它创建实例, 但是如果用户想要直接获取工厂实例 而不是 工厂的 getObject 方法对应的实例
+		 * 那么传入的 name 应该加入前缀 &
+		 */
 		/**
 		 * 现在我们已经有了一个 bean 的实例化(及参数传入的 beanInstance), 它可能普通的 bean, 也可能是 FactoryBean
 		 * 如果它是 FactoryBean, 我们就用这个 FactoryBean 创建一个新的 bean 实例化对象返回
@@ -1792,6 +1800,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			// Caches object obtained from FactoryBean if it is a singleton.
 			// containsBeanDefinition(...) 检测 beanDefinitionMap 中(即所有已加载的类中) 是否已定义了 beanName
 			if (mbd == null && containsBeanDefinition(beanName)) { // 已定义 beanName
+				// 将存储 XML 配置文件得到 GernericBeanDefinition 转换为 RootBeanDefinition, 如果指定了 beanName 是子 bean 的话, 同时合并父类的相关属性
 				// 从容器中获取指定名称的 bean 定义, 如果继承基类, 则合并基类相关属性
 				mbd = getMergedLocalBeanDefinition(beanName);
 			}

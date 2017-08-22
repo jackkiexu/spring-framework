@@ -115,7 +115,7 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 					}
 					else {
 						if (object != null && shouldPostProcess) {
-							try {
+							try { // 调用 ObjectFactory 的后处理器
 								object = postProcessObjectFromFactoryBean(object, beanName);
 							}
 							catch (Throwable ex) {
@@ -158,7 +158,7 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 			throws BeanCreationException {
 
 		Object object;
-		try {
+		try { // 需要权限验证
 			if (System.getSecurityManager() != null) {
 				AccessControlContext acc = getAccessControlContext();
 				try {

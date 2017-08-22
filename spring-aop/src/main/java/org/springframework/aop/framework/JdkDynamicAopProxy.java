@@ -178,15 +178,18 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 			// 切面, 目标对象是不是相等的
 			if (!this.equalsDefined && AopUtils.isEqualsMethod(method)) {
 				// The target does not implement the equals(Object) method itself.
+				// 如果目标对象没有实现 object 类的基础方法 euqals
 				return equals(args[0]);
 			}
 			// hashCode 方法的处理
 			else if (!this.hashCodeDefined && AopUtils.isHashCodeMethod(method)) {
 				// The target does not implement the hashCode() method itself.
+				// 如果目标对象没有实现 object 类的基础方法 hashCode
 				return hashCode();
 			}
 			else if (method.getDeclaringClass() == DecoratingProxy.class) {
 				// There is only getDecoratedClass() declared -> dispatch to proxy config.
+				// 根据代理对象配置来调用服务
 				return AopProxyUtils.ultimateTargetClass(this.advised);
 			}
 			/**
@@ -235,6 +238,11 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 				retVal = AopUtils.invokeJoinpointUsingReflection(target, method, argsToUse);
 			}
 			else {
+				/**
+				 * 如果有拦截器的设定, 那么需要调用拦截器之后才调用目标对象的相应方法
+				 * 通过 构造一个 ReflectiveMethodInvocation 来实现, 下面会看
+				 * 这个 ReflectiveMethodInvocation 类的具体实现
+				 */
 				// 将拦截器封装在 ReflectiveMethodInvocation
 				// 创建一个执行环境来处理拦截器和目标方法的执行(注意它的参数), 这是一个递归的过程, 后面再详细说明
 				// We need to create a method invocation...

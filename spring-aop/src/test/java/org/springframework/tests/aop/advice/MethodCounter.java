@@ -29,15 +29,18 @@ import java.util.HashMap;
 @SuppressWarnings("serial")
 public class MethodCounter implements Serializable {
 
+	// 用来存储方法名与调用次数的 键值对
 	/** Method name --> count, does not understand overloading */
 	private HashMap<String, Integer> map = new HashMap<String, Integer>();
 
+	// 所有的调用次数, 不管是什么方法名
 	private int allCount;
 
 	protected void count(Method m) {
 		count(m.getName());
 	}
 
+	// 根据目标方法的方法名统计调用次数
 	protected void count(String methodName) {
 		Integer i = map.get(methodName);
 		i = (i != null) ? new Integer(i.intValue() + 1) : new Integer(1);
@@ -45,11 +48,13 @@ public class MethodCounter implements Serializable {
 		++allCount;
 	}
 
+	// 根据方法名统计调用次数
 	public int getCalls(String methodName) {
 		Integer i = map.get(methodName);
 		return (i != null ? i.intValue() : 0);
 	}
 
+	// 取得所有方法调用次数
 	public int getCalls() {
 		return allCount;
 	}

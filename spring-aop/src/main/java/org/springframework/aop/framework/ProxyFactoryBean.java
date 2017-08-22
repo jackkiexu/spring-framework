@@ -241,7 +241,9 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 	 */
 	@Override
 	public Object getObject() throws BeansException {
+		// 这里初始化通知器链
 		initializeAdvisorChain();
+		// 这里对 Singleton prototype 的类型进行区分, 生成对应的 Proxy
 		if (isSingleton()) {
 			return getSingletonInstance();
 		}
@@ -309,16 +311,20 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 	private synchronized Object getSingletonInstance() {
 		if (this.singletonInstance == null) {
 			this.targetSource = freshTargetSource();
+			// 根据 AOP 框架来判断需要代理的接口
 			if (this.autodetectInterfaces && getProxiedInterfaces().length == 0 && !isProxyTargetClass()) {
 				// Rely on AOP infrastructure to tell us what interfaces to proxy.
 				Class<?> targetClass = getTargetClass();
 				if (targetClass == null) {
 					throw new FactoryBeanNotInitializedException("Cannot determine target class for proxy");
 				}
+				// 这里设置代理对象的接口
 				setInterfaces(ClassUtils.getAllInterfacesForClass(targetClass, this.proxyClassLoader));
 			}
 			// Initialize the shared singleton instance.
 			super.setFrozen(this.freezeProxy);
+			// 注意这里的方法将会使用 ProxyFactory 来生成 需要的 Proxy
+			// 通过 createAopProxy 返回 的 AopProxy 来得到代理对象
 			this.singletonInstance = getProxy(createAopProxy());
 		}
 		return this.singletonInstance;
@@ -436,6 +442,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 				throw new AopConfigException("Target required after globals");
 			}
 
+			// 这里是添加 Advisor 链的调用, 是通过 interceptorNames 属性进行配置的
 			// Materialize interceptor chain from bean names.
 			for (String name : this.interceptorNames) {
 				if (logger.isTraceEnabled()) {
@@ -452,6 +459,10 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 				}
 
 				else {
+					/**
+					 * 如果程序在这里被调用, 那么需要加入命名的拦截器 advice, 并且需要检查这个
+					 * Bean 是 singleton 还是 prototype 类型
+					 */
 					// If we get here, we need to add a named interceptor.
 					// We must check if it's a singleton or prototype.
 					Object advice;

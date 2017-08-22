@@ -174,6 +174,8 @@ class CglibAopProxy implements AopProxy, Serializable {
 			// Validate the class, writing log messages as necessary.
 			validateClassIfNecessary(proxySuperClass, classLoader);
 
+			// 验证代理对象的接口设置
+			// 创建并配置 CGLIB 的 Enhancer, 这个 Enhancer 对象是 CGLIB 的主要操作类
 			// Configure CGLIB Enhancer...
 			// 创建并设置 CGLIB 的 Enhancer, 这个 Enhancer 对象是 CGLIB 的主要操作类
 			Enhancer enhancer = createEnhancer();
@@ -184,6 +186,8 @@ class CglibAopProxy implements AopProxy, Serializable {
 					enhancer.setUseCache(false);
 				}
 			}
+			// 设置 Enhancer 对象, 包括设置代理接口, 会调用fangfa
+			// 来自 advised 的 Ioc 配置, 比如使用 Aop 的 DynamicAdvisedInterceptor 拦截器
 			// 设置 Enhancer 对象的各种操作
 			enhancer.setSuperclass(proxySuperClass);
 			enhancer.setInterfaces(AopProxyUtils.completeProxiedInterfaces(this.advised));
@@ -225,6 +229,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 	protected Object createProxyClassAndInstance(Enhancer enhancer, Callback[] callbacks) {
 		enhancer.setInterceptDuringConstruction(false);
 		enhancer.setCallbacks(callbacks);
+		// 通过 enhancer 来生成代理对象
 		return (this.constructorArgs != null ?
 				enhancer.create(this.constructorArgTypes, this.constructorArgs) :
 				enhancer.create());

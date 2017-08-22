@@ -57,6 +57,8 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 	// 使用初始化策略实例化 Bean 对象
 	@Override
 	public Object instantiate(RootBeanDefinition bd, String beanName, BeanFactory owner) {
+		// 如果有需要覆盖或者动态替换的方法 则当然需要使用 cglib 进行动态代理, 因为可以在创建代理的同时将动态方法织入 类中
+		// 但如果没有需要动态改变的方法, 为了方便直接反射就可以le
 		// Don't override the class with CGLIB if no overrides.
 		// 如果 Bean 定义中没有方法覆盖, 则就不需要 CGLIB 父类类的方法
 		if (bd.getMethodOverrides().isEmpty()) {

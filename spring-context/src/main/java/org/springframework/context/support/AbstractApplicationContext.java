@@ -522,18 +522,21 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	@Override
 	public void refresh() throws BeansException, IllegalStateException {
 		synchronized (this.startupShutdownMonitor) {
+			// 准备刷新上下文环境
 			// 这是在子类中启动 refreshBeanFactory 的地方
 			// 调用容器准备刷新的方法, 获取容器的当前时间, 同时给容器设置同步标识
 			// 调用的是 AbstractApplicationContext#refresh
 			// Prepare this context for refreshing.
 			prepareRefresh();
 
+			// 初始化 BeanFactory, 并进行 XML 文件读取
 			// 告诉子类启动 refreshBeanFactory 方法, bean 定义资源文件的载入从子类的 refreshBeanFactory 方法启动
 			// 涉及 接卸 spring 配置文件并且封装为 beanDefinition 对象保存在 beanFactory 中
 			// 调用的是 AbstractApplicationContext#obtainFreshBeanFactory
 			// Tell the subclass to refresh the internal bean factory.
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
+			// 对 BeanFactory 进行各种功能的填充
 			// 为 BeanFactory 配置容器特性, 例如类加载器, 时间处理器等
 			// Prepare the bean factory for use in this context.
 			// 调用的是 AbstractApplicationContext#prepareBeanFactory
@@ -541,6 +544,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			prepareBeanFactory(beanFactory);
 
 			try {
+				// 子类覆盖方法做额外的处理
 				// 设置 BeanFactory 的后置处理器
 				// 为容器的某些子类指定特殊的 BeanPost 事件处理器
 				// Allows post-processing of the bean factory in context subclasses.
@@ -548,49 +552,54 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				// 调用的是 AbstractRefreshableWebApplicationContext#postProcessBeanFactory
 				postProcessBeanFactory(beanFactory);
 
+				// 激活各种 BeanFactory 处理器
 				// 调用 BeanFactory 的后置处理器, 这些后置处理器实在 Bean 定义中向容器注册的
 				// 调用所有注册的 BeanFactoryPostProcessor 的 Bean
 				// Invoke factory processors registered as beans in the context.
 				// 其实调用 PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors (PS: 里面很复杂)
 				invokeBeanFactoryPostProcessors(beanFactory);
 
-				// 注册 Bean 的后主处理器, 这些后置处理器在 Bean 的创建过程中调用
+				// 注册 Bean 的后主处理器, 这些后置处理器在 Bean 的创建过程中调用 (PS: getBean中)
 				// 为 BeanFactory 注册 BeanPost 事件处理器
 				// BeanPostProcessor 是 Bean 后置处理器, 用于监听容器触发的事件
 				// Register bean processors that intercept bean creation.
 				// 调用的是 PostProcessorRegistrationDelegate.registerBeanPostProcessors
 				registerBeanPostProcessors(beanFactory);
 
-				// 对上下文中的消息源进行初始化
+				// 对上下文中的消息源进行初始化, 即不同语言的消息体, 国际化处理
 				// 初始化信息源, 和国际化相关
 				// Initialize message source for this context.
 				// 初始化 MessageSource消息源, 如果 beanFactory 不存在此 bean 则采用默认的配置并社会父类 messageSource
 				initMessageSource();
 
-				// 初始化上下文中的事件机制
+				// 初始化上下文中的事件机制, 放入 "applicationEventMulticaster" bean 中
 				// 初始化容器事件传播器
 				// Initialize event multicaster for this context.
 				// 初始化 ApplicationEventMulticaster 事件, 默认使用 SimpleApplicationEventMulticaster 事件
 				initApplicationEventMulticaster();
 
+				// 留给子类来初始化其他的 Bean
 				// 初始化其他的特殊 Bean
 				// 调用子类的某些特殊 Bean 初始化方法
 				// Initialize other special beans in specific context subclasses.
 				// 其实调用的是 AbstractRefreshableWebApplicationContext.onRefresh
 				onRefresh();
 
+				// 在所有 Bean 中查找 Listener bean, 注册到消息广播中
 				// 检查监听 Bean 并且将这些 Bean 向容器中注册
 				// 为事件传播器注册事件监听器
 				// Check for listener beans and register them.
 				// 其实调用的是 AbstractRefreshableWebApplicationContext#registerListeners
 				registerListeners();
 
+				// 初始化剩余的单实例
 				// 实例化所有的 (non-lazy-init) 单件
 				// 初始化所有剩余的 Bean
 				// Instantiate all remaining (non-lazy-init) singletons.
 				// 调用的是 AbstractRefreshableWebApplicationContext#finishBeanFactoryInitialization
 				finishBeanFactoryInitialization(beanFactory);
 
+				// 完成刷新过程, 通知生命周期处理器,  lifecycleProcessor 刷新过程, 同时发出 ContextRefreshEvent 通知别人
 				// 发布容器事件, 结束 refresh 过程
 				// 初始化容器的生命周期事件处理器, 并发布容器的生命周期事件
 				// Last step: publish corresponding event.
@@ -640,9 +649,11 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			logger.info("Refreshing " + this);
 		}
 
+		// 留给子类覆盖
 		// Initialize any placeholder property sources in the context environment
 		initPropertySources();
 
+		// 验证需要的属性文件是否已经放入环境中
 		// Validate that all properties marked as required are resolvable
 		// see ConfigurablePropertyResolver#setRequiredProperties
 		getEnvironment().validateRequiredProperties();
@@ -655,7 +666,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	/**
 	 * <p>Replace any stub property sources with actual instances.
 	 * @see org.springframework.core.env.PropertySource.StubPropertySource
-	 * @see org.springframework.web.context.support.WebApplicationContextUtils#initServletPropertySources
+	 * @see "org.springframework.web.context.support."WebApplicationContextUtils#initServletPropertySources
 	 */
 	protected void initPropertySources() {
 		// For subclasses: do nothing by default.

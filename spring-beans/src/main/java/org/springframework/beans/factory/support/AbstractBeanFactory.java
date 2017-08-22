@@ -1852,10 +1852,16 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * @see #registerDisposableBean
 	 * @see #registerDependentBean
 	 */
+	// 销毁方法扩展
 	protected void registerDisposableBeanIfNecessary(String beanName, Object bean, RootBeanDefinition mbd) {
 		AccessControlContext acc = (System.getSecurityManager() != null ? getAccessControlContext() : null);
 		if (!mbd.isPrototype() && requiresDestruction(bean, mbd)) {
 			if (mbd.isSingleton()) {
+				/**
+				 * 单例模式下注册需要销毁的 Bean, 此方法中会处理实现 DisposableBean 的 bean
+				 * 并且对 所有的 bean 使用 DestructionAwareBeanPostProcessor 处理
+				 *
+				 */
 				// Register a DisposableBean implementation that performs all destruction
 				// work for the given bean: DestructionAwareBeanPostProcessors,
 				// DisposableBean interface, custom destroy method.
@@ -1863,6 +1869,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 						new DisposableBeanAdapter(bean, beanName, mbd, getBeanPostProcessors(), acc));
 			}
 			else {
+				// 自定义 scope 处理
 				// A bean with a custom scope...
 				Scope scope = this.scopes.get(mbd.getScope());
 				if (scope == null) {

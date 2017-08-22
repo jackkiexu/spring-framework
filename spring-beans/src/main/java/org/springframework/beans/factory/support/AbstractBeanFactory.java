@@ -252,6 +252,12 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		Object bean;
 
 		/**
+		 * 检查缓存中或实例工厂中是否有对应的实例
+		 * 为什么首先会使用这段代码
+		 * 因为在创建单例 bean 的时候会存在依赖注入的情况, 而在创建依赖的时候为了避免玄幻依赖
+		 * Spring 创建 bean 的原则是不等 bean 创建完成就会将创建 bean 的 ObjectFactory 提早曝光
+		 * 也就是将 ObjectFactory 加入到 缓存中, 一旦下个 bean 创建时候需要依赖上个 bean 则直接使用 ObjectFactory
+		 *
 		 * 要优先检测缓存的原因:
 		 * 		因为在创建单例 bean 的时候, 可能存在依赖注入的情况, 而在创建依赖的时候为了避免循环依赖
 		 * spring 的原则是不等 bean 创建完成就会将创建 bean 的 ObjectFactory提早暴露出来
@@ -263,6 +269,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		// Eagerly check singleton cache for manually registered singletons.
 		// 检查缓存中是否有单例对象 bean 实例
 		// 先从缓存中取得 Bean, 处理那些已经创建过的单例模式的 Bean, 对这种 Bean 请求不需要重复创建
+
+		// 尝试从 缓存获取 或者 singletonFactories 中的 ObjectFactory 中获取
 		Object sharedInstance = getSingleton(beanName);
 		// Ioc 容器创建单例模式 Bean 实例对象
 		// 如果能从缓存中获得已缓存的单例 bean, 并且参数 args == null (只能在创建 prototype 时创建), 那么直接返回缓存中的 bean, 否则继续创建 bean
@@ -284,10 +292,19 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			 */
 			// 返回对应的实例, 可能存在是 FactoryBean 的情况, 返回的实际shi通过 Factorybean 创建的 bean 实例(如果 beanName 的命名是 &开头, 那么返回的是 Factorybean 实例)
 			// 这里的 getObjectForBeanInstance 完成是 FactoryBean 的相关处理, 以取得 FactoryBean 的生产结果
+
+			// 返回对应的实例, 有时候存在诸如 BeanFactory 的情况并不是直接返回实例本身而是返回指定方法的实例
 			bean = getObjectForBeanInstance(sharedInstance, name, beanName, null);
 		}
 
 		else {
+
+			/**
+			 * 只有在单例情况才会尝试解决循环依赖, 原型模式情况下, 如果存在
+			 * A 中有 B 属性, B中有 A 属性, 那么当依赖注入的时候, 就会产生当 A 还未创建完的时候因为对于
+			 * B 的创建再次返回创建 A, 造成循环依赖, 也就是下面的情况
+			 */
+
 			/**
 			 * 不能在缓存中找到 单例 bean
 			 * 只有单例模式下, 才会尝试解决循环依赖, 原型模式下, 直接抛出异常 BeanCurrentlyInCreationException
@@ -309,7 +326,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			 */
 			// Check if bean definition exists in this factory.			// 检测在 当前 factory 是否存在对 bean 的定义
 			BeanFactory parentBeanFactory = getParentBeanFactory();
-
+			// 如果 beanDefinitionMap 中不存在, 则从 parentBeanFactory 中查找
 			/**
 			 * 如果当前工厂 AbstractBeanFactory 存在父级 beanFactory
 			 * 		且当前 AbstractBeanFactory 不存在 bean 定义(BeanDefinition), 则把创建 bean 的职责交给父级 Beanfactory
@@ -319,6 +336,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				// 解析指定的 bean 名称的原始名称
 				// Not found -> check parent.
 				String nameToLookup = originalBeanName(name);
+				// 递归到 beanFactory 中寻找
 				// 递归父类查找
 				if (args != null) {
 					// Delegation to parent with explicit args.
@@ -332,6 +350,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				}
 			}
 
+			// 如果不是仅仅做类型检查则是创建 bean, 这里要进行记录
 			// 创建的 bean 是否需要进行类型验证, 一般不需要
 			// 是否是简单的只做类型检测, 不只是类型检测的话要加入缓存
 			if (!typeCheckOnly) {
@@ -341,6 +360,13 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			}
 
 			try {
+				/**
+				 * 将存储 XML 配置文件的 GenericBeanDefinition 转换成 RootBeanDefinition, 如果指定 BeanName 是 Bean 的话同时会合并父类的相关属性
+				 * 为什么要将 GenericBeanDefinition 转化为 RootbeanDefinition 是因为:
+				 * 从 XML 配置文件中读取到的 Bean 信息是存储到 GenericbeanDefinition 中, 但是
+				 * 所有 Bean 后续处理都是针对 RootBeanDefinition 的, 所以这里需要做一个转换, 转换的同时
+				 * 如果父类 bean 不为空的话, 则会一并合并父类的属性
+				 */
 				// 根据 Bean 的名字取得 BeanDefinition
 				// 根据指定 Bean 名称获取其父级的 Bean 定义, 主要解决 Bean 继承时子类
 				// 合并父类公共属性问题
@@ -352,12 +378,14 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				// Guarantee initialization of beans that the current bean depends on.
 				String[] dependsOn = mbd.getDependsOn();
 				// 如果当前 Bean 有依赖 Bean
+				// 若存在依赖则需要递归实例化依赖的 bean
 				if (dependsOn != null) {	// 若存在依赖, 则需要递归实例化依赖的 bean, 即 A 中有属性 B, B中有C, 则递归优先实例化 C, 再实例化 B, 再实例化 A
 					for (String dep : dependsOn) {
 						if (isDependent(beanName, dep)) {
 							throw new BeanCreationException(mbd.getResourceDescription(), beanName,
 									"Circular depends-on relationship between '" + beanName + "' and '" + dep + "'");
 						}
+						// 缓存依赖调用
 						// 把被依赖 Bean 注册给当前依赖的 Bean
 						registerDependentBean(dep, beanName);	// 缓存依赖调用
 						// 递归调用 getBean 方法, 获取当前 Bean 的依赖的 Bean
@@ -365,6 +393,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					}
 				}
 
+				// 实例化 依赖的 Bean 后便可以实例化 mdb 本身了
+				// singleton 模式的创建
 				// 这里通过 createBean 方法创建 Singleton bean 的实例, 这里有一个会调函数 getObject, 会在 getSingleton 中调用 ObjectFactory 的 createBean
 				// 创建单例模式的 Bean 实例对象
 				// Create bean instance.

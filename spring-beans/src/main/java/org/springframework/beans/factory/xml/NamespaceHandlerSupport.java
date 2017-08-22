@@ -83,8 +83,13 @@ public abstract class NamespaceHandlerSupport implements NamespaceHandler {
 	 * the local name of the supplied {@link Element}.
 	 */
 	private BeanDefinitionParser findParserForElement(Element element, ParserContext parserContext) {
+		// 获取元素名称, 也就是 <myname:user 中的 user, 若在实例中, 此时 localName 为 user
 		// 一般都是类似 context-component-scan, mvc-resources 这样的节点
 		String localName = parserContext.getDelegate().getLocalName(element);
+		/**
+		 * 根据 user 找到对应的解析器, 也就是在 registerBeanDefinitionParser("user", new UserBeanDefinitionParser())
+		 * 注册的解析器
+		 */
 		// 此处显而易见可觉察到通过 parser 这个 map 集合获取相应的解析器
 		BeanDefinitionParser parser = this.parsers.get(localName);
 		if (parser == null) {

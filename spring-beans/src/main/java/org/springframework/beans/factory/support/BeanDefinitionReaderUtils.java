@@ -57,9 +57,11 @@ public class BeanDefinitionReaderUtils {
 			String parentName, String className, ClassLoader classLoader) throws ClassNotFoundException {
 
 		GenericBeanDefinition bd = new GenericBeanDefinition();
+		// parentName 可能为空
 		bd.setParentName(parentName);
 		if (className != null) {
 			if (classLoader != null) {
+				// 若 classLoader 不为空, 则使用以传入的 classloader 同虚拟机加载类对象, 否则只是记录 classname
 				bd.setBeanClass(ClassUtils.forName(className, classLoader));
 			}
 			else {
@@ -144,17 +146,21 @@ public class BeanDefinitionReaderUtils {
 	public static void registerBeanDefinition(
 			BeanDefinitionHolder definitionHolder, BeanDefinitionRegistry registry)
 			throws BeanDefinitionStoreException {
+		// 使用 beanName 做唯一标识注册
 		// 获取解析的 BeanDefinition 的名称
 		// Register bean definition under primary name.
 		String beanName = definitionHolder.getBeanName();
 		// 最终的 bean 注册, 把 bean definition 保存到 map 中
 		// 向 Ioc 容器注册 BeanDefinition
 		registry.registerBeanDefinition(beanName, definitionHolder.getBeanDefinition());
+
+		// 注册所有的别名
 		// 如果解析的 BeanDefinition 有别名, 向容器为其注册别名
 		// Register aliases for bean name, if any.
 		String[] aliases = definitionHolder.getAliases();
 		if (aliases != null) {
 			for (String alias : aliases) {
+				// 这里直接调用 SimpleAliasRegistry
 				registry.registerAlias(beanName, alias);
 			}
 		}

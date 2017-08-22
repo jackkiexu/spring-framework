@@ -113,18 +113,23 @@ public class DefaultNamespaceHandlerResolver implements NamespaceHandlerResolver
 	 */
 	@Override
 	public NamespaceHandler resolve(String namespaceUri) {
+		// 获取所有已经配置的 handler 映射
 		// 调用的是 PropertiesLoaderUtils.loadAllProperties 读取所有 classpath下的 'META_INF/spring.handlers' 文件, 保存到 Map 集合
 		Map<String, Object> handlerMappings = getHandlerMappings();
+		// 根据命名空间找到对应的信息
 		Object handlerOrClassName = handlerMappings.get(namespaceUri);
 		if (handlerOrClassName == null) {
 			return null;
 		}
+		// 已经做过解析的情况, 直接从缓存读取
 		else if (handlerOrClassName instanceof NamespaceHandler) {
 			return (NamespaceHandler) handlerOrClassName;
 		}
+		// 没做过解析, 返回类路径
 		else {
 			String className = (String) handlerOrClassName;
 			try {
+				// 创建类
 				Class<?> handlerClass = ClassUtils.forName(className, this.classLoader);
 				// 声明的 handler 必须是 NamespaceHandler 的实现类
 				if (!NamespaceHandler.class.isAssignableFrom(handlerClass)) {
@@ -154,16 +159,19 @@ public class DefaultNamespaceHandlerResolver implements NamespaceHandlerResolver
 	 * Load the specified NamespaceHandler mappings lazily.
 	 */
 	private Map<String, Object> getHandlerMappings() {
+		// 如果没有被缓存则开始进行缓存
 		if (this.handlerMappings == null) {
 			synchronized (this) {
 				if (this.handlerMappings == null) {
 					try {
+						// this.handlerMappingsLocation 在构造函数中已经被初始化: META-INF/Spring.handlers
 						Properties mappings =
 								PropertiesLoaderUtils.loadAllProperties(this.handlerMappingsLocation, this.classLoader);
 						if (logger.isDebugEnabled()) {
 							logger.debug("Loaded NamespaceHandler mappings: " + mappings);
 						}
 						Map<String, Object> handlerMappings = new ConcurrentHashMap<String, Object>(mappings.size());
+						// 将 Properties 格式文件合并到 Map 格式的 handlerMapping 中
 						CollectionUtils.mergePropertiesIntoMap(mappings, handlerMappings);
 						this.handlerMappings = handlerMappings;
 					}

@@ -196,6 +196,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	// 正如 注解所说的, 解析 import 标签, alias 标签, bean 标签, 和自定义标签
 	// 使用 Spring 的 Bean 规则从 Document 的根元素开始进行Bean定义的 Document 对象
 	protected void parseBeanDefinitions(Element root, BeanDefinitionParserDelegate delegate) {
+		// 对 Beans 处理
 		// Bean 定义额 Document 对象使用了 Spring 默认的 XML 命名空间
 		// 检查 <beans> 根标签的命名空间是否为空或者是  http://www.springframework.org/schema/beans
 		if (delegate.isDefaultNamespace(root)) {
@@ -259,6 +260,13 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	/**
 	 * Parse an "import" element and load the bean definitions
 	 * from the given resource into the bean factory.
+	 *
+	 * Demo
+	 *
+	 * <beans>
+	 *     <import resource="redis.xml"></import>
+	 *     <import resource="db.xml"></import>
+	 * </beans>
 	 */
 	// 解析 <Import> 导入元素, 从给定的导入路径加载 Bean定义资源到 Spring Ioc 容器中
 	protected void importBeanDefinitionResource(Element ele) {
@@ -271,7 +279,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 			getReaderContext().error("Resource location must not be empty", ele);
 			return;
 		}
-		// 使用系统变量值解析 location 属性值
+		// 使用系统变量值解析 location 属性值 如 ${user.dir}
 		// Resolve system properties: e.g. "${user.dir}"
 		// 这里强调一下, 对于 <import> 标签, 其会从 System.getProperties() 和 System.getenv() 中属性获取, 优先 System.getProperties()
 		// 即优先系统变量, 环境变量次子
@@ -292,6 +300,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 			// 给定的导入元素的 location 不是绝对路径
 		}
 
+		// 如果是绝对 URI 则直接根据 地址加载对应的配置文件
 		// 给定的导入元素的 location 是绝对路径
 		// Absolute or relative?
 		if (absoluteLocation) {
@@ -308,10 +317,15 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 			}
 		}
 		else {
+			// 如果是相对路径, 则根据相对地址计算出绝对地址
 			// No URL -> considering resource location as relative to the current file.
 			// 给定的导入元素的 location 是相对路径
 			try {
 				int importCount;
+				/**
+				 * Resource 存在多个子实现类, 如 VfsResource, FileSystemResource等
+				 * 而每个 resource 的 createRelative 方式实现都不一样, 所以这里先使用子类的方法尝试解析
+				 */
 				// 相对路径, 相对于当前文件
 				// 将给定导入元素的 location 封装为相对路径资源
 				Resource relativeResource = getReaderContext().getResource().createRelative(location);
@@ -321,7 +335,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 					actualResources.add(relativeResource);
 				}
 				// 封装的相对路径资源不存在
-				else {
+				else {	// 如果解析不成功, 则使用默认的解析器 ResourcePatternResolver 进行解析
 					// 获取 Spring Ioc 容器资源读入器的基本路径
 					String baseLocation = getReaderContext().getResource().getURL().toString();
 					// 根据 Spring Ioc 容器资源读入器的基本路径加载给定导入路径的资源
@@ -340,6 +354,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 						ele, ex);
 			}
 		}
+		// 解析后进行监听器激活处理
 		Resource[] actResArray = actualResources.toArray(new Resource[actualResources.size()]);
 		// 在解析完 <Import> 元素之后, 发送容器导入其他资源处理完成事件
 		getReaderContext().fireImportProcessed(location, actResArray, extractSource(ele));

@@ -827,6 +827,11 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		// 校验解析的 BeanDefinition
 		if (beanDefinition instanceof AbstractBeanDefinition) {
 			try {
+				/**
+				 * 注册前的最后一次校验, 这里的校验不同于之前的 XML 文件校验
+				 * 主要是对于 AbstractBeanDefinition 属性中的 methodOverrides 校验
+				 * 校验 methodOverrides 是否与工厂方法并存或者 methodOverrides 对应的方法根本不存在
+				 */
 				((AbstractBeanDefinition) beanDefinition).validate();
 			}
 			catch (BeanDefinitionValidationException ex) {
@@ -841,7 +846,9 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		 * 但又不允许覆盖, 那么就会抛出异常
 		 */
 		oldBeanDefinition = this.beanDefinitionMap.get(beanName);
+		// 处理已经注册的 beanName 情况
 		if (oldBeanDefinition != null) {
+			// 如果对应的 beanName 已经注册且在配置中配置了 bean 不允许被覆盖, 则抛出异常
 			if (!isAllowBeanDefinitionOverriding()) {
 				throw new BeanDefinitionStoreException(beanDefinition.getResourceDescription(), beanName,
 						"Cannot register bean definition [" + beanDefinition + "] for bean '" + beanName +
@@ -888,6 +895,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 				}
 			}
 			else {
+				// 注册 beanDefinition
 				/**
 				 * 这是正常注册 BeanDefinition 的过程, 把 Bean 名字存在 beanDefinitionNames 的同时, 把
 				 * beanName 作为 Map 的 key, 把 beanDefinition 作为 value 存入到 Ioc 容器持有的 beanDefinitionMap 中去

@@ -355,6 +355,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 			// 将资源文件转为 InputStream 的 IO 流
 			InputStream inputStream = encodedResource.getResource().getInputStream();
 			try {
+				// InputSource 这个类并不来自于 Spring, 它的全路径是 org.xml.sax.InputSource
 				// 从 InputStream 中得到XML的解析源
 				// 把 InputStream 封装成 InputSource
 				InputSource inputSource = new InputSource(inputStream);
@@ -589,10 +590,12 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 		// 得到  BeanDefinitionDocumentReader 来对 XML 格式的 BeanDefinition解析
 		// 实际实现类是: DefaultBeanDefinitionDocumentReader
 		BeanDefinitionDocumentReader documentReader = createBeanDefinitionDocumentReader();
+		// 实例化 BeanDefinitionReader 时候会将 BeanDefinitionRegistry 传入, 默认使用继承自 DefaultLitsbleBeanFactory 的子类
 		// 获取容器中注册的 bean 的数量
 		// 此处的 getRegistry() 方法返回的实例为 DefaultListableBeanFactory 类型
 		// 获取 BeanFactory 已经注册的 BeanDefinition 数量
 		int countBefore = getRegistry().getBeanDefinitionCount();
+		// 加载注册 bean
 		// 具体的解析过程在 registerBeanDefinitions 中完成
 		// 解析过程入口, 这里使用了委派模式, BeanDefinitionDocumentReader 只是一个接口, 具体的解析实现过程由实现类 DefaultbeanDefinitionDocumentReader 完成
 		// 调用 DefaultBeanDefinitionDocumentReader.registerBeanDefinition 方法

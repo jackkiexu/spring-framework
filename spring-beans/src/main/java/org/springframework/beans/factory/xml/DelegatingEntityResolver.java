@@ -83,10 +83,10 @@ public class DelegatingEntityResolver implements EntityResolver {
 	@Override
 	public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
 		if (systemId != null) {
-			if (systemId.endsWith(DTD_SUFFIX)) {
+			if (systemId.endsWith(DTD_SUFFIX)) {				// 如果是 dtd 从这里解析
 				return this.dtdResolver.resolveEntity(publicId, systemId);
 			}
-			else if (systemId.endsWith(XSD_SUFFIX)) {
+			else if (systemId.endsWith(XSD_SUFFIX)) {			// 若果是 XSD, 则通过调用 META-INF/spring.schemas 解析
 				return this.schemaResolver.resolveEntity(publicId, systemId);
 			}
 		}

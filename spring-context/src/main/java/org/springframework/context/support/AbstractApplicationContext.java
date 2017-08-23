@@ -592,6 +592,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				// 其实调用的是 AbstractRefreshableWebApplicationContext#registerListeners
 				registerListeners();
 
+				// 完成 BeanFactory 的初始化工作
 				// 初始化剩余的单实例
 				// 实例化所有的 (non-lazy-init) 单件
 				// 初始化所有剩余的 Bean
@@ -680,10 +681,12 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * 该方法主要是完成创建 Bean 工厂, 涉及到解析 spring 文件
 	 */
 	protected ConfigurableListableBeanFactory obtainFreshBeanFactory() {
+		// 初始化 BeanFactory 进行 XML 文件读取, 并将 得到的 beanFactory 记录在当前实体的属性中
 		// 这里使用了委派的设计模式, 父类定义了抽象的 refreshBeanFactory() 方法, 具体实现调用子类容器的 refreshBeanFactory() 方法
 		// 更新 bean 工厂, 其会销毁已存在的 bean 内容并重新创建
 		// 调用的是 AbstractRefreshableApplicationContext#refreshBeanFactory
 		refreshBeanFactory();
+		// 返回当前实体的 beanFactory 对象
 		ConfigurableListableBeanFactory beanFactory = getBeanFactory();
 		if (logger.isDebugEnabled()) {
 			logger.debug("Bean factory for " + getDisplayName() + ": " + beanFactory);
@@ -698,15 +701,21 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * 配置其标准的属性, 比如上下文加载器 Classloader 和 postProcessor 回调
 	 */
 	protected void prepareBeanFactory(ConfigurableListableBeanFactory beanFactory) { // 此处的 beanFactory 是指 DefaultListableFactory
+		// 设置 beanFactory 的 classLoader 为当前 context 的 classloader
 		// Tell the internal bean factory to use the context's class loader etc.
 		beanFactory.setBeanClassLoader(getClassLoader());
+		// 设置 beanFactory 的表达式语言处理器, Spring 3 增加了表达式语言的支持
+		// 默认可以使用 #{bean.xxx} 形式来调用 相关的属性值
 		// 标准的 bean 表达式解析器
 		beanFactory.setBeanExpressionResolver(new StandardBeanExpressionResolver(beanFactory.getBeanClassLoader()));
+		// 为 beanFactory 增加一个 默认的 propertyEditor, 这个主要是对 bean 的属性等设置管理的一个工具
 		// 属性编辑注册类, 此处的 getEnvironment为 StardEnvironment
 		beanFactory.addPropertyEditorRegistrar(new ResourceEditorRegistrar(this, getEnvironment()));
 
+		// 添加 BeanPostProcessor
 		// Configure the bean factory with context callbacks.
 		beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
+		// 设置了几个忽略自动装配的接口
 		beanFactory.ignoreDependencyInterface(EnvironmentAware.class);
 		beanFactory.ignoreDependencyInterface(EmbeddedValueResolverAware.class);
 		beanFactory.ignoreDependencyInterface(ResourceLoaderAware.class);
@@ -714,6 +723,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		beanFactory.ignoreDependencyInterface(MessageSourceAware.class);
 		beanFactory.ignoreDependencyInterface(ApplicationContextAware.class);
 
+		// 设置了几个自动装配的特殊规则
 		// BeanFactory interface not registered as resolvable type in a plain factory.
 		// MessageSource registered (and found for autowiring) as a bean.
 		beanFactory.registerResolvableDependency(BeanFactory.class, beanFactory);
@@ -724,6 +734,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		// Register early post-processor for detecting inner beans as ApplicationListeners.
 		beanFactory.addBeanPostProcessor(new ApplicationListenerDetector(this));
 
+		// 增加对 AspectJ 的支持
 		// Detect a LoadTimeWeaver and prepare for weaving, if found.
 		// 查找 beanName 为 loadTimeWeaver 的 bean 类
 		if (beanFactory.containsBean(LOAD_TIME_WEAVER_BEAN_NAME)) {
@@ -732,6 +743,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			beanFactory.setTempClassLoader(new ContextTypeMatchClassLoader(beanFactory.getBeanClassLoader()));
 		}
 
+		// 添加默认的系统环境 bean
 		// Register default environment beans.
 		// 包括 environment, systemProperties, systemEnvironment bean 类, 注册为单例类
 		if (!beanFactory.containsLocalBean(ENVIRONMENT_BEAN_NAME)) {
@@ -956,10 +968,12 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		// 为 类型匹配, 停止使用临时的类加载器
 		beanFactory.setTempClassLoader(null);
 
+		// 冻结所有的 bean 定义, 说明注册的 bean 定义将不被修改或任何进一步的处理
 		// 缓存容器中所有注册的 BeanDefinition 元数据, 以防止被修改
 		// Allow for caching all bean definition metadata, not expecting further changes.
 		beanFactory.freezeConfiguration();
 
+		// 初始化所有单例
 		// 这里调用 的是 BeanFactory 的 preInstantiateSingletons 这个方法是由 DefaultListableBeanFactory 实现的
 		// 对配置了 lazy-init 属性的单例模式 Bean 进行预实例化处理
 		// Instantiate all remaining (non-lazy-init) singletons.

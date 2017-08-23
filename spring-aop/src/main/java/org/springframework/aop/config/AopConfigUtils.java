@@ -90,7 +90,7 @@ public abstract class AopConfigUtils {
 	public static BeanDefinition registerAspectJAnnotationAutoProxyCreatorIfNecessary(BeanDefinitionRegistry registry, Object source) {
 		return registerOrEscalateApcAsRequired(AnnotationAwareAspectJAutoProxyCreator.class, registry, source);
 	}
-
+	// 强制使用的过程其实也是一个属性设置的过程
 	public static void forceAutoProxyCreatorToUseClassProxying(BeanDefinitionRegistry registry) {
 		if (registry.containsBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME)) {
 			BeanDefinition definition = registry.getBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME);
@@ -110,6 +110,7 @@ public abstract class AopConfigUtils {
 		Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
 		// 定义 AUTO_PROXY_CREATOR_BEAN_NAME = org.springframework.aop.config.internalAutoProxyCreator
 		if (registry.containsBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME)) {
+			// 如果已经存在了自动代理创建器且存在的自动代理创建器与现在的不一致, 那么需要根据优先级来判断到底需要使用哪
 			// 如果容器中已经存在自动代理构建器, 则比较两个构建器的优先级
 			BeanDefinition apcDefinition = registry.getBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME);
 			if (!cls.getName().equals(apcDefinition.getBeanClassName())) {
@@ -117,9 +118,11 @@ public abstract class AopConfigUtils {
 				int requiredPriority = findPriorityForClass(cls);
 				// 保存优先级高的构建器
 				if (currentPriority < requiredPriority) {
+					// 改变 bean 最重要的就是改变 bean 所对应的 classname 属性
 					apcDefinition.setBeanClassName(cls.getName());
 				}
 			}
+			// 如果已经存在自动代理创建器 并且与将要创建的一致, 那么无需再此创建
 			return null;
 		}
 		// 如果容器中还没有自动代理构建器相应的 BeanDefinition 对象

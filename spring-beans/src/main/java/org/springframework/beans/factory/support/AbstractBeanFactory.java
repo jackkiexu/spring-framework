@@ -1580,6 +1580,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * @return the resolved value
 	 * @see #setBeanExpressionResolver
 	 */
+	// 完成 SPEL 解析, 最后是调用 spring-expression
 	protected Object evaluateBeanDefinitionString(String value, BeanDefinition beanDefinition) {
 		if (this.beanExpressionResolver == null) {
 			return value;

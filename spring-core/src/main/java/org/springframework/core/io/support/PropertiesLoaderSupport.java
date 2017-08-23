@@ -139,6 +139,7 @@ public abstract class PropertiesLoaderSupport {
 	 * Return a merged Properties instance containing both the
 	 * loaded properties and properties set on this FactoryBean.
 	 */
+	// 得到配置文件
 	protected Properties mergeProperties() throws IOException {
 		Properties result = new Properties();
 

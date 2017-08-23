@@ -40,7 +40,7 @@ abstract class TransactionAttributeSourcePointcut extends StaticMethodMatcherPoi
 		}
 		// 把事务方法的属性配置读取到 TransactionAttributeSource 对象中
 		TransactionAttributeSource tas = getTransactionAttributeSource();
-		return (tas == null || tas.getTransactionAttribute(method, targetClass) != null);
+		return (tas == null || tas.getTransactionAttribute(method, targetClass) != null); // 这里调用的是 AbstractFallbackTransactionAttributeSource
 	}
 
 	@Override

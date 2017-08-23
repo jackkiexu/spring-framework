@@ -42,6 +42,9 @@ import org.springframework.beans.BeansException;
  * @see BeanPostProcessor
  * @see PropertyResourceConfigurer
  */
+// 对 Bean 的定义进行处理, 也就是说: spring Ioc 容器允许 BeanFactoryPostProcessor 在容器实际实例化任何其他的 bean 之前读取配置元数据, 并有可能修改它
+	// 如果想改 Bean 实例,  那么最好使用 BeanPostProcessor
+	// spring 中典型的 BeanFactoryPostProcessor 就是 PropertyPlaceholderConfigurer
 public interface BeanFactoryPostProcessor {
 
 	/**

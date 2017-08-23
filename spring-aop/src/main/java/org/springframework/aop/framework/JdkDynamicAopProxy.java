@@ -193,6 +193,9 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 				return AopProxyUtils.ultimateTargetClass(this.advised);
 			}
 			/**
+			 * Class类的 isAssignableFrom(Class cls) 方法:
+			 * 自身类.class.isAssignableFrom(自身类或子类.class) 返回 true
+			 *
 			 * 对 Advised 接口或者子接口中的方法的调用不经过任何拦截器, 直接委托给它内部维护 Advised 对象中的方法
 			 * (此 if 块 的目的是实现将 advised 对象引入代理对象), this.advised.opaque 默认情况下是 false(它只是一个开关
 			 * 选项, 控制代理对象是否可以操作 advised)
@@ -206,6 +209,7 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 			}
 
 			Object retVal;
+			// 有时候目标对象内部的自我调用将无法实施切面中的增强则需要通过此属性暴露代理
 			// 是否将 当前的代理对象做一个 AOP 框架暴露
 			// 当目标对象内部的自我调用无法实施切面中的增强则需要增强则需要通过此属性暴露代理
 			if (this.advised.exposeProxy) {
@@ -223,6 +227,7 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 				targetClass = target.getClass();
 			}
 
+			// 获取当前方法的拦截器链
 			// Get the interception chain for this method.
 			List<Object> chain = this.advised.getInterceptorsAndDynamicInterceptionAdvice(method, targetClass);
 
@@ -235,6 +240,7 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 				// Note that the final invoker must be an InvokerInterceptor so we know it does
 				// nothing but a reflective operation on the target, and no hot swapping or fancy proxying.
 				Object[] argsToUse = AopProxyUtils.adaptArgumentsIfNecessary(method, args);
+				// 如果没有发现任何拦截器那么直接调用切点方法
 				retVal = AopUtils.invokeJoinpointUsingReflection(target, method, argsToUse);
 			}
 			else {
@@ -243,7 +249,7 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 				 * 通过 构造一个 ReflectiveMethodInvocation 来实现, 下面会看
 				 * 这个 ReflectiveMethodInvocation 类的具体实现
 				 */
-				// 将拦截器封装在 ReflectiveMethodInvocation
+				// 将拦截器封装在 ReflectiveMethodInvocation, 以便于使用其 ReflectiveMethodInvocation
 				// 创建一个执行环境来处理拦截器和目标方法的执行(注意它的参数), 这是一个递归的过程, 后面再详细说明
 				// We need to create a method invocation...
 				invocation = new ReflectiveMethodInvocation(proxy, target, method, args, targetClass, chain);

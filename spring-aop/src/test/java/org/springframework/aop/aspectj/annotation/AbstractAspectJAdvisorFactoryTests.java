@@ -511,6 +511,7 @@ public abstract class AbstractAspectJAdvisorFactoryTests {
 		}
 	}
 
+	// 创建代理
 	protected Object createProxy(Object target, List<Advisor> advisors, Class<?>... interfaces) {
 		ProxyFactory pf = new ProxyFactory(target);
 		if (interfaces.length > 1 || interfaces[0].isInterface()) {

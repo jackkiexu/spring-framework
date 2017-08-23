@@ -96,6 +96,7 @@ public class PropertyOverrideConfigurer extends PropertyResourceConfigurer {
 	}
 
 
+	// 将配置内容告知 BeanFactory
 	@Override
 	protected void processProperties(ConfigurableListableBeanFactory beanFactory, Properties props)
 			throws BeansException {

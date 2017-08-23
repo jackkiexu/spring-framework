@@ -98,6 +98,7 @@ public abstract class PropertyResourceConfigurer extends PropertiesLoaderSupport
 	 * @param props the Properties to convert
 	 * @see #processProperties
 	 */
+	// 将得到的配置转换为合适的类型
 	protected void convertProperties(Properties props) {
 		Enumeration<?> propertyNames = props.propertyNames();
 		while (propertyNames.hasMoreElements()) {

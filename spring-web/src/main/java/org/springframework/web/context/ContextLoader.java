@@ -311,6 +311,7 @@ public class ContextLoader {
 		// 判断在 ServletContext 中是否已经有根上下文存在
 		// 首先判断有无 org.apringframework.web.context.WebApplication.Root 属性
 		if (servletContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE) != null) {
+			// web.xml 中存在多次 ContextLoader 定义
 			throw new IllegalStateException(
 					"Cannot initialize context because there is already a root application context present - " +
 					"check whether you have multiple ContextLoader* definitions in your web.xml!");
@@ -328,6 +329,7 @@ public class ContextLoader {
 			// Store context in local instance variable, to guarantee that
 			// it is available on ServletContext shutdown.
 			if (this.context == null) {
+				// 初始化 context
 				/**
 				 * 这里创建在 ServletContext 中存储的根上下文 ROOT_WEB_APPLICATION_CONTEXT, 同时把
 				 * 它存储到 ServletContext 中, 注意这里使用的 ServletContext 的属性值是 ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, 以后的应用都是根据这个属性值取得
@@ -355,6 +357,7 @@ public class ContextLoader {
 					configureAndRefreshWebApplicationContext(cwac, servletContext);
 				}
 			}
+			// 记录在 servletContext 中
 			// 设置属性, 避免再次初始化
 			servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.context);
 

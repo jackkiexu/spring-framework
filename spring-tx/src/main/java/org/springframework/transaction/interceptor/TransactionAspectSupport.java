@@ -520,6 +520,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 				logger.trace("Getting transaction for [" + txInfo.getJoinpointIdentification() + "]");
 			}
 			/**
+			 * 记录事务状态
 			 * 这里为 TransactionInfo 设置 TransactionStatus, 这个 TransactionStatus 很重要
 			 * 它持有管理事务处理需要的数据, 比如,  transaction 对象就是由 TransactionStatus 来持有的
 			 */
@@ -568,13 +569,16 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 	 * @param ex throwable encountered
 	 */
 	protected void completeTransactionAfterThrowing(TransactionInfo txInfo, Throwable ex) {
+		// 抛出异常时首先判断当前是否存在事务, 这是基础依据
 		if (txInfo != null && txInfo.hasTransaction()) {
 			if (logger.isTraceEnabled()) {
 				logger.trace("Completing transaction for [" + txInfo.getJoinpointIdentification() +
 						"] after exception: " + ex);
 			}
-			if (txInfo.transactionAttribute.rollbackOn(ex)) {
+			// 这里是判断是否回滚默认的依据是抛出异常 是否是 RuntimeException 或者是 Error 的类型
+			if (txInfo.transactionAttribute.rollbackOn(ex)) { // 调用的是 DefaultTransactionAttribute
 				try {
+					// 根据 TransactionStatus 信息进行回滚处理
 					txInfo.getTransactionManager().rollback(txInfo.getTransactionStatus());
 				}
 				catch (TransactionSystemException ex2) {
@@ -592,6 +596,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 				}
 			}
 			else {
+				// 如果不满足回滚条件即使抛出异常也同样会提交
 				// We don't roll back on this exception.
 				// Will still roll back if TransactionStatus.isRollbackOnly() is true.
 				try {

@@ -452,12 +452,14 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
 	// 覆写父类方法, 即在创建 view 对象前做下跳转的请求检查
 	@Override
 	protected View createView(String viewName, Locale locale) throws Exception {
+		// 如果当前解析器不支持当前解析器如 viewName 为空等情况
 		// If this resolver is not supposed to handle the given view,
 		// return null to pass on to the next resolver in the chain.
 		// viewName 集合为 null, 或者对应的 viewName 在 viewNames 集合内则返回 true
 		if (!canHandle(viewName, locale)) {
 			return null;
 		}
+		// 处理 前缀为 redirect:xx 的情况
 		// Check for special "redirect:" prefix.
 		// 检查 handlers 返回的值为 String 类型时是否包含 "redirect:" 前缀
 		// 此处处理的便是跳转请求, 比如 "redirect:/user/list"
@@ -467,6 +469,8 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
 			view.setHosts(getRedirectHosts());
 			return applyLifecycleMethods(viewName, view);
 		}
+
+		// 处理前缀为 forward:xx 的情况
 		// Check for special "forward:" prefix.
 		// 同 "redirect:" 请求, 此处为服务端直接跳转
 		if (viewName.startsWith(FORWARD_URL_PREFIX)) {
@@ -539,12 +543,14 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
 	protected AbstractUrlBasedView buildView(String viewName) throws Exception {
 		// 获取类似 FreemarkerView.class/GroovyView.class
 		AbstractUrlBasedView view = (AbstractUrlBasedView) BeanUtils.instantiateClass(getViewClass());
+		// 添加前缀以及后缀
 		// 设置 view 对应的资源路径, 此处便可知我们设置 prefix 和suffix的作用
 		view.setUrl(getPrefix() + viewName + getSuffix());
 
 		// 下面都是设置 与 UrlBasedViewResolver 的先关内部属性
 		String contentType = getContentType();
 		if (contentType != null) {
+			// 设置 ContentType
 			view.setContentType(contentType);
 		}
 

@@ -154,13 +154,16 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 		// 获取 Servlet的初始化参数, 对 Bean 属性进行配置
 		// Set bean properties from init parameters.
 		// 此处便是读取 <servlet> 节点中的 <init-param> 参数保存至 MutablePropertyValues#propertyValueList 集合中
+		// 解析 init-param 并封装在 pvs 中
 		PropertyValues pvs = new ServletConfigPropertyValues(getServletConfig(), this.requiredProperties);
 		if (!pvs.isEmpty()) {
 			try {
-				BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(this);
+				// 将当前的这个 Servlet 类转化为一个 BeanWrapper, 从而能够以 Spring 的方式来对 init-param 的值进行注入
+				BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(this);	// 将指定实例转化为 Spring 中可以处理的 BeanWrapper 类型的实例
 				ResourceLoader resourceLoader = new ServletContextResourceLoader(getServletContext());
+				// 注册自定义属性编辑器, 一旦遇到 Resource 类型的属性将会使用 ResourceEditor 进行解析
 				bw.registerCustomEditor(Resource.class, new ResourceEditor(resourceLoader, getEnvironment()));
-				// 默认为空
+				// 默认为空, 留给子类覆盖
 				initBeanWrapper(bw);
 				// 将 bean 与属性关联
 				bw.setPropertyValues(pvs, true);
@@ -251,7 +254,7 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 					missingProps.remove(property);
 				}
 			}
-
+			// 一旦检测到 requiredProperties 中的属性没有指定初始值, 就会抛出异常
 			// Fail if we are still missing properties.
 			if (!CollectionUtils.isEmpty(missingProps)) {
 				throw new ServletException(

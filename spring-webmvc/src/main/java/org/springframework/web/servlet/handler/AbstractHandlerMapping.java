@@ -358,14 +358,17 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 	// 获取处理链对象
 	@Override
 	public final HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception {
+		// 获取 request 对应的 Handler
 		// getHandlerInternal(request) 方法为抽象方法, 供子类实现
 		// 获取到的 handler 对象一般wei bean/HandlerMathod
 		Object handler = getHandlerInternal(request);			// 正真调用的是 AbstractHandlerMethodMapping#getHandlerInternal()
 		// 使用默认 handler, 也就是 "/" 对应的 handler
 		// 上述找不到则使用默认的处理类, 没有设定则返回 null, 则会返回前台 404 错误
 		if (handler == null) {
+			// 如果没有对应的 request 的 handler 则使用默认的 handler
 			handler = getDefaultHandler();
 		}
+		// 如果也没有提供默认的 handler, 则无法继续处理返回 null
 		if (handler == null) {
 			return null;
 		}
@@ -426,6 +429,7 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 	 * @return the HandlerExecutionChain (never {@code null})
 	 * @see #getAdaptedInterceptors()
 	 */
+	// 将配置中的对应拦截器加入到执行链中, 以保证这些拦截器可以有效地作用于目标对象
 	// 此处的 handler 可为 HandlerMethod/beanName
 	protected HandlerExecutionChain getHandlerExecutionChain(Object handler, HttpServletRequest request) {
 		HandlerExecutionChain chain = (handler instanceof HandlerExecutionChain ?

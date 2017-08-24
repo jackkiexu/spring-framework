@@ -318,6 +318,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	 */
 	@Override
 	protected HandlerMethod getHandlerInternal(HttpServletRequest request) throws Exception {
+		// 截取用于匹配的 url 有效路径
 		// 获取访问的路径, 一般类似于 request.getServletPath() 返回不含 contextPath 的访问路径
 		String lookupPath = getUrlPathHelper().getLookupPathForRequest(request);
 		if (logger.isDebugEnabled()) {

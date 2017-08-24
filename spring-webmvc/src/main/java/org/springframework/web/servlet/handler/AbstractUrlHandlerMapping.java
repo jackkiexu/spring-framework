@@ -114,8 +114,10 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 	 */
 	@Override
 	protected Object getHandlerInternal(HttpServletRequest request) throws Exception {
+		// 截取用于匹配的 url 有效路径
 		// 从 Request 中得到 请求的 URL 路径
 		String lookupPath = getUrlPathHelper().getLookupPathForRequest(request);
+		// 根据路径寻找 Handler
 		/**
 		 *  将得到的 URL 路径与 Handler 进行匹配, 得到对应的 Handler, 如果没有对应的 Handler, 返回
 		 *  null, 这样默认的 Handler 会被使用
@@ -128,17 +130,21 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 			// 这里需要注意的是对默认 handler 的处理
 			Object rawHandler = null;
 			if ("/".equals(lookupPath)) {
+				// 如果请求的路径仅仅是 "/", 那么使用 RootHandler 进行处理
 				rawHandler = getRootHandler();
 			}
 			if (rawHandler == null) {
+				// 无法找到 Handler, 则使用默认的 Handler
 				rawHandler = getDefaultHandler();
 			}
 			if (rawHandler != null) {
+				// 根据 beanName 找到对应的 bean
 				// Bean name or resolved handler?
 				if (rawHandler instanceof String) {
 					String handlerName = (String) rawHandler;
 					rawHandler = getApplicationContext().getBean(handlerName);
 				}
+				// 模板方法
 				validateHandler(rawHandler, request);
 				handler = buildPathExposingHandler(rawHandler, lookupPath, lookupPath, null);
 			}
@@ -168,6 +174,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 	// lookupHandler  根据 URL 路径启动在 handlerMap 中对 handler 的检索, 并最终返回 handler对象
 
 	protected Object lookupHandler(String urlPath, HttpServletRequest request) throws Exception {
+		// 直接匹配情况的处理
 		// Direct match?
 		Object handler = this.handlerMap.get(urlPath);
 		if (handler != null) {
@@ -177,9 +184,11 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 				handler = getApplicationContext().getBean(handlerName);
 			}
 			validateHandler(handler, request);
+			// 将 Handler 封装成了 HandlerExecutionChain
 			return buildPathExposingHandler(handler, urlPath, urlPath, null);
 		}
 
+		// 通配符匹配的处理
 		// Pattern match?
 		List<String> matchingPatterns = new ArrayList<String>();
 		for (String registeredPattern : this.handlerMap.keySet()) {

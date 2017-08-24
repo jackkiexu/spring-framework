@@ -31,6 +31,8 @@ import javax.servlet.http.HttpServletResponse;
  * @author Juergen Hoeller
  * @since 17.06.2003
  * @see #setDefaultThemeName
+ *
+ * 用于选择一个固定的主题
  */
 public class FixedThemeResolver extends AbstractThemeResolver {
 

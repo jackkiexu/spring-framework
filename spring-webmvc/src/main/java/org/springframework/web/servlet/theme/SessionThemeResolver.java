@@ -35,6 +35,8 @@ import org.springframework.web.util.WebUtils;
  * @author Juergen Hoeller
  * @since 17.06.2003
  * @see #setThemeName
+ *
+ * 用于主题保存在 用户的 Http Session 中
  */
 public class SessionThemeResolver extends AbstractThemeResolver {
 

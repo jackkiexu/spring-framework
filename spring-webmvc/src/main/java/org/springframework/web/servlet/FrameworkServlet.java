@@ -504,6 +504,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 			// 此处的初始化操作类似于 ContextLoader#initWebApplicationContext
 			this.webApplicationContext = initWebApplicationContext();
 			// 供子类调用去初始化另外的功能
+			// 设计为子类覆盖
 			initFrameworkServlet();
 		}
 		catch (ServletException ex) {
@@ -540,6 +541,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		WebApplicationContext wac = null;
 		// 先检查 spring 是否已经注入了 WebApplicationContext, 其中的刷新操作类似于 'ContextLoader'#initWebApplicationContext' 初次调用此处为空
 		if (this.webApplicationContext != null) {
+			// Context 实例在构造函数中被注入
 			// A context instance was injected at construction time -> use it
 			wac = this.webApplicationContext;
 			if (wac instanceof ConfigurableWebApplicationContext) {
@@ -553,6 +555,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 						// spring mvc 的父类为spring上下文
 						cwac.setParent(rootContext);
 					}
+					// 刷新上下文环境
 					// 此处方法不同于 'ContextLoader' 的相同方法
 					configureAndRefreshWebApplicationContext(cwac);
 				}
@@ -560,6 +563,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		}
 		// 再而尝试从 ServletContext 的 'contextAttribute' 对应的值去获取
 		if (wac == null) {
+			// 根据 contextAttribute 属性加载 WebApplicationContext
 			// No context instance was injected at construction time -> see if one
 			// has been registered in the servlet context. If one exists, it is assumed
 			// that the parent context (if any) has already been set and that the
@@ -577,6 +581,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 			// support or the context injected at construction time had already been
 			// refreshed -> trigger initial onRefresh manually here.
 			// 调用子类的 onRefresh(wac) 方法初始化 springmvc
+			// onRefresh 在其子类 DispatcherServlet 中进行了重写
 			onRefresh(wac);
 		}
 		// 把当前建立的上下文存到 ServletContext 中去, 注意使用的属性名是和当前 Servlet 名相关的
@@ -633,6 +638,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	 * @see org.springframework.web.context.support.XmlWebApplicationContext
 	 */
 	protected WebApplicationContext createWebApplicationContext(ApplicationContext parent) {
+		// 获取 Servlet 的初始化参数 contextClass, 如果没有配置默认为 XmlWebApplication.class
 		// 默认为XmlWebApplicationContext.class 也可指定 contextClass 属性在 web.xml
 		Class<?> contextClass = getContextClass();
 		if (this.logger.isDebugEnabled()) {
@@ -651,14 +657,19 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		 * 这里使用的是 DEFAULT_CONTEXT_CLASS, 这个 DEFAULT_CONTEXT_CLASS 被设置为 XmlWebApplicationContext.class,
 		 * 所以在DispatcherServlet 中使用的Ioc容器是 XmlWebApplicationContext
 		 */
+		// 通过反射实例化 contextClass
 		ConfigurableWebApplicationContext wac =
 				(ConfigurableWebApplicationContext) BeanUtils.instantiateClass(contextClass);
 
 		wac.setEnvironment(getEnvironment());
+		// parent 为在 ContextLoaderListener 中创建的实例
+		// 在  ContextLoaderListener 加载的时候初始化的 WebApplicationContext 类型实例
 		// 这里配置的双亲上下文, 就是在 ContextLoader 中建立的根上下文
 		wac.setParent(parent);
 		// 设置 springmvc 的配置文件即 contextConfigLocation 属性
 		wac.setConfigLocation(getContextConfigLocation());
+		// 初始化 Spring 环境包括加载配置文件等
+		// 调用 configureAndRefreshWebApplicationContext 方法来对已经创建的 WebApplicationContext 实例进行配置及刷新
 		// 此处与 ContextLoader#configuraAnRefreshWebApplicationContext()  类似
 		configureAndRefreshWebApplicationContext(wac);
 
@@ -698,6 +709,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		postProcessWebApplicationContext(wac);
 		// 读取 web.xml 中的 'context-param' 节点中的 globalInitializerClasses, contextInitializerClasses初始化
 		applyInitializers(wac);
+		// 加载配置文件及整合 parent 到 wac
 		// 这里同样是通过refresh 来调用容器的初始化过程
 		wac.refresh();
 	}
@@ -986,7 +998,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	 */
 	protected final void processRequest(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-
+		// 记录当前时间, 用于计算 web 请求的处理时间
 		long startTime = System.currentTimeMillis();
 		Throwable failureCause = null;
 

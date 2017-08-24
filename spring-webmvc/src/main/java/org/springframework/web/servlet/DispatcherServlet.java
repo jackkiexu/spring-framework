@@ -517,6 +517,7 @@ public class DispatcherServlet extends FrameworkServlet {
 	// 加载 beanFactory 中的 multipartResolver bean对象, 适用于处理文件上传的操作
 	private void initMultipartResolver(ApplicationContext context) {
 		try {
+			// 在配置文件中配置 的 org.springframework.web.multipart.commons.CommonsMultipartResolver 加入到 DispatcherServlet
 			this.multipartResolver = context.getBean(MULTIPART_RESOLVER_BEAN_NAME, MultipartResolver.class);
 			if (logger.isDebugEnabled()) {
 				logger.debug("Using MultipartResolver [" + this.multipartResolver + "]");
@@ -540,6 +541,7 @@ public class DispatcherServlet extends FrameworkServlet {
 	// 获取 id="localResolver" 的 bean 对象, 如果没有则使用默认的 org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver 类创建的 Bean 对象
 	private void initLocaleResolver(ApplicationContext context) {
 		try {
+			// 获取解决 语言国际化的问题
 			this.localeResolver = context.getBean(LOCALE_RESOLVER_BEAN_NAME, LocaleResolver.class);
 			if (logger.isDebugEnabled()) {
 				logger.debug("Using LocaleResolver [" + this.localeResolver + "]");
@@ -607,9 +609,10 @@ public class DispatcherServlet extends FrameworkServlet {
 		 */
 		if (this.detectAllHandlerMappings) {
 			// 从主先类到子类都去找寻相应的资源
+			// 默认 Spring 会加载 DispatcherServlet 通目录下面配置的 DispatcherServlet.properties 里面的配置
 			// Find all HandlerMappings in the ApplicationContext, including ancestor contexts.
 			Map<String, HandlerMapping> matchingBeans =
-					BeanFactoryUtils.beansOfTypeIncludingAncestors(context, HandlerMapping.class, true, false);
+					BeanFactoryUtils.beansOfTypeIncludingAncestors(context, HandlerMapping.class, true, false);  // 获取 Ioc 容器中所有的 HandlerMapping 实现
 			if (!matchingBeans.isEmpty()) {
 				this.handlerMappings = new ArrayList<HandlerMapping>(matchingBeans.values());
 				// We keep HandlerMappings in sorted order.
@@ -688,7 +691,7 @@ public class DispatcherServlet extends FrameworkServlet {
 	 */
 	private void initHandlerExceptionResolvers(ApplicationContext context) {
 		this.handlerExceptionResolvers = null;
-
+		// 获取 Ioc 容器中的 HandlerExceptionResolver
 		if (this.detectAllHandlerExceptionResolvers) {
 			// Find all HandlerExceptionResolvers in the ApplicationContext, including ancestor contexts.
 			Map<String, HandlerExceptionResolver> matchingBeans = BeanFactoryUtils
@@ -987,6 +990,7 @@ public class DispatcherServlet extends FrameworkServlet {
 			Exception dispatchException = null;
 
 			try {
+				// 如果是 MultipartContent 类型的 request 则转换 request 为 MultipartHttpServletRequest 类型的 request
 				processedRequest = checkMultipart(request);
 				multipartRequestParsed = (processedRequest != request);
 				// 根据请求得到对应的 handler, handler 的注册以及 getHandler 的实现
@@ -994,11 +998,13 @@ public class DispatcherServlet extends FrameworkServlet {
 				mappedHandler = getHandler(processedRequest);
 				// 这里找不到 handler 则会出现我们熟悉的 "no mapping found " 日志打印
 				if (mappedHandler == null || mappedHandler.getHandler() == null) {
+					// 如果没有找到 对应的 handler, 则通过 response 反馈错误信息
 					// 返回 404 错误
 					noHandlerFound(processedRequest, response);
 					return;
 				}
 
+				// 根据当前的 Handler 寻找 对应的 HandlerAdapter
 				/**
 				 * 这里是实际调用 handler 的地方, 在执行 handler 之前, 用 HandlerAdapter 先检查一下 handler的合法性
 				 * 是不是按 Spring 的要求编写 的handler
@@ -1013,6 +1019,7 @@ public class DispatcherServlet extends FrameworkServlet {
 				String method = request.getMethod();
 				boolean isGet = "GET".equals(method);
 				if (isGet || "HEAD".equals(method)) {
+					// 如果当前 handler 支持 last-modified
 					// 获取上次修改时间, 第一次访问为 -1L
 					long lastModified = ha.getLastModified(request, mappedHandler.getHandler());
 					if (logger.isDebugEnabled()) {
@@ -1027,7 +1034,7 @@ public class DispatcherServlet extends FrameworkServlet {
 				if (!mappedHandler.applyPreHandle(processedRequest, response)) {
 					return;
 				}
-
+				// 真正的激活 handler 并返回视图
 				// 通过调用 HandlerAdapter 的handle方法 实际上触发对 Controller 的 handlerRequest方法的调用
 				// Actually invoke the handler. 通过 HandlerAdapter 处理请求返回逻辑视图
 				mv = ha.handle(processedRequest, response, mappedHandler.getHandler());
@@ -1086,6 +1093,7 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * Do we need view name translation?
 	 */
 	private void applyDefaultViewName(HttpServletRequest request, ModelAndView mv) throws Exception {
+		// 视图名称转换应用于需要添加前缀后缀的情况
 		// 判断是否需要进行视图名的翻译和转换
 		if (mv != null && !mv.hasView()) {
 			mv.setViewName(getDefaultViewName(request));
@@ -1115,9 +1123,11 @@ public class DispatcherServlet extends FrameworkServlet {
 			}
 		}
 
+		// 如果在 Handler 实例的处理中返回 了 View, 那么需要做页面的处理
 		// 使用视图对 ModelAndView 的数据展现
 		// Did the handler return a view to render?
 		if (mv != null && !mv.wasCleared()) {
+			// 处理页面跳转
 			// 对视图进行渲染
 			render(mv, request, response);
 			if (errorView) {
@@ -1260,6 +1270,7 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * @param response current HTTP response
 	 * @throws Exception if preparing the response failed
 	 */
+	// 遇到没有找到 Handler 的情况, 就只能通过 response 向 用户返回错误信息
 	protected void noHandlerFound(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		if (pageNotFoundLogger.isWarnEnabled()) {
 			pageNotFoundLogger.warn("No mapping found for HTTP request with URI [" + getRequestUri(request) +

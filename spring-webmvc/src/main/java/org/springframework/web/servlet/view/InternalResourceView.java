@@ -135,6 +135,7 @@ public class InternalResourceView extends AbstractUrlBasedView {
 	protected void renderMergedOutputModel(
 			Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
+		// 将 Model 中的数据以属性的方式设置到 request 中
 		// Expose the model object as request attributes.
 		exposeModelAsRequestAttributes(model, request);
 

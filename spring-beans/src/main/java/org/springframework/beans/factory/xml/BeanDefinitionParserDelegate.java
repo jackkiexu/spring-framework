@@ -1638,6 +1638,7 @@ public class BeanDefinitionParserDelegate {
 	 */
 	public String getNamespaceURI(Node node) {
 		// 如何提取 对应元素的命名空间其实并不需要我们亲自去实现, 在 org.w3c.dom.Node 中已经提供了方法(PS: 如下)
+		String nameSpaceURI =  node.getNamespaceURI();
 		return node.getNamespaceURI();
 	}
 

@@ -47,7 +47,7 @@ public class AutowireCandidateQualifier extends BeanMetadataAttributeAccessor {
 	}
 
 	/**
-	 * Construct a qualifier to match against an annotation of the
+	 * Construct a qualifier(限定器, 限定句, 限定词) to match against an annotation of the
 	 * given type name.
 	 * <p>The type name may match the fully-qualified class name of
 	 * the annotation or the short class name (without the package).

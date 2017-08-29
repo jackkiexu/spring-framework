@@ -35,7 +35,7 @@ public class DefaultSingletonBeanRegistryTests {
 	@Test
 	public void testSingletons() {
 		DefaultSingletonBeanRegistry beanRegistry = new DefaultSingletonBeanRegistry();
-
+		// 这里有个比较坑的地方, 就是 TestBean 的 toString 方法 被重写了 是 tb.name
 		TestBean tb = new TestBean();
 		beanRegistry.registerSingleton("tb", tb);
 		assertSame(tb, beanRegistry.getSingleton("tb"));

@@ -37,6 +37,7 @@ import org.springframework.util.StringValueResolver;
  */
 public class SimpleAliasRegistry implements AliasRegistry {
 
+	/** alias <--> name */
 	/** Map from alias to canonical name */
 	private final Map<String, String> aliasMap = new ConcurrentHashMap<String, String>(16);
 
@@ -84,10 +85,16 @@ public class SimpleAliasRegistry implements AliasRegistry {
 	 */
 	public boolean hasAlias(String name, String alias) {
 		for (Map.Entry<String, String> entry : this.aliasMap.entrySet()) {
-			String registeredName = entry.getValue();
-			if (registeredName.equals(name)) {
+			String registeredName = entry.getValue();		// 别名对应的正真的 name
+			if (registeredName.equals(name)) {				// 名字相同
 				String registeredAlias = entry.getKey();
-				return (registeredAlias.equals(alias) || hasAlias(registeredAlias, alias));
+				/**
+				 * 下面这个判断其 主要是来判断是否有别名与 name 存在循环引用的情况
+				 * 举例:
+				 * 1. 原来 aliasMap 里面的数据存在 1 <--> A, 现在再 put(A, 1), 则满足 下面判断的第一个条件, 直接返回 true
+				 * 2. 原来 aliasMap 中存储 2 <--> A, 1 <--> 2, 现在 put(A, 1), 则满足 A -> 1 -> 2 -> A 这样的循环引用, 所以又返回 true
+				 */
+				return (registeredAlias.equals(alias) || hasAlias(registeredAlias, alias));	// 这里就是检测现在的 别名是否相同 或 存在别名 指向 别名这样的情况
 			}
 		}
 		return false;

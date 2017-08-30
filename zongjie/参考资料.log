@@ -2,6 +2,10 @@ Spring
 http://www.cnblogs.com/ITtangtang/p/3978349.html
 http://www.cnblogs.com/question-sky/tag/Spring/
 
+Spring IOC
+解释 Spring IOC 最好的文章
+http://www.cnblogs.com/zrtqsk/p/4028453.html
+
 SpringMVC
 http://www.cnblogs.com/question-sky/tag/SpringMVC/
 
@@ -21,3 +25,6 @@ PluggableSchemaResolver 继承 EntityResolver 通过一个 properties 文件把 
 DelegatingEntityResolver 继承 EntityResolver
 ResourceEntityResolver 继承 DelegatingEntityResolver
 
+
+Spring 源码 之坎
+1. beanFactory 为什么有这么多的接口及实现类, 好混乱, 又好复杂

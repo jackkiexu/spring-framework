@@ -39,6 +39,10 @@ import org.springframework.beans.factory.FactoryBeanNotInitializedException;
  *
  * @author Juergen Hoeller
  * @since 2.5.1
+ *
+ * 参考资料
+ * http://www.cnblogs.com/zrtqsk/p/4065969.html
+ *
  */
 public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanRegistry {
 

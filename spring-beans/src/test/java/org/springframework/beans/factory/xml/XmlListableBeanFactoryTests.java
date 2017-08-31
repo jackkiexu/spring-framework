@@ -62,7 +62,7 @@ public class XmlListableBeanFactoryTests extends AbstractListableBeanFactoryTest
 		RootBeanDefinition bd2 = new RootBeanDefinition(TestBean.class);
 		bd2.setPropertyValues(new MutablePropertyValues(m));
 		parent.registerBeanDefinition("rod", bd2);
-
+		// 注意这里赋值 factory 一个 parent BeanFactory
 		this.factory = new DefaultListableBeanFactory(parent);
 		new XmlBeanDefinitionReader(this.factory).loadBeanDefinitions(
 				new ClassPathResource("test.xml", getClass()));

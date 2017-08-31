@@ -254,7 +254,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		/**
 		 * 检查缓存中或实例工厂中是否有对应的实例
 		 * 为什么首先会使用这段代码
-		 * 因为在创建单例 bean 的时候会存在依赖注入的情况, 而在创建依赖的时候为了避免玄幻依赖
+		 * 因为在创建单例 bean 的时候会存在依赖注入的情况, 而在创建依赖的时候为了避免循环依赖
 		 * Spring 创建 bean 的原则是不等 bean 创建完成就会将创建 bean 的 ObjectFactory 提早曝光
 		 * 也就是将 ObjectFactory 加入到 缓存中, 一旦下个 bean 创建时候需要依赖上个 bean 则直接使用 ObjectFactory
 		 *
@@ -504,7 +504,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	public boolean containsBean(String name) {
 		String beanName = transformedBeanName(name);
 		if (containsSingleton(beanName) || containsBeanDefinition(beanName)) {
-			return (!BeanFactoryUtils.isFactoryDereference(name) || isFactoryBean(name));
+			return (!BeanFactoryUtils.isFactoryDereference(name) || isFactoryBean(name));		// 判断是否是获取 FactoryBean 的 name
 		}
 		// Not found -> check parent.
 		BeanFactory parentBeanFactory = getParentBeanFactory();

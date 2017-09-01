@@ -296,26 +296,13 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			// 返回对应的实例, 有时候存在诸如 BeanFactory 的情况并不是直接返回实例本身而是返回指定方法的实例
 			bean = getObjectForBeanInstance(sharedInstance, name, beanName, null);
 		}
-
-		else {
-
+		else { // 若 不能在缓存中找到 单例 bean, 则执行下面的逻辑
 			/**
-			 * 只有在单例情况才会尝试解决循环依赖, 原型模式情况下, 如果存在
-			 * A 中有 B 属性, B中有 A 属性, 那么当依赖注入的时候, 就会产生当 A 还未创建完的时候因为对于
-			 * B 的创建再次返回创建 A, 造成循环依赖, 也就是下面的情况
-			 */
-
-			/**
-			 * 不能在缓存中找到 单例 bean
 			 * 只有单例模式下, 才会尝试解决循环依赖, 原型模式下, 直接抛出异常 BeanCurrentlyInCreationException
 			 * 什么是循环依赖, 例如 A 中有B 属性, B 中也有 A 属性,但是 A 还未创建完成时, 会先去创建B, 但是创建B的时候又要先去创建 A, 造成循环依赖
 			 */
-			/**
-			 * 缓存没有正在创建的单例Bean
-			 * 缓存中已经有已经创建的原型模式的 Bean, 但是由于循环引用的问题导致实例化对象失败
-			 */
-			// Fail if we're already creating this bean instance:		// 失败 如果我们已经创建了 这个 Bean 的实例
-			// We're assumably within a circular reference.				// 我们大概在循环引用
+			// Fail if we're already creating this bean instance:
+			// We're assumably within a circular reference.
 			if (isPrototypeCurrentlyInCreation(beanName)) {
 				throw new BeanCurrentlyInCreationException(beanName);
 			}

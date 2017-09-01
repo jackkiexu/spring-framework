@@ -62,13 +62,13 @@ public abstract class BeanFactoryUtils {
 	}
 
 	/**
-	 * Return the actual bean name, stripping out the factory dereference
+	 * Return the actual bean name, stripping out(剔除) the factory dereference (解引用, 其实就是 & 符号)
 	 * prefix (if any, also stripping repeated factory prefixes if found).
 	 * @param name the name of the bean
 	 * @return the transformed name
 	 * @see BeanFactory#FACTORY_BEAN_PREFIX
 	 */
-	public static String transformedBeanName(String name) {
+	public static String transformedBeanName(String name) {	// 去除 & 符号
 		Assert.notNull(name, "'name' must not be null");
 		String beanName = name;
 		while (beanName.startsWith(BeanFactory.FACTORY_BEAN_PREFIX)) {

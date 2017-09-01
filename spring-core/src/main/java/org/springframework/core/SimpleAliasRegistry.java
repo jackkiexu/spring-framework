@@ -212,7 +212,7 @@ public class SimpleAliasRegistry implements AliasRegistry {
 				canonicalName = resolvedName;
 			}
 		}
-		while (resolvedName != null);
+		while (resolvedName != null); // 从这里可以看出, alias -> name, alias -> alias 这种存储方式
 		return canonicalName;
 	}
 

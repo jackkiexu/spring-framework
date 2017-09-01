@@ -1221,7 +1221,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * @param name the user-specified name
 	 * @return the transformed bean name
 	 */
-	protected String transformedBeanName(String name) {
+	protected String transformedBeanName(String name) {	// 获取标准的名字, 而不是别名
 		return canonicalName(BeanFactoryUtils.transformedBeanName(name));
 	}
 
@@ -1300,12 +1300,12 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 	/**
 	 * 返回一个合并 RootBeanDefinition, 将存储XML配置文件的 GenericBeanDefinition 转换成 RootBeanDefinition, 如果指定的 BeanName 是子 bean 的话, 还会合并其父类的信息
-	 * Return a merged RootBeanDefinition, traversing the parent bean definition
+	 * Return a merged RootBeanDefinition, traversing(穿越) the parent bean definition
 	 * if the specified bean corresponds to a child bean definition.
-	 * @param beanName the name of the bean to retrieve the merged definition for
+	 * @param beanName the name of the bean to retrieve(获取) the merged definition for
 	 * @return a (potentially merged) RootBeanDefinition for the given bean
 	 * @throws NoSuchBeanDefinitionException if there is no bean with the given name
-	 * @throws BeanDefinitionStoreException in case of an invalid bean definition
+	 * @throws BeanDefinitionStoreException in case of an invalid(无效) bean definition
 	 */
 	protected RootBeanDefinition getMergedLocalBeanDefinition(String beanName) throws BeansException {
 		// 快速检查并发映射, 以最小的锁定()
@@ -1313,8 +1313,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		RootBeanDefinition mbd = this.mergedBeanDefinitions.get(beanName);
 		if (mbd != null) {
 			return mbd;
-		}
-		return getMergedBeanDefinition(beanName, getBeanDefinition(beanName));
+		}																		// 我们这里是在 DefaultListableBeanFactory 中实现
+		return getMergedBeanDefinition(beanName, getBeanDefinition(beanName)); // 同一个 getBeanDefinition 在 接口 BeanDefinitionRegistry, ConfigurableListableBeanFactory, 抽象类 AbstractBeanFactory 中都存在
 	}
 
 	/**
@@ -1331,7 +1331,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		return getMergedBeanDefinition(beanName, bd, null);
 	}
 
-	/**
+	/** 根据给定的 beanName 返回 RootBeanDefinition ( 若 beanName 是子类, 则需要合并 父类的)
 	 * Return a RootBeanDefinition for the given bean, by merging with the
 	 * parent if the given bean's definition is a child bean definition.
 	 * @param beanName the name of the bean definition
@@ -1669,7 +1669,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			synchronized (this.mergedBeanDefinitions) {
 				if (!this.alreadyCreated.contains(beanName)) {
 					// Let the bean definition get re-merged now that we're actually creating
-					// the bean... just in case some of its metadata changed in the meantime.
+					// the bean... just in case(万一, 假使) some of its metadata changed in the meantime.(in the meantime 同时, 与此同时)
 					clearMergedBeanDefinition(beanName);
 					this.alreadyCreated.add(beanName);
 				}

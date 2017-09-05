@@ -22,12 +22,12 @@ import org.springframework.beans.BeansException;
 
 /**
  * Extension of the {@link InstantiationAwareBeanPostProcessor} interface,
- * adding a callback for predicting the eventual type of a processed bean.
+ * adding a callback for predicting(预测) the eventual(最终) type of a processed bean.
  *
  * <p><b>NOTE:</b> This interface is a special purpose interface, mainly for
  * internal use within the framework. In general, application-provided
  * post-processors should simply implement the plain {@link BeanPostProcessor}
- * interface or derive from the {@link InstantiationAwareBeanPostProcessorAdapter}
+ * interface or derive(派生) from the {@link InstantiationAwareBeanPostProcessorAdapter}
  * class. New methods might be added to this interface even in point releases.
  *
  * @author Juergen Hoeller

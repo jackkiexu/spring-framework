@@ -137,7 +137,7 @@ public abstract class PropertyAccessorUtils {
 	 * @param propertyName the bean property path
 	 * @return the canonical representation of the property path
 	 */
-	public static String canonicalPropertyName(String propertyName) {
+	public static String canonicalPropertyName(String propertyName) { // 获取 标准的 propertyName, 主要是去除 符号 [ 与 符号 ] 之间 单引号 或双引号
 		if (propertyName == null) {
 			return "";
 		}
@@ -145,14 +145,14 @@ public abstract class PropertyAccessorUtils {
 		StringBuilder sb = new StringBuilder(propertyName);
 		int searchIndex = 0;
 		while (searchIndex != -1) {
-			int keyStart = sb.indexOf(PropertyAccessor.PROPERTY_KEY_PREFIX, searchIndex);
+			int keyStart = sb.indexOf(PropertyAccessor.PROPERTY_KEY_PREFIX, searchIndex);		// 获取 [ 的索引位置
 			searchIndex = -1;
 			if (keyStart != -1) {
-				int keyEnd = sb.indexOf(
+				int keyEnd = sb.indexOf(														    // 获取 ] 的索引位置
 						PropertyAccessor.PROPERTY_KEY_SUFFIX, keyStart + PropertyAccessor.PROPERTY_KEY_PREFIX.length());
-				if (keyEnd != -1) {
-					String key = sb.substring(keyStart + PropertyAccessor.PROPERTY_KEY_PREFIX.length(), keyEnd);
-					if ((key.startsWith("'") && key.endsWith("'")) || (key.startsWith("\"") && key.endsWith("\""))) {
+				if (keyEnd != -1) {																	// propertyName 中含有 符号 "]"
+					String key = sb.substring(keyStart + PropertyAccessor.PROPERTY_KEY_PREFIX.length(), keyEnd);		// 获取 符号 [ 与 符号 ] 之间的数据
+					if ((key.startsWith("'") && key.endsWith("'")) || (key.startsWith("\"") && key.endsWith("\""))) {// 如 [ 与 ] 之间的数据是被 单引号 或 双引号包裹的
 						sb.delete(keyStart + 1, keyStart + 2);
 						sb.delete(keyEnd - 2, keyEnd - 1);
 						keyEnd = keyEnd - 2;

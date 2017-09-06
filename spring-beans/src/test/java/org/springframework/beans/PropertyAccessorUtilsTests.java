@@ -29,7 +29,7 @@ import static org.junit.Assert.*;
 public final class PropertyAccessorUtilsTests {
 
 	@Test
-	public void testCanonicalPropertyName() {
+	public void testCanonicalPropertyName() { // canonical (标准, 规范)
 		assertEquals("map", PropertyAccessorUtils.canonicalPropertyName("map"));
 		assertEquals("map[key1]", PropertyAccessorUtils.canonicalPropertyName("map[key1]"));
 		assertEquals("map[key1]", PropertyAccessorUtils.canonicalPropertyName("map['key1']"));

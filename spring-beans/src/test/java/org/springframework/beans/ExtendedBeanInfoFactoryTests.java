@@ -16,6 +16,7 @@
 
 package org.springframework.beans;
 
+import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 
 import org.junit.Test;
@@ -38,6 +39,7 @@ public class ExtendedBeanInfoFactoryTests {
 		class C {
 			public void setFoo(String s) { }
 		}
+		BeanInfo beanInfo = factory.getBeanInfo(C.class);
 		assertThat(factory.getBeanInfo(C.class), nullValue());
 	}
 
@@ -47,6 +49,7 @@ public class ExtendedBeanInfoFactoryTests {
 		class C {
 			public C setFoo(String s) { return this; }
 		}
+		BeanInfo beanInfo = factory.getBeanInfo(C.class);
 		assertThat(factory.getBeanInfo(C.class), notNullValue());
 	}
 

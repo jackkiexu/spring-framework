@@ -37,6 +37,7 @@ import java.util.TreeSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.apache.log4j.Logger;
 import org.springframework.util.ObjectUtils;
 
 /**
@@ -74,8 +75,8 @@ import org.springframework.util.ObjectUtils;
  * @see CachedIntrospectionResults
  */
 class ExtendedBeanInfo implements BeanInfo {
-
-	private static final Log logger = LogFactory.getLog(ExtendedBeanInfo.class);
+	private static final Logger logger = Logger.getLogger(ExtendedBeanInfo.class);
+//	private static final Log logger = LogFactory.getLog(ExtendedBeanInfo.class);
 
 	private final BeanInfo delegate;
 
@@ -151,6 +152,8 @@ class ExtendedBeanInfo implements BeanInfo {
 		String methodName = method.getName();
 		Class<?>[] parameterTypes = method.getParameterTypes();
 		int nParams = parameterTypes.length;
+		logger.info("!void.class.isAssignableFrom(method.getReturnType()):" + !void.class.isAssignableFrom(method.getReturnType()));
+		logger.info("Modifier.isStatic(method.getModifiers()):" + Modifier.isStatic(method.getModifiers()));
 		return (methodName.length() > 3 && methodName.startsWith("set") && Modifier.isPublic(method.getModifiers()) &&
 				(!void.class.isAssignableFrom(method.getReturnType()) || Modifier.isStatic(method.getModifiers())) &&
 				(nParams == 1 || (nParams == 2 && int.class == parameterTypes[0])));

@@ -88,9 +88,20 @@ public class CachedIntrospectionResultsTests {
 		assertThat(pd.getReadMethod(), equalTo(C.class.getMethod("getFoo")));
 		assertThat(
 				"No write method found for non-void returning 'setFoo' method. " +
-				"Check to see if CachedIntrospectionResults is delegating to " +
-				"ExtendedBeanInfo as expected",
+						"Check to see if CachedIntrospectionResults is delegating to " +
+						"ExtendedBeanInfo as expected",
 				pd.getWriteMethod(), equalTo(C.class.getMethod("setFoo", String.class)));
+	}
+
+	@Test
+	public void testForClass(){
+
+		class C {
+			public Object setFoo(String s) { return this; }
+			public String getFoo() { return null; }
+		}
+
+		CachedIntrospectionResults results = CachedIntrospectionResults.forClass(C.class);
 	}
 
 }

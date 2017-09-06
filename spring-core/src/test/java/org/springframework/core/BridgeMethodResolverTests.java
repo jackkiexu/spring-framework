@@ -64,8 +64,8 @@ public class BridgeMethodResolverTests {
 		}
 		return null;
 	}
-
-
+	// 参考资料, 什么是桥接方法
+	// https://www.zhihu.com/question/54895701
 	@Test
 	public void testFindBridgedMethod() throws Exception {
 		Method unbridged = MyFoo.class.getDeclaredMethod("someMethod", String.class, Object.class);

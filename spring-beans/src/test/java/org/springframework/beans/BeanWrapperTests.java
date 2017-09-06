@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.log4j.Logger;
 import org.junit.Test;
 
 import org.springframework.tests.sample.beans.TestBean;
@@ -37,6 +38,7 @@ import static org.junit.Assert.*;
  * @author Dave Syer
  */
 public class BeanWrapperTests extends AbstractPropertyAccessorTests {
+	private static final Logger logger = Logger.getLogger(BeanWrapperTests.class);
 
 	@Override
 	protected BeanWrapperImpl createAccessor(Object target) {
@@ -49,6 +51,7 @@ public class BeanWrapperTests extends AbstractPropertyAccessorTests {
 		GetterBean target = new GetterBean();
 		BeanWrapper accessor = createAccessor(target);
 		accessor.setPropertyValue("name", "tom");
+		logger.info("target.getName():" + target.getName());
 		assertTrue("Set name to tom", target.getName().equals("tom"));
 	}
 

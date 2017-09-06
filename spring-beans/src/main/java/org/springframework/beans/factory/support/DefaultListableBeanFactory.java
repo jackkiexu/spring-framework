@@ -759,7 +759,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			if (!bd.isAbstract() && bd.isSingleton() && !bd.isLazyInit()) {
 				// 如果指定名称的 bean 是创建容器的 bean
 				// 对 FactoryBean 的类型实例化
-				if (isFactoryBean(beanName)) {
+				if (isFactoryBean(beanName)) {			// 这里其实就是创建 beanName 对应的 Class 通过 isAssignableFrom 来判断是否是 FactoryBean 的子类
 					// FACTORY_BEAN_PREFIX 就是 "&", 当 bean 名称前面加 "&" 符号 时, 获取的是产生容器对象本身, 而不是容器产生的 Bean
 					// 调用 getBean 方法, 触发容器对 bean 实例化和依赖注入的过程
 					final FactoryBean<?> factory = (FactoryBean<?>) getBean(FACTORY_BEAN_PREFIX + beanName);

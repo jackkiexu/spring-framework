@@ -88,7 +88,7 @@ public abstract class AbstractPropertyAccessorTests {
 	@Test
 	public void createWithNullTarget() {
 		try {
-			createAccessor(null);
+			createAccessor(null);		// 因为传入的是 null, 所以就失败了
 			fail("Must throw an exception when constructed with null object");
 		}
 		catch (IllegalArgumentException ex) {

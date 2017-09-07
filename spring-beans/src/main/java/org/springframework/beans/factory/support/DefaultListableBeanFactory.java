@@ -726,7 +726,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	 * @see #freezeConfiguration()
 	 */
 	@Override
-	protected boolean isBeanEligibleForMetadataCaching(String beanName) {
+	protected boolean isBeanEligibleForMetadataCaching(String beanName) { // eligible 合格, 适合条件
 		return (this.configurationFrozen || super.isBeanEligibleForMetadataCaching(beanName));
 	}
 

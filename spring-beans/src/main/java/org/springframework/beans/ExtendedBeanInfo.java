@@ -37,7 +37,7 @@ import java.util.TreeSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 import org.springframework.util.ObjectUtils;
 
 /**
@@ -75,8 +75,8 @@ import org.springframework.util.ObjectUtils;
  * @see CachedIntrospectionResults
  */
 class ExtendedBeanInfo implements BeanInfo {
-	private static final Logger logger = Logger.getLogger(ExtendedBeanInfo.class);
-//	private static final Log logger = LogFactory.getLog(ExtendedBeanInfo.class);
+//	private static final Logger logger = Logger.getLogger(ExtendedBeanInfo.class);
+	private static final Log logger = LogFactory.getLog(ExtendedBeanInfo.class);
 
 	private final BeanInfo delegate;
 

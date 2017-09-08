@@ -531,7 +531,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			// 根据指定的 bean 使用对应的策略创建新的实例, 如: 工厂方法, 构造函数自动注入, 简单初始化
 			// 创建实例对象
 			instanceWrapper = createBeanInstance(beanName, mbd, args);
-		}
+		} // 下面的 bean 其实就是通过反射生成的初始实体对象
 		final Object bean = (instanceWrapper != null ? instanceWrapper.getWrappedInstance() : null);
 		// 获取实例化对象的类型
 		Class<?> beanType = (instanceWrapper != null ? instanceWrapper.getWrappedClass() : null);
@@ -1227,7 +1227,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				}, getAccessControlContext());
 			}
 			else {
-				// 将实例化的对象封装起来
+				// 这里其实就已经将 class 对应的对象通过反射生成起来了(PS: 通过构造函数来生成)
 				beanInstance = getInstantiationStrategy().instantiate(mbd, beanName, parent);
 			}
 			BeanWrapper bw = new BeanWrapperImpl(beanInstance);

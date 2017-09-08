@@ -207,7 +207,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 			this.wrappedObject = OptionalUnwrapper.unwrap(object);
 		}
 		else {
-			this.wrappedObject = object;
+			this.wrappedObject = object;	// 这里的 wrappedObject 存储的就是 xml 文件中描述的 bean 生成出来的对象
 		}
 		this.nestedPath = (nestedPath != null ? nestedPath : "");
 		this.rootObject = (!"".equals(this.nestedPath) ? rootObject : this.wrappedObject);

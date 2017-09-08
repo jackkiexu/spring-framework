@@ -151,6 +151,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	/** Optional id for this factory, for serialization purposes */
 	private String serializationId;
 
+	// Spring 默认允许 覆盖 BeanDefinition
 	/** Whether to allow re-registration of a different definition with the same name */
 	private boolean allowBeanDefinitionOverriding = true;
 
@@ -180,7 +181,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	private volatile List<String> beanDefinitionNames = new ArrayList<String>(256);
 
 	/** List of names of manually registered singletons, in registration order */
-	private volatile Set<String> manualSingletonNames = new LinkedHashSet<String>(16);
+	private volatile Set<String> manualSingletonNames = new LinkedHashSet<String>(16); // 这里指通过代码手动装载如 BeanFactory 的类, 而不是通过扫描文件加载进入的 bean
 
 	/** Cached array of bean definition names in case of frozen configuration */
 	private volatile String[] frozenBeanDefinitionNames;
@@ -1320,7 +1321,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	 * @see #autowireByType
 	 * @see #autowireConstructor
 	 */
-	protected Map<String, Object> findAutowireCandidates(
+	protected Map<String, Object> findAutowireCandidates( // 这里是 程序通过  @Autowired 进行依赖注入时 调用的
 			String beanName, Class<?> requiredType, DependencyDescriptor descriptor) {
 
 		String[] candidateNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(

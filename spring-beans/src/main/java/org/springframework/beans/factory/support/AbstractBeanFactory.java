@@ -149,7 +149,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	/** BeanPostProcessors to apply in createBean */
 	private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<BeanPostProcessor>();
 
-	/** Indicates whether any InstantiationAwareBeanPostProcessors have been registered */
+	/** Indicates whether any InstantiationAwareBeanPostProcessors have been registered */ // instantiation 实例化
 	private boolean hasInstantiationAwareBeanPostProcessors;
 
 	/** Indicates whether any DestructionAwareBeanPostProcessors have been registered */
@@ -1142,7 +1142,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		if (curVal == null) {
 			this.prototypesCurrentlyInCreation.set(beanName);
 		}
-		else if (curVal instanceof String) {
+		else if (curVal instanceof String) {						// 当存在 原型模式中已经有其他的 bean 处于创建中时, 会将 所有的 beanName 加入一个 set, 后将 set 放入 ThreadLocal 中
 			Set<String> beanNameSet = new HashSet<String>(2);
 			beanNameSet.add((String) curVal);
 			beanNameSet.add(beanName);
@@ -1260,7 +1260,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * @param registry the PropertyEditorRegistry to initialize
 	 */
 	protected void registerCustomEditors(PropertyEditorRegistry registry) {
-		PropertyEditorRegistrySupport registrySupport =
+		PropertyEditorRegistrySupport registrySupport =							// 这里的 registrySupport 其实就是 BeanWrapperImpl
 				(registry instanceof PropertyEditorRegistrySupport ? (PropertyEditorRegistrySupport) registry : null);
 		if (registrySupport != null) {
 			registrySupport.useConfigValueEditors();
@@ -1390,8 +1390,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 								"Could not resolve parent bean definition '" + bd.getParentName() + "'", ex);
 					}
 					// Deep copy with overridden values.
-					mbd = new RootBeanDefinition(pbd);
-					mbd.overrideFrom(bd);
+					mbd = new RootBeanDefinition(pbd);		// 这里的 pbd 其实就是 parentBeanDefinition
+					mbd.overrideFrom(bd);					// 这里其实就是用子类的属性覆盖父类的属性
 				}
 
 				// 设置默认为 单例模式
@@ -1609,8 +1609,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * @param mbd the corresponding bean definition
 	 */
 	protected boolean isFactoryBean(String beanName, RootBeanDefinition mbd) {
-		Class<?> beanType = predictBeanType(beanName, mbd, FactoryBean.class);
-		return (beanType != null && FactoryBean.class.isAssignableFrom(beanType));
+		Class<?> beanType = predictBeanType(beanName, mbd, FactoryBean.class);		// 创建 beanName 对应的 Class
+		return (beanType != null && FactoryBean.class.isAssignableFrom(beanType));// 判断是否 class 是 FactoryBean 的子类
 	}
 
 	/**

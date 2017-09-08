@@ -360,12 +360,12 @@ public class PropertiesBeanDefinitionReader extends AbstractBeanDefinitionReader
 				String nameAndProperty = keyString.substring(prefix.length());
 				// Find dot before property name, ignoring dots in property keys.
 				int sepIdx = -1;
-				int propKeyIdx = nameAndProperty.indexOf(PropertyAccessor.PROPERTY_KEY_PREFIX);
+				int propKeyIdx = nameAndProperty.indexOf(PropertyAccessor.PROPERTY_KEY_PREFIX); // 获取 "[" 所在的位置
 				if (propKeyIdx != -1) {
 					sepIdx = nameAndProperty.lastIndexOf(SEPARATOR, propKeyIdx);
 				}
 				else {
-					sepIdx = nameAndProperty.lastIndexOf(SEPARATOR);
+					sepIdx = nameAndProperty.lastIndexOf(SEPARATOR);								// 获取 符号 . 所在的位置
 				}
 				if (sepIdx != -1) {
 					String beanName = nameAndProperty.substring(0, sepIdx);
@@ -412,7 +412,7 @@ public class PropertiesBeanDefinitionReader extends AbstractBeanDefinitionReader
 
 		ConstructorArgumentValues cas = new ConstructorArgumentValues();
 		MutablePropertyValues pvs = new MutablePropertyValues();
-
+		// 下面 map 里面存储的是 beanName <--> ClassName
 		for (Map.Entry<?, ?> entry : map.entrySet()) {
 			String key = StringUtils.trimWhitespace((String) entry.getKey());
 			if (key.startsWith(prefix + SEPARATOR)) {

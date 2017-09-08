@@ -181,7 +181,7 @@ public class DefaultListableBeanFactoryTests {
 		p.setProperty("x1.(singleton)", "false");
 		p.setProperty("x1.singleton", "false");
 		(new PropertiesBeanDefinitionReader(lbf)).registerBeanDefinitions(p);
-
+		// 程序到这里 就加载 Bean 资源 + 初始化 BeanDefinition 成功了
 		assertTrue("prototype not instantiated", !DummyFactory.wasPrototypeCreated());
 		String[] beanNames = lbf.getBeanNamesForType(TestBean.class, true, false);
 		assertEquals(0, beanNames.length);
@@ -600,7 +600,7 @@ public class DefaultListableBeanFactoryTests {
 		try {
 			DefaultListableBeanFactory lbf = new DefaultListableBeanFactory();
 			MutablePropertyValues pvs = new MutablePropertyValues();
-			pvs.add("ag", "foobar");
+			pvs.add("ag", "foobar");			// 因为 TestBean.class 没有 ag 这个属性, 所以, 这里在 get 时会爆出异常
 			RootBeanDefinition bd = new RootBeanDefinition(TestBean.class);
 			bd.setPropertyValues(pvs);
 			lbf.registerBeanDefinition("tb", bd);
@@ -735,6 +735,7 @@ public class DefaultListableBeanFactoryTests {
 		factory.registerBeanDefinition("child", childDefinition);
 		factory.registerAlias("parent", "alias");
 
+		TestBean parent = (TestBean) factory.getBean("parent");				// 因为父类是抽象类, 所以这里会报异常
 		TestBean child = (TestBean) factory.getBean("child");
 		assertEquals(EXPECTED_NAME, child.getName());
 		assertEquals(EXPECTED_AGE, child.getAge());
@@ -759,6 +760,7 @@ public class DefaultListableBeanFactoryTests {
 
 	@Test
 	public void testNameAlreadyBound() {
+		TestBean testBean = null;
 		DefaultListableBeanFactory lbf = new DefaultListableBeanFactory();
 		Properties p = new Properties();
 		p.setProperty("kerry.(class)", TestBean.class.getName());
@@ -766,6 +768,7 @@ public class DefaultListableBeanFactoryTests {
 		(new PropertiesBeanDefinitionReader(lbf)).registerBeanDefinitions(p);
 		try {
 			(new PropertiesBeanDefinitionReader(lbf)).registerBeanDefinitions(p);
+			testBean = (TestBean)lbf.getBean("kerry");
 		}
 		catch (BeanDefinitionStoreException ex) {
 			assertEquals("kerry", ex.getBeanName());

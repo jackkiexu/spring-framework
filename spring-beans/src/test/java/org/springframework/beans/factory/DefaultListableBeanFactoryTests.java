@@ -1132,7 +1132,7 @@ public class DefaultListableBeanFactoryTests {
 	}
 
 	@Test
-	public void testArrayPropertyWithAutowiring() throws MalformedURLException {
+	public void testArrayPropertyWithAutowiring() throws MalformedURLException {  // 这个例子绝对的经典, 就是根据 field 的名称来获取 对应的 候选的 bean, 然后进行填充进去
 		DefaultListableBeanFactory bf = new DefaultListableBeanFactory();
 		bf.registerSingleton("resource1", new UrlResource("http://localhost:8080"));
 		bf.registerSingleton("resource2", new UrlResource("http://localhost:9090"));

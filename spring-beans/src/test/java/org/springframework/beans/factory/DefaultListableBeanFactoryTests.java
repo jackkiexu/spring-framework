@@ -582,7 +582,7 @@ public class DefaultListableBeanFactoryTests {
 			// cool
 		}
 	}
-
+	//	这个 Test 用力绝对经典, 因为它解释了 Spring 如何解决循环引用的问题
 	@Test
 	public void testSelfReference() {
 		DefaultListableBeanFactory lbf = new DefaultListableBeanFactory();

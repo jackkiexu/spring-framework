@@ -1670,7 +1670,7 @@ public class BeanDefinitionParserDelegate {
 		return (!StringUtils.hasLength(namespaceUri) || BEANS_NAMESPACE_URI.equals(namespaceUri));
 	}
 
-	public boolean isDefaultNamespace(Node node) {
+	public boolean isDefaultNamespace(Node node) {			// 这里默认是返回 null
 		return isDefaultNamespace(getNamespaceURI(node));
 	}
 

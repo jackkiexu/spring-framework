@@ -330,7 +330,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 				// 将给定导入元素的 location 封装为相对路径资源
 				Resource relativeResource = getReaderContext().getResource().createRelative(location);
 				// 封装的相对路径资源存在
-				if (relativeResource.exists()) {
+				if (relativeResource.exists()) {		// 下面又是 解析 xml 里面的描述信息, 来加载 Bean
 					importCount = getReaderContext().getReader().loadBeanDefinitions(relativeResource);
 					actualResources.add(relativeResource);
 				}

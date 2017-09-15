@@ -100,8 +100,8 @@ public interface PropertyResolver {
 	<T> T getRequiredProperty(String key, Class<T> targetType) throws IllegalStateException;
 
 	/**
-	 * Resolve ${...} placeholders in the given text, replacing them with corresponding
-	 * property values as resolved by {@link #getProperty}. Unresolvable placeholders with
+	 * Resolve ${...} placeholders(占位符) in the given text, replacing them with corresponding
+	 * property values as resolved by {@link #getProperty}. Unresolvable placeholders(占位符) with
 	 * no default value are ignored and passed through unchanged.
 	 * @param text the String to resolve
 	 * @return the resolved String (never {@code null})
@@ -112,7 +112,7 @@ public interface PropertyResolver {
 	String resolvePlaceholders(String text);
 
 	/**
-	 * Resolve ${...} placeholders in the given text, replacing them with corresponding
+	 * Resolve ${...} placeholders(占位符) in the given text, replacing them with corresponding
 	 * property values as resolved by {@link #getProperty}. Unresolvable placeholders with
 	 * no default value will cause an IllegalArgumentException to be thrown.
 	 * @return the resolved String (never {@code null})

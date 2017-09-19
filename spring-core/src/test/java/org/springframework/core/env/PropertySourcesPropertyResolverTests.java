@@ -16,25 +16,33 @@
 
 package org.springframework.core.env;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
 import org.springframework.core.convert.ConversionException;
 import org.springframework.core.convert.ConverterNotFoundException;
+import org.springframework.core.io.support.ResourcePropertySource;
 import org.springframework.mock.env.MockPropertySource;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 /**
+ * 参考资料
+ * http://blog.csdn.net/u011179993/article/details/51511364
+ *
  * @author Chris Beams
  * @since 3.1
  */
 public class PropertySourcesPropertyResolverTests {
+
+	private static final Logger logger = Logger.getLogger(PropertySourcesPropertyResolverTests.class);
 
 	private Properties testProperties;
 
@@ -51,6 +59,17 @@ public class PropertySourcesPropertyResolverTests {
 		propertySources.addFirst(new PropertiesPropertySource("testProperties", testProperties));
 	}
 
+	@Test
+	public void test() throws IOException {
+		Map<String, Object> map = new HashMap<>();
+		map.put("encoding", "gbk");
+		PropertySource propertySource = new MapPropertySource("map", map);
+		logger.info(propertySource);
+		logger.info(propertySource.getProperty("encoding"));
+
+		ResourcePropertySource resourcePropertySource = new ResourcePropertySource("resource", "classpath:resources.properties");
+		logger.info(resourcePropertySource.getProperty("encoding"));
+	}
 
 	@Test
 	public void containsProperty() {
@@ -338,7 +357,7 @@ public class PropertySourcesPropertyResolverTests {
 		propertyResolver.setRequiredProperties("foo", "bar");
 
 		// neither foo nor bar properties are present -> validating should throw
-		try {
+		try { // 这里其实就是 通过 this.getProperty(key) == null 来判断是否有些 key 对应的 value 值不存在, 若不存在, 则进行异常的抛出
 			propertyResolver.validateRequiredProperties();
 			fail("expected validation exception");
 		}

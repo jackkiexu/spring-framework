@@ -363,7 +363,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				}, getAccessControlContext());
 			}
 			else {
-				bean = getInstantiationStrategy().instantiate(bd, null, parent);
+				bean = getInstantiationStrategy().instantiate(bd, null, parent);	// 这里就直接实例化对象
 			}
 			populateBean(beanClass.getName(), bd, new BeanWrapperImpl(bean));
 			return bean;
@@ -1446,7 +1446,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		Set<String> autowiredBeanNames = new LinkedHashSet<String>(4);
 		// 寻找 bw 中需要依赖注入的属性
 		// 对 bean 对象中非简单属性(不是简单继承的对象)
-		String[] propertyNames = unsatisfiedNonSimpleProperties(mbd, bw);
+		String[] propertyNames = unsatisfiedNonSimpleProperties(mbd, bw);				// 获取 bw 中 class 里面的 非 基础类型 (Integer, Long 等), 非依赖类型 (PS: BeanClassloaderAware, BeanFactoryAware, BeanNameWare)
 		for (String propertyName : propertyNames) {
 			try {
 				// 获取指定名称的属性描述器
@@ -1501,7 +1501,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 * @return an array of bean property names
 	 * @see org.springframework.beans.BeanUtils#isSimpleProperty
 	 */
-	protected String[] unsatisfiedNonSimpleProperties(AbstractBeanDefinition mbd, BeanWrapper bw) { // unsatisfied 不满意, 不满足
+	protected String[] unsatisfiedNonSimpleProperties(AbstractBeanDefinition mbd, BeanWrapper bw) { // 这里其实就是根据 BeanWrapper 里面 Class 的信息 来获取 不是简单数据类型(PS: 就是 Integer/Long) 又不是 系统依赖数据类型(PS: BeanClassLoaderAware, BeanFactoryAware, BeanNameAware)的 字段属性
 		Set<String> result = new TreeSet<String>();
 		PropertyValues pvs = mbd.getPropertyValues();
 		PropertyDescriptor[] pds = bw.getPropertyDescriptors();

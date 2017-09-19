@@ -32,6 +32,7 @@ import org.springframework.core.io.Resource;
  * @since 2.0
  * @see org.springframework.beans.BeanMetadataElement#getSource()
  * @see org.springframework.beans.factory.config.BeanDefinition
+ * extractor 提取
  */
 public interface SourceExtractor {
 
@@ -42,6 +43,7 @@ public interface SourceExtractor {
 	 * @param definingResource the resource that defines the given source object
 	 * (may be {@code null})
 	 * @return the source metadata object to store (may be {@code null})
+	 * // candidate 候选人
 	 */
 	Object extractSource(Object sourceCandidate, Resource definingResource);
 

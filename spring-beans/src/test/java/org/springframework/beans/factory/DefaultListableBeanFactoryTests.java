@@ -1256,11 +1256,12 @@ public class DefaultListableBeanFactoryTests {
 		bd.setPropertyValues(pvs);
 		lbf.registerBeanDefinition("rod", bd);
 		assertEquals(1, lbf.getBeanDefinitionCount());
-		// Depends on age, name and spouse (TestBean)
+		// Depends on age, name and spouse (TestBean)	通过这种方式进行注入 Bean 时, 会扫描 bean 中的非简单属性, 进行对应的依赖注入
 		Object registered = lbf.autowire(DependenciesBean.class, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
 		assertEquals(1, lbf.getBeanDefinitionCount());
 		DependenciesBean kerry = (DependenciesBean) registered;
 		TestBean rod = (TestBean) lbf.getBean("rod");
+		factoryLog.info("kerry:" + kerry);
 		assertSame(rod, kerry.getSpouse());
 	}
 
@@ -1287,7 +1288,7 @@ public class DefaultListableBeanFactoryTests {
 		lbf.registerBeanDefinition("rod", bd);
 		RootBeanDefinition bd2 = new RootBeanDefinition(TestBean.class);
 		lbf.registerBeanDefinition("rod2", bd2);
-		try {
+		try {											// 这个 Case 是在 ConstructorDependency 注入 spouseAge 属性时, 因为找不到 资源, 所以报错了
 			lbf.autowire(ConstructorDependency.class, AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR, false);
 			fail("Should have thrown UnsatisfiedDependencyException");
 		}
@@ -1307,12 +1308,13 @@ public class DefaultListableBeanFactoryTests {
 		bd.setPropertyValues(pvs);
 		lbf.registerBeanDefinition("rod", bd);
 		assertEquals(1, lbf.getBeanDefinitionCount());
-		try {
+		try {				// 这里是 因为找不到 属性 SideEffectBean, 所以报错
 			lbf.autowire(UnsatisfiedConstructorDependency.class, AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR, true);
 			fail("Should have unsatisfied constructor dependency on SideEffectBean");
 		}
 		catch (UnsatisfiedDependencyException ex) {
 			// expected
+			factoryLog.info(ex);
 		}
 	}
 
@@ -1346,11 +1348,12 @@ public class DefaultListableBeanFactoryTests {
 		RootBeanDefinition bd = new RootBeanDefinition(TestBean.class);
 		lbf.registerBeanDefinition("spous", bd);
 		try {
-			lbf.autowire(DependenciesBean.class, AutowireCapableBeanFactory.AUTOWIRE_BY_NAME, true);
+			lbf.autowire(DependenciesBean.class, AutowireCapableBeanFactory.AUTOWIRE_BY_NAME, true); // 这里面的 true 是进行依赖的检查
 			fail("Should have thrown UnsatisfiedDependencyException");
 		}
 		catch (UnsatisfiedDependencyException ex) {
 			// expected
+			factoryLog.info(ex);
 		}
 	}
 
@@ -1432,7 +1435,8 @@ public class DefaultListableBeanFactoryTests {
 		RootBeanDefinition bd2 = new RootBeanDefinition(TestBean.class);
 		lbf.registerBeanDefinition("bd1", bd1);
 		lbf.registerBeanDefinition("bd2", bd2);
-		lbf.getBean(TestBean.class);
+		TestBean testBean = lbf.getBean(TestBean.class);				// 这里有两个 TestBean, 而在 getBean(TestBean.class) 中, 若 参数是基本类型, 则没关系, 若是自定义类型的话, 必须实现 OrderComparator 接口
+		factoryLog.info(testBean);
 	}
 
 	@Test
@@ -1460,7 +1464,7 @@ public class DefaultListableBeanFactoryTests {
 		lbf.registerBeanDefinition("bd2", bd2);
 		thrown.expect(NoUniqueBeanDefinitionException.class);
 		thrown.expectMessage(containsString("more than one 'primary'"));
-		lbf.getBean(TestBean.class);
+		lbf.getBean(TestBean.class);									// 这里 bd1, 与 bd2 都是 TestBean 类型, 所以 直接报错了
 	}
 
 	@Test
@@ -1486,7 +1490,7 @@ public class DefaultListableBeanFactoryTests {
 		thrown.expect(NoUniqueBeanDefinitionException.class);
 		thrown.expectMessage(containsString("Multiple beans found with the same priority"));
 		thrown.expectMessage(containsString("5")); // conflicting priority
-		lbf.getBean(TestBean.class);
+		lbf.getBean(TestBean.class);											// 优先级相等, 获取 两个候选人, 直接报错
 	}
 
 	@Test
@@ -1520,7 +1524,7 @@ public class DefaultListableBeanFactoryTests {
 		RootBeanDefinition bd1 = new RootBeanDefinition(TestBean.class);
 		RootBeanDefinition bd2 = new RootBeanDefinition(TestBean.class);
 		RootBeanDefinition na1 = new RootBeanDefinition(TestBean.class);
-		na1.setAutowireCandidate(false);
+		na1.setAutowireCandidate(false);									// 通过 autowireCandidate 来使得 自动装配 Bean 时, 忽略 na1
 
 		lbf.registerBeanDefinition("bd1", bd1);
 		lbf.registerBeanDefinition("na1", na1);
@@ -2073,7 +2077,7 @@ public class DefaultListableBeanFactoryTests {
 			fail("Should have thrown UnsatisfiedDependencyException");
 		}
 		catch (UnsatisfiedDependencyException expected) {
-			fail("Should have thrown UnsatisfiedDependencyException" + expected);
+			fail("Should have thrown UnsatisfiedDependencyException :" + expected);
 		}
 	}
 
@@ -2401,6 +2405,7 @@ public class DefaultListableBeanFactoryTests {
 			public Object postProcessBeforeInitialization(Object bean, String beanName) {
 				return new TestBean();
 			}
+
 			@Override
 			public Object postProcessAfterInitialization(Object bean, String beanName) {
 				return bean;
@@ -2408,6 +2413,7 @@ public class DefaultListableBeanFactoryTests {
 		});
 		BeanWithDisposableBean.closed = false;
 		lbf.preInstantiateSingletons();
+		Object object = lbf.getBean("test");
 		lbf.destroySingletons();
 		assertTrue("Destroy method invoked", BeanWithDisposableBean.closed);
 	}
@@ -2580,13 +2586,18 @@ public class DefaultListableBeanFactoryTests {
 
 	@Test(expected = IllegalStateException.class)
 	public void testScopingBeanToUnregisteredScopeResultsInAnException() throws Exception {
-		BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(TestBean.class);
-		AbstractBeanDefinition beanDefinition = builder.getBeanDefinition();
-		beanDefinition.setScope("he put himself so low could hardly look me in the face");
+		try {
+			BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(TestBean.class);
+			AbstractBeanDefinition beanDefinition = builder.getBeanDefinition();
+			beanDefinition.setScope("he put himself so low could hardly look me in the face");
 
-		DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
-		factory.registerBeanDefinition("testBean", beanDefinition);
-		factory.getBean("testBean");
+			DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
+			factory.registerBeanDefinition("testBean", beanDefinition);
+			Object object = factory.getBean("testBean");
+			factoryLog.info(object);
+		} catch (BeansException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Test

@@ -31,8 +31,8 @@ import org.springframework.util.Assert;
 /**
  * Utility class for handling registration of AOP auto-proxy creators.
  *
- * <p>Only a single auto-proxy creator can be registered yet multiple concrete
- * implementations are available. Therefore this class wraps a simple escalation
+ * <p>Only a single auto-proxy creator can be registered yet multiple concrete (具体的)
+ * implementations are available. Therefore this class wraps a simple escalation(增加, 扩展)
  * protocol, allowing classes to request a particular auto-proxy creator and know
  * that class, {@code or a subclass thereof}, will eventually be resident
  * in the application context.
@@ -46,7 +46,7 @@ import org.springframework.util.Assert;
 public abstract class AopConfigUtils {
 
 	/**
-	 * The bean name of the internally managed auto-proxy creator.
+	 * The bean name of the internally managed auto-proxy creator. 这个 AUTO_PROXY_CREATOR_BEAN_NAME 其实是 Spring IOC 里面 注入的 Bean 的唯一标识
 	 */
 	public static final String AUTO_PROXY_CREATOR_BEAN_NAME =
 			"org.springframework.aop.config.internalAutoProxyCreator";
@@ -57,7 +57,7 @@ public abstract class AopConfigUtils {
 	private static final List<Class<?>> APC_PRIORITY_LIST = new ArrayList<Class<?>>();
 
 	/**
-	 * Setup the escalation list.
+	 * Setup the escalation(增强, 扩展) list.
 	 */
 	static {
 		APC_PRIORITY_LIST.add(InfrastructureAdvisorAutoProxyCreator.class);

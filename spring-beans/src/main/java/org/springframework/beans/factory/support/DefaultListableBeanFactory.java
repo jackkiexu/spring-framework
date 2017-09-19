@@ -164,7 +164,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	/** Resolver to use for checking if a bean definition is an autowire candidate */
 	private AutowireCandidateResolver autowireCandidateResolver = new SimpleAutowireCandidateResolver();
 
-	/** Map from dependency type to corresponding autowired value */
+	/** Map from dependency type to corresponding autowired value */ // 存储 对象的依赖 属性
 	private final Map<Class<?>, Object> resolvableDependencies = new ConcurrentHashMap<Class<?>, Object>(16);
 
 	// 存储注册的 BeanDefinition
@@ -392,7 +392,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	}
 
 	@Override
-	public String[] getBeanNamesForType(Class<?> type) {
+	public String[] getBeanNamesForType(Class<?> type) {	// 获取所有的注册的 beanName, 然后根据对应的 class 的类型, 判断是否是其子类 (PS: 通过 isAssignableFrom)
 		return getBeanNamesForType(type, true, true);
 	}
 
@@ -1073,7 +1073,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 					candidates.put(beanName, getType(beanName));
 				}
 			}
-			String candidateName = determinePrimaryCandidate(candidates, requiredType);
+			String candidateName = determinePrimaryCandidate(candidates, requiredType);			// 这里的 primary 指的是基础类型
 			if (candidateName == null) {
 				candidateName = determineHighestPriorityCandidate(candidates, requiredType);
 			}
@@ -1149,7 +1149,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 				return multipleBeans;
 			}
 
-			Map<String, Object> matchingBeans = findAutowireCandidates(beanName, type, descriptor);
+			Map<String, Object> matchingBeans = findAutowireCandidates(beanName, type, descriptor);			// 根据 数据类型判断是否符合要求
 			if (matchingBeans.isEmpty()) {
 				if (isRequired(descriptor)) {
 					raiseNoMatchingBeanFound(type, descriptor.getResolvableType(), descriptor);
@@ -1163,7 +1163,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			if (matchingBeans.size() > 1) {
 				autowiredBeanName = determineAutowireCandidate(matchingBeans, descriptor);
 				if (autowiredBeanName == null) {
-					if (isRequired(descriptor) || !indicatesMultipleBeans(type)) {
+					if (isRequired(descriptor) || !indicatesMultipleBeans(type)) {					// 当有多个候选人, 并且数据不是基础类型, 则直接就抛出 NoUniqueBeanDefinitionException 异常 了
 						return descriptor.resolveNotUnique(type, matchingBeans);
 					}
 					else {
@@ -1330,7 +1330,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		for (Class<?> autowiringType : this.resolvableDependencies.keySet()) {
 			if (autowiringType.isAssignableFrom(requiredType)) {
 				Object autowiringValue = this.resolvableDependencies.get(autowiringType);
-				autowiringValue = AutowireUtils.resolveAutowiringValue(autowiringValue, requiredType);
+				autowiringValue = AutowireUtils.resolveAutowiringValue(autowiringValue, requiredType);			// 这里超级复杂
 				if (requiredType.isInstance(autowiringValue)) {
 					result.put(ObjectUtils.identityToString(autowiringValue), autowiringValue);
 					break;

@@ -2073,6 +2073,7 @@ public class DefaultListableBeanFactoryTests {
 			fail("Should have thrown UnsatisfiedDependencyException");
 		}
 		catch (UnsatisfiedDependencyException expected) {
+			fail("Should have thrown UnsatisfiedDependencyException" + expected);
 		}
 	}
 

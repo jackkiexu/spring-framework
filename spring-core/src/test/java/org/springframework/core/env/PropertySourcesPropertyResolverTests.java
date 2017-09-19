@@ -34,6 +34,9 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 /**
+ * 参考资料
+ * http://blog.csdn.net/u011179993/article/details/51511364
+ *
  * @author Chris Beams
  * @since 3.1
  */
@@ -354,7 +357,7 @@ public class PropertySourcesPropertyResolverTests {
 		propertyResolver.setRequiredProperties("foo", "bar");
 
 		// neither foo nor bar properties are present -> validating should throw
-		try {
+		try { // 这里其实就是 通过 this.getProperty(key) == null 来判断是否有些 key 对应的 value 值不存在, 若不存在, 则进行异常的抛出
 			propertyResolver.validateRequiredProperties();
 			fail("expected validation exception");
 		}

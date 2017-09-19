@@ -85,7 +85,7 @@ public abstract class AopNamespaceUtils {
 		registerComponentIfNecessary(beanDefinition, parserContext);
 	}
 
-	// 解析 <aop:config> 标签
+	// 解析 proxy-target-class, expose-proxy 标签
 	private static void useClassProxyingIfNecessary(BeanDefinitionRegistry registry, Element sourceElement) {
 		if (sourceElement != null) {
 			// 解析 proxy-target-class 属性

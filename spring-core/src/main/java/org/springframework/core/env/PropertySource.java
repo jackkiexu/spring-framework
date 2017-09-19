@@ -159,7 +159,8 @@ public abstract class PropertySource<T> {
 					getClass().getSimpleName(), System.identityHashCode(this), this.name, this.source);
 		}
 		else {
-			return String.format("%s [name='%s']", getClass().getSimpleName(), this.name);
+			return String.format("%s@%s [name='%s', properties=%s]",
+					getClass().getSimpleName(), System.identityHashCode(this), this.name, this.source);
 		}
 	}
 

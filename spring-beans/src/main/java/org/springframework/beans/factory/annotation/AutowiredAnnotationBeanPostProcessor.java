@@ -113,6 +113,9 @@ import org.springframework.util.StringUtils;
  * @see #setAutowiredAnnotationType
  * @see Autowired
  * @see Value
+ *
+ * 参考资料
+ * http://www.shangyang.me/2017/04/05/spring-core-container-sourcecode-analysis-annotation-autowired/#作为-InstantiationAwareBeanPostProcessor-的行为
  */
 public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBeanPostProcessorAdapter
 		implements MergedBeanDefinitionPostProcessor, PriorityOrdered, BeanFactoryAware {

@@ -1118,7 +1118,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			return result;
 		}
 	}
-
+	// 参考资料 http://www.shangyang.me/2017/04/05/spring-core-container-sourcecode-analysis-annotation-autowired/#作为-InstantiationAwareBeanPostProcessor-的行为
 	public Object doResolveDependency(DependencyDescriptor descriptor, String beanName,
 			Set<String> autowiredBeanNames, TypeConverter typeConverter) throws BeansException {
 
@@ -1148,7 +1148,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			if (multipleBeans != null) {
 				return multipleBeans;
 			}
-
+			// 1. 根据 type 去找到对应的 candidates, 该方法内部会处理 @Qualifier 的情况
 			Map<String, Object> matchingBeans = findAutowireCandidates(beanName, type, descriptor);			// 根据 数据类型判断是否符合要求
 			if (matchingBeans.isEmpty()) {
 				if (isRequired(descriptor)) {
@@ -1160,7 +1160,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			String autowiredBeanName;
 			Object instanceCandidate;
 
-			if (matchingBeans.size() > 1) {
+			if (matchingBeans.size() > 1) { // 根据 @Primary and @Priority 注解进行筛选
 				autowiredBeanName = determineAutowireCandidate(matchingBeans, descriptor);
 				if (autowiredBeanName == null) {
 					if (isRequired(descriptor) || !indicatesMultipleBeans(type)) {					// 当有多个候选人, 并且数据不是基础类型, 则直接就抛出 NoUniqueBeanDefinitionException 异常 了
@@ -1185,6 +1185,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			if (autowiredBeanNames != null) {
 				autowiredBeanNames.add(autowiredBeanName);
 			}
+			// 这个方法非常重要, descriptor.resolveCandidate(autowiredbeanName, type, this) 会通过 BeanFactory.getBean 来获取对象
 			return (instanceCandidate instanceof Class ?
 					descriptor.resolveCandidate(autowiredBeanName, type, this) : instanceCandidate);
 		}
@@ -1320,6 +1321,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	 * @throws BeansException in case of errors
 	 * @see #autowireByType
 	 * @see #autowireConstructor
+	 *
+	 * 参考资料
 	 */
 	protected Map<String, Object> findAutowireCandidates( // 这里是 程序通过  @Autowired 进行依赖注入时 调用的
 			String beanName, Class<?> requiredType, DependencyDescriptor descriptor) {
@@ -1327,6 +1330,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		String[] candidateNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
 				this, requiredType, true, descriptor.isEager());
 		Map<String, Object> result = new LinkedHashMap<String, Object>(candidateNames.length);
+		// 1. 依次从所有已经解析的 Type 去找是否已经存在对应的 Type? 如果有, 则添加对应 Type 的 bean 实例到 result 队列里面
 		for (Class<?> autowiringType : this.resolvableDependencies.keySet()) {
 			if (autowiringType.isAssignableFrom(requiredType)) {
 				Object autowiringValue = this.resolvableDependencies.get(autowiringType);

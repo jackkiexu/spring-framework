@@ -55,6 +55,8 @@ import org.springframework.util.StringUtils;
  * @see AutowireCandidateQualifier
  * @see Qualifier
  * @see Value
+ *
+ * 参考资料 http://www.shangyang.me/2017/04/05/spring-core-container-sourcecode-analysis-annotation-autowired/#通过-Class-Type-以及-Qualifer-寻找-Candidates
  */
 public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwareAutowireCandidateResolver {
 
@@ -145,8 +147,10 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 	public boolean isAutowireCandidate(BeanDefinitionHolder bdHolder, DependencyDescriptor descriptor) {
 		boolean match = super.isAutowireCandidate(bdHolder, descriptor);
 		if (match && descriptor != null) {
+			// 1. 在这里判断的 Qualifier; 如果当前的 descriptor 中标注 @Qualifier, 那么 bean 必须与之匹配才可以返回
 			match = checkQualifiers(bdHolder, descriptor.getAnnotations());
 			if (match) {
+				// 2. 继续匹配  method 参数
 				MethodParameter methodParam = descriptor.getMethodParameter();
 				if (methodParam != null) {
 					Method method = methodParam.getMethod();
@@ -159,7 +163,7 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 		return match;
 	}
 
-	/**
+	/** 通过 @Qualifer 中指定的 name 与当前的 ref-bean 进行深度匹配，还是否能 match，若 matched，则返回之
 	 * Match the given qualifier annotations against the candidate bean definition.
 	 */
 	protected boolean checkQualifiers(BeanDefinitionHolder bdHolder, Annotation[] annotationsToSearch) {
@@ -171,7 +175,8 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 			Class<? extends Annotation> type = annotation.annotationType();
 			boolean checkMeta = true;
 			boolean fallbackToMeta = false;
-			if (isQualifier(type)) {
+			if (isQualifier(type)) {	// 判断当前的注解是不是 @Qualifier
+				// 根据 @Qualifier 中定义的 name 与 当前的 ref-bean 进行匹配
 				if (!checkQualifier(bdHolder, annotation, typeConverter)) {
 					fallbackToMeta = true;
 				}
@@ -179,6 +184,7 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 					checkMeta = false;
 				}
 			}
+			// 从 meta annotation 中查找
 			if (checkMeta) {
 				boolean foundMeta = false;
 				for (Annotation metaAnn : type.getAnnotations()) {
@@ -221,11 +227,12 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 
 		Class<? extends Annotation> type = annotation.annotationType();
 		RootBeanDefinition bd = (RootBeanDefinition) bdHolder.getBeanDefinition();
-
+		// 从 Target-class 中查找, 是否有对应的注解 @Qualifier
 		AutowireCandidateQualifier qualifier = bd.getQualifier(type.getName());
 		if (qualifier == null) {
 			qualifier = bd.getQualifier(ClassUtils.getShortName(type));
 		}
+		// 通过 Factory Method, Bean Factory 中去找
 		if (qualifier == null) {
 			// First, check annotation on qualified element, if any
 			Annotation targetAnnotation = getQualifiedElementAnnotation(bd, type);
@@ -267,8 +274,8 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 			return false;
 		}
 		for (Map.Entry<String, Object> entry : attributes.entrySet()) {
-			String attributeName = entry.getKey();
-			Object expectedValue = entry.getValue();
+			String attributeName = entry.getKey();				// 返回 @Qualifier 中的 value
+			Object expectedValue = entry.getValue();			// 返回 @Qualifier 中 value 的值
 			Object actualValue = null;
 			// Check qualifier first
 			if (qualifier != null) {

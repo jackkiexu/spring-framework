@@ -34,6 +34,7 @@ public interface ClassFilter {
 	 * @param clazz the candidate target class
 	 * @return whether the advice should apply to the given target class
 	 */
+	// 判断给定的类是不是要 拦截
 	boolean matches(Class<?> clazz);
 
 

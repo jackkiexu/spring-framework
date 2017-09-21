@@ -26,6 +26,8 @@ import java.lang.reflect.Method;
  * @see ThrowsAdvice
  *
  * @author Rod Johnson
+ * 参考资料 http://cxis.me/2017/04/12/Spring%E4%B8%ADAOP%E6%BA%90%E7%A0%81%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90/
+ * 表示在方法前调用的增强器, 方法前置增强器 不能阻止方法的调用, 但是能抛异常来使目标方法不继续执行
  */
 public interface MethodBeforeAdvice extends BeforeAdvice {
 
@@ -39,6 +41,7 @@ public interface MethodBeforeAdvice extends BeforeAdvice {
 	 * allowed by the method signature. Otherwise the exception
 	 * will be wrapped as a runtime exception.
 	 */
+	// 在给定方法调用之前调用该方法
 	void before(Method method, Object[] args, Object target) throws Throwable;
 
 }

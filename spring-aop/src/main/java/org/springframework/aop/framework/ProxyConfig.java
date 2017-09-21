@@ -21,7 +21,7 @@ import java.io.Serializable;
 import org.springframework.util.Assert;
 
 /**
- * Convenience superclass for configuration used in creating proxies,
+ * Convenience(方便) superclass for configuration used in creating proxies,
  * to ensure that all proxy creators have consistent properties.
  *
  * @author Rod Johnson

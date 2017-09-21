@@ -34,13 +34,15 @@ import org.springframework.util.ObjectUtils;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @see org.springframework.aop.framework.AdvisedSupport#setTarget(Object)
+ *
+ * TargetSource 的默认实现, 是一个单例的 TargetSource, isStatic 方法直接返回 true
  */
 public class SingletonTargetSource implements TargetSource, Serializable {
 
 	/** use serialVersionUID from Spring 1.2 for interoperability */
 	private static final long serialVersionUID = 9031246629662423738L;
 
-
+	// 用来保存目标类
 	/** Target cached and invoked using reflection */
 	private final Object target;
 
@@ -49,17 +51,19 @@ public class SingletonTargetSource implements TargetSource, Serializable {
 	 * Create a new SingletonTargetSource for the given target.
 	 * @param target the target object
 	 */
+	// 构造方法
 	public SingletonTargetSource(Object target) {
 		Assert.notNull(target, "Target object must not be null");
 		this.target = target;
 	}
 
-
+	// 直接返回目标的类型
 	@Override
 	public Class<?> getTargetClass() {
 		return this.target.getClass();
 	}
 
+	// 返回目标
 	@Override
 	public Object getTarget() {
 		return this.target;

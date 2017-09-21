@@ -43,6 +43,7 @@ public interface Advisor {
 	 * @see ThrowsAdvice
 	 * @see AfterReturningAdvice
 	 */
+	// 返回持有的 Advice
 	Advice getAdvice();
 
 	/**
@@ -55,6 +56,7 @@ public interface Advisor {
 	 * proxy creation to ensure that Advisors have the correct lifecycle model.
 	 * @return whether this advice is associated with a particular target instance
 	 */
+	// 判断 Advice 是不是每个实例中都有
 	boolean isPerInstance();
 
 }

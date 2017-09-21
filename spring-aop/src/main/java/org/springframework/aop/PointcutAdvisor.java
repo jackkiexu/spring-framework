@@ -22,12 +22,15 @@ package org.springframework.aop;
  * for which method-level matching doesn't apply.
  *
  * @author Rod Johnson
+ *
+ * PointcutAdvisor 现在持有 Advice 和一个 Pointcut
  */
 public interface PointcutAdvisor extends Advisor {
 
 	/**
 	 * Get the Pointcut that drives this advisor.
 	 */
+	// 获取 Pointcut
 	Pointcut getPointcut();
 
 }

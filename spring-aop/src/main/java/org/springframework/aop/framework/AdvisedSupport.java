@@ -59,7 +59,9 @@ import org.springframework.util.CollectionUtils;
  * @see org.springframework.aop.framework.AopProxy
  *
  * 参考资料 http://xsh5324.iteye.com/blog/1846862
- * 动态 增加 修改 删除 通知和动态切换目标对象, 即使代理对象已经创建
+ * http://cxis.me/2017/04/12/Spring%E4%B8%ADAOP%E6%BA%90%E7%A0%81%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90/
+ * http://blog.csdn.net/chjttony/article/details/6311979
+ * AdviseSupport 封装了 AOP 中 对通知(Advice) 和 通知器(Advisor) 的相关操作, 
  */
 public class AdvisedSupport extends ProxyConfig implements Advised {
 
@@ -140,7 +142,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 	}
 
 	@Override
-	public void setTargetSource(TargetSource targetSource) {
+	public void setTargetSource(TargetSource targetSource) {// 设置要代理的类
 		this.targetSource = (targetSource != null ? targetSource : EMPTY_TARGET_SOURCE);
 	}
 
@@ -264,9 +266,10 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 
 	@Override
 	public void addAdvisor(int pos, Advisor advisor) throws AopConfigException {
+		// 引介增强器处理
 		if (advisor instanceof IntroductionAdvisor) {
 			validateIntroductionAdvisor((IntroductionAdvisor) advisor);
-		}
+		} // 其他的增强器处理
 		addAdvisorInternal(pos, advisor);
 	}
 
@@ -372,8 +375,11 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 			throw new IllegalArgumentException(
 					"Illegal position " + pos + " in advisor list with size " + this.advisors.size());
 		}
+		// 把 Advice 添加到 LinkedList 中指定位置
 		this.advisors.add(pos, advisor);
+		// 同时更新一下 Advisor 数组
 		updateAdvisorArray();
+		// 通知监听器
 		adviceChanged();
 	}
 
@@ -393,7 +399,12 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 		return this.advisors;
 	}
 
-
+	/**
+	 * 添加增强器 (或者叫通知器)
+	 * 对于 Advice 其实有 MethodBeforeAdvice, AfterReturingAdvice, MethodInterceptor
+	 * @param advice advice to add to the tail of the chain
+	 * @throws AopConfigException
+	 */
 	@Override
 	public void addAdvice(Advice advice) throws AopConfigException {
 		int pos = this.advisors.size();
@@ -418,7 +429,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 			throw new AopConfigException("DynamicIntroductionAdvice may only be added as part of IntroductionAdvisor");
 		}
 		else {
-			// 创建默认的切面实现
+			// 创建默认的切面实现 将 advice 与 Pointcut 包装进 DefaultPointcutAdvisor
 			addAdvisor(pos, new DefaultPointcutAdvisor(advice));
 		}
 	}

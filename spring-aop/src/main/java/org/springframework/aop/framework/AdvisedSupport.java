@@ -61,7 +61,7 @@ import org.springframework.util.CollectionUtils;
  * 参考资料 http://xsh5324.iteye.com/blog/1846862
  * http://cxis.me/2017/04/12/Spring%E4%B8%ADAOP%E6%BA%90%E7%A0%81%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90/
  * http://blog.csdn.net/chjttony/article/details/6311979
- * AdviseSupport 封装了 AOP 中 对通知(Advice) 和 通知器(Advisor) 的相关操作, 
+ * AdviseSupport 封装了 AOP 中 对通知(Advice) 和 通知器(Advisor) 的相关操作,
  */
 public class AdvisedSupport extends ProxyConfig implements Advised {
 

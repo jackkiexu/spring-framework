@@ -313,7 +313,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 	 */
 	private synchronized Object getSingletonInstance() {
 		if (this.singletonInstance == null) {
-			this.targetSource = freshTargetSource();
+			this.targetSource = freshTargetSource();				// 返回对应的 target
 			// 根据 AOP 框架来判断需要代理的接口
 			if (this.autodetectInterfaces && getProxiedInterfaces().length == 0 && !isProxyTargetClass()) {
 				// Rely on AOP infrastructure to tell us what interfaces to proxy.
@@ -322,7 +322,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 					throw new FactoryBeanNotInitializedException("Cannot determine target class for proxy");
 				}
 				// 这里设置代理对象的接口
-				setInterfaces(ClassUtils.getAllInterfacesForClass(targetClass, this.proxyClassLoader));
+				setInterfaces(ClassUtils.getAllInterfacesForClass(targetClass, this.proxyClassLoader));		// 获取 targetClass 的所有的 interface
 			}
 			// Initialize the shared singleton instance.
 			super.setFrozen(this.freezeProxy);
@@ -568,7 +568,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 	}
 
 	/**
-	 * Return a TargetSource to use when creating a proxy. If the target was not
+	 * Return a TargetSource to use when creating a proxy. If the target was not  target 有可能是在 interceptorNames 的最后
 	 * specified at the end of the interceptorNames list, the TargetSource will be
 	 * this class's TargetSource member. Otherwise, we get the target bean and wrap
 	 * it in a TargetSource if necessary.

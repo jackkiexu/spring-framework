@@ -23,11 +23,13 @@ import java.lang.reflect.Proxy;
 import java.util.LinkedList;
 import java.util.List;
 
+import groovy.util.logging.Slf4j;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.aop.Advisor;
 import test.mixin.Lockable;
 import test.mixin.LockedException;
 
@@ -142,6 +144,7 @@ public final class ProxyFactoryBeanTests {
 			fail("Should not allow TargetSource to be specified in interceptorNames as well as targetSource property");
 		}
 		catch (BeanCreationException ex) {
+			ex.printStackTrace();
 			// Root cause of the problem must be an AOP exception
 			AopConfigException aex = (AopConfigException) ex.getCause();
 			assertTrue(aex.getMessage().indexOf("TargetSource") != -1);
@@ -197,7 +200,7 @@ public final class ProxyFactoryBeanTests {
 
 		ITestBean tb = (ITestBean) bf.getBean("noTarget");
 		try {
-			tb.getName();
+			tb.getAge();
 			fail();
 		}
 		catch (UnsupportedOperationException ex) {
@@ -223,6 +226,7 @@ public final class ProxyFactoryBeanTests {
 		assertEquals(test1.getAge(), test1_1.getAge());
 		Advised pc1 = (Advised) test1;
 		Advised pc2 = (Advised) test1_1;
+		Advisor[] advisors = pc1.getAdvisors();
 		assertArrayEquals(pc1.getAdvisors(), pc2.getAdvisors());
 		int oldLength = pc1.getAdvisors().length;
 		NopInterceptor di = new NopInterceptor();

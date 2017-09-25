@@ -160,7 +160,7 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 		// currentInterceptorIndex 默认等于 -1 的, 它记录着当前执行到了哪个拦截器
 		//	We start with an index of -1 and increment early.
 		if (this.currentInterceptorIndex == this.interceptorsAndDynamicMethodMatchers.size() - 1) {
-			// 如果所有的 拦截器都执行完了的话, 则调用 invokeJoinPoint 方法去执行目标对象的目标方法
+			// 如果所有的 拦截器都执行完了的话, 则调用 invokeJoinPoint 方法去执行目标对象的目标方法 (反射)
 			return invokeJoinpoint();
 		}
 
@@ -170,7 +170,7 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 				this.interceptorsAndDynamicMethodMatchers.get(++this.currentInterceptorIndex);
 		// 下面判断当前拦截器是不是一个动态拦截器
 		if (interceptorOrInterceptionAdvice instanceof InterceptorAndDynamicMethodMatcher) {
-			// 动态匹配
+			// 动态 匹配 方法 拦截
 			// Evaluate dynamic method matcher here: static part will already have
 			// been evaluated and found to match.
 			InterceptorAndDynamicMethodMatcher dm =

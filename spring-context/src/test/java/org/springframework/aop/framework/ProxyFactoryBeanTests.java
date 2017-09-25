@@ -330,6 +330,7 @@ public final class ProxyFactoryBeanTests {
 		tb = (ITestBean) factory.getBean("test1");
 		try {
 			// Will fail now
+			int age = tb.getAge();
 			tb.toString();
 			fail("Evil interceptor added programmatically should fail all method calls");
 		}

@@ -439,7 +439,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 						"- cannot resolve interceptor names " + Arrays.asList(this.interceptorNames));
 			}
 
-			// Globals can't be last unless we specified a targetSource using the property...
+			// Globals can't be last unless we specified a targetSource using the property...  在 interceptorName 的最后不能是一个通配符的名字
 			if (this.interceptorNames[this.interceptorNames.length - 1].endsWith(GLOBAL_SUFFIX) &&
 					this.targetName == null && this.targetSource == EMPTY_TARGET_SOURCE) {
 				throw new AopConfigException("Target required after globals");
@@ -574,7 +574,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 	 * it in a TargetSource if necessary.
 	 */
 	private TargetSource freshTargetSource() {
-		if (this.targetName == null) {
+		if (this.targetName == null) {			// 若 targetName 为空, 则直接用配置里面的 targetSource
 			if (logger.isTraceEnabled()) {
 				logger.trace("Not refreshing target: Bean name not specified in 'interceptorNames'.");
 			}

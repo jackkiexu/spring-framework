@@ -51,7 +51,7 @@ public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
 
 	@Override
 	public AopProxy createAopProxy(AdvisedSupport config) throws AopConfigException {
-		// 启用了 优化配置 || 启用了直接代理目标类模式 || 没有指定要代理的接口, 则进入 if
+		// 启用了 优化配置(原因就是 cglib 的性能比 JDK Proxy 要好) || 启用了直接代理目标类模式 || 没有指定要代理的接口(除了 接口SpringProxy)
 		if (config.isOptimize() || config.isProxyTargetClass() || hasNoUserSuppliedProxyInterfaces(config)) {
 			Class<?> targetClass = config.getTargetClass();
 			if (targetClass == null) {

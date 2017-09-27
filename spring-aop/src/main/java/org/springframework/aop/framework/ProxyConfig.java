@@ -33,7 +33,7 @@ public class ProxyConfig implements Serializable {
 	/** use serialVersionUID from Spring 1.2 for interoperability */
 	private static final long serialVersionUID = -8409359707199703185L;
 
-
+	// 决定是否强制使用 CGLib
 	private boolean proxyTargetClass = false;
 
 	private boolean optimize = false;
@@ -84,7 +84,7 @@ public class ProxyConfig implements Serializable {
 	}
 
 	/**
-	 * Return whether proxies should perform aggressive optimizations.
+	 * Return whether proxies should perform aggressive optimizations.(积极优化)
 	 */
 	public boolean isOptimize() {
 		return this.optimize;

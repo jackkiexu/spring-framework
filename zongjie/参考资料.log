@@ -32,3 +32,43 @@ ResourceEntityResolver 继承 DelegatingEntityResolver
 
 Spring 源码 之坎
 1. beanFactory 为什么有这么多的接口及实现类, 好混乱, 又好复杂
+
+Proxy
+1. JDK 原理
+生成一个 Proxy$01 类, 实现需要代理的类的接口, 并且内部通过 InvokeHandler.invoke 方法通过 Method.invoke(Object, args) 来进行调用
+
+Interface A {
+    doAction{}
+}
+
+Class B implementation A {
+    doAction {
+        System.out.println("test");
+    }
+}
+
+InvokeHandlerImpl implementation InvokeHandler{
+    private A a;
+    public Object invoke(Method, method, Object[] args){
+        method.invoke(a, args);
+    }
+}
+
+Proxy$B extend Proxy implementation A {
+
+    Proxy$B(InvokeHandler invokeHandler){
+        super(invokeHandler);
+    }
+
+    public final void doAction (){
+        try{
+            this.invokeHandler.invoke(this, m1, null);
+        }catch(Exxception e){
+
+        }
+    }
+
+    static {
+        m1 = Class.forName("B").getMethod("doAction", new Class[0])
+    }
+}

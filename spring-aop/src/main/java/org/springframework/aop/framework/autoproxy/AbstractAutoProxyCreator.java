@@ -246,7 +246,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 			if (this.advisedBeans.containsKey(cacheKey)) {
 				return null;
 			}
-			if (isInfrastructureClass(beanClass) || shouldSkip(beanClass, beanName)) {
+			if (isInfrastructureClass(beanClass) || shouldSkip(beanClass, beanName)) { //
 				this.advisedBeans.put(cacheKey, Boolean.FALSE);
 				return null;
 			}
@@ -342,7 +342,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 			return bean;
 		}
 		// 无需增强
-		if (Boolean.FALSE.equals(this.advisedBeans.get(cacheKey))) {
+		if (Boolean.FALSE.equals(this.advisedBeans.get(cacheKey))) { // advisedBeans 的值是在 AbstractAutoProxyCreator.postProcessBeforeInstantiation 里面进行设置
 			return bean;
 		}
 		// 给定的 bean 类是否代表一个基础设施类 ,基础设施类不应代理, 或者配置了指定  bean 不需要地动代理
@@ -379,7 +379,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	 * @see org.springframework.aop.framework.AopInfrastructureBean
 	 * @see #shouldSkip
 	 */
-	protected boolean isInfrastructureClass(Class<?> beanClass) {
+	protected boolean isInfrastructureClass(Class<?> beanClass) {     // 是否是用于 AOP 中的基础类
 		boolean retVal = Advice.class.isAssignableFrom(beanClass) ||
 				Pointcut.class.isAssignableFrom(beanClass) ||
 				Advisor.class.isAssignableFrom(beanClass) ||

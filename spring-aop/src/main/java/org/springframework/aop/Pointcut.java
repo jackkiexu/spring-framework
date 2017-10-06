@@ -48,7 +48,7 @@ public interface Pointcut {
 
 
 	/**
-	 * Canonical Pointcut instance that always matches.
+	 * Canonical Pointcut instance that always matches. 匹配所有对象的 Pointcut
 	 */
 	Pointcut TRUE = TruePointcut.INSTANCE;
 

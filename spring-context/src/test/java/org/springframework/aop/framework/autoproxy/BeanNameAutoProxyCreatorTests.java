@@ -20,6 +20,8 @@ import java.io.IOException;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import test.mixin.Lockable;
 import test.mixin.LockedException;
 
@@ -42,6 +44,8 @@ import static org.junit.Assert.*;
  * @author Chris Beams
  */
 public class BeanNameAutoProxyCreatorTests {
+
+	private static final Logger logger = LoggerFactory.getLogger(BeanNameAutoProxyCreatorTests.class);
 
 	private BeanFactory beanFactory;
 
@@ -78,6 +82,7 @@ public class BeanNameAutoProxyCreatorTests {
 	public void testJdkIntroduction() {
 		ITestBean tb = (ITestBean) beanFactory.getBean("introductionUsingJdk");
 		NopInterceptor nop = (NopInterceptor) beanFactory.getBean("introductionNopInterceptor");
+		logger.info("nop.getCount():" + nop.getCount());
 		assertEquals(0, nop.getCount());
 		assertTrue(AopUtils.isJdkDynamicProxy(tb));
 		int age = 5;

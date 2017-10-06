@@ -95,7 +95,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 	private List<Class<?>> interfaces = new ArrayList<Class<?>>();
 
 	/**
-	 * List of Advisors. If an Advice is added, it will be wrapped
+	 * List of Advisors. If an Advice is added, it will be wrapped		// 若一个 Advice 被增加, 则其首先会被包裹成 Advisor 进行添加
 	 * in an Advisor before being added to this List.
 	 */
 	private List<Advisor> advisors = new LinkedList<Advisor>();
@@ -104,7 +104,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 	 * Array updated on changes to the advisors list, which is easier
 	 * to manipulate internally.
 	 */
-	private Advisor[] advisorArray = new Advisor[0];
+	private Advisor[] advisorArray = new Advisor[0];					// 一开始以为这个 数组 advisorArray 是为了解决并发的问题, 后来发现, 其实不是
 
 
 	/**

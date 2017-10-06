@@ -39,7 +39,7 @@ public abstract class ResourceHolderSupport implements ResourceHolder {
 	private boolean rollbackOnly = false;
 
 	private Date deadline;
-
+	// 引用计数
 	private int referenceCount = 0;
 
 	private boolean isVoid = false;

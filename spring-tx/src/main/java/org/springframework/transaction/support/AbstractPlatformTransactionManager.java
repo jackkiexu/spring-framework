@@ -453,7 +453,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			 * 同时挂起事务的信息保存在 TransactionStatus 中, 这里包括了
 			 * 进程 ThreadLocal 对事务信息的记录
 			 */
-			return prepareTransactionStatus(
+			return prepareTransactionStatus( // 注意这里第二个参数是 null
 					definition, null, false, newSynchronization, debugEnabled, suspendedResources);
 		}
 		/**
@@ -478,7 +478,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 				prepareSynchronization(status, definition);
 				return status;
 			}
-			catch (RuntimeException beginEx) {
+			catch (RuntimeException beginEx) { // 抛出异常的话, 直接恢复 刚才挂起的事务
 				resumeAfterBeginException(transaction, suspendedResources, beginEx);
 				throw beginEx;
 			}
@@ -490,7 +490,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 
 		// 嵌套事务的处理
 		if (definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_NESTED) {
-			if (!isNestedTransactionAllowed()) {
+			if (!isNestedTransactionAllowed()) {						// 检查是否允许嵌套事务
 				throw new NestedTransactionNotSupportedException(
 						"Transaction manager does not allow nested transactions by default - " +
 						"specify 'nestedTransactionAllowed' property with value 'true'");

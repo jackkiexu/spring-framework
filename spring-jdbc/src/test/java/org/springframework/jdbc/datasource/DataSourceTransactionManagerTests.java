@@ -922,7 +922,7 @@ public class DataSourceTransactionManagerTests  {
 	}
 
 	private void doTestTransactionWithTimeout(int timeout) throws Exception {
-		Assume.group(TestGroup.PERFORMANCE);
+//		Assume.group(TestGroup.PERFORMANCE);
 
 		PreparedStatement ps = mock(PreparedStatement.class);
 		given(con.getAutoCommit()).willReturn(true);

@@ -129,7 +129,7 @@ public abstract class AbstractSingletonProxyFactoryBean extends ProxyConfig
 		}
 	}
 
-
+	// 下面这个方法的主要作用是 实例化一个 ProxyFactory
 	@Override
 	public void afterPropertiesSet() {
 		// 必需配置 target 的属性, 同事需要 target 是一个 bean reference

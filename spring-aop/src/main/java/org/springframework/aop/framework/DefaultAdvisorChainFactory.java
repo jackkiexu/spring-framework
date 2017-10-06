@@ -56,7 +56,7 @@ public class DefaultAdvisorChainFactory implements AdvisorChainFactory, Serializ
 
 		// This is somewhat tricky... We have to process introductions first,
 		// but we need to preserve order in the ultimate list.
-		List<Object> interceptorList = new ArrayList<Object>(config.getAdvisors().length);
+		List<Object> interceptorList = new ArrayList<Object>(config.getAdvisors().length);									// PS: 这里 config.getAdvisors 获取的是 advisors 是数组
 		Class<?> actualClass = (targetClass != null ? targetClass : method.getDeclaringClass());
 		boolean hasIntroductions = hasMatchingIntroductions(config, actualClass);
 		// 下面这个适配器将通知 [Advice] 包装成拦截器 [MethodInterceptor] [DefaultAdvisorAdapterRegistry] 适配器的默认实现

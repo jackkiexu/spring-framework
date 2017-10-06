@@ -42,7 +42,7 @@ public class NameMatchMethodPointcut extends StaticMethodMatcherPointcut impleme
 
 
 	/**
-	 * Convenience method when we have only a single method name to match.
+	 * Convenience(方便) method when we have only a single method name to match.
 	 * Use either this method or {@code setMappedNames}, not both.
 	 * @see #setMappedNames
 	 */
@@ -63,7 +63,7 @@ public class NameMatchMethodPointcut extends StaticMethodMatcherPointcut impleme
 	}
 
 	/**
-	 * Add another eligible method name, in addition to those already named.
+	 * Add another eligible(合法) method name, in addition to those already named.
 	 * Like the set methods, this method is for use when configuring proxies,
 	 * before a proxy is used.
 	 * <p><b>NB:</b> This method does not work after the proxy is in

@@ -30,11 +30,11 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.transaction.PlatformTransactionManager;
 
 /**
- * AOP Alliance MethodInterceptor for declarative transaction
+ * AOP Alliance(联盟) MethodInterceptor for declarative transaction
  * management using the common Spring transaction infrastructure
  * ({@link org.springframework.transaction.PlatformTransactionManager}).
  *
- * <p>Derives from the {@link TransactionAspectSupport} class which
+ * <p>Derives(源于) from the {@link TransactionAspectSupport} class which
  * contains the integration with Spring's underlying transaction API.
  * TransactionInterceptor simply calls the relevant superclass methods
  * such as {@link #invokeWithinTransaction} in the correct order.

@@ -25,7 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * TransactionAttribute implementation that works out whether a given exception
+ * TransactionAttribute implementation that works out(解决, 算出) whether a given exception
  * should cause transaction rollback by applying a number of rollback rules,
  * both positive and negative. If no rules are relevant to the exception, it
  * behaves like DefaultTransactionAttribute (rolling back on runtime exceptions).

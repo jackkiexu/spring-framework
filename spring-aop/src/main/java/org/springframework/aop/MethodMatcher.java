@@ -19,9 +19,9 @@ package org.springframework.aop;
 import java.lang.reflect.Method;
 
 /**
- * Part of a {@link Pointcut}: Checks whether the target method is eligible for advice.
+ * Part of a {@link Pointcut}: Checks whether the target method is eligible(合格) for advice.
  *
- * <p>A MethodMatcher may be evaluated <b>statically</b> or at <b>runtime</b> (dynamically).
+ * <p>A MethodMatcher may be evaluated(评估) <b>statically(静态的)</b> or at <b>runtime</b> (dynamically)(动态).
  * Static matching involves method and (possibly) method attributes. Dynamic matching
  * also makes arguments for a particular call available, and any effects of running
  * previous advice applying to the joinpoint.
@@ -32,6 +32,8 @@ import java.lang.reflect.Method;
  * if the {@link #isRuntime()} method returns {@code false}, the 3-arg
  * {@link #matches(java.lang.reflect.Method, Class, Object[])} method will never be invoked.
  *
+ * 若 {@link #isRuntime()} 返回 false, 则这个方法可以进行 静态匹配, 所有匹配的方法返回的结果应该是一致的
+ *
  * <p>If an implementation returns {@code true} from its 2-arg
  * {@link #matches(java.lang.reflect.Method, Class)} method and its {@link #isRuntime()} method
  * returns {@code true}, the 3-arg {@link #matches(java.lang.reflect.Method, Class, Object[])}
@@ -39,6 +41,9 @@ import java.lang.reflect.Method;
  * to decide whether the advice should run. All previous advice, such as earlier interceptors
  * in an interceptor chain, will have run, so any state changes they have produced in
  * parameters or ThreadLocal state will be available at the time of evaluation.
+ *
+ * 若 {@link #isRuntime()} 返回 true, 并且 {@link #matches(Method, Class)} 也返回 true, 则 最终还需要通过 {@link #matches(Method, Class, Object...)}
+ * 来决定是否执行拦截器里面的 interceptor
  *
  * @author Rod Johnson
  * @since 11.11.2003

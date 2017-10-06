@@ -277,7 +277,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 			}
 
 			prepareTransactionalConnection(con, definition);
-			// 设置判断当前线程是否存在事务的依据
+			// 设置判断当前线程是否存在事务的依据 (transactionActive)
 			txObject.getConnectionHolder().setTransactionActive(true);
 
 			int timeout = determineTimeout(definition);

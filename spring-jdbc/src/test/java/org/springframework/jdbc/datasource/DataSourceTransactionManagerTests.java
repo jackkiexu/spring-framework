@@ -24,6 +24,7 @@ import java.sql.Savepoint;
 import java.sql.Statement;
 import javax.sql.DataSource;
 
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,6 +58,7 @@ import static org.mockito.BDDMockito.*;
  * @since 04.07.2003
  */
 public class DataSourceTransactionManagerTests  {
+	private static final Logger logger = Logger.getLogger(DataSourceTransactionManagerTests.class);
 
 	private DataSource ds;
 
@@ -114,7 +116,8 @@ public class DataSourceTransactionManagerTests  {
 
 	private void doTestTransactionCommitRestoringAutoCommit(
 			boolean autoCommit, boolean lazyConnection, final boolean createStatement) throws Exception {
-
+		logger.info("autoCommit:" + autoCommit + ", lazyConnection:" + lazyConnection + ", createStatement:" + createStatement);
+		System.out.println("autoCommit: " + autoCommit);
 		if (lazyConnection) {
 			given(con.getAutoCommit()).willReturn(autoCommit);
 			given(con.getTransactionIsolation()).willReturn(Connection.TRANSACTION_READ_COMMITTED);

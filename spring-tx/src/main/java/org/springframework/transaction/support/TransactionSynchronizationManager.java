@@ -82,7 +82,7 @@ public abstract class TransactionSynchronizationManager {
 	private static final ThreadLocal<Map<Object, Object>> resources =
 			new NamedThreadLocal<Map<Object, Object>>("Transactional resources");
 
-	private static final ThreadLocal<Set<TransactionSynchronization>> synchronizations =
+	private static final ThreadLocal<Set<TransactionSynchronization>> synchronizations =				// 存储 TransactionSynchronization, 用于 PlatformTransactionManager 进行回调数据
 			new NamedThreadLocal<Set<TransactionSynchronization>>("Transaction synchronizations");
 
 	private static final ThreadLocal<String> currentTransactionName =
@@ -94,7 +94,7 @@ public abstract class TransactionSynchronizationManager {
 	private static final ThreadLocal<Integer> currentTransactionIsolationLevel =
 			new NamedThreadLocal<Integer>("Current transaction isolation level");
 
-	private static final ThreadLocal<Boolean> actualTransactionActive =
+	private static final ThreadLocal<Boolean> actualTransactionActive =								// 当前线程是否已经在事务中
 			new NamedThreadLocal<Boolean>("Actual transaction active");
 
 

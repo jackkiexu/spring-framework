@@ -319,7 +319,7 @@ public class DataSourceTransactionManagerTests  {
 		TransactionStatus ts = tm.getTransaction(new DefaultTransactionDefinition());
 		TestTransactionSynchronization synch =
 				new TestTransactionSynchronization(ds, TransactionSynchronization.STATUS_ROLLED_BACK);
-		TransactionSynchronizationManager.registerSynchronization(synch);
+		TransactionSynchronizationManager.registerSynchronization(synch); // 注册到 synchronizations 里面的 TransactionSynchronization
 
 		boolean outerTransactionBoundaryReached = false;
 		try {

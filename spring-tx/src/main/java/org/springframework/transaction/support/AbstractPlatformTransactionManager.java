@@ -337,7 +337,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 		/**
 		 * 这个 doGetTransaction() 抽象函数, Transaction 对象的 取得由具体的事务处理器实现, 比如 DataSourceTransactionManager
 		 */
-		Object transaction = doGetTransaction();
+		Object transaction = doGetTransaction();		// 这里是 DataSourceTransactionObject 对象（存放的是 connect, savePoint, 是否是新事务）
 
 		// 缓存 debug 标志位
 		// Cache debug flag to avoid repeated checks.
@@ -421,7 +421,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 						"isolation level will effectively be ignored: " + definition);
 			}
 			boolean newSynchronization = (getTransactionSynchronization() == SYNCHRONIZATION_ALWAYS);
-			return prepareTransactionStatus(definition, null, true, newSynchronization, debugEnabled, null);
+			return prepareTransactionStatus(definition, null, true, newSynchronization, debugEnabled, null);	// 关键是这里第二个参数是 nul
 		}
 	}
 
@@ -591,7 +591,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 		 * 事务属性, 比如并发事务隔离级别, 是否有活跃的事务等
 		 */
 		boolean actualNewSynchronization = newSynchronization &&
-				!TransactionSynchronizationManager.isSynchronizationActive();
+				!TransactionSynchronizationManager.isSynchronizationActive(); // 不处于 事务中
 		// 这里把记录在 DefaultTransactionStatus 中返回
 		return new DefaultTransactionStatus(
 				transaction, newTransaction, actualNewSynchronization,
@@ -603,7 +603,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	 * Initialize transaction synchronization as appropriate.
 	 */
 	protected void prepareSynchronization(DefaultTransactionStatus status, TransactionDefinition definition) {
-		if (status.isNewSynchronization()) {
+		if (status.isNewSynchronization()) {			// 不处于事务中, 并且 transactionSynchronization 是 1(always)
 			TransactionSynchronizationManager.setActualTransactionActive(status.hasTransaction());
 			TransactionSynchronizationManager.setCurrentTransactionIsolationLevel(
 					definition.getIsolationLevel() != TransactionDefinition.ISOLATION_DEFAULT ?

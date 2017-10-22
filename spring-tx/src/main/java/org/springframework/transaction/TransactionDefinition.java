@@ -51,7 +51,7 @@ public interface TransactionDefinition {
 	 */
 	int PROPAGATION_REQUIRED = 0;
 
-	/**
+	/** 支持当前事务, 若不存在事务, 则以没事务的方式进行执行
 	 * Support a current transaction; execute non-transactionally if none exists.
 	 * Analogous to the EJB transaction attribute of the same name.
 	 * <p><b>NOTE:</b> For transaction managers with transaction synchronization,
@@ -72,7 +72,7 @@ public interface TransactionDefinition {
 	 */
 	int PROPAGATION_SUPPORTS = 1;
 
-	/**
+	/** 若有事务, 则用当前的事务, 若没有, 则直接抛出异常
 	 * Support a current transaction; throw an exception if no current transaction
 	 * exists. Analogous to the EJB transaction attribute of the same name.
 	 * <p>Note that transaction synchronization within a {@code PROPAGATION_MANDATORY}
@@ -95,7 +95,7 @@ public interface TransactionDefinition {
 	 */
 	int PROPAGATION_REQUIRES_NEW = 3;
 
-	/**
+	/** 不支持以事务的方式运行, 若当前存在事务, 则将当前的事务挂起
 	 * Do not support a current transaction; rather always execute non-transactionally.
 	 * Analogous to the EJB transaction attribute of the same name.
 	 * <p><b>NOTE:</b> Actual transaction suspension will not work out-of-the-box

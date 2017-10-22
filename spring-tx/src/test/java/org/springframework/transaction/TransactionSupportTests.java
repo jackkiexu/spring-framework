@@ -51,6 +51,7 @@ public class TransactionSupportTests {
 		}
 		catch (IllegalTransactionStateException ex) {
 			// expected
+			ex.printStackTrace();
 		}
 	}
 
@@ -73,7 +74,7 @@ public class TransactionSupportTests {
 			assertTrue("Must have transaction", status3.getTransaction() != null);
 			assertTrue("Must not be new transaction", !status3.isNewTransaction());
 		}
-		catch (NoTransactionException ex) {
+		catch (Exception ex) {
 			fail("Should not have thrown NoTransactionException");
 		}
 	}

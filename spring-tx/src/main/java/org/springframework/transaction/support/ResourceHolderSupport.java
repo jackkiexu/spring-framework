@@ -22,7 +22,7 @@ import org.springframework.transaction.TransactionTimedOutException;
 
 /**
  * Convenient base class for resource holders.
- *
+ * 支持 设置超时时间,  rollback-only 针对 特别的事务控制
  * <p>Features rollback-only support for participating transactions.
  * Can expire after a certain number of seconds or milliseconds
  * in order to determine a transactional timeout.

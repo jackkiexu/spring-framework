@@ -794,7 +794,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			processRollback(defStatus);
 			return;
 		}
-		if (!shouldCommitOnGlobalRollbackOnly() && defStatus.isGlobalRollbackOnly()) {
+		if (!shouldCommitOnGlobalRollbackOnly() && defStatus.isGlobalRollbackOnly()) {		// 这里的 shouldCommitOnGlobalRollbackOnly 与 isGlobalRollbackOnly 其实是运用于 分布式事务环境的(比如 JtaTransactionManager), 其中可能还涉及 jndi (PS: 这里其实是比较老的技术, 这个东西的存在也加大了 学习 AbstractPlatformManager 的难度)
 			if (defStatus.isDebug()) {
 				logger.debug("Global transaction is marked as rollback-only but transactional code requested commit");
 			}

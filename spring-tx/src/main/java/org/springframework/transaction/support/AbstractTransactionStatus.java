@@ -44,7 +44,9 @@ import org.springframework.transaction.TransactionUsageException;
  * @see DefaultTransactionStatus
  */
 public abstract class AbstractTransactionStatus implements TransactionStatus {
-
+	// 这个 rollbackOnly 有什么作用呢, 其实就是手动的控制 事务进行回滚, 而不是 只有抛异常时才进行回滚
+	// 比如 这个 TransactionInterceptor.currentTransactionStatus().setRollbackOnly();
+	// 这个 rollbackOnly 会在 PlatformTransactionManager.commit() 时会进行判断
 	private boolean rollbackOnly = false;
 
 	private boolean completed = false;

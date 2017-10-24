@@ -27,7 +27,6 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.log4j.Logger;
 import org.springframework.core.NamedThreadLocal;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.util.Assert;
@@ -52,7 +51,6 @@ import org.springframework.util.Assert;
  * This is automatically supported by {@link AbstractPlatformTransactionManager},
  * and thus by all standard Spring transaction managers, such as
  * {@link org.springframework.transaction.jta.JtaTransactionManager} and
- * {@link org.springframework.jdbc.datasource.DataSourceTransactionManager}.
  *
  * <p>Resource management code should only register synchronizations when this
  * manager is active, which can be checked via {@link #isSynchronizationActive};
@@ -71,12 +69,10 @@ import org.springframework.util.Assert;
  * @see TransactionSynchronization
  * @see AbstractPlatformTransactionManager#setTransactionSynchronization
  * @see org.springframework.transaction.jta.JtaTransactionManager
- * @see org.springframework.jdbc.datasource.DataSourceTransactionManager
- * @see org.springframework.jdbc.datasource.DataSourceUtils#getConnection
  */
 public abstract class TransactionSynchronizationManager {
 
-	private static final Logger logger = Logger.getLogger(TransactionSynchronizationManager.class);
+
 
 	// key 是 dataSource, value 是 ConnectionHolder, 这里的 Map 是为了解决, 同一个线程操作多个 DataSource 而准备de
 	private static final ThreadLocal<Map<Object, Object>> resources =
@@ -138,10 +134,7 @@ public abstract class TransactionSynchronizationManager {
 	public static Object getResource(Object key) {
 		Object actualKey = TransactionSynchronizationUtils.unwrapResourceIfNecessary(key);
 		Object value = doGetResource(actualKey);
-		if (value != null && logger.isTraceEnabled()) {
-			logger.trace("Retrieved value [" + value + "] for key [" + actualKey + "] bound to thread [" +
-					Thread.currentThread().getName() + "]");
-		}
+
 		return value;
 	}
 
@@ -191,10 +184,7 @@ public abstract class TransactionSynchronizationManager {
 			throw new IllegalStateException("Already value [" + oldValue + "] for key [" +
 					actualKey + "] bound to thread [" + Thread.currentThread().getName() + "]");
 		}
-		if (logger.isTraceEnabled()) {
-			logger.trace("Bound value [" + value + "] for key [" + actualKey + "] to thread [" +
-					Thread.currentThread().getName() + "]");
-		}
+
 	}
 
 	/**
@@ -241,10 +231,7 @@ public abstract class TransactionSynchronizationManager {
 		if (value instanceof ResourceHolder && ((ResourceHolder) value).isVoid()) {
 			value = null;
 		}
-		if (value != null && logger.isTraceEnabled()) {
-			logger.trace("Removed value [" + value + "] for key [" + actualKey + "] from thread [" +
-					Thread.currentThread().getName() + "]");
-		}
+
 		return value;
 	}
 
@@ -272,7 +259,6 @@ public abstract class TransactionSynchronizationManager {
 		if (isSynchronizationActive()) {
 			throw new IllegalStateException("Cannot activate transaction synchronization - already active");
 		}
-		logger.trace("Initializing transaction synchronization");
 		synchronizations.set(new LinkedHashSet<TransactionSynchronization>());
 	}
 
@@ -331,7 +317,6 @@ public abstract class TransactionSynchronizationManager {
 		if (!isSynchronizationActive()) {
 			throw new IllegalStateException("Cannot deactivate transaction synchronization - not active");
 		}
-		logger.trace("Clearing transaction synchronization");
 		synchronizations.remove();
 	}
 

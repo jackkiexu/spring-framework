@@ -43,12 +43,12 @@ public abstract class AbstractRegexpMethodPointcutTests {
 	protected abstract AbstractRegexpMethodPointcut getRegexpMethodPointcut();
 
 	@Test
-	public void testNoPatternSupplied() throws Exception {
+	public void testNoPatternSupplied() throws Exception { // 用正则表达式进行匹配
 		noPatternSuppliedTests(rpc);
 	}
 
 	@Test
-	public void testSerializationWithNoPatternSupplied() throws Exception {
+	public void testSerializationWithNoPatternSupplied() throws Exception {			// 进行序列化 + 发序列化 JdkRegexMethodPointcut
 		rpc = (AbstractRegexpMethodPointcut) SerializationTestUtils.serializeAndDeserialize(rpc);
 		noPatternSuppliedTests(rpc);
 	}
@@ -67,7 +67,7 @@ public abstract class AbstractRegexpMethodPointcutTests {
 		exactMatchTests(rpc);
 	}
 
-	protected void exactMatchTests(AbstractRegexpMethodPointcut rpc) throws Exception {
+	protected void exactMatchTests(AbstractRegexpMethodPointcut rpc) throws Exception {		// regexpMethodPointcut.compiledPatterns 里面有配置好的正则匹配 模型
 		// assumes rpc.setPattern("java.lang.Object.hashCode");
 		assertTrue(rpc.matches(Object.class.getMethod("hashCode"), String.class));
 		assertTrue(rpc.matches(Object.class.getMethod("hashCode"), Object.class));

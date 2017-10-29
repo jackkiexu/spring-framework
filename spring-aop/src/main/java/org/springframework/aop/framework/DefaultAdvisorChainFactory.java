@@ -82,7 +82,7 @@ public class DefaultAdvisorChainFactory implements AdvisorChainFactory, Serializ
 							// 如果需要在运行时动态拦截方法的执行则创建一个简单的对象封装相关的数据, 它将延时
 							// 到方法执行的时候验证要不要执行此通知
 							for (MethodInterceptor interceptor : interceptors) {
-								interceptorList.add(new InterceptorAndDynamicMethodMatcher(interceptor, mm));
+								interceptorList.add(new InterceptorAndDynamicMethodMatcher(interceptor, mm));			// 里面装的是 Advise 与 MethodMatcher
 							}
 						}
 						else {

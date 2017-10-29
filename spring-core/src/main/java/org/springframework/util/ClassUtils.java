@@ -514,7 +514,7 @@ public abstract class ClassUtils {
 		return getQualifiedMethodName(method, null);
 	}
 
-	/**
+	/** 返回 className.methodName
 	 * Return the qualified name of the given method, consisting of
 	 * fully qualified interface/class name + "." + method name.
 	 * @param method the method

@@ -91,7 +91,7 @@ public class DefaultAdvisorAdapterRegistry implements AdvisorAdapterRegistry, Se
 		if (advice instanceof MethodInterceptor) {
 			interceptors.add((MethodInterceptor) advice);
 		}
-		for (AdvisorAdapter adapter : this.adapters) {
+		for (AdvisorAdapter adapter : this.adapters) { // MethodBefore, AfterReturing, ThrowsAdvise
 			// 当前适配器是不是支持此 Advice 的适配工作
 			if (adapter.supportsAdvice(advice)) {
 				// 将 Advice 适配成 MethodInterceptor

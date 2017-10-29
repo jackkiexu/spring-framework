@@ -20,7 +20,7 @@ import java.io.Serializable;
 
 import org.springframework.aop.ClassFilter;
 
-/**
+/** 检测 candidate 是否是 clazz 的子类
  * Simple ClassFilter implementation that passes classes (and optionally subclasses)
  * @author Rod Johnson
  */
@@ -36,7 +36,7 @@ public class RootClassFilter implements ClassFilter, Serializable {
 
 
 	@Override
-	public boolean matches(Class<?> candidate) {
+	public boolean matches(Class<?> candidate) { // isAssignableFrom
 		return clazz.isAssignableFrom(candidate);
 	}
 

@@ -96,7 +96,7 @@ public abstract class ClassFilters {
 		}
 
 		@Override
-		public boolean matches(Class<?> clazz) {
+		public boolean matches(Class<?> clazz) { // 只要 filters 中有一个 匹配, 就直接返回 true
 			for (ClassFilter filter : this.filters) {
 				if (filter.matches(clazz)) {
 					return true;
@@ -131,7 +131,7 @@ public abstract class ClassFilters {
 		}
 
 		@Override
-		public boolean matches(Class<?> clazz) {
+		public boolean matches(Class<?> clazz) {			// 所有 filters 中只要有一个不匹配, 则直接返回 false, 只有全都匹配, 才返回 true
 			for (ClassFilter filter : this.filters) {
 				if (!filter.matches(clazz)) {
 					return false;

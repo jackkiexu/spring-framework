@@ -123,14 +123,18 @@ public abstract class AbstractRegexpMethodPointcut extends StaticMethodMatcherPo
 	}
 
 
-	/**
+	/** 这里的匹配 有两种情况
+	 * 1. 匹配时, 加上 类名
+	 * 2. 若1中匹配失败, 则直接通过 Method.getDeclaringClass 来获取声明的 class 来进行匹配
 	 * Try to match the regular expression against the fully qualified name
 	 * of the target class as well as against the method's declaring class,
 	 * plus the name of the method.
 	 */
 	@Override
 	public boolean matches(Method method, Class<?> targetClass) {
-		return ((targetClass != null && matchesPattern(ClassUtils.getQualifiedMethodName(method, targetClass))) ||
+		String matchesPattern = ClassUtils.getQualifiedMethodName(method, targetClass);		// 返回 className.methodName
+		boolean first = (targetClass != null && matchesPattern(matchesPattern));
+		return ( first||
 				matchesPattern(ClassUtils.getQualifiedMethodName(method)));
 	}
 

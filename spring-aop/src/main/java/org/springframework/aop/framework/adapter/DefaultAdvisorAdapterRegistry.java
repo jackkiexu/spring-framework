@@ -56,7 +56,12 @@ public class DefaultAdvisorAdapterRegistry implements AdvisorAdapterRegistry, Se
 	}
 
 
-	// 将 Advice 包装成 Advisor
+	/** 将 Advice 包装成 Advisor
+	 *  若 adviceObject 是 Advisor, 则直接返回
+	 *  若 adviceObject 不是 Advice, 则直接抛异常
+	 *  若是 MethodInterceptor(AfterAdvice, AfterThrowingAdvice, AroundAdvice), 则直接包装成 DefaultPointcutAdvisor, 直接返回
+	 *  下面 开始用 AdvisorAdapter(MethodBeforeAdvice, AfterReturing, ThrowsAdvice) 来适配 adviceObject
+	 */
 	@Override
 	public Advisor wrap(Object adviceObject) throws UnknownAdviceTypeException {
 		// 如果要封装的对象本身就是 Advisor 类型的, 那么无需再做过多处理

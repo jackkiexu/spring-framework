@@ -28,6 +28,8 @@ import static org.mockito.BDDMockito.*;
  *
  * @author Rick Evans
  * @author Chris Beams
+ *
+ * 这里的  StubDebugInterceptor 也是 AbstractTraceInterceptor 的子类, AbstractTraceInterceptor的子类是进行
  */
 public final class DebugInterceptorTests {
 

@@ -33,6 +33,7 @@ import static org.junit.Assert.*;
  * @author Juergen Hoeller
  * @author Chris Beams
  * @since 06.04.2004
+ * 通过在 AOP 的 Interceptor 中插入 限流器, 来测试
  */
 public final class ConcurrencyThrottleInterceptorTests {
 
@@ -54,7 +55,7 @@ public final class ConcurrencyThrottleInterceptorTests {
 		ITestBean proxy = (ITestBean) proxyFactory.getProxy();
 		proxy.getAge();
 
-		ITestBean serializedProxy = (ITestBean) SerializationTestUtils.serializeAndDeserialize(proxy);
+		ITestBean serializedProxy = (ITestBean) SerializationTestUtils.serializeAndDeserialize(proxy);		// 因为生成的 proxy 对象 继承 java.lang.reflect.Proxy 类, 而 类 Proxy 类又实现接口 Serializable 接口, 所以......
 		Advised advised = (Advised) serializedProxy;
 		ConcurrencyThrottleInterceptor serializedCti =
 				(ConcurrencyThrottleInterceptor) advised.getAdvisors()[0].getAdvice();

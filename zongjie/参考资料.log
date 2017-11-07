@@ -72,3 +72,8 @@ Proxy$B extend Proxy implementation A {
         m1 = Class.forName("B").getMethod("doAction", new Class[0])
     }
 }
+
+1. 为什么 精通 Spring-framework 的人这么少
+原因:
+    1. 代码量太大, 没个 2/3 个月的时间投入, 不可能吃透
+    2. 很多资料 覆盖的知识点不全, 而且新版本的数据没有阐述 Spring 1.x, 2.x, 4.x 里面的知识点

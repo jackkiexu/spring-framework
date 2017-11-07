@@ -71,7 +71,7 @@ public class UserRoleAuthorizationInterceptor extends HandlerInterceptorAdapter 
 	 */
 	protected void handleNotAuthorized(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws ServletException, IOException {
-
+		// 用户 请求这个 uri 权限不够
 		response.sendError(HttpServletResponse.SC_FORBIDDEN);
 	}
 

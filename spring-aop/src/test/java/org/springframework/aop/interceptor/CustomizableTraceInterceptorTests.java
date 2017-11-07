@@ -28,6 +28,7 @@ import static org.mockito.BDDMockito.*;
  * @author Rick Evans
  * @author Juergen Hoeller
  * @author Chris Beams
+ * CustomizableTraceInterceptor 中做了简单的事件追踪
  */
 public final class CustomizableTraceInterceptorTests {
 
@@ -89,10 +90,10 @@ public final class CustomizableTraceInterceptorTests {
 		Log log = mock(Log.class);
 		given(log.isTraceEnabled()).willReturn(true);
 
-		CustomizableTraceInterceptor interceptor = new StubCustomizableTraceInterceptor(log);
+		CustomizableTraceInterceptor interceptor = new StubCustomizableTraceInterceptor(log);   // 在 CustomizableTraceInterceptor 里面有个 StopWatch, StopWatch 主要用于在开发环境用于简单的程序性能追踪
 		interceptor.invoke(methodInvocation);
 
-		verify(log, times(2)).trace(anyString());
+		verify(log, times(2)).trace(anyString()); // 验证 log 这个类的方法 trace(anyString()) 被调用了 2 次
 	}
 
 	@Test

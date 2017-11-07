@@ -167,11 +167,11 @@ public interface ListableBeanFactory extends BeanFactory {
 	 * <p>Bean names returned by this method should always return bean names <i>in the
 	 * order of definition</i> in the backend configuration, as far as possible.
 	 * @param type the class or interface to match, or {@code null} for all bean names
-	 * @param includeNonSingletons whether to include prototype or scoped beans too
+	 * @param includeNonSingletons whether to include prototype or scoped beans too			// 是否只取 单例 bean 或 prototype 或其他 scoped 的 bean
 	 * or just singletons (also applies to FactoryBeans)
-	 * @param allowEagerInit whether to initialize <i>lazy-init singletons</i> and			// 是否为了类型检查而初始化 lazy-init 的单例 或 FactoryBean 创建的 Bean
+	 * @param allowEagerInit whether to initialize <i>lazy-init singletons</i> and			// 是否为了类型检查而初始化 lazy-init 的单例 或 FactoryBean 创建的 Bean (注意这里是 初始化, 而不是实例化)
 	 * <i>objects created by FactoryBeans</i> (or by factory methods with a
-	 * "factory-bean" reference) for the type check. Note that FactoryBeans need to be		// FactoryBean 需要提早的 init 来查出它生产对象的类型
+	 * "factory-bean" reference) for the type check. Note that FactoryBeans need to be		    // FactoryBean 需要提早的 init 来查出它生产对象的类型
 	 * eagerly initialized to determine their type: So be aware that passing in "true"
 	 * for this flag will initialize FactoryBeans and "factory-bean" references.
 	 * @return the names of beans (or objects created by FactoryBeans) matching

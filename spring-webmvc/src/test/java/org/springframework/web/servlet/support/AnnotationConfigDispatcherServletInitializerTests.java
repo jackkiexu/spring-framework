@@ -181,7 +181,7 @@ public class AnnotationConfigDispatcherServletInitializerTests {
 	}
 
 
-	private class MyMockServletContext extends MockServletContext {
+	 class MyMockServletContext extends MockServletContext {
 
 		@Override
 		public <T extends EventListener> void addListener(T t) {
@@ -190,7 +190,12 @@ public class AnnotationConfigDispatcherServletInitializerTests {
 			}
 		}
 
-		@Override
+		 @Override
+		 public String getVirtualServerName() {
+			 return null;
+		 }
+
+		 @Override
 		public ServletRegistration.Dynamic addServlet(String servletName, Servlet servlet) {
 			if (servlets.containsKey(servletName)) {
 				return null;

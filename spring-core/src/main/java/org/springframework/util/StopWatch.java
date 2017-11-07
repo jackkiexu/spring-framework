@@ -22,15 +22,15 @@ import java.util.List;
 
 /**
  * Simple stop watch, allowing for timing of a number of tasks,
- * exposing total running time and running time for each named task.
+ * exposing total running time and running time for each named task.			// 暴露 总共耗费时间 + 每个人物花费的时间
  *
  * <p>Conceals use of {@code System.currentTimeMillis()}, improving the
- * readability of application code and reducing the likelihood of calculation errors.
+ * readability of application code and reducing the likelihood of calculation errors. // likelihood 可能性
  *
  * <p>Note that this object is not designed to be thread-safe and does not
  * use synchronization.
  *
- * <p>This class is normally used to verify performance during proof-of-concepts
+ * <p>This class is normally used to verify performance during proof-of-concepts // proof-of-concepts 概念性验证
  * and in development, rather than as part of production applications.
  *
  * @author Rod Johnson

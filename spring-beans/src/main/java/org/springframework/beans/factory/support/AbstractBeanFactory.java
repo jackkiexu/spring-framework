@@ -1369,9 +1369,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					// Child bean definition: needs to be merged with parent.
 					BeanDefinition pbd;
 					try {
-						String parentBeanName = transformedBeanName(bd.getParentName());
+						String parentBeanName = transformedBeanName(bd.getParentName());			// 获取 parent 的标准名称
 						if (!beanName.equals(parentBeanName)) {
-							pbd = getMergedBeanDefinition(parentBeanName);
+							pbd = getMergedBeanDefinition(parentBeanName);							// 这里会先从 parentBeanFactory 里面获取
 						}
 						else {
 							BeanFactory parent = getParentBeanFactory();

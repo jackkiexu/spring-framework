@@ -132,7 +132,7 @@ public abstract class ConcurrencyThrottleSupport implements Serializable {
 				if (debug) {
 					logger.debug("Entering throttle at concurrency count " + this.concurrencyCount);
 				}
-				this.concurrencyCount++;
+				this.concurrencyCount++;			// 这里的这个操作是不是会有并发安全的危险
 			}
 		}
 	}
@@ -144,7 +144,7 @@ public abstract class ConcurrencyThrottleSupport implements Serializable {
 	protected void afterAccess() {
 		if (this.concurrencyLimit >= 0) {
 			synchronized (this.monitor) {
-				this.concurrencyCount--;
+				this.concurrencyCount--;				// 这里的这个操作是不是会有并发安全的危险
 				if (logger.isDebugEnabled()) {
 					logger.debug("Returning from throttle at concurrency count " + this.concurrencyCount);
 				}

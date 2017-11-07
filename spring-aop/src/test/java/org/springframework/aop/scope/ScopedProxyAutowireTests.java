@@ -44,6 +44,8 @@ public class ScopedProxyAutowireTests {
 	public void testScopedProxyInheritsAutowireCandidateFalse() {
 		DefaultListableBeanFactory bf = new DefaultListableBeanFactory();
 		new XmlBeanDefinitionReader(bf).loadBeanDefinitions(SCOPED_AUTOWIRE_FALSE_CONTEXT);
+
+		String[] resultArray = bf.getBeanNamesForType(TestBean.class, false, false);
 		assertTrue(Arrays.asList(bf.getBeanNamesForType(TestBean.class, false, false)).contains("scoped"));
 		assertTrue(Arrays.asList(bf.getBeanNamesForType(TestBean.class, true, false)).contains("scoped"));
 		assertFalse(bf.containsSingleton("scoped"));

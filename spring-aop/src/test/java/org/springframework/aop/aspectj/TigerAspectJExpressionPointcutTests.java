@@ -55,7 +55,7 @@ public class TigerAspectJExpressionPointcutTests {
 
 
 	@Test
-	public void testMatchGenericArgument() {
+	public void testMatchGenericArgument() { // 下面的 expression 能确定 方法的返回值, 方法名, 参数类型及参数个数
 		String expression = "execution(* set*(java.util.List<org.springframework.tests.sample.beans.TestBean>) )";
 		AspectJExpressionPointcut ajexp = new AspectJExpressionPointcut();
 		ajexp.setExpression(expression);
@@ -67,8 +67,8 @@ public class TigerAspectJExpressionPointcutTests {
 		Method takesGenericList = methodsOnHasGeneric.get("setFriends");
 		assertTrue(ajexp.matches(takesGenericList, HasGeneric.class));
 		assertTrue(ajexp.matches(methodsOnHasGeneric.get("setEnemies"), HasGeneric.class));
-		assertFalse(ajexp.matches(methodsOnHasGeneric.get("setPartners"), HasGeneric.class));
-		assertFalse(ajexp.matches(methodsOnHasGeneric.get("setPhoneNumbers"), HasGeneric.class));
+		assertFalse(ajexp.matches(methodsOnHasGeneric.get("setPartners"), HasGeneric.class));			// 这里不匹配是因为参数不匹配
+		assertFalse(ajexp.matches(methodsOnHasGeneric.get("setPhoneNumbers"), HasGeneric.class));	    // 参数不匹配
 
 		assertFalse(ajexp.matches(getAge, TestBean.class));
 	}
@@ -83,7 +83,7 @@ public class TigerAspectJExpressionPointcutTests {
 			}
 		}
 
-		String expression = "execution(int *.*(String, Object...))";
+		String expression = "execution(int *.*(String, Object...))";				// 返回是 int, 第一个 * 代表类名, 第二个 * 代表方法名, 最后面一部分就是参数名
 		AspectJExpressionPointcut jdbcVarArgs = new AspectJExpressionPointcut();
 		jdbcVarArgs.setExpression(expression);
 
@@ -106,7 +106,7 @@ public class TigerAspectJExpressionPointcutTests {
 
 	@Test
 	public void testMatchAnnotationOnClassWithAtWithin() throws SecurityException, NoSuchMethodException {
-		String expression = "@within(test.annotation.transaction.Tx)";
+		String expression = "@within(test.annotation.transaction.Tx)";			// 这里的 within 代表的就是 Tx 类(PS: 其实是 注解类)
 		testMatchAnnotationOnClass(expression);
 	}
 
@@ -139,7 +139,7 @@ public class TigerAspectJExpressionPointcutTests {
 		ajexp.setExpression(expression);
 
 		assertFalse(ajexp.matches(getAge, TestBean.class));
-		assertTrue(ajexp.matches(HasTransactionalAnnotation.class.getMethod("foo"), HasTransactionalAnnotation.class));
+		assertTrue(ajexp.matches(HasTransactionalAnnotation.class.getMethod("foo"), HasTransactionalAnnotation.class));		// HasTransactionalAnnotation 是被 注解 Tx 注解的类
 		assertTrue(ajexp.matches(HasTransactionalAnnotation.class.getMethod("bar", String.class), HasTransactionalAnnotation.class));
 		assertTrue(ajexp.matches(BeanB.class.getMethod("setName", String.class), BeanB.class));
 		assertFalse(ajexp.matches(BeanA.class.getMethod("setName", String.class), BeanA.class));
@@ -162,7 +162,7 @@ public class TigerAspectJExpressionPointcutTests {
 
 	@Test
 	public void testAnnotationOnMethodWithWildcard() throws SecurityException, NoSuchMethodException {
-		String expression = "execution(@(test.annotation..*) * *(..))";
+		String expression = "execution(@(test.annotation..*) * *(..))";					// 被 注解 @(test.annotation..*) 注解的类
 		AspectJExpressionPointcut anySpringMethodAnnotation = new AspectJExpressionPointcut();
 		anySpringMethodAnnotation.setExpression(expression);
 
@@ -176,7 +176,7 @@ public class TigerAspectJExpressionPointcutTests {
 
 	@Test
 	public void testAnnotationOnMethodArgumentsWithFQN() throws SecurityException, NoSuchMethodException {
-		String expression = "@args(*, test.annotation.EmptySpringAnnotation))";
+		String expression = "@args(*, test.annotation.EmptySpringAnnotation))";			// args 中, 第一个 * 代表所有类型, 第二个 则必需是 EmptySpringAnnotation
 		AspectJExpressionPointcut takesSpringAnnotatedArgument2 = new AspectJExpressionPointcut();
 		takesSpringAnnotatedArgument2.setExpression(expression);
 

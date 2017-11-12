@@ -76,14 +76,14 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 	 * Spring AOP invocation.
 	 */
 	public static JoinPoint currentJoinPoint() {
-		MethodInvocation mi = ExposeInvocationInterceptor.currentInvocation();
+		MethodInvocation mi = ExposeInvocationInterceptor.currentInvocation();		// 获取 当前线程中的 MethodInvocation
 		if (!(mi instanceof ProxyMethodInvocation)) {
 			throw new IllegalStateException("MethodInvocation is not a Spring ProxyMethodInvocation: " + mi);
 		}
 		ProxyMethodInvocation pmi = (ProxyMethodInvocation) mi;
 		JoinPoint jp = (JoinPoint) pmi.getUserAttribute(JOIN_POINT_KEY);
 		if (jp == null) {
-			jp = new MethodInvocationProceedingJoinPoint(pmi);
+			jp = new MethodInvocationProceedingJoinPoint(pmi);					// MethodInvocationProceedingJoinPoint 其实就是 RefliectiveMethodInvocation 的包装类
 			pmi.setUserAttribute(JOIN_POINT_KEY, jp);
 		}
 		return jp;

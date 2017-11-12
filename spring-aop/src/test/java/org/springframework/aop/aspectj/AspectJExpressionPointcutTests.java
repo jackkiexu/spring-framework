@@ -255,13 +255,14 @@ public final class AspectJExpressionPointcutTests {
 
 	@Test
 	public void testInvalidExpression() {
-		String expression = "execution(void org.springframework.tests.sample.beans.TestBean.setSomeNumber(Number) && args(Double)";
+		                  // execution(void org.springframework.tests.sample.beans.TestBean.setSomeNumber(Number)) && args(Double)
+		String expression = "execution(void org.springframework.tests.sample.beans.TestBean.setSomeNumber(Number) && args(Double)";  // 这里 Expression 少了一个 )
 
 		try {
 			getPointcut(expression).getClassFilter();  // call to getClassFilter forces resolution
 			fail("Invalid expression should throw IllegalArgumentException");
 		}
-		catch (IllegalArgumentException ex) {
+		catch (Exception ex) {
 			assertTrue(true);
 		}
 	}
@@ -269,7 +270,7 @@ public final class AspectJExpressionPointcutTests {
 	private TestBean getAdvisedProxy(String pointcutExpression, CallCountingInterceptor interceptor) {
 		TestBean target = new TestBean();
 
-		Pointcut pointcut = getPointcut(pointcutExpression);
+		Pointcut pointcut = getPointcut(pointcutExpression);                    // 这里其实用的是 AspectExpressionPointcut
 
 		DefaultPointcutAdvisor advisor = new DefaultPointcutAdvisor();
 		advisor.setAdvice(interceptor);

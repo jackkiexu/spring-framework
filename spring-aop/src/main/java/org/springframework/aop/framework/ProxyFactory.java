@@ -86,7 +86,7 @@ public class ProxyFactory extends ProxyCreatorSupport {
 
 	/**
 	 * Create a new proxy according to the settings in this factory.
-	 * <p>Can be called repeatedly. Effect will vary if we've added
+	 * <p>Can be called repeatedly. Effect will vary(变化) if we've added
 	 * or removed interfaces. Can add and remove interceptors.
 	 * <p>Uses a default class loader: Usually, the thread context class loader
 	 * (if necessary for proxy creation).

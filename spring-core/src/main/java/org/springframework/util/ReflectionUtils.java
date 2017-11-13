@@ -521,22 +521,22 @@ public abstract class ReflectionUtils {
 	 */
 	public static void doWithMethods(Class<?> clazz, MethodCallback mc, MethodFilter mf) {
 		// Keep backing up the inheritance hierarchy.
-		Method[] methods = getDeclaredMethods(clazz);
+		Method[] methods = getDeclaredMethods(clazz);				// 获取 clazz 里面所有的方法
 		for (Method method : methods) {
-			if (mf != null && !mf.matches(method)) {
+			if (mf != null && !mf.matches(method)) {				//  通过 MethodFilter 进行匹配
 				continue;
 			}
 			try {
-				mc.doWith(method);
+				mc.doWith(method);									// 直接执行 针对 method 的回调函数
 			}
 			catch (IllegalAccessException ex) {
 				throw new IllegalStateException("Not allowed to access method '" + method.getName() + "': " + ex);
 			}
 		}
-		if (clazz.getSuperclass() != null) {
+		if (clazz.getSuperclass() != null) {						// 若 clazz 没有超类, 则递归执行 doWithMethods 方法
 			doWithMethods(clazz.getSuperclass(), mc, mf);
 		}
-		else if (clazz.isInterface()) {
+		else if (clazz.isInterface()) {							// 递归执行 所有接口中定义的方法
 			for (Class<?> superIfc : clazz.getInterfaces()) {
 				doWithMethods(superIfc, mc, mf);
 			}

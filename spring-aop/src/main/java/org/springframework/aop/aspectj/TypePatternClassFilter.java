@@ -30,7 +30,7 @@ import org.springframework.util.StringUtils;
  * @author Juergen Hoeller
  * @since 2.0
  */
-public class TypePatternClassFilter implements ClassFilter {
+public class TypePatternClassFilter implements ClassFilter { // 通过 Aspect的 TypePatternMatcher 来匹配class是否匹配
 
 	private String typePattern;
 

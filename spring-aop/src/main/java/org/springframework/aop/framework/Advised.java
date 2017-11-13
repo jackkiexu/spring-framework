@@ -104,7 +104,7 @@ public interface Advised extends TargetClassAware {
 
 	/**
 	 * Return whether this proxy configuration is pre-filtered so that it only
-	 * contains applicable advisors (matching this proxy's target class).
+	 * contains applicable(合适的) advisors (matching this proxy's target class).
 	 */
 	boolean isPreFiltered();
 

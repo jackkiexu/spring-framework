@@ -63,7 +63,7 @@ public abstract class AopProxyUtils {
 	}
 
 	/**
-	 * Determine the ultimate target class of the given bean instance, traversing
+	 * Determine the ultimate(最终) target class of the given bean instance, traversing(穿过)
 	 * not only a top-level proxy but any number of nested proxies as well &mdash;
 	 * as long as possible without side effects, that is, just for singleton targets.
 	 * @param candidate the instance to check (might be an AOP proxy)
@@ -96,7 +96,7 @@ public abstract class AopProxyUtils {
 	 * @see SpringProxy
 	 * @see Advised
 	 */
-	public static Class<?>[] completeProxiedInterfaces(AdvisedSupport advised) {
+	public static Class<?>[] completeProxiedInterfaces(AdvisedSupport advised) {   // 这里通常会加上 SpringProxy, Advised 接口
 		return completeProxiedInterfaces(advised, false);
 	}
 
@@ -128,8 +128,8 @@ public abstract class AopProxyUtils {
 				specifiedInterfaces = advised.getProxiedInterfaces();
 			}
 		}
-		boolean addSpringProxy = !advised.isInterfaceProxied(SpringProxy.class);
-		boolean addAdvised = !advised.isOpaque() && !advised.isInterfaceProxied(Advised.class);
+		boolean addSpringProxy = !advised.isInterfaceProxied(SpringProxy.class);									// 检测是否 AdvisedSupport 所作用的 代理接口中是否存在 SpringProxy
+		boolean addAdvised = !advised.isOpaque() && !advised.isInterfaceProxied(Advised.class);					// 检测是否 AdviseSupport 所作用的 代理接口中是否存在 Advised 接口
 		boolean addDecoratingProxy = (decoratingProxy && !advised.isInterfaceProxied(DecoratingProxy.class));
 		int nonUserIfcCount = 0;
 		if (addSpringProxy) {
@@ -142,17 +142,17 @@ public abstract class AopProxyUtils {
 			nonUserIfcCount++;
 		}
 		Class<?>[] proxiedInterfaces = new Class<?>[specifiedInterfaces.length + nonUserIfcCount];
-		System.arraycopy(specifiedInterfaces, 0, proxiedInterfaces, 0, specifiedInterfaces.length);
+		System.arraycopy(specifiedInterfaces, 0, proxiedInterfaces, 0, specifiedInterfaces.length);			  // 将 AdvisedSupport 里面代理的接口 Copy To 数组 proxiedInterfaces 里面
 		int index = specifiedInterfaces.length;
-		if (addSpringProxy) {
+		if (addSpringProxy) {																					  // 增加 SpringProxy
 			proxiedInterfaces[index] = SpringProxy.class;
 			index++;
 		}
-		if (addAdvised) {
+		if (addAdvised) {																					     // 添加 Advised 接口
 			proxiedInterfaces[index] = Advised.class;
 			index++;
 		}
-		if (addDecoratingProxy) {
+		if (addDecoratingProxy) {																				// 添加 DecoratingProxy 接口
 			proxiedInterfaces[index] = DecoratingProxy.class;
 		}
 		return proxiedInterfaces;
@@ -166,7 +166,7 @@ public abstract class AopProxyUtils {
 	 * in the original order (never {@code null} or empty)
 	 * @see Advised
 	 */
-	public static Class<?>[] proxiedUserInterfaces(Object proxy) {
+	public static Class<?>[] proxiedUserInterfaces(Object proxy) {				// extract 提取 用户指定的代理接口 (PS: AOP 系统添加的接口都是在数组的最后面添加上的)
 		Class<?>[] proxyInterfaces = proxy.getClass().getInterfaces();
 		int nonUserIfcCount = 0;
 		if (proxy instanceof SpringProxy) {

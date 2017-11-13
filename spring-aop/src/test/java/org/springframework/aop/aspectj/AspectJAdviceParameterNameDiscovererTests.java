@@ -280,17 +280,28 @@ public class AspectJAdviceParameterNameDiscovererTests {
 
 		String formattedExpectedNames = format(parameterNames);
 		String formattedActualNames = format(discoveredNames);
+		System.out.println("formattedExpectedNames:" + formattedExpectedNames);
+		System.out.println("formattedActualNames:" + formattedActualNames);
+
+		System.out.println("Expecting " + parameterNames.length + " parameter names in return set '" +
+						formattedExpectedNames + "', but found " + discoveredNames.length +
+						" '" + formattedActualNames + "'" +
+				parameterNames.length + ", |" + discoveredNames.length);
 
 		assertEquals("Expecting " + parameterNames.length + " parameter names in return set '" +
 				formattedExpectedNames + "', but found " + discoveredNames.length +
 				" '" + formattedActualNames + "'",
 				parameterNames.length, discoveredNames.length);
 
+
 		for (int i = 0; i < discoveredNames.length; i++) {
 			assertNotNull("Parameter names must never be null", discoveredNames[i]);
 			assertEquals("Expecting parameter " + i + " to be named '" +
-					parameterNames[i] + "' but was '" + discoveredNames[i] + "'",
+							parameterNames[i] + "' but was '" + discoveredNames[i] + "'",
 					parameterNames[i], discoveredNames[i]);
+			System.out.println("Expecting parameter " + i + " to be named '" +
+							parameterNames[i] + "' but was '" + discoveredNames[i] + "'" +
+					parameterNames[i] +", |, " + discoveredNames[i]);
 		}
 	}
 

@@ -627,7 +627,7 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 			ReflectionUtils.makeAccessible(this.aspectJAdviceMethod);
 			// 激活增强方法
 			// TODO AopUtils.invokeJoinpointUsingReflection
-			return this.aspectJAdviceMethod.invoke(this.aspectInstanceFactory.getAspectInstance(), actualArgs);
+			return this.aspectJAdviceMethod.invoke(this.aspectInstanceFactory.getAspectInstance(), actualArgs);		// 用 AspectJ 其实最底层的也是通过 反射机制来调用 被Aspect 注解标注的类
 		}
 		catch (IllegalArgumentException ex) {
 			throw new AopInvocationException("Mismatch on arguments to advice method [" +

@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import jdk.nashorn.internal.parser.JSONParser;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
@@ -75,19 +76,19 @@ public class ThrowsAdviceInterceptor implements MethodInterceptor, AfterAdvice {
 		this.throwsAdvice = throwsAdvice;
 
 		Method[] methods = throwsAdvice.getClass().getMethods();
-		for (Method method : methods) {
+		for (Method method : methods) {								// 检测 方法名是 afterThrowing
 			if (method.getName().equals(AFTER_THROWING) &&
-					(method.getParameterTypes().length == 1 || method.getParameterTypes().length == 4) &&
+					(method.getParameterTypes().length == 1 || method.getParameterTypes().length == 4) &&			// 奇怪, 这里 要么是4个参数, 要么是1个参数
 					Throwable.class.isAssignableFrom(method.getParameterTypes()[method.getParameterTypes().length - 1])
 				) {
-				// Have an exception handler
+				// Have an exception handler 这里是获取 方法里面的最后一个请求的参数
 				this.exceptionHandlerMap.put(method.getParameterTypes()[method.getParameterTypes().length - 1], method);
 				if (logger.isDebugEnabled()) {
 					logger.debug("Found exception handler method: " + method);
 				}
 			}
 		}
-
+		System.out.println("exceptionHandlerMap:"+ exceptionHandlerMap);
 		if (this.exceptionHandlerMap.isEmpty()) {
 			throw new IllegalArgumentException(
 					"At least one handler method must be found in class [" + throwsAdvice.getClass() + "]");

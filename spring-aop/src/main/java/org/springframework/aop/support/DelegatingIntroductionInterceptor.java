@@ -110,7 +110,7 @@ public class DelegatingIntroductionInterceptor extends IntroductionInfoSupport
 			// Using the following method rather than direct reflection, we
 			// get correct handling of InvocationTargetException
 			// if the introduced method throws an exception.
-			Object retVal = AopUtils.invokeJoinpointUsingReflection(this.delegate, mi.getMethod(), mi.getArguments());
+			Object retVal = AopUtils.invokeJoinpointUsingReflection(this.delegate, mi.getMethod(), mi.getArguments());		// 将本来在 代理对象身上作用的方法, 直接作用在 DelegatingIntroductionInterceptor 的子类身上
 			// 处理返回 this 的情况
 			// Massage return value if possible: if the delegate returned itself,
 			// we really want to return the proxy.
@@ -120,7 +120,7 @@ public class DelegatingIntroductionInterceptor extends IntroductionInfoSupport
 					retVal = proxy;
 				}
 			}
-			return retVal;
+			return retVal;																									// 返回在拦截器上执行的结果
 		}
 		// 执行目标方法
 		return doProceed(mi);

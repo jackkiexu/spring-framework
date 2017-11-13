@@ -56,7 +56,7 @@ public final class TypePatternClassFilterTests {
 
 	@Test
 	public void testSubclassMatching() {
-		TypePatternClassFilter tpcf = new TypePatternClassFilter("org.springframework.tests.sample.beans.ITestBean+");
+		TypePatternClassFilter tpcf = new TypePatternClassFilter("org.springframework.tests.sample.beans.ITestBean+"); // 这里 ITestBean+ 中的  + 其实是指 ITestBean 的子类
 		assertTrue("Must match: in package", tpcf.matches(TestBean.class));
 		assertTrue("Must match: in package", tpcf.matches(ITestBean.class));
 		assertTrue("Must match: in package", tpcf.matches(CountingTestBean.class));
@@ -67,12 +67,12 @@ public final class TypePatternClassFilterTests {
 	@Test
 	public void testAndOrNotReplacement() {
 		TypePatternClassFilter tpcf = new TypePatternClassFilter("java.lang.Object or java.lang.String");
-		assertFalse("matches Number",tpcf.matches(Number.class));
+		assertFalse("matches Number",tpcf.matches(Number.class));											// Number 不是 Object/String 的子类
 		assertTrue("matches Object",tpcf.matches(Object.class));
 		assertTrue("matchesString",tpcf.matches(String.class));
 		tpcf = new TypePatternClassFilter("java.lang.Number+ and java.lang.Float");
-		assertTrue("matches Float",tpcf.matches(Float.class));
-		assertFalse("matches Double",tpcf.matches(Double.class));
+		assertTrue("matches Float",tpcf.matches(Float.class));												// Float 是 Number 的子类
+		assertFalse("matches Double",tpcf.matches(Double.class));											// Double 其实是 Number 的子类, 但 Double 不是 Float 的类/子类
 		tpcf = new TypePatternClassFilter("java.lang.Number+ and not java.lang.Float");
 		assertFalse("matches Float",tpcf.matches(Float.class));
 		assertTrue("matches Double",tpcf.matches(Double.class));
@@ -85,7 +85,7 @@ public final class TypePatternClassFilterTests {
 
 	@Test(expected=IllegalStateException.class)
 	public void testInvocationOfMatchesMethodBlowsUpWhenNoTypePatternHasBeenSet() throws Exception {
-		new TypePatternClassFilter().matches(String.class);
+		new TypePatternClassFilter().matches(String.class);													// 这回造成 TypePatternClassFilter.aspectJTypePatternMatcher 是 null
 	}
 
 }

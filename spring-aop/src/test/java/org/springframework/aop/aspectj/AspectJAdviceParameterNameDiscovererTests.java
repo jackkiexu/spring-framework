@@ -92,7 +92,7 @@ public class AspectJAdviceParameterNameDiscovererTests {
 	}
 
 	@Test
-	public void testTwoJoinPoints() {
+	public void testTwoJoinPoints() {   // 两个 JoinPoint 就会造成绑定参数的失败
 		assertException(getMethod("twoJoinPoints"), "foo()", IllegalStateException.class, "Failed to bind all argument names: 1 argument(s) could not be bound");
 	}
 
@@ -119,7 +119,7 @@ public class AspectJAdviceParameterNameDiscovererTests {
 	}
 
 	@Test
-	public void testReturning() {
+	public void testReturning() {			// 绑定参数 x
 		assertParameterNames(getMethod("oneObject"), "foo()", "obj", null, new String[]{"obj"});
 	}
 
@@ -136,7 +136,7 @@ public class AspectJAdviceParameterNameDiscovererTests {
 	}
 
 	@Test
-	public void testThisBindingOneCandidate() {
+	public void testThisBindingOneCandidate() {  // 绑定参数 x
 		assertParameterNames(getMethod("oneObject"), "this(x)", new String[]{"x"});
 	}
 
@@ -276,7 +276,7 @@ public class AspectJAdviceParameterNameDiscovererTests {
 		discoverer.setRaiseExceptions(true);
 		discoverer.setReturningName(returning);
 		discoverer.setThrowingName(throwing);
-		String[] discoveredNames = discoverer.getParameterNames(m);
+		String[] discoveredNames = discoverer.getParameterNames(m);			// 获取确定的请求参数的名字
 
 		String formattedExpectedNames = format(parameterNames);
 		String formattedActualNames = format(discoveredNames);

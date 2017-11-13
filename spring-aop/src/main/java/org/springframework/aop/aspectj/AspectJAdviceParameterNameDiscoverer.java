@@ -222,9 +222,9 @@ public class AspectJAdviceParameterNameDiscoverer implements ParameterNameDiscov
 	 */
 	@Override
 	public String[] getParameterNames(Method method) {
-		this.argumentTypes = method.getParameterTypes();
-		this.numberOfRemainingUnboundArguments = this.argumentTypes.length;
-		this.parameterNameBindings = new String[this.numberOfRemainingUnboundArguments];
+		this.argumentTypes = method.getParameterTypes();								 // 获取 方法的请求参数类型 (PS: 这里的 argumentTypes 是一个数组类型)
+		this.numberOfRemainingUnboundArguments = this.argumentTypes.length;				 // 获取 方法的请求参数类型的个数
+		this.parameterNameBindings = new String[this.numberOfRemainingUnboundArguments]; //
 
 		int minimumNumberUnboundArgs = 0;
 		if (this.returningName != null) {
@@ -239,11 +239,11 @@ public class AspectJAdviceParameterNameDiscoverer implements ParameterNameDiscov
 		}
 
 		try {
-			int algorithmicStep = STEP_JOIN_POINT_BINDING;
-			while ((this.numberOfRemainingUnboundArguments > 0) && algorithmicStep < STEP_FINISHED) {
+			int algorithmicStep = STEP_JOIN_POINT_BINDING; // numberOfRemainingUnboundArguments 表示没有绑定的参数的个数
+			while ((this.numberOfRemainingUnboundArguments > 0) && algorithmicStep < STEP_FINISHED) { // 在下面的每次操作中, numberOfRemainingUnboundArguments 都会进行 -- 操作
 				switch (algorithmicStep++) {
 					case STEP_JOIN_POINT_BINDING:
-						if (!maybeBindThisJoinPoint()) {
+						if (!maybeBindThisJoinPoint()) {							// 是否在请求参数的第一个名称绑定为  THIS_JOIN_POINT
 							maybeBindThisJoinPointStaticPart();
 						}
 						break;
@@ -288,7 +288,7 @@ public class AspectJAdviceParameterNameDiscoverer implements ParameterNameDiscov
 		}
 
 		if (this.numberOfRemainingUnboundArguments == 0) {
-			return this.parameterNameBindings;
+			return this.parameterNameBindings;					// 返回已经确定的 参数的名字
 		}
 		else {
 			if (this.raiseExceptions) {
@@ -321,18 +321,18 @@ public class AspectJAdviceParameterNameDiscoverer implements ParameterNameDiscov
 	}
 
 
-	private void bindParameterName(int index, String name) {
+	private void bindParameterName(int index, String name) { // 在指定位置绑定指定的参数的名称
 		this.parameterNameBindings[index] = name;
 		this.numberOfRemainingUnboundArguments--;
 	}
 
 	/**
 	 * If the first parameter is of type JoinPoint or ProceedingJoinPoint,bind "thisJoinPoint" as
-	 * parameter name and return true, else return false.
+	 * parameter name and return true, else return false. 若请求参数的类型中, 第一个参数的类型是 JoinPoint 或 ProceedingJoinPoint
 	 */
 	private boolean maybeBindThisJoinPoint() {
-		if ((this.argumentTypes[0] == JoinPoint.class) || (this.argumentTypes[0] == ProceedingJoinPoint.class)) {
-			bindParameterName(0, THIS_JOIN_POINT);
+		if ((this.argumentTypes[0] == JoinPoint.class) || (this.argumentTypes[0] == ProceedingJoinPoint.class)) {		// 判断请求参数是不是一个参数, 并且是否是 JoinPoint 类型
+			bindParameterName(0, THIS_JOIN_POINT);				// 在参数的第一个位子绑定参数的名称为 THIS_JOIN_POINT
 			return true;
 		}
 		else {
@@ -342,7 +342,7 @@ public class AspectJAdviceParameterNameDiscoverer implements ParameterNameDiscov
 
 	private void maybeBindThisJoinPointStaticPart() {
 		if (this.argumentTypes[0] == JoinPoint.StaticPart.class) {
-			bindParameterName(0, THIS_JOIN_POINT_STATIC_PART);
+			bindParameterName(0, THIS_JOIN_POINT_STATIC_PART);		// 若前面 JoinPoint 绑定失败的话, 就将 THIS_JOIN_POINT_STATIC_PART 绑定在请求参数的第一个名字
 		}
 	}
 
@@ -358,7 +358,7 @@ public class AspectJAdviceParameterNameDiscoverer implements ParameterNameDiscov
 		// So there is binding work to do...
 		int throwableIndex = -1;
 		for (int i = 0; i < this.argumentTypes.length; i++) {
-			if (isUnbound(i) && isSubtypeOf(Throwable.class, i)) {
+			if (isUnbound(i) && isSubtypeOf(Throwable.class, i)) {		// 判断是否 是 Throwable 的子类
 				if (throwableIndex == -1) {
 					throwableIndex = i;
 				}
@@ -376,7 +376,7 @@ public class AspectJAdviceParameterNameDiscoverer implements ParameterNameDiscov
 					+ "' could not be completed as no available arguments are a subtype of Throwable");
 		}
 		else {
-			bindParameterName(throwableIndex, this.throwingName);
+			bindParameterName(throwableIndex, this.throwingName);		// 绑定 异常参数名
 		}
 	}
 
@@ -398,7 +398,7 @@ public class AspectJAdviceParameterNameDiscoverer implements ParameterNameDiscov
 			// We're all set... find the unbound parameter, and bind it.
 			for (int i = 0; i < this.parameterNameBindings.length; i++) {
 				if (this.parameterNameBindings[i] == null) {
-					bindParameterName(i, this.returningName);
+					bindParameterName(i, this.returningName);		// 将 returningName 绑定在请求在参数名上
 					break;
 				}
 			}

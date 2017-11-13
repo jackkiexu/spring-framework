@@ -300,7 +300,7 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 
 		// Now to configure the advice...
 		springAdvice.setAspectName(aspectName);
-		springAdvice.setDeclarationOrder(declarationOrder);
+		springAdvice.setDeclarationOrder(declarationOrder);			// 下面的参数绑定其实很复杂
 		String[] argNames = this.parameterNameDiscoverer.getParameterNames(candidateAdviceMethod);
 		if (argNames != null) {
 			springAdvice.setArgumentNamesFromStringArray(argNames);

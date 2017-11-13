@@ -102,7 +102,7 @@ class InstantiationModelAwarePointcutAdvisorImpl
 		else {
 			// A singleton aspect.
 			this.pointcut = this.declaredPointcut;
-			this.lazy = false;
+			this.lazy = false;	      //  下面的 instantiateAdvice 就是实例化 Advice, 这里面其实非常重要
 			this.instantiatedAdvice = instantiateAdvice(this.declaredPointcut);				// 根据 Pointcut 来实例化 Advice
 		}
 	}

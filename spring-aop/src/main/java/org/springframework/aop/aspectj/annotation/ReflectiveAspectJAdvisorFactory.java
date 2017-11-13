@@ -135,8 +135,8 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 				new LazySingletonAspectInstanceFactoryDecorator(aspectInstanceFactory);
 
 		List<Advisor> advisors = new LinkedList<Advisor>();
-		for (Method method : getAdvisorMethods(aspectClass)) {
-			Advisor advisor = getAdvisor(method, lazySingletonAspectInstanceFactory, advisors.size(), aspectName);
+		for (Method method : getAdvisorMethods(aspectClass)) {							// getAdvisorMethods 是获取所有没有 标注 Pointcut 的方法
+			Advisor advisor = getAdvisor(method, lazySingletonAspectInstanceFactory, advisors.size(), aspectName);		// 这里通过 传入 advisors.size() 来确定 Advisor 的生命次序s
 			if (advisor != null) {
 				advisors.add(advisor);
 			}
@@ -160,13 +160,13 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 		return advisors;
 	}
 
-	private List<Method> getAdvisorMethods(Class<?> aspectClass) {
+	private List<Method> getAdvisorMethods(Class<?> aspectClass) {							   // 获取所有 没有标注 Pointcut 注解的 方法
 		final List<Method> methods = new LinkedList<Method>();
 		ReflectionUtils.doWithMethods(aspectClass, new ReflectionUtils.MethodCallback() {
 			@Override
 			public void doWith(Method method) throws IllegalArgumentException {
 				// Exclude pointcuts
-				if (AnnotationUtils.getAnnotation(method, Pointcut.class) == null) {
+				if (AnnotationUtils.getAnnotation(method, Pointcut.class) == null) {			// 增加所有的 没有标注 注解 Pointcut.class 的方法
 					methods.add(method);
 				}
 			}
@@ -204,30 +204,30 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 
 		validate(aspectInstanceFactory.getAspectMetadata().getAspectClass());
 		// 切点信息的获取
-		AspectJExpressionPointcut expressionPointcut = getPointcut(
+		AspectJExpressionPointcut expressionPointcut = getPointcut(						// 根据方法 method 来获取 对应的 AspectJExpressionPointcut 对象 (主要还是标注在方法上的 注解信息)
 				candidateAdviceMethod, aspectInstanceFactory.getAspectMetadata().getAspectClass());
 		if (expressionPointcut == null) {
 			return null;
 		}
 		// 根据切点信息生成增强器
-		return new InstantiationModelAwarePointcutAdvisorImpl(expressionPointcut, candidateAdviceMethod,
+		return new InstantiationModelAwarePointcutAdvisorImpl(expressionPointcut, candidateAdviceMethod,		// 生成 AspectJ 中对应的 PointcutAdvisor 对象
 				this, aspectInstanceFactory, declarationOrderInAspect, aspectName);
 	}
 
 	// 切点信息的获取, 所谓获取切点信息 就是指定注解的表达式信息的获取, 如 @Before("test()")
 	private AspectJExpressionPointcut getPointcut(Method candidateAdviceMethod, Class<?> candidateAspectClass) {
 		// 获取方法上的注解
-		AspectJAnnotation<?> aspectJAnnotation =
+		AspectJAnnotation<?> aspectJAnnotation =		// 获取标注在 方法上的注解 (Before, Around, After, AfterReturning, AfterThrowing, Pointcut)
 				AbstractAspectJAdvisorFactory.findAspectJAnnotationOnMethod(candidateAdviceMethod);
-		if (aspectJAnnotation == null) {
+		if (aspectJAnnotation == null) {				// 判断是否标注在方法 candidateAdviceMethod 上有没有注解
 			return null;
 		}
 		// 使用 AspectJExpressionPointcut 实例封装获取的信息
 		AspectJExpressionPointcut ajexp =
 				new AspectJExpressionPointcut(candidateAspectClass, new String[0], new Class<?>[0]);
 		// 提取得到的注解中的表达式 如: @Pointcut(execution(* *.*test*(..))) 中的 execution(* *.*test*(..))
-		ajexp.setExpression(aspectJAnnotation.getPointcutExpression());
-		ajexp.setBeanFactory(this.beanFactory);
+		ajexp.setExpression(aspectJAnnotation.getPointcutExpression());			// 设置匹配的 expression 表达式
+		ajexp.setBeanFactory(this.beanFactory);								// 这里就厉害大了, 直接将 BeanFactory 赋值给 AspectJExpressionPointcut 上面
 		return ajexp;
 	}
 
@@ -236,11 +236,11 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 	public Advice getAdvice(Method candidateAdviceMethod, AspectJExpressionPointcut expressionPointcut,
 			MetadataAwareAspectInstanceFactory aspectInstanceFactory, int declarationOrder, String aspectName) {
 
-		Class<?> candidateAspectClass = aspectInstanceFactory.getAspectMetadata().getAspectClass();
+		Class<?> candidateAspectClass = aspectInstanceFactory.getAspectMetadata().getAspectClass();		// 获取被 AspectJ 注解标注的类
 		validate(candidateAspectClass);
 
 		AspectJAnnotation<?> aspectJAnnotation =
-				AbstractAspectJAdvisorFactory.findAspectJAnnotationOnMethod(candidateAdviceMethod);
+				AbstractAspectJAdvisorFactory.findAspectJAnnotationOnMethod(candidateAdviceMethod);	    // 获取标注在方法上的注解信息
 		if (aspectJAnnotation == null) {
 			return null;
 		}

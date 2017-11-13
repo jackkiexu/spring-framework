@@ -106,7 +106,7 @@ public class AspectJProxyFactory extends ProxyCreatorSupport {
 	 */
 	public void addAspect(Class<?> aspectClass) {
 		String aspectName = aspectClass.getName();
-		AspectMetadata am = createAspectMetadata(aspectClass, aspectName);
+		AspectMetadata am = createAspectMetadata(aspectClass, aspectName);						// 将 标注 Aspect 注解的类 封装成 AspectMetadata
 		MetadataAwareAspectInstanceFactory instanceFactory = createAspectInstanceFactory(am, aspectClass, aspectName);
 		addAdvisorsFromAspectInstanceFactory(instanceFactory);
 	}
@@ -161,7 +161,7 @@ public class AspectJProxyFactory extends ProxyCreatorSupport {
 	 * Get the singleton aspect instance for the supplied aspect type. An instance
 	 * is created if one cannot be found in the instance cache.
 	 */
-	private Object getSingletonAspectInstance(Class<?> aspectClass) {
+	private Object getSingletonAspectInstance(Class<?> aspectClass) { // 实例化 Aspect 并且放在 aspectCache 里面
 		// Quick check without a lock...
 		Object instance = aspectCache.get(aspectClass);
 		if (instance == null) {
@@ -172,7 +172,7 @@ public class AspectJProxyFactory extends ProxyCreatorSupport {
 					return instance;
 				}
 				try {
-					instance = aspectClass.newInstance();
+					instance = aspectClass.newInstance();				// 实例化 Aspect 并且放在 aspectCache 里面
 					aspectCache.put(aspectClass, instance);
 					return instance;
 				}

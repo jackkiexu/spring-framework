@@ -265,7 +265,7 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 			if (method.getParameterTypes().length == 0) {
 				return new String[0];
 			}
-			AspectJAnnotation<?> annotation = findAspectJAnnotationOnMethod(method);
+			AspectJAnnotation<?> annotation = findAspectJAnnotationOnMethod(method);			// 获取 method 上 Before, Around, After, AfterReturning, AfterThrowing, Pointcut 的数据
 			if (annotation == null) {
 				return null;
 			}

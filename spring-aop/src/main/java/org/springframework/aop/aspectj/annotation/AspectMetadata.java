@@ -91,7 +91,7 @@ public class AspectMetadata implements Serializable {
 			}
 			currClass = currClass.getSuperclass();
 		}
-		if (ajType == null) {
+		if (ajType == null) {							// ajType == null 说明传进来的 aspectClass 上面没有标注 Aspect 注解
 			throw new IllegalArgumentException("Class '" + aspectClass.getName() + "' is not an @AspectJ aspect");
 		}
 		if (ajType.getDeclarePrecedence().length > 0) {
@@ -101,7 +101,7 @@ public class AspectMetadata implements Serializable {
 		this.ajType = ajType;
 
 		switch (this.ajType.getPerClause().getKind()) {
-			case SINGLETON:
+			case SINGLETON:														// SINGLETON 表示 在注解 Aspect 后面 Value 里面没有标注任何数据
 				this.perClausePointcut = Pointcut.TRUE;
 				return;
 			case PERTARGET:

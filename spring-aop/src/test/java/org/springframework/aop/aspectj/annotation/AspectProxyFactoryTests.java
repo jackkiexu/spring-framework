@@ -188,6 +188,7 @@ public class AspectProxyFactoryTests {
 
 		@Around("execution(* doWithVarargs(*))")
 		public Object doLog(ProceedingJoinPoint pjp) throws Throwable {
+			System.out.println("pjp.getArgs():" + pjp.getArgs());
 			LogFactory.getLog(LoggingAspectOnVarargs.class).debug(Arrays.asList(pjp.getArgs()));
 			return pjp.proceed();
 		}

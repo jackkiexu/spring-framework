@@ -98,8 +98,8 @@ public class IntroductionInfoSupport implements IntroductionInfo, Serializable {
 		}
 		else {
 			// Work it out and cache it.
-			boolean result = implementsInterface(mi.getMethod().getDeclaringClass());
-			this.rememberedMethods.put(mi.getMethod(), result);
+			boolean result = implementsInterface(mi.getMethod().getDeclaringClass());			// 判断一下 要执行的接口方法是否是在 publishedInterfaces 里面的接口定义的
+			this.rememberedMethods.put(mi.getMethod(), result);								// 缓存一下 刚才的执行结果
 			return result;
 		}
 	}

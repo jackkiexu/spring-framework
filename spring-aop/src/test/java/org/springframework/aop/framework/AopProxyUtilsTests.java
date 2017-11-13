@@ -36,8 +36,8 @@ public class AopProxyUtilsTests {
 
 	@Test
 	public void testCompleteProxiedInterfacesWorksWithNull() {
-		AdvisedSupport as = new AdvisedSupport();
-		Class<?>[] completedInterfaces = AopProxyUtils.completeProxiedInterfaces(as);
+		AdvisedSupport as = new AdvisedSupport();				// AdviseSupport 封装了 Advice 与 Advisor 相关的操作
+		Class<?>[] completedInterfaces = AopProxyUtils.completeProxiedInterfaces(as);				// 这里其实就是 增加 SpringProxy, Advised, DecoratingProxy 接口
 		assertEquals(2, completedInterfaces.length);
 		List<?> ifaces = Arrays.asList(completedInterfaces);
 		assertTrue(ifaces.contains(Advised.class));
@@ -105,7 +105,7 @@ public class AopProxyUtilsTests {
 		pf.setTarget(new TestBean());
 		pf.addInterface(ITestBean.class);
 		Object proxy = pf.getProxy();
-		Class<?>[] userInterfaces = AopProxyUtils.proxiedUserInterfaces(proxy);
+		Class<?>[] userInterfaces = AopProxyUtils.proxiedUserInterfaces(proxy);					// Extract 获取 AOPProxy  所代理的所有的接口
 		assertEquals(1, userInterfaces.length);
 		assertEquals(ITestBean.class, userInterfaces[0]);
 	}

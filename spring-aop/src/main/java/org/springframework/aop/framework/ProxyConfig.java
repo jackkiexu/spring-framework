@@ -105,7 +105,7 @@ public class ProxyConfig implements Serializable {
 	 * prevented from being cast to {@link Advised}.
 	 */
 	public boolean isOpaque() {
-		return this.opaque;
+		return this.opaque;				// opaque 表面意思: 不透明, 其实是 是否允许通过代理生成的对象 转换成 AdvisedSupport 对象
 	}
 
 	/**
@@ -142,7 +142,7 @@ public class ProxyConfig implements Serializable {
 	/**
 	 * Return whether the config is frozen, and no advice changes can be made.
 	 */
-	public boolean isFrozen() {
+	public boolean isFrozen() {					// 这个 frozen 决定是否 AdvisedSupport 里面配置的信息是否改变
 		return this.frozen;
 	}
 

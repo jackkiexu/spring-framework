@@ -78,6 +78,7 @@ public final class PrototypeTargetTests {
 
 		@Override
 		public void doSomething() {
+			System.out.println("doSomething");
 		}
 	}
 

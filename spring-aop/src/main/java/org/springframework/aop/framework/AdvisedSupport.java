@@ -290,7 +290,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 		if (isFrozen()) {
 			throw new AopConfigException("Cannot remove Advisor: Configuration is frozen.");
 		}
-		if (index < 0 || index > this.advisors.size() - 1) {
+		if (index < 0 || index > this.advisors.size() - 1) {											// 这里是校验 要删除的 Advisor 是否 数组索引超过限制
 			throw new AopConfigException("Advisor index " + index + " is out of bounds: " +
 					"This configuration only has " + this.advisors.size() + " advisors.");
 		}
@@ -520,7 +520,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 	 * Invoked when advice has changed.
 	 */
 	protected void adviceChanged() {
-		this.methodCache.clear();
+		this.methodCache.clear();					// 这里的 methodCache 存放的是 method 与 MethodInterceptor 的键值对数据, 所以在每次 AdvicedSupport.Advisor 变化时就会清空一下 methodCache, 下一次再次 AdvisorChainFactory.getInterceptorDynamicInterceptionAdvice 进行匹配一下
 	}
 
 	/**

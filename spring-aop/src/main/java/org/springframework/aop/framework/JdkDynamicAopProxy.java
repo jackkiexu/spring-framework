@@ -270,7 +270,7 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 				// a reference to itself in another returned object.
 				retVal = proxy;
 			}
-			else if (retVal == null && returnType != Void.TYPE && returnType.isPrimitive()) {
+			else if (retVal == null && returnType != Void.TYPE && returnType.isPrimitive()) {			// 从这里我们可以发现, 拦截器的返回值若设定的不是 null, 但是 你主动设置为 null, 则将会报出异常
 				throw new AopInvocationException(
 						"Null return value from advice does not match primitive return type for: " + method);
 			}

@@ -54,6 +54,7 @@ public final class MethodInvocationProceedingJoinPointTests {
 		}
 		catch (IllegalStateException ex) {
 			// expected
+			System.out.println(ex);
 		}
 	}
 
@@ -65,6 +66,7 @@ public final class MethodInvocationProceedingJoinPointTests {
 		}
 		catch (IllegalStateException ex) {
 			// expected
+			System.out.println(ex);
 		}
 	}
 
@@ -75,9 +77,9 @@ public final class MethodInvocationProceedingJoinPointTests {
 		final int newAge = 23;
 
 		ProxyFactory pf = new ProxyFactory(raw);
-		pf.setExposeProxy(true);
-		pf.addAdvisor(ExposeInvocationInterceptor.ADVISOR);
-		pf.addAdvice(new MethodBeforeAdvice() {
+		pf.setExposeProxy(true);								// 将代理类暴露给 ThreadLocal
+		pf.addAdvisor(ExposeInvocationInterceptor.ADVISOR);		// 在 AdvisedSupport 中增加 ExposeInvocationInterceptor
+		pf.addAdvice(new MethodBeforeAdvice() {					// 这里表面上增加 BeforeAdvice, 其实或包裹成 DefaultPointcutAdvisor 放入 Advisor里面
 			private int depth;
 
 			@Override
@@ -94,7 +96,7 @@ public final class MethodInvocationProceedingJoinPointTests {
 				ITestBean thisProxy = (ITestBean) AbstractAspectJAdvice.currentJoinPoint().getThis();
 				assertTrue(AopUtils.isAopProxy(AbstractAspectJAdvice.currentJoinPoint().getThis()));
 
-				assertNotSame(target, thisProxy);
+				assertNotSame(target, thisProxy);								// 用 Target 与 Proxy 对比
 
 				// Check getting again doesn't cause a problem
 				assertSame(thisProxy, AbstractAspectJAdvice.currentJoinPoint().getThis());
@@ -109,7 +111,7 @@ public final class MethodInvocationProceedingJoinPointTests {
 					assertEquals(newAge, thisProxy.getAge());
 				}
 
-				assertSame(AopContext.currentProxy(), thisProxy);
+				assertSame(AopContext.currentProxy(), thisProxy);					// 比价 Proxy
 				assertSame(target, raw);
 
 				assertSame(method.getName(), AbstractAspectJAdvice.currentJoinPoint().getSignature().getName());
@@ -197,10 +199,19 @@ public final class MethodInvocationProceedingJoinPointTests {
 				JoinPoint.StaticPart aspectJVersionJp = Factory.makeEncSJP(method);
 				JoinPoint jp = AbstractAspectJAdvice.currentJoinPoint();
 
+				System.out.println("aspectJVersionJp.getSignature().toLongString():" + aspectJVersionJp.getSignature().toLongString());
+				System.out.println("jp.getSignature().toLongString():" + jp.getSignature().toLongString());
+				System.out.println("aspectJVersionJp.getSignature().toShortString():" + aspectJVersionJp.getSignature().toShortString());
+				System.out.println("jp.getSignature().toShortString():" + jp.getSignature().toShortString());
+				System.out.println("aspectJVersionJp.getSignature().toString():" + aspectJVersionJp.getSignature().toString());
+				System.out.println("jp.getSignature().toString():" + jp.getSignature().toString());
 				assertEquals(aspectJVersionJp.getSignature().toLongString(), jp.getSignature().toLongString());
 				assertEquals(aspectJVersionJp.getSignature().toShortString(), jp.getSignature().toShortString());
 				assertEquals(aspectJVersionJp.getSignature().toString(), jp.getSignature().toString());
 
+				System.out.println("aspectJVersionJp.toLongString():" +aspectJVersionJp.toLongString());
+				System.out.println("jp.toLongString():" + jp.toLongString());
+				System.out.println("jp.toShortString():" + jp.toShortString());
 				assertEquals(aspectJVersionJp.toLongString(), jp.toLongString());
 				assertEquals(aspectJVersionJp.toShortString(), jp.toShortString());
 				assertEquals(aspectJVersionJp.toString(), jp.toString());
@@ -218,6 +229,7 @@ public final class MethodInvocationProceedingJoinPointTests {
 		}
 		catch (IOException ex) {
 			// we don't realy care...
+			System.out.println(ex);
 		}
 	}
 

@@ -40,7 +40,7 @@ import static org.junit.Assert.*;
  * @author Adrian Colyer
  * @author Chris Beams
  */
-public class AspectJPrecedenceComparatorTests {
+public class AspectJPrecedenceComparatorTests { // Precedence (领先, 局先)
 
 	private static final int HIGH_PRECEDENCE_ADVISOR_ORDER = 100;
 	private static final int LOW_PRECEDENCE_ADVISOR_ORDER = 200;

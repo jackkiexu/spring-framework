@@ -82,6 +82,8 @@ public abstract class AbstractAspectJAdvisorFactoryTests {
 	@Test
 	public void testRejectsPerCflowAspect() {
 		try {
+			ReflectiveAspectJAdvisorFactory aspectJAdvisorFactory = (ReflectiveAspectJAdvisorFactory)getFixture();
+
 			getFixture().getAdvisors(new SingletonMetadataAwareAspectInstanceFactory(new PerCflowAspect(),"someBean"));
 			fail("Cannot accept cflow");
 		}

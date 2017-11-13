@@ -303,7 +303,7 @@ public class MethodInvocationProceedingJoinPoint implements ProceedingJoinPoint,
 			if (methodInvocation.getThis() == null) {
 				throw new UnsupportedOperationException("No source location joinpoint available: target is null");
 			}
-			return methodInvocation.getThis().getClass();
+			return methodInvocation.getThis().getClass();		// 获取 Target 的 Class
 		}
 
 		@Override

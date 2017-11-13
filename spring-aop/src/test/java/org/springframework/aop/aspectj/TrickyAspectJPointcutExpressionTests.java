@@ -61,8 +61,8 @@ public class TrickyAspectJPointcutExpressionTests {
 		TestService target = new TestServiceImpl();
 		LogUserAdvice logAdvice = new LogUserAdvice();
 		AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
-		pointcut.setExpression(String.format("@within(%s.Log)", getClass().getName()));
-		testAdvice(new DefaultPointcutAdvisor(pointcut, logAdvice), logAdvice, target, "TestServiceImpl");
+		pointcut.setExpression(String.format("@within(%s.Log)", getClass().getName()));			// within 指指定类下面的所有的方法
+		testAdvice(new DefaultPointcutAdvisor(pointcut, logAdvice), logAdvice, target, "TestServiceImpl");	// within 指指定类下面的所有的方法
 	}
 
 	@Test

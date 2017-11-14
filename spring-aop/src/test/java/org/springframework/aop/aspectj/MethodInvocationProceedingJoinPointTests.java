@@ -23,6 +23,7 @@ import java.util.Arrays;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.JoinPoint.StaticPart;
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.Signature;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.aspectj.lang.reflect.SourceLocation;
 import org.aspectj.runtime.reflect.Factory;
@@ -87,13 +88,15 @@ public final class MethodInvocationProceedingJoinPointTests {
 				JoinPoint jp = AbstractAspectJAdvice.currentJoinPoint();
 				assertTrue("Method named in toString", jp.toString().contains(method.getName()));
 				// Ensure that these don't cause problems
-				jp.toShortString();
-				jp.toLongString();
+				String jpShortStr = jp.toShortString();
+				String jpLongStr = jp.toLongString();
+				System.out.println("jpShortStr:" + jpShortStr);
+				System.out.println("jpLongStr:" + jpLongStr);
 
-				assertSame(target, AbstractAspectJAdvice.currentJoinPoint().getTarget());
+				assertSame(target, AbstractAspectJAdvice.currentJoinPoint().getTarget());					// 这里就是获取 MethodInvocationProceedingJoinPoint -> ReflectiveMethodInvocation -> 里面的 target
 				assertFalse(AopUtils.isAopProxy(AbstractAspectJAdvice.currentJoinPoint().getTarget()));
 
-				ITestBean thisProxy = (ITestBean) AbstractAspectJAdvice.currentJoinPoint().getThis();
+				ITestBean thisProxy = (ITestBean) AbstractAspectJAdvice.currentJoinPoint().getThis();		// 这里的 This 代表的是执行 AOP 里面 Advice 的对象, 也就是 生成的 Proxy
 				assertTrue(AopUtils.isAopProxy(AbstractAspectJAdvice.currentJoinPoint().getThis()));
 
 				assertNotSame(target, thisProxy);								// 用 Target 与 Proxy 对比
@@ -114,12 +117,15 @@ public final class MethodInvocationProceedingJoinPointTests {
 				assertSame(AopContext.currentProxy(), thisProxy);					// 比价 Proxy
 				assertSame(target, raw);
 
+				Signature signature = AbstractAspectJAdvice.currentJoinPoint().getSignature();
+
 				assertSame(method.getName(), AbstractAspectJAdvice.currentJoinPoint().getSignature().getName());
 				assertEquals(method.getModifiers(), AbstractAspectJAdvice.currentJoinPoint().getSignature().getModifiers());
 
 				MethodSignature msig = (MethodSignature) AbstractAspectJAdvice.currentJoinPoint().getSignature();
 				assertSame("Return same MethodSignature repeatedly", msig, AbstractAspectJAdvice.currentJoinPoint().getSignature());
 				assertSame("Return same JoinPoint repeatedly", AbstractAspectJAdvice.currentJoinPoint(), AbstractAspectJAdvice.currentJoinPoint());
+
 				assertEquals(method.getDeclaringClass(), msig.getDeclaringType());
 				assertTrue(Arrays.equals(method.getParameterTypes(), msig.getParameterTypes()));
 				assertEquals(method.getReturnType(), msig.getReturnType());

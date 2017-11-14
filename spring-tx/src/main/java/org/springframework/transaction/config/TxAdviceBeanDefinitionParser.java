@@ -67,7 +67,7 @@ class TxAdviceBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
 
 	@Override
-	protected Class<?> getBeanClass(Element element) {
+	protected Class<?> getBeanClass(Element element) {			// 在声明式事务中, 默认在 Spring 的 IOC 容器里面会注入 AOP MethodInterceptor --> TransactionInterceptor
 		return TransactionInterceptor.class;
 	}
 

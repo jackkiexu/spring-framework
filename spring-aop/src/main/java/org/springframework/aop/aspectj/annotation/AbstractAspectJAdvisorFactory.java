@@ -77,7 +77,7 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 		return (hasAspectAnnotation(clazz) && !compiledByAjc(clazz));
 	}
 
-	private boolean hasAspectAnnotation(Class<?> clazz) {
+	private boolean hasAspectAnnotation(Class<?> clazz) {						// 查看 是否是 Aspect 注解标注的类
 		return (AnnotationUtils.findAnnotation(clazz, Aspect.class) != null);
 	}
 
@@ -85,7 +85,7 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 	 * We need to detect this as "code-style" AspectJ aspects should not be
 	 * interpreted by Spring AOP.
 	 */
-	private boolean compiledByAjc(Class<?> clazz) {
+	private boolean compiledByAjc(Class<?> clazz) {				// 检测是否这个类是通过 AspectJ 编译器编译生成的
 		// The AJTypeSystem goes to great lengths to provide a uniform appearance between code-style and
 		// annotation-style aspects. Therefore there is no 'clean' way to tell them apart. Here we rely on
 		// an implementation detail of the AspectJ compiler.
@@ -148,15 +148,15 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 		}
 	}
 
-
+	// 标注在类上的 AspectJ 的注解的类型, 下面每一种类型 代表一种 MethodInterceptor (PS: 一共 5 种)
 	protected enum AspectJAnnotationType {
 
-		AtPointcut,
-		AtBefore,
-		AtAfter,
-		AtAfterReturning,
-		AtAfterThrowing,
-		AtAround
+		AtPointcut,						// AspectJExpressionPointcut
+		AtBefore,							// AspectJMethodBeforeAdvice
+		AtAfter,							// AspectJAfterAdvice
+		AtAfterReturning,					// AspectJAfterReturingAdvice
+		AtAfterThrowing,					// AspectJAfterThrowingAdvice
+		AtAround							// AspectJAroundAdvice
 	}
 
 

@@ -66,8 +66,8 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 	 */
 	protected static final String JOIN_POINT_KEY = JoinPoint.class.getName();
 
-
-	/**
+	// 通过 拦截器 ExposeInvocationInterceptor 获取 当前线程执行的 ReflectiveMethodInvocation
+	/** 将 ReflectiveMethodInvocation 封装成 MethodInvocationProceedingJoinPoint 返回 --> 代表 JoinPoint
 	 * Lazily instantiate joinpoint for the current invocation.
 	 * Requires MethodInvocation to be bound with ExposeInvocationInterceptor.
 	 * <p>Do not use if access is available to the current ReflectiveMethodInvocation

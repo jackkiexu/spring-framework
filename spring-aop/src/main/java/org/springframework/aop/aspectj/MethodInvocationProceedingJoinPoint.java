@@ -141,7 +141,7 @@ public class MethodInvocationProceedingJoinPoint implements ProceedingJoinPoint,
 
 	@Override
 	public String getKind() {
-		return ProceedingJoinPoint.METHOD_EXECUTION;
+		return ProceedingJoinPoint.METHOD_EXECUTION;			// 这里支持的类型就是 execution
 	}
 
 	@Override

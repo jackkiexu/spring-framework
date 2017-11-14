@@ -119,8 +119,8 @@ public final class MethodInvocationProceedingJoinPointTests {
 
 				Signature signature = AbstractAspectJAdvice.currentJoinPoint().getSignature();
 
-				assertSame(method.getName(), AbstractAspectJAdvice.currentJoinPoint().getSignature().getName());
-				assertEquals(method.getModifiers(), AbstractAspectJAdvice.currentJoinPoint().getSignature().getModifiers());
+				assertSame(method.getName(), AbstractAspectJAdvice.currentJoinPoint().getSignature().getName());			// 这里的 signature().getName() 其实也是 ReflectiveMethodInvocation 里面 method 的名称
+				assertEquals(method.getModifiers(), AbstractAspectJAdvice.currentJoinPoint().getSignature().getModifiers());// 这里的 signature().getName() 其实也是 ReflectiveMethodInvocation 里面 method 的 Modifiers
 
 				MethodSignature msig = (MethodSignature) AbstractAspectJAdvice.currentJoinPoint().getSignature();
 				assertSame("Return same MethodSignature repeatedly", msig, AbstractAspectJAdvice.currentJoinPoint().getSignature());
@@ -147,9 +147,9 @@ public final class MethodInvocationProceedingJoinPointTests {
 		pf.addAdvice(new MethodBeforeAdvice() {
 			@Override
 			public void before(Method method, Object[] args, Object target) throws Throwable {
-				SourceLocation sloc = AbstractAspectJAdvice.currentJoinPoint().getSourceLocation();
+				SourceLocation sloc = AbstractAspectJAdvice.currentJoinPoint().getSourceLocation();  // 包装 ReflectiveMethodInvocation 中的 target 对象
 				assertEquals("Same source location must be returned on subsequent requests", sloc, AbstractAspectJAdvice.currentJoinPoint().getSourceLocation());
-				assertEquals(TestBean.class, sloc.getWithinType());
+				assertEquals(TestBean.class, sloc.getWithinType());									// 封装 ReflectiveMethodInvocation 中的 target 对象.class
 				try {
 					sloc.getLine();
 					fail("Can't get line number");

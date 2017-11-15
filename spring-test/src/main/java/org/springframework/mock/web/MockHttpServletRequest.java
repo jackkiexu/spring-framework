@@ -48,11 +48,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.Part;
+import javax.servlet.http.*;
 
 import org.springframework.http.MediaType;
 import org.springframework.util.Assert;
@@ -1221,6 +1217,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
 	@Override
 	public Part getPart(String name) throws IOException, IllegalStateException, ServletException {
 		return this.parts.getFirst(name);
+	}
+
+	@Override
+	public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, ServletException {
+		return null;
 	}
 
 	@Override

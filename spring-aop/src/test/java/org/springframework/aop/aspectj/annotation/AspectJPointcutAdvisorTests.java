@@ -55,6 +55,8 @@ public class AspectJPointcutAdvisorTests {
 		AspectJExpressionPointcut ajexp = new AspectJExpressionPointcut();
 		ajexp.setExpression(AspectJExpressionPointcutTests.MATCH_ALL_METHODS);
 
+		// 默认在构造 InstantiationModelAwarePointcutAdvisorImpl 实例时, 传给 InstantiationModelAwarePointcutAdvisorImpl 的 aspectJAdviceMethod 必需被 AspectJ 的注解修饰
+																					// 下面 InstantiationModelAwarePointcutAdvisorImpl 里面的构造函数的参数比较有意义
 		InstantiationModelAwarePointcutAdvisorImpl ajpa = new InstantiationModelAwarePointcutAdvisorImpl(
 				ajexp, TestBean.class.getMethod("getAge"), af,
 				new SingletonMetadataAwareAspectInstanceFactory(new PerTargetAspect(), "someBean"),

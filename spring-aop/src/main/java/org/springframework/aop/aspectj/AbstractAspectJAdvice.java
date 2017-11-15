@@ -625,7 +625,7 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 		}
 		try {
 			ReflectionUtils.makeAccessible(this.aspectJAdviceMethod);
-			// 激活增强方法
+			// 激活增强方法 this.aspectInstanceFactory.getAspectInstance() 其实就是代理的 target
 			// TODO AopUtils.invokeJoinpointUsingReflection
 			return this.aspectJAdviceMethod.invoke(this.aspectInstanceFactory.getAspectInstance(), actualArgs);		// 用 AspectJ 其实最底层的也是通过 反射机制来调用 被Aspect 注解标注的类
 		}

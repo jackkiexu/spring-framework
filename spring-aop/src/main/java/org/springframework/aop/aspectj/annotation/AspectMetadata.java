@@ -84,7 +84,7 @@ public class AspectMetadata implements Serializable {
 		Class<?> currClass = aspectClass;
 		AjType<?> ajType = null;
 		while (currClass != Object.class) {
-			AjType<?> ajTypeToCheck = AjTypeSystem.getAjType(currClass);
+			AjType<?> ajTypeToCheck = AjTypeSystem.getAjType(currClass);		// 通过 class 直接获取 AJType
 			if (ajTypeToCheck.isAspect()) {
 				ajType = ajTypeToCheck;
 				break;
@@ -100,7 +100,7 @@ public class AspectMetadata implements Serializable {
 		this.aspectClass = ajType.getJavaClass();
 		this.ajType = ajType;
 
-		switch (this.ajType.getPerClause().getKind()) {
+		switch (this.ajType.getPerClause().getKind()) {							// 这里主要还是根据标注在 Aspect 上的信息进行判断
 			case SINGLETON:														// SINGLETON 表示 在注解 Aspect 后面 Value 里面没有标注任何数据
 				this.perClausePointcut = Pointcut.TRUE;
 				return;

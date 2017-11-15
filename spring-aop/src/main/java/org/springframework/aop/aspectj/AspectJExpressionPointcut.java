@@ -258,7 +258,7 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
 		checkReadyToMatch();
 		try {
 			try {
-				return this.pointcutExpression.couldMatchJoinPointsInType(targetClass);
+				return this.pointcutExpression.couldMatchJoinPointsInType(targetClass);		// 这里直接交给 AspectJ 里面的类 PointcutExpressionImpl 来判断是否匹配
 			}
 			catch (ReflectionWorldException ex) {
 				logger.debug("PointcutExpression matching rejected target class - trying fallback expression", ex);
@@ -277,7 +277,7 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
 
 	// MethodMatcher 实现
 	@Override
-	public boolean matches(Method method, Class<?> targetClass, boolean beanHasIntroductions) {
+	public boolean matches(Method method, Class<?> targetClass, boolean beanHasIntroductions) {  // 下面就是通过 AspectJ 里面的类进行匹配
 		checkReadyToMatch();
 		Method targetMethod = AopUtils.getMostSpecificMethod(method, targetClass);
 		ShadowMatch shadowMatch = getShadowMatch(targetMethod, method);
@@ -317,7 +317,7 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
 	}
 
 	@Override
-	public boolean matches(Method method, Class<?> targetClass, Object... args) {
+	public boolean matches(Method method, Class<?> targetClass, Object... args) {  // 下面就是通过 AspectJ 里面的类进行匹配
 		checkReadyToMatch();
 		ShadowMatch shadowMatch = getShadowMatch(AopUtils.getMostSpecificMethod(method, targetClass), method);
 		ShadowMatch originalShadowMatch = getShadowMatch(method, method);

@@ -22,8 +22,8 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.PropertyValues;
 
 /**
- * Subinterface of {@link BeanPostProcessor} that adds a before-instantiation callback,
- * and a callback after instantiation but before explicit properties are set or
+ * Subinterface of {@link BeanPostProcessor} that adds a before-instantiation callback, // instantiation 实例化
+ * and a callback after instantiation but before explicit(明确) properties are set or
  * autowiring occurs.
  *
  * <p>Typically used to suppress default instantiation for specific target beans,

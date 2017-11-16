@@ -379,7 +379,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	 * @see org.springframework.aop.framework.AopInfrastructureBean
 	 * @see #shouldSkip
 	 */
-	protected boolean isInfrastructureClass(Class<?> beanClass) {     // 是否是用于 AOP 中的基础类
+	protected boolean isInfrastructureClass(Class<?> beanClass) {     // 是否是用于 AOP 中的基础类  Advice, Pointcut, Advisor,AopInfrastructureBean
 		boolean retVal = Advice.class.isAssignableFrom(beanClass) ||
 				Pointcut.class.isAssignableFrom(beanClass) ||
 				Advisor.class.isAssignableFrom(beanClass) ||
@@ -462,7 +462,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 				proxyFactory.setProxyTargetClass(true);
 			}
 			else {
-				evaluateProxyInterfaces(beanClass, proxyFactory);
+				evaluateProxyInterfaces(beanClass, proxyFactory);		// 装配需要代理的 接口
 			}
 		}
 

@@ -482,7 +482,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			// 如果 Bean 配置le, PostProcessor, 那么这里返回的是yige Proxy
 			// 如果 Bean 配置了初始化前和初始化后的处理器, 则试图返回一个需要创建 Bean 的代理对象
 			// Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
-			Object bean = resolveBeforeInstantiation(beanName, mbdToUse);
+			Object bean = resolveBeforeInstantiation(beanName, mbdToUse);							// 自动 AOP 的入口
 			if (bean != null) {
 				return bean;
 			}
@@ -1066,7 +1066,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			if (!mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {
 				Class<?> targetType = determineTargetType(beanName, mbd);
 				if (targetType != null) {
-					bean = applyBeanPostProcessorsBeforeInstantiation(targetType, beanName);
+					bean = applyBeanPostProcessorsBeforeInstantiation(targetType, beanName);			// 这里为什么 在 BeforeInstantiation 之前有返回值之后, 再要调用 AfterInitialization
 					if (bean != null) {
 						bean = applyBeanPostProcessorsAfterInitialization(bean, beanName);
 					}
@@ -1781,7 +1781,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		Object wrappedBean = bean;
 		// 对 BeanPostProcessor 后置处理器的 postProcessBeforeInitialization 回调方法的调用, 为 bean 实例化前做些准备工作
-		if (mbd == null || !mbd.isSynthetic()) {
+		if (mbd == null || !mbd.isSynthetic()) {		// 这里有个奇怪的地方, 为什么 mdb == null 也会使用后置处理器 的 BeanPostProcessorBeforeInitialization
 			// 应用后置处理器
 			wrappedBean = applyBeanPostProcessorsBeforeInitialization(wrappedBean, beanName);
 		}

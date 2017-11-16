@@ -43,21 +43,21 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * <p>Note that extended bean factories might support further scopes.
 	 * @see #setScope
 	 */
-	String SCOPE_SINGLETON = ConfigurableBeanFactory.SCOPE_SINGLETON;
+	String SCOPE_SINGLETON = ConfigurableBeanFactory.SCOPE_SINGLETON;				// Bean 的生命周期是 singleton
 
 	/**
 	 * Scope identifier for the standard prototype scope: "prototype".
 	 * <p>Note that extended bean factories might support further scopes.
 	 * @see #setScope
 	 */
-	String SCOPE_PROTOTYPE = ConfigurableBeanFactory.SCOPE_PROTOTYPE;
+	String SCOPE_PROTOTYPE = ConfigurableBeanFactory.SCOPE_PROTOTYPE;		       // Bean 的生命周期是 prototype
 
 
 	/**
 	 * Role hint indicating that a {@code BeanDefinition} is a major part
 	 * of the application. Typically corresponds to a user-defined bean.
 	 */
-	int ROLE_APPLICATION = 0;
+	int ROLE_APPLICATION = 0;													// 默认值, 程序的一部分
 
 	/**
 	 * Role hint indicating that a {@code BeanDefinition} is a supporting
@@ -72,11 +72,22 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 
 	/**
 	 * Role hint indicating that a {@code BeanDefinition} is providing an
-	 * entirely background role and has no relevance to the end-user. This hint is
+	 * entirely background role and has no relevance(关联) to the end-user. This hint is
 	 * used when registering beans that are completely part of the internal workings
 	 * of a {@link org.springframework.beans.factory.parsing.ComponentDefinition}.
+	 *
+	 * Spring 容器的基础组件
+	 * 比如
+	 * 	RequestMappingHandlerMapping
+	 * 	TransactionInterceptor
+	 * 	BeanFactoryTransactionAttributeSourceAdvisor
+	 * 	MappedInterceptor
+	 * 	ExceptionHandlerExceptionResolver
+	 * 	ResponseStatusExceptionResolver
+	 * 	DefaultHandlerExceptionResolver
+	 * 	FormattingConversionServiceFactoryBean
 	 */
-	int ROLE_INFRASTRUCTURE = 2;
+	int ROLE_INFRASTRUCTURE = 2; 													// Spring 容器的基础组件
 
 
 	// Modifiable attributes

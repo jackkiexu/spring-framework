@@ -42,7 +42,7 @@ import org.springframework.util.StringValueResolver;
  *
  * <p>Implemented interfaces are satisfied in order of their mention above.
  *
- * <p>Application contexts will automatically register this with their
+ * <p>Application contexts will automatically register this with their  这个 BeanPostProcessor 主要是在 Bean 的生成过程中, 通过回调函数 postProcessorBeforeInitialization 来进行回调(PS: 主要是将 ApplicationContext 的引用设置给 Bean)
  * underlying bean factory. Applications do not use this directly.
  *
  * @author Juergen Hoeller

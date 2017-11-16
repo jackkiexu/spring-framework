@@ -1781,7 +1781,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		Object wrappedBean = bean;
 		// 对 BeanPostProcessor 后置处理器的 postProcessBeforeInitialization 回调方法的调用, 为 bean 实例化前做些准备工作
-		if (mbd == null || !mbd.isSynthetic()) {
+		if (mbd == null || !mbd.isSynthetic()) {		// 这里有个奇怪的地方, 为什么 mdb == null 也会使用后置处理器 的 BeanPostProcessorBeforeInitialization
 			// 应用后置处理器
 			wrappedBean = applyBeanPostProcessorsBeforeInitialization(wrappedBean, beanName);
 		}

@@ -39,7 +39,7 @@ import org.springframework.util.ObjectUtils;
  * mechanisms, {@code DisposableBeanAdapter.writeReplace} might not get used at all, so we
  * defensively mark this post-processor's field state as {@code transient}.
  *
- * @author Juergen Hoeller
+ * @author Juergen Hoeller  // 这个类主要是获取实现  ApplicationListener 的类
  * @since 4.3.4
  */
 class ApplicationListenerDetector implements DestructionAwareBeanPostProcessor, MergedBeanDefinitionPostProcessor {
@@ -73,11 +73,11 @@ class ApplicationListenerDetector implements DestructionAwareBeanPostProcessor, 
 		if (this.applicationContext != null && bean instanceof ApplicationListener) {
 			// potentially not detected as a listener by getBeanNamesForType retrieval
 			Boolean flag = this.singletonNames.get(beanName);
-			if (Boolean.TRUE.equals(flag)) {
+			if (Boolean.TRUE.equals(flag)) {												// 若 ApplicationListener 是单例, 则就添加到 applicationContext 的 applicationListeners 里面
 				// singleton bean (top-level or inner): register on the fly
 				this.applicationContext.addApplicationListener((ApplicationListener<?>) bean);
 			}
-			else if (Boolean.FALSE.equals(flag)) {
+			else if (Boolean.FALSE.equals(flag)) {											// 若不是单例形的, 则直接remove
 				if (logger.isWarnEnabled() && !this.applicationContext.containsBean(beanName)) {
 					// inner bean with other scope - can't reliably process events
 					logger.warn("Inner bean '" + beanName + "' implements ApplicationListener interface " +

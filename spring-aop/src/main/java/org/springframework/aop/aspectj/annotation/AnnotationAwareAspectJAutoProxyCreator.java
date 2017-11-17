@@ -46,6 +46,9 @@ import org.springframework.util.Assert;
  * @see org.springframework.aop.aspectj.annotation.AspectJAdvisorFactory
  *
  * AnnotationAwareAspectJAutoProxyCreator 其实最顶层是实现 BeanPostProcessor 接口
+ *
+ * AnnotationAwareAspectJAutoProxyCreator 提供对 <aop:aspectj-autoproxy></> 注解 (@AspectJ) AOP 的支持
+ * 当使用<aop:aspectj-autoproxy></> 时, 会自动注册 AnnotationAwareAspectJAutoProxyCreator
  */
 @SuppressWarnings("serial")
 public class AnnotationAwareAspectJAutoProxyCreator extends AspectJAwareAdvisorAutoProxyCreator {

@@ -162,6 +162,10 @@ import org.springframework.util.StringUtils;
  * @since 2.0
  * @see javax.persistence.PersistenceUnit
  * @see javax.persistence.PersistenceContext
+ *
+ * 参考地址 : http://jinnianshilongnian.iteye.com/blog/1492424
+ * 当在配置文件有<context:annotation-config>或<context:component-scan>会自动注册。
+ *
  */
 @SuppressWarnings("serial")
 public class PersistenceAnnotationBeanPostProcessor
@@ -346,7 +350,7 @@ public class PersistenceAnnotationBeanPostProcessor
 	}
 
 	@Override
-	public PropertyValues postProcessPropertyValues(
+	public PropertyValues postProcessPropertyValues(														// 通过对JPA @ javax.persistence.PersistenceUnit和@ javax.persistence.PersistenceContext注解进行依赖注入的支持
 			PropertyValues pvs, PropertyDescriptor[] pds, Object bean, String beanName) throws BeansException {
 
 		InjectionMetadata metadata = findPersistenceMetadata(beanName, bean.getClass(), pvs);

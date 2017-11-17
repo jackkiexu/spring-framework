@@ -24,7 +24,7 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
  * to post-process the merged bean definition (a processed copy of the original bean
  * definition) that the Spring {@code BeanFactory} uses to create a bean instance.
  *
- * <p>The {@link #postProcessMergedBeanDefinition} method may for example introspect
+ * <p>The {@link #postProcessMergedBeanDefinition} method may for example introspect (内省)
  * the bean definition in order to prepare some cached metadata before post-processing
  * actual instances of a bean. It is also allowed to modify the bean definition but
  * <i>only</i> for definition properties which are actually intended for concurrent

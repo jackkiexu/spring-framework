@@ -43,6 +43,10 @@ public interface SmartInstantiationAwareBeanPostProcessor extends InstantiationA
 	 * @param beanName the name of the bean
 	 * @return the type of the bean, or {@code null} if not predictable
 	 * @throws org.springframework.beans.BeansException in case of errors
+	 *
+	 * 参考地址: http://jinnianshilongnian.iteye.com/blog/1492424
+	 * 增加了类型预测回调
+	 * 预测 Bean 的类型, 返回第一个预测成功的 Class 类型(PS: 就是因为有自动代理的 BeanPostProcessor), 如果不能预测 则返回 null
 	 */
 	Class<?> predictBeanType(Class<?> beanClass, String beanName) throws BeansException;
 

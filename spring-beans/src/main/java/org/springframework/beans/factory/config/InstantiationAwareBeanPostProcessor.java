@@ -66,7 +66,7 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 	 * @see org.springframework.beans.factory.support.AbstractBeanDefinition#hasBeanClass
 	 * @see org.springframework.beans.factory.support.AbstractBeanDefinition#getFactoryMethodName
 	 */
-	Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) throws BeansException;
+	Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) throws BeansException;			// Bean 实例化前的处理器 (PS: 主要是在 doCreateBean 之前)
 
 	/**
 	 * Perform operations after the bean has been instantiated, via a constructor or factory method,
@@ -81,7 +81,7 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 	 * instances being invoked on this bean instance.
 	 * @throws org.springframework.beans.BeansException in case of errors
 	 */
-	boolean postProcessAfterInstantiation(Object bean, String beanName) throws BeansException;
+	boolean postProcessAfterInstantiation(Object bean, String beanName) throws BeansException;				// Bean 实例化后的处理器 (PS: 在 doCreateBean 之内,  bean 已经实例化之后进行处理)
 
 	/**
 	 * Post-process the given property values before the factory applies them
@@ -100,6 +100,13 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 	 * to skip property population
 	 * @throws org.springframework.beans.BeansException in case of errors
 	 * @see org.springframework.beans.MutablePropertyValues
+	 *
+	 * 参考资料 http://jinnianshilongnian.iteye.com/blog/1492424
+	 * postProcessPropertyValues 主要是完成其他定制的一些 依赖注入和依赖检查, 如
+	 * 	AutowiredAnnotationBeanPostProcessor   执行 @Autowired 注解注入
+	 * 	CommonAnnotationBeanPostProcessor      执行 @Resource 等注解的注入
+	 * 	PersistenceAnnotationBeanPostProcessor 执行 @PersistenceContext 等 JPA 注解的注入
+	 * 	RequiredAnnotationBeanPostProcessor    执行 @Required 注解的检查
 	 */
 	PropertyValues postProcessPropertyValues(
 			PropertyValues pvs, PropertyDescriptor[] pds, Object bean, String beanName) throws BeansException;

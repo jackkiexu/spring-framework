@@ -71,6 +71,11 @@ import org.springframework.util.Assert;
  * @since 2.0
  * @see #setRequiredAnnotationType
  * @see Required
+ *
+ * 参考地址 http://jinnianshilongnian.iteye.com/blog/1492424
+ * 当在配置文件有 <context:annotation-config> 或 <context:component-scan> 时, 会自动进行注册 RequiredAnnotationBeanPostProcessor
+ *
+ *
  */
 public class RequiredAnnotationBeanPostProcessor extends InstantiationAwareBeanPostProcessorAdapter
 		implements MergedBeanDefinitionPostProcessor, PriorityOrdered, BeanFactoryAware {
@@ -140,7 +145,7 @@ public class RequiredAnnotationBeanPostProcessor extends InstantiationAwareBeanP
 	}
 
 	@Override
-	public PropertyValues postProcessPropertyValues(
+	public PropertyValues postProcessPropertyValues(																	// 主要是针对 @Reqiured 注解的注入
 			PropertyValues pvs, PropertyDescriptor[] pds, Object bean, String beanName) throws BeansException {
 
 		if (!this.validatedBeanNames.contains(beanName)) {

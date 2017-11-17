@@ -40,11 +40,13 @@ import org.springframework.beans.factory.xml.ParserContext;
  * http://www.cnblogs.com/question-sky/p/7020022.html
  * context:annotation-config 的解析
  *
- * ConfigurationClassPostProcessor解析@Configuration注解类
- * AutowiredAnnotationBeanPostProcessor解析@Autowired/@Value注解
- * RequiredAnnotationBeanPostProcessor解析@Required注解
- * CommonAnnotationBeanPostProcessor解析@Resource注解
- * PersistenceAnnotationBeanPostProcessor解析JPA注解，持久层
+ * ConfigurationClassPostProcessor             解析@Configuration注解类
+ * AutowiredAnnotationBeanPostProcessor        解析@Autowired/@Value注解
+ * RequiredAnnotationBeanPostProcessor         解析@Required注解
+ * CommonAnnotationBeanPostProcessor           解析@Resource注解
+ * PersistenceAnnotationBeanPostProcessor      解析JPA注解，持久层
+ *
+ * 下面是注册 常见的几个 BeanPostProcessor 来进行对 Bean 上的 @Autowired, @Value 等注解进行处理
  */
 public class AnnotationConfigBeanDefinitionParser implements BeanDefinitionParser {
 

@@ -114,6 +114,9 @@ import org.springframework.util.StringUtils;
  * @see Autowired
  * @see Value
  *
+ *  参考资料 http://jinnianshilongnian.iteye.com/blog/1492424
+ *  在配置 <context:annotation-config> 或 <context:component-scan> 时会注册 AutowiredAnnotationBeanPostProcessor
+ *
  * 参考资料
  * http://www.shangyang.me/2017/04/05/spring-core-container-sourcecode-analysis-annotation-autowired/#作为-InstantiationAwareBeanPostProcessor-的行为
  */
@@ -242,7 +245,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 
 	@Override
 	public Constructor<?>[] determineCandidateConstructors(Class<?> beanClass, final String beanName)
-			throws BeanCreationException {
+			throws BeanCreationException {																				// 决定候选构造器
 
 		// Let's check for lookup methods here..
 		if (!this.lookupMethodsChecked.contains(beanName)) {
@@ -295,7 +298,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 					Constructor<?> requiredConstructor = null;
 					Constructor<?> defaultConstructor = null;
 					for (Constructor<?> candidate : rawCandidates) {
-						AnnotationAttributes ann = findAutowiredAnnotation(candidate);
+						AnnotationAttributes ann = findAutowiredAnnotation(candidate);			// 这里是寻找 被 @Autowired, @Value 注解修饰的构造器
 						if (ann == null) {
 							Class<?> userClass = ClassUtils.getUserClass(beanClass);
 							if (userClass != beanClass) {
@@ -361,7 +364,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 	}
 
 	@Override
-	public PropertyValues postProcessPropertyValues(
+	public PropertyValues postProcessPropertyValues(																		// 进行依赖注入(主要是 基于 @Autowired, @Value 注解)
 			PropertyValues pvs, PropertyDescriptor[] pds, Object bean, String beanName) throws BeanCreationException {
 
 		InjectionMetadata metadata = findAutowiringMetadata(beanName, bean.getClass(), pvs);

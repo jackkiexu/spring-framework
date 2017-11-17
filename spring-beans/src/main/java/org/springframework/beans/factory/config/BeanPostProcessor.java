@@ -52,6 +52,9 @@ public interface BeanPostProcessor {
 	 * if {@code null}, no subsequent BeanPostProcessors will be invoked
 	 * @throws org.springframework.beans.BeansException in case of errors
 	 * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet
+	 *
+	 * InitDestoryAnnotationBeanPostProcessor 完成 @PostConstruct注解初始化方法调用
+	 * ApplicationContextAwareProcessor 完成一些 Aware 接口的注入s
 	 */
 	// 为在 Bean 初始化前提供回调入口
 	Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException;

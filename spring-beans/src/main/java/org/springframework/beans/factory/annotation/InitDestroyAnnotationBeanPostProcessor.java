@@ -127,6 +127,7 @@ public class InitDestroyAnnotationBeanPostProcessor
 		}
 	}
 
+	// 调用 @PostConstruct 修饰的方法
 	@Override
 	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
 		LifecycleMetadata metadata = findLifecycleMetadata(bean.getClass());
@@ -147,6 +148,7 @@ public class InitDestroyAnnotationBeanPostProcessor
 		return bean;
 	}
 
+	// 调用 @PreDestroy 修饰的方法
 	@Override
 	public void postProcessBeforeDestruction(Object bean, String beanName) throws BeansException {
 		LifecycleMetadata metadata = findLifecycleMetadata(bean.getClass());

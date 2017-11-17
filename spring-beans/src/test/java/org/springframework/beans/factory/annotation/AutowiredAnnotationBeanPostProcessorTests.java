@@ -70,6 +70,9 @@ import org.springframework.util.SerializationTestUtils;
 import static org.junit.Assert.*;
 
 /**
+ * 参考资料 http://jinnianshilongnian.iteye.com/blog/1492424
+ *  在配置 <context:annotation-config> 或 <context:component-scan> 时会注册 AutowiredAnnotationBeanPostProcessor
+ *
  * @author Juergen Hoeller
  * @author Mark Fisher
  * @author Sam Brannen

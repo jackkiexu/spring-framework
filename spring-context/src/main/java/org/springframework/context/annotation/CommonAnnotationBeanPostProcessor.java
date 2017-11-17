@@ -309,6 +309,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 		return true;
 	}
 
+	// 这里就是进行 注入 @Resource修饰的 成员变量
 	@Override
 	public PropertyValues postProcessPropertyValues(
 			PropertyValues pvs, PropertyDescriptor[] pds, Object bean, String beanName) throws BeansException {

@@ -238,7 +238,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	}
 
 	@Override
-	public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) throws BeansException {
+	public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) throws BeansException {				// 在 Bean 实例化前面 进行处理
 		// 根据给定的 bean 的 class 和 name 构建出个 key, 格式: beanClassName_beanName
 		Object cacheKey = getCacheKey(beanClass, beanName);
 
@@ -272,7 +272,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	}
 
 	@Override
-	public boolean postProcessAfterInstantiation(Object bean, String beanName) {
+	public boolean postProcessAfterInstantiation(Object bean, String beanName) {		// 在 Bean 实例化 之后 处理这操作
 		return true;
 	}
 
@@ -294,7 +294,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	 * @see #getAdvicesAndAdvisorsForBean
 	 */
 	@Override
-	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {		// 生成代理对象
 		if (bean != null) {
 			// 根据给定的 bean 的 class 和 name 构建出个 key, 格式 beanClassName_beanName
 			Object cacheKey = getCacheKey(bean.getClass(), beanName);
@@ -338,7 +338,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	 */
 	protected Object wrapIfNecessary(Object bean, String beanName, Object cacheKey) {
 		// 如果已经处理过
-		if (beanName != null && this.targetSourcedBeans.contains(beanName)) {
+		if (beanName != null && this.targetSourcedBeans.contains(beanName)) {			// 可能 Bean 已经在 postProcessBeforeInstantiation 中处理过了 (PS: 已经生成代理类了)
 			return bean;
 		}
 		// 无需增强

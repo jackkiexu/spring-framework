@@ -215,7 +215,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 
 
 	@Override
-	public Class<?> predictBeanType(Class<?> beanClass, String beanName) {
+	public Class<?> predictBeanType(Class<?> beanClass, String beanName) {				// 预测 Bean 的类型, 如果目标对象被包裹 且已经生成, 则此处将返回 AOP 代理对象的类型
 		if (this.proxyTypes.isEmpty()) {
 			return null;
 		}
@@ -242,7 +242,11 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		// 根据给定的 bean 的 class 和 name 构建出个 key, 格式: beanClassName_beanName
 		Object cacheKey = getCacheKey(beanClass, beanName);
 
-		if (beanName == null || !this.targetSourcedBeans.contains(beanName)) {
+		/** targetSourcedBeans
+		 * 参考资料: http://jinnianshilongnian.iteye.com/blog/1492424
+		 *
+		 */
+		if (beanName == null || !this.targetSourcedBeans.contains(beanName)) {									// 这里的
 			if (this.advisedBeans.containsKey(cacheKey)) {
 				return null;
 			}

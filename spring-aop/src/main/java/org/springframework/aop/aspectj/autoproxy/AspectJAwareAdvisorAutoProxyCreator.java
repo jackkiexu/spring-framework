@@ -51,6 +51,8 @@ import org.springframework.util.ClassUtils;
  * org.springframework.beans.factory.config.instantiationAwareBeanPostProcessor 接口, 在实例 Bean 之前
  * 将调用该接口的 postProcessBeforeInstantiation() 方法, AspectJAwareAdvisorAutoProxyCreator 实现了
  * InstantiationAwareBeanPostProcessor. 所以当 getbean 时就会执行 postProcessBeforeInstantiation 方法
+ *
+ * AspectJAwareAdvisorAutoProxyCreator 提供对 <aop:config></> 声明式 AOP 的支持
  */
 @SuppressWarnings("serial")
 public class AspectJAwareAdvisorAutoProxyCreator extends AbstractAdvisorAutoProxyCreator {

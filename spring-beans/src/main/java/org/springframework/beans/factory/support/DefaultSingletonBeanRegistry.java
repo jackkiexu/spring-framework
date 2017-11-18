@@ -220,7 +220,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 */
 	public Object getSingleton(String beanName, ObjectFactory<?> singletonFactory) {
 		Assert.notNull(beanName, "'beanName' must not be null");
-		synchronized (this.singletonObjects) {
+		synchronized (this.singletonObjects) {											// 这里面的 synchronized 非常重要, 有了 synchronized 说明, 单例对象可以按照顺序的添加到 singletonObjects
 			// 首先检查对应的 bean 是否已经加载过了, 因为 singleton 模式其实就是复用以创建的 bean
 			Object singletonObject = this.singletonObjects.get(beanName);
 			// 如果为空才可以进行 singleton 的 bean 的初始化
@@ -357,7 +357,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 * @param beanName the name of the singleton about to be created
 	 * @see #isSingletonCurrentlyInCreation
 	 */
-	protected void beforeSingletonCreation(String beanName) {
+	protected void beforeSingletonCreation(String beanName) {			// 将正在创建的 BeanName 加入到 singletonsCurrentlyInCreation(PS: 但为什么要做这一步呢? )
 		if (!this.inCreationCheckExclusions.contains(beanName) && !this.singletonsCurrentlyInCreation.add(beanName)) {
 			throw new BeanCurrentlyInCreationException(beanName);
 		}

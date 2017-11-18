@@ -47,14 +47,17 @@ import org.springframework.web.bind.support.SimpleSessionStatus;
  */
 public class ModelAndViewContainer {
 
+	// 如果为 true, 则在处理器返回 redirect 视图时, 一定不是用 defaultModel
 	private boolean ignoreDefaultModelOnRedirect = false;
 
 	private Object view;
 
 	private final ModelMap defaultModel = new BindingAwareModelMap();
 
+	// redirect 类型的 model
 	private ModelMap redirectModel;
 
+	// 处理器返回 redirect 视图的标志
 	private boolean redirectModelScenario = false;
 
 	/* Names of attributes with binding disabled */
@@ -64,6 +67,7 @@ public class ModelAndViewContainer {
 
 	private final SessionStatus sessionStatus = new SimpleSessionStatus();
 
+	// 情趣是否已经处理完的标志
 	private boolean requestHandled = false;
 
 
@@ -130,7 +134,7 @@ public class ModelAndViewContainer {
 	 * a method argument) and {@code ignoreDefaultModelOnRedirect=false}.
 	 */
 	public ModelMap getModel() {
-		if (useDefaultModel()) {
+		if (useDefaultModel()) {		// 判断是否使用默认视图
 			return this.defaultModel;
 		}
 		else {

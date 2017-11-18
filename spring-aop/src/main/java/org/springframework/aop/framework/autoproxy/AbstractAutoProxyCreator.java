@@ -260,7 +260,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		// Suppresses unnecessary default instantiation of the target bean:
 		// The TargetSource will handle target instances in a custom fashion.
 		if (beanName != null) {
-			TargetSource targetSource = getCustomTargetSource(beanClass, beanName);
+			TargetSource targetSource = getCustomTargetSource(beanClass, beanName);								// 可以配置自己想要的 TargetSourceCreator
 			if (targetSource != null) {
 				this.targetSourcedBeans.add(beanName);
 				// 如果存在增强方法则创建代理
@@ -345,7 +345,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		if (beanName != null && this.targetSourcedBeans.contains(beanName)) {			// 可能 Bean 已经在 postProcessBeforeInstantiation 中处理过了 (PS: 已经生成代理类了)
 			return bean;
 		}
-		// 无需增强
+		// 无需增强		下面 advisedBeans 可能此时还没有含有 cacheKey, 所以 get 出 null
 		if (Boolean.FALSE.equals(this.advisedBeans.get(cacheKey))) { // advisedBeans 的值是在 AbstractAutoProxyCreator.postProcessBeforeInstantiation 里面进行设置
 			return bean;
 		}

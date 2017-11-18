@@ -955,7 +955,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 	 */
 	public static final MethodFilter INIT_BINDER_METHODS = new MethodFilter() {
 		@Override
-		public boolean matches(Method method) {
+		public boolean matches(Method method) {  // 方法上有 InitBinder 注解
 			return AnnotationUtils.findAnnotation(method, InitBinder.class) != null;
 		}
 	};
@@ -965,7 +965,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 	 */
 	public static final MethodFilter MODEL_ATTRIBUTE_METHODS = new MethodFilter() {
 		@Override
-		public boolean matches(Method method) {
+		public boolean matches(Method method) {  // 方法上又 RequestMapping, 但没有 ModelAttributes
 			return ((AnnotationUtils.findAnnotation(method, RequestMapping.class) == null) &&
 					(AnnotationUtils.findAnnotation(method, ModelAttribute.class) != null));
 		}

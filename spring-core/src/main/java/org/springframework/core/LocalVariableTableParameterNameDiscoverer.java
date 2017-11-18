@@ -52,7 +52,7 @@ import org.springframework.util.ClassUtils;
  * @author Chris Beams
  * @since 2.0
  */
-public class LocalVariableTableParameterNameDiscoverer implements ParameterNameDiscoverer {
+public class LocalVariableTableParameterNameDiscoverer implements ParameterNameDiscoverer { // 这里是通过 字节码库 ASM 获取所有方法的 参数名称
 
 	private static final Log logger = LogFactory.getLog(LocalVariableTableParameterNameDiscoverer.class);
 
@@ -108,7 +108,7 @@ public class LocalVariableTableParameterNameDiscoverer implements ParameterNameD
 			}
 			return NO_DEBUG_INFO_MAP;
 		}
-		try {
+		try {													// 这部分就涉及通过 ASM 获取方法的所有参数的名称
 			ClassReader classReader = new ClassReader(is);
 			Map<Member, String[]> map = new ConcurrentHashMap<Member, String[]>(32);
 			classReader.accept(new ParameterNameDiscoveringVisitor(clazz, map), 0);

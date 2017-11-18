@@ -29,7 +29,7 @@ import org.springframework.tests.sample.objects.TestObject;
 
 import static org.junit.Assert.*;
 
-/**
+/** 通过 ASM 来获取一个方法的所有的 参数的名称
  * @author Adrian Colyer
  */
 public class LocalVariableTableParameterNameDiscovererTests {

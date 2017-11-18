@@ -221,7 +221,7 @@ public class AspectJAdviceParameterNameDiscoverer implements ParameterNameDiscov
 	 * @return the parameter names
 	 */
 	@Override
-	public String[] getParameterNames(Method method) {
+	public String[] getParameterNames(Method method) {									 // 绑定 @AspectJ注解的方法的名称
 		this.argumentTypes = method.getParameterTypes();								 // 获取 方法的请求参数类型 (PS: 这里的 argumentTypes 是一个数组类型)
 		this.numberOfRemainingUnboundArguments = this.argumentTypes.length;				 // 获取 方法的请求参数类型的个数
 		this.parameterNameBindings = new String[this.numberOfRemainingUnboundArguments]; //

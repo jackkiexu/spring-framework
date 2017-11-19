@@ -73,6 +73,29 @@ public class PropertyResourceConfigurerTests {
 
 
 	@Test
+	public void testProperties(){
+		BeanDefinition def1 = BeanDefinitionBuilder.genericBeanDefinition(TestBean.class).getBeanDefinition();
+		factory.registerBeanDefinition("tb1", def1);
+
+		PropertyOverrideConfigurer poc1;
+
+		{
+			poc1 = new PropertyOverrideConfigurer();
+			Properties props = new Properties();
+			props.setProperty("tb1.age", "99");
+//			props.setProperty("tb2.name", "test");
+			poc1.setProperties(props);
+		}
+
+		poc1.postProcessBeanFactory(factory);
+
+		TestBean tb1 = (TestBean) factory.getBean("tb1");
+
+		assertEquals(99, tb1.getAge());
+		assertEquals(null, tb1.getName());
+	}
+
+	@Test
 	public void testPropertyOverrideConfigurer() {
 		BeanDefinition def1 = BeanDefinitionBuilder.genericBeanDefinition(TestBean.class).getBeanDefinition();
 		factory.registerBeanDefinition("tb1", def1);

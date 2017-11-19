@@ -31,6 +31,8 @@ import static org.junit.Assert.*;
  * @author Juergen Hoeller
  * @author Sam Brannen
  * @since 21.11.2003
+ *
+ * MethodInvoker 主要是对 method invoker 的一个封装
  */
 public class MethodInvokerTests {
 
@@ -43,7 +45,7 @@ public class MethodInvokerTests {
 		// sanity check: singleton, non-static should work
 		TestClass1 tc1 = new TestClass1();
 		MethodInvoker mi = new MethodInvoker();
-		mi.setTargetObject(tc1);
+		mi.setTargetObject(tc1);					// 设置 MethodInvoker 的 target
 		mi.setTargetMethod("method1");
 		mi.prepare();
 		Integer i = (Integer) mi.invoke();

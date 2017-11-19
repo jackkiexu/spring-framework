@@ -176,7 +176,7 @@ public class ResolvableType implements Serializable {
 	 */
 	private ResolvableType(Class<?> clazz) {
 		this.resolved = (clazz != null ? clazz : Object.class);
-		this.type = this.resolved;
+		this.type = this.resolved;		// type 代表的是 对应的 class
 		this.typeProvider = null;
 		this.variableResolver = null;
 		this.componentType = null;
@@ -197,7 +197,7 @@ public class ResolvableType implements Serializable {
 	 * otherwise {@code null}.
 	 */
 	public Class<?> getRawClass() {
-		if (this.type == this.resolved) {
+		if (this.type == this.resolved) {	// 默认 type = class = resolved
 			return this.resolved;
 		}
 		Type rawType = this.type;
@@ -1246,8 +1246,9 @@ public class ResolvableType implements Serializable {
 	public static ResolvableType forMethodParameter(MethodParameter methodParameter, Type targetType) {
 		Assert.notNull(methodParameter, "MethodParameter must not be null");
 		ResolvableType owner = forType(methodParameter.getContainingClass()).as(methodParameter.getDeclaringClass());
-		return forType(targetType, new MethodParameterTypeProvider(methodParameter), owner.asVariableResolver()).
-				getNested(methodParameter.getNestingLevel(), methodParameter.typeIndexesPerLevel);
+		ResolvableType tmp = forType(targetType, new MethodParameterTypeProvider(methodParameter), owner.asVariableResolver());
+		ResolvableType result = tmp.getNested(methodParameter.getNestingLevel(), methodParameter.typeIndexesPerLevel);
+		return result;
 	}
 
 	/**

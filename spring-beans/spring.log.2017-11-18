@@ -1,0 +1,4 @@
+[2017-11-18 23:17:36,755] INFO  main (XmlBeanDefinitionReader.java:338) - Loading XML bean definitions from class path resource [org/springframework/beans/factory/annotation/CustomAutowireConfigurerTests-context.xml]
+[2017-11-18 23:17:43,239] INFO  main (XmlBeanDefinitionReader.java:338) - Loading XML bean definitions from class path resource [org/springframework/beans/factory/annotation/CustomAutowireConfigurerTests-context.xml]
+[2017-11-18 23:22:55,931] INFO  main (XmlBeanDefinitionReader.java:338) - Loading XML bean definitions from class path resource [org/springframework/beans/factory/annotation/CustomAutowireConfigurerTests-context.xml]
+[2017-11-18 23:35:40,164] INFO  main (XmlBeanDefinitionReader.java:338) - Loading XML bean definitions from class path resource [org/springframework/beans/factory/annotation/CustomAutowireConfigurerTests-context.xml]

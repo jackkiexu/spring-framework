@@ -138,7 +138,7 @@ public class MethodInvoker {
 	 * Prepare the specified method.
 	 * The method can be invoked any number of times afterwards.
 	 * @see #getPreparedMethod
-	 * @see #invoke
+	 * @see #invoke					// 通过 targetClass, argment 来获取 对应的 MethodObject
 	 */
 	public void prepare() throws ClassNotFoundException, NoSuchMethodException {
 		if (this.staticMethod != null) {
@@ -169,7 +169,7 @@ public class MethodInvoker {
 			argTypes[i] = (arguments[i] != null ? arguments[i].getClass() : Object.class);
 		}
 
-		// Try to get the exact method first.
+		// Try to get the exact method first.			// 通过 targetClass, targetMethod 获取对应 method
 		try {
 			this.methodObject = targetClass.getMethod(targetMethod, argTypes);
 		}
@@ -266,7 +266,7 @@ public class MethodInvoker {
 			throw new IllegalArgumentException("Target method must not be non-static without a target");
 		}
 		ReflectionUtils.makeAccessible(preparedMethod);
-		return preparedMethod.invoke(targetObject, getArguments());
+		return preparedMethod.invoke(targetObject, getArguments());    // 通过反射 开始调用方法
 	}
 
 

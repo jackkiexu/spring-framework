@@ -32,7 +32,7 @@ import org.springframework.core.MethodParameter;
  * @see AnnotationUtils#synthesizeAnnotation
  * @see AnnotationUtils#synthesizeAnnotationArray
  */
-public class SynthesizingMethodParameter extends MethodParameter {
+public class SynthesizingMethodParameter extends MethodParameter { // Synthesizing 合成综合
 
 	/**
 	 * Create a new {@code SynthesizingMethodParameter} for the given method,

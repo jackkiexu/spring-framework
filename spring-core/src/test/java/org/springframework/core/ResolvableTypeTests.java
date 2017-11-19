@@ -127,7 +127,7 @@ public class ResolvableTypeTests {
 
 	@Test
 	public void forRawClassWithNull() throws Exception {
-		ResolvableType type = ResolvableType.forRawClass(null);
+		ResolvableType type = ResolvableType.forRawClass(null);		// 若 传入的是 null, 则默认 type = Object
 		assertThat(type.getType(), equalTo((Type) Object.class));
 		assertThat(type.getRawClass(), equalTo(Object.class));
 		assertTrue(type.isAssignableFrom(Object.class));

@@ -48,7 +48,7 @@ public class StubArgumentResolver implements HandlerMethodArgumentResolver {
 
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
-		return parameter.getParameterType().equals(this.parameterType);
+		return parameter.getParameterType().equals(this.parameterType);  // 判断 构造函数中的 parameterType 是否等于 传来的 parameter.getParameterType
 	}
 
 	@Override

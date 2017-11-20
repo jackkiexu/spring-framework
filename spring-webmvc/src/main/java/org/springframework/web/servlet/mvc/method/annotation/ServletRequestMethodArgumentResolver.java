@@ -78,7 +78,7 @@ public class ServletRequestMethodArgumentResolver implements HandlerMethodArgume
 
 	@Override
 	public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
-			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {		// 这里其实就是从 webRequest 里面获取 Support 的那几种类型的数据
 
 		Class<?> paramType = parameter.getParameterType();
 		if (WebRequest.class.isAssignableFrom(paramType)) {

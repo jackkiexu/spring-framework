@@ -66,8 +66,8 @@ public class InvocableHandlerMethodTests {
 		assertEquals(1, intResolver.getResolvedParameters().size());
 		assertEquals(1, stringResolver.getResolvedParameters().size());
 		assertEquals("99-value", returnValue);
-		assertEquals("intArg", intResolver.getResolvedParameters().get(0).getParameterName());
-		assertEquals("stringArg", stringResolver.getResolvedParameters().get(0).getParameterName());
+		assertEquals("intArg", intResolver.getResolvedParameters().get(0).getParameterName());				// 获取方法对应的参数的名称
+		assertEquals("stringArg", stringResolver.getResolvedParameters().get(0).getParameterName());		// 获取方法对应的参数的名称
 	}
 
 	@Test
@@ -120,7 +120,7 @@ public class InvocableHandlerMethodTests {
 	}
 
 	@Test
-	public void exceptionInResolvingArg() throws Exception {
+	public void exceptionInResolvingArg() throws Exception {					// 模拟在 argumentResolver 时候报异常
 		HandlerMethodArgumentResolverComposite composite = new HandlerMethodArgumentResolverComposite();
 		composite.addResolver(new ExceptionRaisingArgumentResolver());
 		handlerMethod.setHandlerMethodArgumentResolvers(composite);
@@ -135,7 +135,7 @@ public class InvocableHandlerMethodTests {
 	}
 
 	@Test
-	public void illegalArgumentException() throws Exception {
+	public void illegalArgumentException() throws Exception {			// 在进行 invokeMethod 时候, 输入的参数不对, 导致 invoke 失败
 		StubArgumentResolver intResolver = new StubArgumentResolver(Integer.class, "__invalid__");
 		StubArgumentResolver stringResolver = new StubArgumentResolver(String.class, "value");
 
@@ -197,7 +197,7 @@ public class InvocableHandlerMethodTests {
 	}
 
 	@Test  // SPR-13917
-	public void invocationErrorMessage() throws Exception {
+	public void invocationErrorMessage() throws Exception {						// 因为 InvokeMethod 时传入的参数是 null, 所以报异常
 		HandlerMethodArgumentResolverComposite composite = new HandlerMethodArgumentResolverComposite();
 		composite.addResolver(new StubArgumentResolver(double.class, null));
 

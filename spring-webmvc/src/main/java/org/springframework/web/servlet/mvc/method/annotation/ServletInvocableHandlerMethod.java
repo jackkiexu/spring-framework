@@ -94,8 +94,8 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 	public void invokeAndHandle(ServletWebRequest webRequest, ModelAndViewContainer mavContainer,
 			Object... providedArgs) throws Exception {
 
-		Object returnValue = invokeForRequest(webRequest, mavContainer, providedArgs);
-		setResponseStatus(webRequest);
+		Object returnValue = invokeForRequest(webRequest, mavContainer, providedArgs);		// 通过 argumentResolver 获取参数
+		setResponseStatus(webRequest);														// 这里是设置 http 的 response code 的
 
 		if (returnValue == null) {
 			if (isRequestNotModified(webRequest) || getResponseStatus() != null || mavContainer.isRequestHandled()) {
@@ -110,7 +110,7 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 
 		mavContainer.setRequestHandled(false);
 		try {
-			this.returnValueHandlers.handleReturnValue(
+			this.returnValueHandlers.handleReturnValue(								// 在这里使用了
 					returnValue, getReturnValueType(returnValue), mavContainer, webRequest);
 		}
 		catch (Exception ex) {
@@ -124,7 +124,7 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 	/**
 	 * Set the response status according to the {@link ResponseStatus} annotation.
 	 */
-	private void setResponseStatus(ServletWebRequest webRequest) throws IOException {
+	private void setResponseStatus(ServletWebRequest webRequest) throws IOException {	//
 		HttpStatus status = getResponseStatus();
 		if (status == null) {
 			return;

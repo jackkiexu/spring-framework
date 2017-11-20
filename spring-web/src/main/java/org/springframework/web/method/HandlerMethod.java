@@ -86,7 +86,7 @@ public class HandlerMethod {
 		this.method = method;
 		this.bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
 		this.parameters = initMethodParameters();
-		evaluateResponseStatus();
+		evaluateResponseStatus();						// ResponseStatus 获取对应注解上的信息
 	}
 
 	/**

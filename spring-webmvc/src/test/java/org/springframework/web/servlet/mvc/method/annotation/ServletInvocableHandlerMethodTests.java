@@ -315,11 +315,13 @@ public class ServletInvocableHandlerMethodTests {
 	private static class Handler {
 
 		public String handle() {
+			System.out.println(System.currentTimeMillis());
 			return "view";
 		}
 
 		@ResponseStatus(HttpStatus.BAD_REQUEST)
 		public void responseStatus() {
+			System.out.println(System.currentTimeMillis());
 		}
 
 		@ResponseStatus(code = HttpStatus.BAD_REQUEST, reason = "400 Bad Request")
@@ -329,15 +331,19 @@ public class ServletInvocableHandlerMethodTests {
 
 		@ComposedResponseStatus(responseStatus = HttpStatus.BAD_REQUEST)
 		public void composedResponseStatus() {
+			System.out.println(System.currentTimeMillis());
 		}
 
 		public void httpServletResponse(HttpServletResponse response) {
+			System.out.println(System.currentTimeMillis());
 		}
 
 		public void notModified() {
+			System.out.println(System.currentTimeMillis());
 		}
 
 		public Object dynamicReturnValue(@RequestParam(required=false) String param) {
+			System.out.println(System.currentTimeMillis());
 			return (param != null) ? "view" : new RedirectView("redirectView");
 		}
 	}
@@ -348,6 +354,7 @@ public class ServletInvocableHandlerMethodTests {
 	private static class ResponseStatusHandler {
 
 		public void handle() {
+			System.out.println(System.currentTimeMillis());
 		}
 	}
 

@@ -124,15 +124,15 @@ public class HandlerMethodArgumentResolverComposite implements HandlerMethodArgu
 	/**
 	 * Find a registered {@link HandlerMethodArgumentResolver} that supports the given method parameter.
 	 */
-	private HandlerMethodArgumentResolver getArgumentResolver(MethodParameter parameter) {
+	private HandlerMethodArgumentResolver getArgumentResolver(MethodParameter parameter) {		// 获取 parameter 对应的 argumentResolver
 		HandlerMethodArgumentResolver result = this.argumentResolverCache.get(parameter);
 		if (result == null) {
-			for (HandlerMethodArgumentResolver methodArgumentResolver : this.argumentResolvers) {
+			for (HandlerMethodArgumentResolver methodArgumentResolver : this.argumentResolvers) { // 一个一个便利 argumentResolver, 主要是判断是否支持对应的 MethodParameter
 				if (logger.isTraceEnabled()) {
 					logger.trace("Testing if argument resolver [" + methodArgumentResolver + "] supports [" +
 							parameter.getGenericParameterType() + "]");
 				}
-				if (methodArgumentResolver.supportsParameter(parameter)) {
+				if (methodArgumentResolver.supportsParameter(parameter)) {						// 判断 argumentResolver 是否支持对应的参数 parameter
 					result = methodArgumentResolver;
 					this.argumentResolverCache.put(parameter, result);
 					break;

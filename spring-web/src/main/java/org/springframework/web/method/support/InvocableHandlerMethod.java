@@ -124,8 +124,8 @@ public class InvocableHandlerMethod extends HandlerMethod {
 	 */
 	public Object invokeForRequest(NativeWebRequest request, ModelAndViewContainer mavContainer,
 			Object... providedArgs) throws Exception {
-
-		Object[] args = getMethodArgumentValues(request, mavContainer, providedArgs);
+		// 下面 getMethodArgumentValues 获取参数有两种情况, 一种是直接通过 providedArgs 与请求类型进行匹配, 另外一种是通过 argumentResolver 进行获取
+		Object[] args = getMethodArgumentValues(request, mavContainer, providedArgs);				// 这里就是通过默认的 argumentResolver 来解释对应参数
 		if (logger.isTraceEnabled()) {
 			logger.trace("Invoking '" + ClassUtils.getQualifiedMethodName(getMethod(), getBeanType()) +
 					"' with arguments " + Arrays.toString(args));
@@ -144,16 +144,16 @@ public class InvocableHandlerMethod extends HandlerMethod {
 	private Object[] getMethodArgumentValues(NativeWebRequest request, ModelAndViewContainer mavContainer,
 			Object... providedArgs) throws Exception {
 
-		MethodParameter[] parameters = getMethodParameters();
+		MethodParameter[] parameters = getMethodParameters();			// 这里的 getMethodParameters 其实是在构造 MethodParameters 时创建的
 		Object[] args = new Object[parameters.length];
 		for (int i = 0; i < parameters.length; i++) {
 			MethodParameter parameter = parameters[i];
 			parameter.initParameterNameDiscovery(this.parameterNameDiscoverer);
-			args[i] = resolveProvidedArgument(parameter, providedArgs);
+			args[i] = resolveProvidedArgument(parameter, providedArgs);			    // 这一步是校验参数providedArgs 里面的类型是否满足 parameter 里面的类型
 			if (args[i] != null) {
 				continue;
 			}
-			if (this.argumentResolvers.supportsParameter(parameter)) {
+			if (this.argumentResolvers.supportsParameter(parameter)) {				// 判断是否 argumentResolvers 里面含有对应的 解释器
 				try {
 					args[i] = this.argumentResolvers.resolveArgument(
 							parameter, mavContainer, request, this.dataBinderFactory);
@@ -166,7 +166,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
 					throw ex;
 				}
 			}
-			if (args[i] == null) {
+			if (args[i] == null) {												    // 若没有解释器, 则直接执行这一步
 				throw new IllegalStateException("Could not resolve method parameter at index " +
 						parameter.getParameterIndex() + " in " + parameter.getMethod().toGenericString() +
 						": " + getArgumentResolutionErrorMessage("No suitable resolver for", i));

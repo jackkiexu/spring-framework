@@ -58,7 +58,7 @@ public class ServletResponseMethodArgumentResolver implements HandlerMethodArgum
 	 */
 	@Override
 	public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
-			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {			// 这里的解决参数, 其实就是获取 ServletHttpResponse
 
 		if (mavContainer != null) {
 			mavContainer.setRequestHandled(true);

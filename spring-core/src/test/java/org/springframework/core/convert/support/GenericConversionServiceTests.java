@@ -63,6 +63,10 @@ import static org.junit.Assert.*;
  * @author Phillip Webb
  * @author David Haraburda
  * @author Sam Brannen
+ *
+ * 参考资料
+ * http://www.cnblogs.com/daxin/p/3404374.html
+ * http://b.yannxia.info/2016/12/spring-convert-%E5%85%B7%E4%BD%93%E8%B0%83%E7%94%A8/
  */
 public class GenericConversionServiceTests {
 
@@ -72,7 +76,7 @@ public class GenericConversionServiceTests {
 	@Test
 	public void canConvert() {
 		assertFalse(conversionService.canConvert(String.class, Integer.class));
-		conversionService.addConverterFactory(new StringToNumberConverterFactory());
+		conversionService.addConverterFactory(new StringToNumberConverterFactory());				// 这里的 StringToNumber 是转 String -> Number 以及 Number所有的子类型
 		assertTrue(conversionService.canConvert(String.class, Integer.class));
 	}
 
@@ -102,7 +106,7 @@ public class GenericConversionServiceTests {
 
 	@Test
 	public void convert() {
-		conversionService.addConverterFactory(new StringToNumberConverterFactory());
+		conversionService.addConverterFactory(new StringToNumberConverterFactory());						// 工厂模式 加 适配器模式(PS: 适配成 ConditionalGenericConverter)
 		assertEquals(new Integer(3), conversionService.convert("3", Integer.class));
 	}
 
@@ -211,9 +215,9 @@ public class GenericConversionServiceTests {
 
 	@Test
 	public void convertObjectToPrimitiveViaConverterFactory() {
-		assertFalse(conversionService.canConvert(String.class, int.class));
-		conversionService.addConverterFactory(new StringToNumberConverterFactory());
-		assertTrue(conversionService.canConvert(String.class, int.class));
+		assertFalse(conversionService.canConvert(String.class, int.class));			// 一开始 String 转 int 失败
+		conversionService.addConverterFactory(new StringToNumberConverterFactory());		// 加了 Adaptor 后就可以了
+		assertTrue(conversionService.canConvert(String.class, int.class));				// 这里其实就是判断 类型是否可以转换
 		Integer three = conversionService.convert("3", int.class);
 		assertEquals(3, three.intValue());
 	}
@@ -230,7 +234,7 @@ public class GenericConversionServiceTests {
 		List<Object> raw = new ArrayList<Object>();
 		raw.add("one");
 		raw.add("two");
-		Object converted = conversionService.convert(raw, Iterable.class);
+		Object converted = conversionService.convert(raw, Iterable.class);				// 因为 Array 是 Iterable 的子类, 所以直接返回原来的数据对象就可以
 		assertSame(raw, converted);
 	}
 
@@ -254,7 +258,7 @@ public class GenericConversionServiceTests {
 	@Test
 	public void testInterfaceToString() {
 		conversionService.addConverter(new MyBaseInterfaceToStringConverter());
-		conversionService.addConverter(new ObjectToStringConverter());
+		conversionService.addConverter(new ObjectToStringConverter());							// 加了 ObjectToString, 其实程序还是先从 Source 的最下面的子类开始过滤所有 target 的子类 -> 父类的过程
 		Object converted = conversionService.convert(new MyInterfaceImplementer(), String.class);
 		assertEquals("RESULT", converted);
 	}
@@ -263,7 +267,7 @@ public class GenericConversionServiceTests {
 	public void testInterfaceArrayToStringArray() {
 		conversionService.addConverter(new MyBaseInterfaceToStringConverter());
 		conversionService.addConverter(new ArrayToArrayConverter(conversionService));
-		String[] converted = conversionService.convert(new MyInterface[] {new MyInterfaceImplementer()}, String[].class);
+		String[] converted = conversionService.convert(new MyInterface[] {new MyInterfaceImplementer()}, String[].class);		// 这里面是集合之间转, 所以 先用 ArrayToArrayConverter, 然后再用 MyBaseInterfaceToStringConverter
 		assertEquals("RESULT", converted[0]);
 	}
 

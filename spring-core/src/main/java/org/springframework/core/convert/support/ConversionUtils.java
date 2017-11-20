@@ -55,7 +55,7 @@ abstract class ConversionUtils {
 			// maybe
 			return true;
 		}
-		if (conversionService.canConvert(sourceElementType, targetElementType)) {
+		if (conversionService.canConvert(sourceElementType, targetElementType)) {		// 通过 conversionService 来比较两个元素是否可以转换
 			// yes
 			return true;
 		}

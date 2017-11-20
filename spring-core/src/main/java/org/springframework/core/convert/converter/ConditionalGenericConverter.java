@@ -28,7 +28,16 @@ import org.springframework.core.convert.TypeDescriptor;
  * @author Phillip Webb
  * @since 3.0
  * @see GenericConverter
- * @see ConditionalConverter
+ * @see ConditionalConverter 将一个 source 转换成 一个或多个 对象, 运用一个/多个 converter
+ *
+ * 比如:
+ * class Person {
+ *     Integer age;
+ *     String Name;
+ * }
+ * 这时可以新建一个 ConditionalGenericConverter
+ *      PersonConverterToStringConditionGenericConverter
+ *      其实就是将 Person 里面的各个属性变成 String, 然后再拼接起来
  */
 public interface ConditionalGenericConverter extends GenericConverter, ConditionalConverter {
 

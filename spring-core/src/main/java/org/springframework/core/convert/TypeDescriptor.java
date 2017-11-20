@@ -328,7 +328,7 @@ public class TypeDescriptor implements Serializable {
 	 * @throws IllegalStateException if this type is not a {@code java.util.Collection} or array type
 	 */
 	public TypeDescriptor getElementTypeDescriptor() {
-		if (getResolvableType().isArray()) {
+		if (getResolvableType().isArray()) {				// 如是数组的话, 就获取它里面元素的类型
 			return new TypeDescriptor(getResolvableType().getComponentType(), null, getAnnotations());
 		}
 		if (streamAvailable && StreamDelegate.isStream(getType())) {

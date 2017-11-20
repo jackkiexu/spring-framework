@@ -50,7 +50,7 @@ final class CollectionToArrayConverter implements ConditionalGenericConverter {
 	}
 
 	@Override
-	public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
+	public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {				// 因为是集合与集合之间转, 所以需要比较两个集合所装载元素之间是否可以转
 		return ConversionUtils.canConvertElements(sourceType.getElementTypeDescriptor(), targetType.getElementTypeDescriptor(), this.conversionService);
 	}
 
@@ -62,7 +62,7 @@ final class CollectionToArrayConverter implements ConditionalGenericConverter {
 		Collection<?> sourceCollection = (Collection<?>) source;
 		Object array = Array.newInstance(targetType.getElementTypeDescriptor().getType(), sourceCollection.size());
 		int i = 0;
-		for (Object sourceElement : sourceCollection) {
+		for (Object sourceElement : sourceCollection) {					// 过滤集合里面的每个元素, 然后再在 conversionService 里面调用转换的接口
 			Object targetElement = this.conversionService.convert(sourceElement, sourceType.elementTypeDescriptor(sourceElement), targetType.getElementTypeDescriptor());
 			Array.set(array, i++, targetElement);
 		}

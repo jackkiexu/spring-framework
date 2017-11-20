@@ -62,12 +62,12 @@ import org.springframework.util.StringUtils;
 public class GenericConversionService implements ConfigurableConversionService {
 
 	/**
-	 * General NO-OP converter used when conversion is not required.
+	 * General NO-OP converter used when conversion is not required.  不错任何操作的 GenericConverter
 	 */
 	private static final GenericConverter NO_OP_CONVERTER = new NoOpConverter("NO_OP");
 
 	/**
-	 * Used as a cache entry when no converter is available.
+	 * Used as a cache entry when no converter is available.		 // 没有找到对应匹配转换器时使用
 	 * This converter is never returned.
 	 */
 	private static final GenericConverter NO_MATCH = new NoOpConverter("NO_MATCH");
@@ -88,7 +88,7 @@ public class GenericConversionService implements ConfigurableConversionService {
 
 
 	private final Converters converters = new Converters();
-
+	// 根据 source + target 找到对应的转换器, 并存放在这个缓存里面
 	private final Map<ConverterCacheKey, GenericConverter> converterCache =
 			new ConcurrentReferenceHashMap<ConverterCacheKey, GenericConverter>(64);
 
@@ -110,7 +110,7 @@ public class GenericConversionService implements ConfigurableConversionService {
 
 	@Override
 	public <S, T> void addConverter(Class<S> sourceType, Class<T> targetType, Converter<? super S, ? extends T> converter) {
-		addConverter(new ConverterAdapter(
+		addConverter(new ConverterAdapter(																			// 这里的 ConverterAdapter 是 GenericConverter 类型(PS: Adapter 的作用其实就是将 Converter 转成 GenericConverter 类型)
 				converter, ResolvableType.forClass(sourceType), ResolvableType.forClass(targetType)));
 	}
 
@@ -121,7 +121,7 @@ public class GenericConversionService implements ConfigurableConversionService {
 	}
 
 	@Override
-	public void addConverterFactory(ConverterFactory<?, ?> factory) {
+	public void addConverterFactory(ConverterFactory<?, ?> factory) {											// 这里也是将 ConverterFactory 转换成 GenericConverter 类型
 		ResolvableType[] typeInfo = getRequiredTypeInfo(factory.getClass(), ConverterFactory.class);
 		if (typeInfo == null && factory instanceof DecoratingProxy) {
 			typeInfo = getRequiredTypeInfo(((DecoratingProxy) factory).getDecoratedClass(), ConverterFactory.class);
@@ -261,7 +261,7 @@ public class GenericConversionService implements ConfigurableConversionService {
 	 */
 	protected GenericConverter getConverter(TypeDescriptor sourceType, TypeDescriptor targetType) {
 		ConverterCacheKey key = new ConverterCacheKey(sourceType, targetType);
-		GenericConverter converter = this.converterCache.get(key);
+		GenericConverter converter = this.converterCache.get(key);				// 先从缓存中
 		if (converter != null) {
 			return (converter != NO_MATCH ? converter : null);
 		}
@@ -289,7 +289,7 @@ public class GenericConversionService implements ConfigurableConversionService {
 	 * @return the default generic converter that will perform the conversion
 	 */
 	protected GenericConverter getDefaultConverter(TypeDescriptor sourceType, TypeDescriptor targetType) {
-		return (sourceType.isAssignableTo(targetType) ? NO_OP_CONVERTER : null);
+		return (sourceType.isAssignableTo(targetType) ? NO_OP_CONVERTER : null);		// 若 sourceType 是 targetType 的子类
 	}
 
 
@@ -339,7 +339,7 @@ public class GenericConversionService implements ConfigurableConversionService {
 	}
 
 
-	/**
+	/** 将 Converter 适配成 GenericConverter
 	 * Adapts a {@link Converter} to a {@link GenericConverter}.
 	 */
 	@SuppressWarnings("unchecked")
@@ -365,7 +365,7 @@ public class GenericConversionService implements ConfigurableConversionService {
 		@Override
 		public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
 			// Check raw type first...
-			if (this.typeInfo.getTargetType() != targetType.getObjectType()) {
+			if (this.typeInfo.getTargetType() != targetType.getObjectType()) {		// 检测 TargetType 与传过来的 ObjectType.getClass 是否一致
 				return false;
 			}
 			// Full check for complex generic type match required?
@@ -420,7 +420,7 @@ public class GenericConversionService implements ConfigurableConversionService {
 				matches = ((ConditionalConverter) this.converterFactory).matches(sourceType, targetType);
 			}
 			if (matches) {
-				Converter<?, ?> converter = this.converterFactory.getConverter(targetType.getType());
+				Converter<?, ?> converter = this.converterFactory.getConverter(targetType.getType());		// 其实只要从这里拿出 converter 并且不是 ConditionalConverter 就满足了
 				if (converter instanceof ConditionalConverter) {
 					matches = ((ConditionalConverter) converter).matches(sourceType, targetType);
 				}
@@ -506,7 +506,7 @@ public class GenericConversionService implements ConfigurableConversionService {
 				new LinkedHashMap<ConvertiblePair, ConvertersForPair>(36);
 
 		public void add(GenericConverter converter) {
-			Set<ConvertiblePair> convertibleTypes = converter.getConvertibleTypes();
+			Set<ConvertiblePair> convertibleTypes = converter.getConvertibleTypes(); // Convertible 可转换的
 			if (convertibleTypes == null) {
 				Assert.state(converter instanceof ConditionalConverter,
 						"Only conditional converters may return null convertible types");
@@ -541,12 +541,12 @@ public class GenericConversionService implements ConfigurableConversionService {
 		 * @param targetType the target type
 		 * @return a matching {@link GenericConverter}, or {@code null} if none found
 		 */
-		public GenericConverter find(TypeDescriptor sourceType, TypeDescriptor targetType) {
+		public GenericConverter find(TypeDescriptor sourceType, TypeDescriptor targetType) {			// 可能操作: 将 source 转换成超类, 转换成 target 的超类
 			// Search the full type hierarchy
 			List<Class<?>> sourceCandidates = getClassHierarchy(sourceType.getType());
 			List<Class<?>> targetCandidates = getClassHierarchy(targetType.getType());
-			for (Class<?> sourceCandidate : sourceCandidates) {
-				for (Class<?> targetCandidate : targetCandidates) {
+			for (Class<?> sourceCandidate : sourceCandidates) {							// sourceCandidates 是 原对象的所有 类型(本来Class类型, 父类的类型, 所有的接口的类型)
+				for (Class<?> targetCandidate : targetCandidates) {						// targetCandidates 是 原对象的所有 类型(本来Class类型, 父类的类型, 所有的接口的类型)
 					ConvertiblePair convertiblePair = new ConvertiblePair(sourceCandidate, targetCandidate);
 					GenericConverter converter = getRegisteredConverter(sourceType, targetType, convertiblePair);
 					if (converter != null) {
@@ -557,13 +557,13 @@ public class GenericConversionService implements ConfigurableConversionService {
 			return null;
 		}
 
-		private GenericConverter getRegisteredConverter(TypeDescriptor sourceType,
-				TypeDescriptor targetType, ConvertiblePair convertiblePair) {
+		private GenericConverter getRegisteredConverter(TypeDescriptor sourceType,				// 通过类型一层一层往上走, 直到 能获取
+				TypeDescriptor targetType, ConvertiblePair convertiblePair) {					// 这个函数其实就是 从 converters 里面获取 convertiblePair 对应的转换器(PS: converters 里面的数据是通过代码添加进去的)
 
 			// Check specifically registered converters
 			ConvertersForPair convertersForPair = this.converters.get(convertiblePair);
 			if (convertersForPair != null) {
-				GenericConverter converter = convertersForPair.getConverter(sourceType, targetType);
+				GenericConverter converter = convertersForPair.getConverter(sourceType, targetType);				// 在这里会进行检测 converter 是否满足
 				if (converter != null) {
 					return converter;
 				}
@@ -664,7 +664,7 @@ public class GenericConversionService implements ConfigurableConversionService {
 
 		public GenericConverter getConverter(TypeDescriptor sourceType, TypeDescriptor targetType) {
 			for (GenericConverter converter : this.converters) {
-				if (!(converter instanceof ConditionalGenericConverter) ||
+				if (!(converter instanceof ConditionalGenericConverter) ||							// 这里的条件是 若 Converter 是 ConditionalGenericConverter, 则一定要 满足 matches 方法
 						((ConditionalGenericConverter) converter).matches(sourceType, targetType)) {
 					return converter;
 				}

@@ -39,9 +39,9 @@ public class DefaultParameterNameDiscoverer extends PrioritizedParameterNameDisc
 
 	public DefaultParameterNameDiscoverer() {
 		if (standardReflectionAvailable) {
-			addDiscoverer(new StandardReflectionParameterNameDiscoverer());
+			addDiscoverer(new StandardReflectionParameterNameDiscoverer());		// 这个是通过 Java8 里面的 API 来获取 参数名
 		}
-		addDiscoverer(new LocalVariableTableParameterNameDiscoverer());
+		addDiscoverer(new LocalVariableTableParameterNameDiscoverer());			// 这个是通过 ASM 来获取参数名
 	}
 
 }

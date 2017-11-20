@@ -514,7 +514,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
 		if (this.argumentResolvers == null) {
 			List<HandlerMethodArgumentResolver> resolvers = getDefaultArgumentResolvers();
-			this.argumentResolvers = new HandlerMethodArgumentResolverComposite().addResolvers(resolvers);
+			this.argumentResolvers = new HandlerMethodArgumentResolverComposite().addResolvers(resolvers);					// Spring 里面 composite 模式 的提现
 		}
 		if (this.initBinderArgumentResolvers == null) {
 			List<HandlerMethodArgumentResolver> resolvers = getDefaultInitBinderArgumentResolvers();

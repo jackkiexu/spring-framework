@@ -54,7 +54,7 @@ public class StringHttpMessageConverterTests {
 
 	@Test
 	public void canRead() {
-		assertTrue(this.converter.canRead(String.class, MediaType.TEXT_PLAIN));
+		assertTrue(this.converter.canRead(String.class, MediaType.TEXT_PLAIN));				// 测试是否支持 给定的 TEXT_PLAIN
 	}
 
 	@Test

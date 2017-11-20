@@ -275,7 +275,7 @@ public class RequestMappingHandlerAdapterTests {
 	}
 
 	private HandlerMethod handlerMethod(Object handler, String methodName, Class<?>... paramTypes) throws Exception {
-		Method method = handler.getClass().getDeclaredMethod(methodName, paramTypes);
+		Method method = handler.getClass().getDeclaredMethod(methodName, paramTypes);				// 获取对应的请求方法
 		return new InvocableHandlerMethod(handler, method);
 	}
 

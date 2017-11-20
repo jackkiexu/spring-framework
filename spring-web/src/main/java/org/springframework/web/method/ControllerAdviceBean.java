@@ -212,9 +212,9 @@ public class ControllerAdviceBean implements Ordered {
 	 */
 	public static List<ControllerAdviceBean> findAnnotatedBeans(ApplicationContext applicationContext) {
 		List<ControllerAdviceBean> beans = new ArrayList<ControllerAdviceBean>();
-		for (String name : BeanFactoryUtils.beanNamesForTypeIncludingAncestors(applicationContext, Object.class)) {
-			if (applicationContext.findAnnotationOnBean(name, ControllerAdvice.class) != null) {
-				beans.add(new ControllerAdviceBean(name, applicationContext));
+		for (String name : BeanFactoryUtils.beanNamesForTypeIncludingAncestors(applicationContext, Object.class)) {		// 获取容器中所有 类的名称
+			if (applicationContext.findAnnotationOnBean(name, ControllerAdvice.class) != null) {							// 查看 name 对应 Class 上面有没有修饰  注解 ControllerAdvice
+				beans.add(new ControllerAdviceBean(name, applicationContext));												// 若存在的话, 封装成 ControllerAdviceBean 对象
 			}
 		}
 		return beans;

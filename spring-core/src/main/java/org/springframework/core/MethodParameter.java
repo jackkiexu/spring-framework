@@ -540,7 +540,7 @@ public class MethodParameter {
 	 * {@link #initParameterNameDiscovery ParameterNameDiscoverer}
 	 * has been set to begin with)
 	 */
-	public String getParameterName() {
+	public String getParameterName() {												// 在这里就调用 DefaultParameterNameDiscover 来进行获取对应的参数的名称
 		ParameterNameDiscoverer discoverer = this.parameterNameDiscoverer;
 		if (discoverer != null) {
 			String[] parameterNames = (this.method != null ?

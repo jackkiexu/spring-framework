@@ -98,7 +98,7 @@ public class LocalVariableTableParameterNameDiscoverer implements ParameterNameD
 	 * to indicate the lack of debug information.
 	 */
 	private Map<Member, String[]> inspectClass(Class<?> clazz) {		// 通过 asm 来获取请求参数的名称
-		InputStream is = clazz.getResourceAsStream(ClassUtils.getClassFileName(clazz));		// asm 需要读取class字节流信息, 然后才能获取对应值
+		InputStream is = clazz.getResourceAsStream(ClassUtils.getClassFileName(clazz));
 		if (is == null) {
 			// We couldn't load the class file, which is not fatal as it
 			// simply means this method of discovering parameter names won't work.

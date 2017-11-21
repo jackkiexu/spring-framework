@@ -57,9 +57,9 @@ import org.springframework.util.StringUtils;
  * The binding process can be customized through specifying allowed fields,
  * required fields, custom editors, etc.
  *
- * <p>Note that there are potential security implications in failing to set an array
- * of allowed fields. In the case of HTTP form POST data for example, malicious clients
- * can attempt to subvert an application by supplying values for fields or properties
+ * <p>Note that there are potential security implications(含蓄, 暗示) in failing to set an array
+ * of allowed fields. In the case of HTTP form POST data for example, malicious(有敌意的) clients
+ * can attempt to subvert(破坏) an application by supplying values for fields or properties
  * that do not exist on the form. In some cases this could lead to illegal data being
  * set on command objects <i>or their nested objects</i>. For this reason, it is
  * <b>highly recommended to specify the {@link #setAllowedFields allowedFields} property</b>

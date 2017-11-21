@@ -80,7 +80,7 @@ public class ContentNegotiationManager implements ContentNegotiationStrategy, Me
 	 * Create a default instance with a {@link HeaderContentNegotiationStrategy}.
 	 */
 	public ContentNegotiationManager() {
-		this(new HeaderContentNegotiationStrategy());
+		this(new HeaderContentNegotiationStrategy()); // negotagtion 谈判转让
 	}
 
 

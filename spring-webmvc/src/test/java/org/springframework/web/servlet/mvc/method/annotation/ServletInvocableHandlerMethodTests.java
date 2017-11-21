@@ -147,7 +147,7 @@ public class ServletInvocableHandlerMethodTests {
 	}
 
 	@Test
-	public void invokeAndHandle_DynamicReturnValue() throws Exception {
+	public void invokeAndHandle_DynamicReturnValue() throws Exception {										// 非常复杂的一个 Test 用例
 		this.argumentResolvers.addResolver(new RequestParamMethodArgumentResolver(null, false));
 		this.returnValueHandlers.addHandler(new ViewMethodReturnValueHandler());
 		this.returnValueHandlers.addHandler(new ViewNameMethodReturnValueHandler());

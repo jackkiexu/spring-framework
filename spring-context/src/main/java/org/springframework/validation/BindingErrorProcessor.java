@@ -19,7 +19,7 @@ package org.springframework.validation;
 import org.springframework.beans.PropertyAccessException;
 
 /**
- * Strategy for processing {@code DataBinder}'s missing field errors,
+ * Strategy for processing {@code DataBinder}'s missing field errors,  当出现 参数绑定出错时, 如何进行处理
  * and for translating a {@code PropertyAccessException} to a
  * {@code FieldError}.
  *

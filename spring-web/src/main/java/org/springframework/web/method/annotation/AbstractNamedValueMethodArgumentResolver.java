@@ -159,7 +159,7 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 	/**
 	 * Create a new NamedValueInfo based on the given NamedValueInfo with sanitized values.
 	 */
-	private NamedValueInfo updateNamedValueInfo(MethodParameter parameter, NamedValueInfo info) {
+	private NamedValueInfo updateNamedValueInfo(MethodParameter parameter, NamedValueInfo info) {			// 这个方法主要是为了 获取 参数的名称, 以及 对应的 默认 defaultValue
 		String name = info.name;
 		if (info.name.isEmpty()) {
 			name = parameter.getParameterName();
@@ -177,7 +177,7 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 	 * Resolve the given annotation-specified value,
 	 * potentially containing placeholders and expressions.
 	 */
-	private Object resolveStringValue(String value) {
+	private Object resolveStringValue(String value) {				// 绝对的夸张, 这里还支持 Spring de 表达式解析参数名称
 		if (this.configurableBeanFactory == null) {
 			return value;
 		}

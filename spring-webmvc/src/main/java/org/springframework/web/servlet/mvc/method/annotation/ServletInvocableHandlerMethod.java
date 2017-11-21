@@ -193,7 +193,7 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 					}
 					return result;
 				}
-			}, CALLABLE_METHOD);
+			}, CALLABLE_METHOD);				// CALLABLE_METHOD 就是 Callable.class 的 call() method
 
 			setHandlerMethodReturnValueHandlers(ServletInvocableHandlerMethod.this.returnValueHandlers);
 			this.returnType = returnType;

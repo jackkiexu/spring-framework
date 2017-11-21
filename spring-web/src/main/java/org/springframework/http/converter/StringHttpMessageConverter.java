@@ -61,7 +61,7 @@ public class StringHttpMessageConverter extends AbstractHttpMessageConverter<Str
 	 * type does not specify one.
 	 */
 	public StringHttpMessageConverter(Charset defaultCharset) {
-		super(defaultCharset, MediaType.TEXT_PLAIN, MediaType.ALL);
+		super(defaultCharset, MediaType.TEXT_PLAIN, MediaType.ALL);		// 设置 处理器默认的处理数据类型
 	}
 
 

@@ -53,7 +53,7 @@ public class ObjectToStringHttpMessageConverterTests {
 
 	@Before
 	public void setUp() {
-		ConversionService conversionService = new DefaultConversionService();
+		ConversionService conversionService = new DefaultConversionService();			// conversion 转换
 		this.converter = new ObjectToStringHttpMessageConverter(conversionService);
 
 		this.servletResponse = new MockHttpServletResponse();

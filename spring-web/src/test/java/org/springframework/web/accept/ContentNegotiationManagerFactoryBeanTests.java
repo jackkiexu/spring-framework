@@ -38,7 +38,7 @@ import static org.junit.Assert.*;
  *
  * @author Rossen Stoyanchev
  */
-public class ContentNegotiationManagerFactoryBeanTests {
+public class ContentNegotiationManagerFactoryBeanTests {  		// Negotiation 谈判
 
 	private ContentNegotiationManagerFactoryBean factoryBean;
 

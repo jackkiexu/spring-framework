@@ -145,7 +145,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
 		if (mediaType == null) {
 			return true;
 		}
-		for (MediaType supportedMediaType : getSupportedMediaTypes()) {
+		for (MediaType supportedMediaType : getSupportedMediaTypes()) {			// 这里主要是看 MediaType 是否支持
 			if (supportedMediaType.includes(mediaType)) {
 				return true;
 			}

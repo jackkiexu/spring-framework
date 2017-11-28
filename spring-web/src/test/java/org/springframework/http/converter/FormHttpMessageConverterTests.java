@@ -76,7 +76,7 @@ public class FormHttpMessageConverterTests {
 
 	@Test
 	public void canRead() {
-		assertTrue(this.converter.canRead(MultiValueMap.class,
+		assertTrue(this.converter.canRead(MultiValueMap.class,					// 这里主要还是 判断 supportedMediaTypes 里面是否包含 参数中的 MediaType
 				new MediaType("application", "x-www-form-urlencoded")));
 		assertFalse(this.converter.canRead(MultiValueMap.class,
 				new MediaType("multipart", "form-data")));
@@ -155,7 +155,7 @@ public class FormHttpMessageConverterTests {
 		parts.add("xml", entity);
 
 		MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
-		this.converter.setMultipartCharset(UTF_8);
+		this.converter.setMultipartCharset(UTF_8);												// 编码模式
 		this.converter.write(parts, new MediaType("multipart", "form-data", UTF_8), outputMessage);
 
 		final MediaType contentType = outputMessage.getHeaders().getContentType();

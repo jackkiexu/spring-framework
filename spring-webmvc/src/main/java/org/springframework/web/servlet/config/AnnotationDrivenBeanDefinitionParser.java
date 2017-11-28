@@ -164,7 +164,7 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 	private static final boolean javaxValidationPresent =
 			ClassUtils.isPresent("javax.validation.Validator", AnnotationDrivenBeanDefinitionParser.class.getClassLoader());
 
-	private static boolean romePresent =
+	private static boolean romePresent =														// 这一步操作主要还是检测 类WireFeed 是否在 ClassPath 路径上
 			ClassUtils.isPresent("com.rometools.rome.feed.WireFeed", AnnotationDrivenBeanDefinitionParser.class.getClassLoader());
 
 	private static final boolean jaxb2Present =

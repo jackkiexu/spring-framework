@@ -105,7 +105,7 @@ public class RequestResponseBodyMethodProcessorTests {
 		Method method = getClass().getDeclaredMethod("handle", List.class, SimpleBean.class,
 				MultiValueMap.class, String.class);
 
-		paramGenericList = new MethodParameter(method, 0);
+		paramGenericList = new MethodParameter(method, 0);			// MethodParameter 构造函数里面的 0, 1, 2, 3 表示的是 构造函数参数的位置
 		paramSimpleBean = new MethodParameter(method, 1);
 		paramMultiValueMap = new MethodParameter(method, 2);
 		paramString = new MethodParameter(method, 3);

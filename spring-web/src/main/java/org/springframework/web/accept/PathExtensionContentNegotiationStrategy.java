@@ -50,7 +50,7 @@ import org.springframework.web.util.UrlPathHelper;
  * {@link #setUseJaf(boolean)} property may be set to false.
  *
  * @author Rossen Stoyanchev
- * @since 3.2
+ * @since 3.2         其实就是通过 URI 的扩展名 来获取对应的 MediaType
  */
 public class PathExtensionContentNegotiationStrategy extends AbstractMappingContentNegotiationStrategy {
 
@@ -117,8 +117,8 @@ public class PathExtensionContentNegotiationStrategy extends AbstractMappingCont
 			logger.warn("An HttpServletRequest is required to determine the media type key");
 			return null;
 		}
-		String path = this.urlPathHelper.getLookupPathForRequest(request);
-		String extension = UriUtils.extractFileExtension(path);
+		String path = this.urlPathHelper.getLookupPathForRequest(request);				// 通过 request 来获取对应的 path
+		String extension = UriUtils.extractFileExtension(path);								// 获取 path 中的扩展
 		return (StringUtils.hasText(extension) ? extension.toLowerCase(Locale.ENGLISH) : null);
 	}
 
@@ -127,7 +127,7 @@ public class PathExtensionContentNegotiationStrategy extends AbstractMappingCont
 			throws HttpMediaTypeNotAcceptableException {
 
 		if (this.useJaf && JAF_PRESENT) {
-			MediaType mediaType = ActivationMediaTypeFactory.getMediaType("file." + extension);
+			MediaType mediaType = ActivationMediaTypeFactory.getMediaType("file." + extension);		// 通过 URI 的扩展名 来获取对应的 MediaType
 			if (mediaType != null && !MediaType.APPLICATION_OCTET_STREAM.equals(mediaType)) {
 				return mediaType;
 			}
@@ -211,7 +211,7 @@ public class PathExtensionContentNegotiationStrategy extends AbstractMappingCont
 		}
 
 		public static MediaType getMediaType(String filename) {
-			String mediaType = fileTypeMap.getContentType(filename);
+			String mediaType = fileTypeMap.getContentType(filename);		// 获取对应的 mediaType
 			return (StringUtils.hasText(mediaType) ? MediaType.parseMediaType(mediaType) : null);
 		}
 	}

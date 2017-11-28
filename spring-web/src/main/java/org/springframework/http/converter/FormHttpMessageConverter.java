@@ -224,11 +224,11 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 	public MultiValueMap<String, String> read(Class<? extends MultiValueMap<String, ?>> clazz,
 			HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
 
-		MediaType contentType = inputMessage.getHeaders().getContentType();
-		Charset charset = (contentType.getCharset() != null ? contentType.getCharset() : this.charset);
+		MediaType contentType = inputMessage.getHeaders().getContentType();									// 获取 Http Header 中的 MediaType
+		Charset charset = (contentType.getCharset() != null ? contentType.getCharset() : this.charset);	// 获取 body 里面的 编码格式
 		String body = StreamUtils.copyToString(inputMessage.getBody(), charset);
 
-		String[] pairs = StringUtils.tokenizeToStringArray(body, "&");
+		String[] pairs = StringUtils.tokenizeToStringArray(body, "&");										// form 表单都是通过 & 符号进行分割
 		MultiValueMap<String, String> result = new LinkedMultiValueMap<String, String>(pairs.length);
 		for (String pair : pairs) {
 			int idx = pair.indexOf('=');
@@ -241,7 +241,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 				result.add(name, value);
 			}
 		}
-		return result;
+		return result;																						// 获取最终 form 表单提交的数据
 	}
 
 	@Override
@@ -249,7 +249,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 	public void write(MultiValueMap<String, ?> map, MediaType contentType, HttpOutputMessage outputMessage)
 			throws IOException, HttpMessageNotWritableException {
 
-		if (!isMultipart(map, contentType)) {
+		if (!isMultipart(map, contentType)) {																// 判断是否是文件上传类型的 http 请求
 			writeForm((MultiValueMap<String, String>) map, contentType, outputMessage);
 		}
 		else {
@@ -277,15 +277,15 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 
 		Charset charset;
 		if (contentType != null) {
-			outputMessage.getHeaders().setContentType(contentType);
-			charset = (contentType.getCharset() != null ? contentType.getCharset() : this.charset);
+			outputMessage.getHeaders().setContentType(contentType);												// 设置 Http 请求的 contentType
+			charset = (contentType.getCharset() != null ? contentType.getCharset() : this.charset);			// 获取对应的 body 编码格式
 		}
 		else {
 			outputMessage.getHeaders().setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 			charset = this.charset;
 		}
 		StringBuilder builder = new StringBuilder();
-		for (Iterator<String> nameIterator = form.keySet().iterator(); nameIterator.hasNext();) {
+		for (Iterator<String> nameIterator = form.keySet().iterator(); nameIterator.hasNext();) {			    // 拼接对应的 form 里面的数据
 			String name = nameIterator.next();
 			for (Iterator<String> valueIterator = form.get(name).iterator(); valueIterator.hasNext();) {
 				String value = valueIterator.next();
@@ -302,7 +302,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 				builder.append('&');
 			}
 		}
-		final byte[] bytes = builder.toString().getBytes(charset.name());
+		final byte[] bytes = builder.toString().getBytes(charset.name());										// 获取对应内容的 字节数组
 		outputMessage.getHeaders().setContentLength(bytes.length);
 
 		if (outputMessage instanceof StreamingHttpOutputMessage) {
@@ -315,13 +315,13 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 			});
 		}
 		else {
-			StreamUtils.copy(bytes, outputMessage.getBody());
+			StreamUtils.copy(bytes, outputMessage.getBody());													// 将 byte 数组 放入到 HttpOutputMessage 里面
 		}
 	}
 
 	private void writeMultipart(final MultiValueMap<String, Object> parts, HttpOutputMessage outputMessage) throws IOException {
-		final byte[] boundary = generateMultipartBoundary();
-		Map<String, String> parameters = Collections.singletonMap("boundary", new String(boundary, "US-ASCII"));
+		final byte[] boundary = generateMultipartBoundary();																	// 生成 multipart 数据的边界
+		Map<String, String> parameters = Collections.singletonMap("boundary", new String(boundary, "US-ASCII"));				// 生成一个 immutable 的单个键值对的 Map
 
 		MediaType contentType = new MediaType(MediaType.MULTIPART_FORM_DATA, parameters);
 		HttpHeaders headers = outputMessage.getHeaders();
@@ -406,7 +406,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 	 * @return the filename, or {@code null} if not known
 	 */
 	protected String getFilename(Object part) {
-		if (part instanceof Resource) {
+		if (part instanceof Resource) {				// 判断 part 是否是一个 resource
 			Resource resource = (Resource) part;
 			String filename = resource.getFilename();
 			if (filename != null && this.multipartCharset != null) {

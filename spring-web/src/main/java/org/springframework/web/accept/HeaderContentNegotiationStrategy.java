@@ -27,6 +27,10 @@ import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.context.request.NativeWebRequest;
 
 /**
+ * 参考资料 : http://www.logicbig.com/tutorials/spring-framework/spring-web-mvc/content-negotiation/
+ *
+ * It reads the 'Accept' request  header to resolve the MediaTypes
+ *
  * A {@code ContentNegotiationStrategy} that checks the 'Accept' request header.
  *
  * @author Rossen Stoyanchev
@@ -50,7 +54,7 @@ public class HeaderContentNegotiationStrategy implements ContentNegotiationStrat
 
 		List<String> headerValues = Arrays.asList(headerValueArray);
 		try {
-			List<MediaType> mediaTypes = MediaType.parseMediaTypes(headerValues);
+			List<MediaType> mediaTypes = MediaType.parseMediaTypes(headerValues);			// 根据 Accepts 来生成对应的 MediaType
 			MediaType.sortBySpecificityAndQuality(mediaTypes);
 			return mediaTypes;
 		}

@@ -46,7 +46,7 @@ public class HeaderContentNegotiationStrategyTests {
 	@Test
 	public void resolveMediaTypes() throws Exception {
 		this.servletRequest.addHeader("Accept", "text/plain; q=0.5, text/html, text/x-dvi; q=0.8, text/x-c");
-		List<MediaType> mediaTypes = this.strategy.resolveMediaTypes(this.webRequest);
+		List<MediaType> mediaTypes = this.strategy.resolveMediaTypes(this.webRequest);				// 根据 Accepts 来获取 对应的 MediaType
 
 		assertEquals(4, mediaTypes.size());
 		assertEquals("text/html", mediaTypes.get(0).toString());
@@ -59,7 +59,7 @@ public class HeaderContentNegotiationStrategyTests {
 	public void resolveMediaTypesFromMultipleHeaderValues() throws Exception {
 		this.servletRequest.addHeader("Accept", "text/plain; q=0.5, text/html");
 		this.servletRequest.addHeader("Accept", "text/x-dvi; q=0.8, text/x-c");
-		List<MediaType> mediaTypes = this.strategy.resolveMediaTypes(this.webRequest);
+		List<MediaType> mediaTypes = this.strategy.resolveMediaTypes(this.webRequest);			// 根据 Accepts 来获取 对应的 MediaType
 
 		assertEquals(4, mediaTypes.size());
 		assertEquals("text/html", mediaTypes.get(0).toString());

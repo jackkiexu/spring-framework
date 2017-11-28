@@ -27,6 +27,14 @@ import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.context.request.NativeWebRequest;
 
 /**
+ * 参考地址: http://www.logicbig.com/tutorials/spring-framework/spring-web-mvc/content-negotiation/
+ * It resolves the file extension in the request path to a media type. It also uses ServletContext.getMimeType(String) to
+ * resolve file extensions
+ *
+ * By default 'xml' file extension is registered targeting MediaType.APPLICATION_XML. Depending on the related dependencies
+ * present in the classpath, more extensions (json, xml, rss, atom) are registered by default. Check out the source code of
+ * WebMvcConfigurationSupport#getDefaultMediaTypes()
+ *
  * Extends {@code PathExtensionContentNegotiationStrategy} that also uses
  * {@link ServletContext#getMimeType(String)} to resolve file extensions.
  *

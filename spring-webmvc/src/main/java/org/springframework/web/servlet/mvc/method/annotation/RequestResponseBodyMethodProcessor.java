@@ -65,7 +65,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 	 * providing a {@code ContentNegotiationManager}.
 	 */
 	public RequestResponseBodyMethodProcessor(List<HttpMessageConverter<?>> converters) {
-		super(converters);				// ´«Èë HttpMessageConverter ×ª»»Æ÷
+		super(converters);
 	}
 
 	/**

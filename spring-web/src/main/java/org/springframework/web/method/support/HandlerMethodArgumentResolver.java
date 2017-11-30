@@ -22,6 +22,7 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 
 /**
+ * 参考地址: http://lgbolgger.iteye.com/blog/2111131
  * Strategy interface for resolving method parameters into argument values in
  * the context of a given request.
  *
@@ -38,7 +39,7 @@ public interface HandlerMethodArgumentResolver {
 	 * @return {@code true} if this resolver supports the supplied parameter;
 	 * {@code false} otherwise
 	 */
-	boolean supportsParameter(MethodParameter parameter);
+	boolean supportsParameter(MethodParameter parameter);					// 判断 这个 HandlerMethodArgumentResolver 是否支持 resolver 这个参数
 
 	/**
 	 * Resolves a method parameter into an argument value from a given request.

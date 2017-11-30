@@ -226,7 +226,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 
 		MediaType contentType = inputMessage.getHeaders().getContentType();									// 获取 Http Header 中的 MediaType
 		Charset charset = (contentType.getCharset() != null ? contentType.getCharset() : this.charset);	// 获取 body 里面的 编码格式
-		String body = StreamUtils.copyToString(inputMessage.getBody(), charset);
+		String body = StreamUtils.copyToString(inputMessage.getBody(), charset);							// 获取 body 里面的字符串
 
 		String[] pairs = StringUtils.tokenizeToStringArray(body, "&");										// form 表单都是通过 & 符号进行分割
 		MultiValueMap<String, String> result = new LinkedMultiValueMap<String, String>(pairs.length);

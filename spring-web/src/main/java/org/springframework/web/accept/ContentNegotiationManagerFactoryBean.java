@@ -249,7 +249,7 @@ public class ContentNegotiationManagerFactoryBean
 
 
 	@Override
-	public void afterPropertiesSet() {
+	public void afterPropertiesSet() {														// 在这个 afterPropertiesSet 里面进行了设置 ContentNegotiationManager
 		List<ContentNegotiationStrategy> strategies = new ArrayList<ContentNegotiationStrategy>();
 
 		if (this.favorPathExtension) {

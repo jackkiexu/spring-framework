@@ -65,7 +65,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 	 * providing a {@code ContentNegotiationManager}.
 	 */
 	public RequestResponseBodyMethodProcessor(List<HttpMessageConverter<?>> converters) {
-		super(converters);				// ´«Èë HttpMessageConverter ×ª»»Æ÷
+		super(converters);				// ï¿½ï¿½ï¿½ï¿½ HttpMessageConverter ×ªï¿½ï¿½ï¿½ï¿½
 	}
 
 	/**
@@ -104,12 +104,14 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 
 
 	@Override
-	public boolean supportsParameter(MethodParameter parameter) {						// Õâ¸ö argumentResolver ½«´¦Àí RequestBody ±ê×¢µÄ²ÎÊý
+	public boolean supportsParameter(MethodParameter parameter) {						// ï¿½ï¿½ï¿½ argumentResolver ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ RequestBody ï¿½ï¿½×¢ï¿½Ä²ï¿½ï¿½ï¿½
 		return parameter.hasParameterAnnotation(RequestBody.class);
 	}
 
 	@Override
-	public boolean supportsReturnType(MethodParameter returnType) {					// Õâ¸ö ReturnValueHandler ´¦Àí±ê×¢ ResponseBody µÄ·½·¨/·µ»ØÀàÐÍ
+	public boolean supportsReturnType(MethodParameter returnType) {					// ï¿½ï¿½ï¿½ ReturnValueHandler ï¿½ï¿½ï¿½ï¿½ï¿½×¢ ResponseBody ï¿½Ä·ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½
+		boolean first = AnnotatedElementUtils.hasAnnotation(returnType.getContainingClass(), ResponseBody.class); //
+		boolean sesond = returnType.hasMethodAnnotation(ResponseBody.class);
 		return (AnnotatedElementUtils.hasAnnotation(returnType.getContainingClass(), ResponseBody.class) ||
 				returnType.hasMethodAnnotation(ResponseBody.class));
 	}

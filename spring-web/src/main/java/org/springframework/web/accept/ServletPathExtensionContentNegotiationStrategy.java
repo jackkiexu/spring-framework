@@ -26,7 +26,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.context.request.NativeWebRequest;
 
-/**
+/** 通过 请求路径获取 对应的 media type
  * 参考地址: http://www.logicbig.com/tutorials/spring-framework/spring-web-mvc/content-negotiation/
  * It resolves the file extension in the request path to a media type. It also uses ServletContext.getMimeType(String) to
  * resolve file extensions

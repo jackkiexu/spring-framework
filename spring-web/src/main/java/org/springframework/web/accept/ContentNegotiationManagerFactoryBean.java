@@ -249,13 +249,13 @@ public class ContentNegotiationManagerFactoryBean
 
 
 	@Override
-	public void afterPropertiesSet() {
+	public void afterPropertiesSet() {														// 在这个 afterPropertiesSet 里面进行了设置 ContentNegotiationManager
 		List<ContentNegotiationStrategy> strategies = new ArrayList<ContentNegotiationStrategy>();
 
 		if (this.favorPathExtension) {
 			PathExtensionContentNegotiationStrategy strategy;
 			if (this.servletContext != null && !isUseJafTurnedOff()) {
-				strategy = new ServletPathExtensionContentNegotiationStrategy(
+				strategy = new ServletPathExtensionContentNegotiationStrategy(				// 默认加入的 strategy
 						this.servletContext, this.mediaTypes);
 			}
 			else {
@@ -276,7 +276,7 @@ public class ContentNegotiationManagerFactoryBean
 		}
 
 		if (!this.ignoreAcceptHeader) {
-			strategies.add(new HeaderContentNegotiationStrategy());
+			strategies.add(new HeaderContentNegotiationStrategy());					// 默认加入 的策略
 		}
 
 		if (this.defaultNegotiationStrategy != null) {

@@ -67,7 +67,7 @@ public class PathVariableMethodArgumentResolver extends AbstractNamedValueMethod
 
 
 	@Override
-	public boolean supportsParameter(MethodParameter parameter) {
+	public boolean supportsParameter(MethodParameter parameter) {							// 参数被 @PathVariable 所注解,其次若参数是 Map 类型, 必须指定 @PathVariable 的值
 		if (!parameter.hasParameterAnnotation(PathVariable.class)) {
 			return false;
 		}

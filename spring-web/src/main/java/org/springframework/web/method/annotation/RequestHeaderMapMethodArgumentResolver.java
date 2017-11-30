@@ -46,7 +46,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 public class RequestHeaderMapMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
 	@Override
-	public boolean supportsParameter(MethodParameter parameter) {
+	public boolean supportsParameter(MethodParameter parameter) {						// 参数被 RequestHeader 注释, 且参数是 Map
 		return (parameter.hasParameterAnnotation(RequestHeader.class) &&
 				Map.class.isAssignableFrom(parameter.getParameterType()));
 	}

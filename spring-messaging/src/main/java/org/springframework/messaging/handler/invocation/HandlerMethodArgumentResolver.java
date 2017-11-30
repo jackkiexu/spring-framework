@@ -20,6 +20,7 @@ import org.springframework.core.MethodParameter;
 import org.springframework.messaging.Message;
 
 /**
+ * 参考资料: http://lgbolgger.iteye.com/blog/2111131
  * Strategy interface for resolving method parameters into argument values
  * in the context of a given {@link Message}.
  *

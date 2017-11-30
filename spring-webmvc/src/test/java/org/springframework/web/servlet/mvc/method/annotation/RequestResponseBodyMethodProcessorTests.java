@@ -105,8 +105,17 @@ public class RequestResponseBodyMethodProcessorTests {
 		Method method = getClass().getDeclaredMethod("handle", List.class, SimpleBean.class,
 				MultiValueMap.class, String.class);
 
-		paramGenericList = new MethodParameter(method, 0);
-		paramSimpleBean = new MethodParameter(method, 1);
+		/**
+		 * 	 String handle( 															// 返回值的索引值 -1
+		 	 @RequestBody List<SimpleBean> list,									    // 索引值 0
+			 @RequestBody SimpleBean simpleBean,										// 索引值 1
+		 	 @RequestBody MultiValueMap<String, String> multiValueMap,				// 索引值 2
+			 @RequestBody String string) {											// 索引值 3
+		 return null;
+		 }
+		 */
+		paramGenericList = new MethodParameter(method, 0);			// MethodParameter ���캯������� 0, 1, 2, 3 ��ʾ���� ���캯��������λ��
+		paramSimpleBean = new MethodParameter(method, 1);			// 第二个参数代表 几号参数
 		paramMultiValueMap = new MethodParameter(method, 2);
 		paramString = new MethodParameter(method, 3);
 		returnTypeString = new MethodParameter(method, -1);
@@ -219,7 +228,7 @@ public class RequestResponseBodyMethodProcessorTests {
 	@Test  // SPR-9964
 	public void resolveArgumentTypeVariable() throws Exception {
 		Method method = MyParameterizedController.class.getMethod("handleDto", Identifiable.class);
-		HandlerMethod handlerMethod = new HandlerMethod(new MySimpleParameterizedController(), method);
+		HandlerMethod handlerMethod = new HandlerMethod(new MySimpleParameterizedController(), method);			// 这里的 MySimpleParameterizedController 中的请求参数就是 SimpleBean
 		MethodParameter methodParam = handlerMethod.getMethodParameters()[0];
 
 		String content = "{\"name\" : \"Jad\"}";
@@ -239,7 +248,7 @@ public class RequestResponseBodyMethodProcessorTests {
 	@Test  // SPR-14470
 	public void resolveParameterizedWithTypeVariableArgument() throws Exception {
 		Method method = MyParameterizedControllerWithList.class.getMethod("handleDto", List.class);
-		HandlerMethod handlerMethod = new HandlerMethod(new MySimpleParameterizedControllerWithList(), method);
+		HandlerMethod handlerMethod = new HandlerMethod(new MySimpleParameterizedControllerWithList(), method);			// 这里的请求参数就是 List<SimpleBean>
 		MethodParameter methodParam = handlerMethod.getMethodParameters()[0];
 
 		String content = "[{\"name\" : \"Jad\"}, {\"name\" : \"Robert\"}]";
@@ -365,7 +374,7 @@ public class RequestResponseBodyMethodProcessorTests {
 	public void handleReturnValueWithInvalidReturnType() throws Exception {
 		Method method = getClass().getDeclaredMethod("handleAndReturnOutputStream");
 		MethodParameter returnType = new MethodParameter(method, -1);
-		RequestResponseBodyMethodProcessor processor = new RequestResponseBodyMethodProcessor(new ArrayList<>());
+		RequestResponseBodyMethodProcessor processor = new RequestResponseBodyMethodProcessor(new ArrayList<>());		// 构造函数中不能是空的 converter
 		processor.writeWithMessageConverters(new ByteArrayOutputStream(), returnType, this.request);
 	}
 

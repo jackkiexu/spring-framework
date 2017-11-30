@@ -54,7 +54,7 @@ public interface HttpMessageConverter<T> {
 	 * Return the list of {@link MediaType} objects supported by this converter.
 	 * @return the list of supported media types
 	 */
-	List<MediaType> getSupportedMediaTypes();
+	List<MediaType> getSupportedMediaTypes();						// 返回 HttpMessageConverter 支持的 MediaType
 
 	/**
 	 * Read an object of the given type from the given input message, and returns it.

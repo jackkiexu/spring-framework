@@ -38,7 +38,7 @@ import static org.junit.Assert.*;
  *
  * @author Rossen Stoyanchev
  */
-public class ContentNegotiationManagerFactoryBeanTests {
+public class ContentNegotiationManagerFactoryBeanTests {  		// Negotiation 谈判
 
 	private ContentNegotiationManagerFactoryBean factoryBean;
 
@@ -63,7 +63,7 @@ public class ContentNegotiationManagerFactoryBeanTests {
 	@Test
 	public void defaultSettings() throws Exception {
 		this.factoryBean.afterPropertiesSet();
-		ContentNegotiationManager manager = this.factoryBean.getObject();
+		ContentNegotiationManager manager = this.factoryBean.getObject();					// 从 ContentNegotiationManagerFactoryBean 里面获取对应的 ContentNegotiationManager
 
 		this.servletRequest.setRequestURI("/flower.gif");
 

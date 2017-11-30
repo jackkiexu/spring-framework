@@ -56,7 +56,7 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 
-/**
+/** 这个抽象类 相对于 HandlerMethodArgumentResolver 最重要的是 有了 HttpMessageConverter
  * A base class for resolving method argument values by reading from the body of
  * a request with {@link HttpMessageConverter}s.
  *
@@ -164,7 +164,7 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 		MediaType contentType;
 		boolean noContentType = false;
 		try {
-			contentType = inputMessage.getHeaders().getContentType();
+			contentType = inputMessage.getHeaders().getContentType();					// 获取 Http 的 contentType
 		}
 		catch (InvalidMediaTypeException ex) {
 			throw new HttpMediaTypeNotSupportedException(ex.getMessage());
@@ -174,8 +174,8 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 			contentType = MediaType.APPLICATION_OCTET_STREAM;
 		}
 
-		Class<?> contextClass = (parameter != null ? parameter.getContainingClass() : null);
-		Class<T> targetClass = (targetType instanceof Class ? (Class<T>) targetType : null);
+		Class<?> contextClass = (parameter != null ? parameter.getContainingClass() : null);				// 获取 方法的声明函数
+		Class<T> targetClass = (targetType instanceof Class ? (Class<T>) targetType : null);				// 获取请求参数的类型
 		if (targetClass == null) {
 			ResolvableType resolvableType = (parameter != null ?
 					ResolvableType.forMethodParameter(parameter) : ResolvableType.forType(targetType));
@@ -212,12 +212,12 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 						if (logger.isDebugEnabled()) {
 							logger.debug("Read [" + targetType + "] as \"" + contentType + "\" with [" + converter + "]");
 						}
-						if (inputMessage.getBody() != null) {
+						if (inputMessage.getBody() != null) {									// 输入流的 body 是否为空
 							inputMessage = getAdvice().beforeBodyRead(inputMessage, parameter, targetType, converterType);
 							body = ((HttpMessageConverter<T>) converter).read(targetClass, inputMessage);
 							body = getAdvice().afterBodyRead(body, inputMessage, parameter, targetType, converterType);
 						}
-						else {
+						else {																	// 若 Http 请求的 body 是 空, 则直接通过 Request/ResponseAdvice 来进行处理
 							body = getAdvice().handleEmptyBody(null, inputMessage, parameter, targetType, converterType);
 						}
 						break;
@@ -299,7 +299,7 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 	}
 
 
-	private static class EmptyBodyCheckingHttpInputMessage implements HttpInputMessage {
+	private static class EmptyBodyCheckingHttpInputMessage implements HttpInputMessage {	// Http 请求的一个包装类
 
 		private final HttpHeaders headers;
 
@@ -322,7 +322,7 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 			else {
 				PushbackInputStream pushbackInputStream = new PushbackInputStream(inputStream);
 				int b = pushbackInputStream.read();
-				if (b == -1) {
+				if (b == -1) {							// 读到 空的 body, 所以 body = null
 					this.body = null;
 				}
 				else {

@@ -44,7 +44,7 @@ public class PropertiesEditor extends PropertyEditorSupport {
 	 * @param text the text to be so converted
 	 */
 	@Override
-	public void setAsText(String text) throws IllegalArgumentException {
+	public void setAsText(String text) throws IllegalArgumentException {  // 这里的 setAsText 指: 当 text 是 String 类型时, 进行 set 值
 		Properties props = new Properties();
 		if (text != null) {
 			try {

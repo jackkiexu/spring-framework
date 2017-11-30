@@ -378,7 +378,7 @@ public abstract class MimeTypeUtils {
 	/**
 	 * Generate a random MIME boundary as bytes, often used in multipart mime types.
 	 */
-	public static byte[] generateMultipartBoundary() {
+	public static byte[] generateMultipartBoundary() {								// 生成一个 Multipart 的边界
 		byte[] boundary = new byte[RND.nextInt(11) + 30];
 		for (int i = 0; i < boundary.length; i++) {
 			boundary[i] = BOUNDARY_CHARS[RND.nextInt(BOUNDARY_CHARS.length)];

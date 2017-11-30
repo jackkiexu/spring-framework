@@ -66,7 +66,7 @@ public class BufferedImageHttpMessageConverterTests {
 		byte[] body = FileCopyUtils.copyToByteArray(logo.getInputStream());
 		MockHttpInputMessage inputMessage = new MockHttpInputMessage(body);
 		inputMessage.getHeaders().setContentType(new MediaType("image", "jpeg"));
-		BufferedImage result = converter.read(BufferedImage.class, inputMessage);
+		BufferedImage result = converter.read(BufferedImage.class, inputMessage);				// 在这里读出的 BufferedImage 能获取对应的 Heigh, Width
 		assertEquals("Invalid height", 500, result.getHeight());
 		assertEquals("Invalid width", 750, result.getWidth());
 	}

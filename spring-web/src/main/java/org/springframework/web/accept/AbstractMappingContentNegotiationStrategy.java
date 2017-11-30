@@ -70,7 +70,7 @@ public abstract class AbstractMappingContentNegotiationStrategy extends MappingM
 			throws HttpMediaTypeNotAcceptableException {
 
 		if (StringUtils.hasText(key)) {
-			MediaType mediaType = lookupMediaType(key);
+			MediaType mediaType = lookupMediaType(key);					// 通过关键字符 获取对应的 MediaType
 			if (mediaType != null) {
 				handleMatch(key, mediaType);
 				return Collections.singletonList(mediaType);

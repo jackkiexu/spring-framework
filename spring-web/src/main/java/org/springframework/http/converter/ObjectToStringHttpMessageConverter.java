@@ -90,7 +90,7 @@ public class ObjectToStringHttpMessageConverter extends AbstractHttpMessageConve
 
 	@Override
 	public boolean canRead(Class<?> clazz, MediaType mediaType) {
-		return this.conversionService.canConvert(String.class, clazz) && canRead(mediaType);
+		return this.conversionService.canConvert(String.class, clazz) && canRead(mediaType); // 判断 String 是否可以转为 clazz 类型
 	}
 
 	@Override

@@ -65,7 +65,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 	 * providing a {@code ContentNegotiationManager}.
 	 */
 	public RequestResponseBodyMethodProcessor(List<HttpMessageConverter<?>> converters) {
-		super(converters);				// ���� HttpMessageConverter ת����
+		super(converters);
 	}
 
 	/**
@@ -104,7 +104,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 
 
 	@Override
-	public boolean supportsParameter(MethodParameter parameter) {						// ��� argumentResolver ������ RequestBody ��ע�Ĳ���
+	public boolean supportsParameter(MethodParameter parameter) {
 		return parameter.hasParameterAnnotation(RequestBody.class);
 	}
 

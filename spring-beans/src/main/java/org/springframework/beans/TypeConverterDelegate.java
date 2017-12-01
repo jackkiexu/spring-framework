@@ -465,7 +465,7 @@ class TypeConverterDelegate {
 			}
 			// Swallow and proceed.
 		}
-		editor.setAsText(newTextValue);
+		editor.setAsText(newTextValue);					// 这里才是 进行 converter 的操作
 		return editor.getValue();
 	}
 

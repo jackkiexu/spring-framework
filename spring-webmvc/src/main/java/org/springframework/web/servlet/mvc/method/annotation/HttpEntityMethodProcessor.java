@@ -190,7 +190,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
 			int returnStatus = ((ResponseEntity<?>) responseEntity).getStatusCodeValue();
 			outputMessage.getServletResponse().setStatus(returnStatus);
 			if (returnStatus == 200) {
-				if (isResourceNotModified(inputMessage, outputMessage)) {
+				if (isResourceNotModified(inputMessage, outputMessage)) {					// 判断资源是否修改过
 					// Ensure headers are flushed, no body should be written.
 					outputMessage.flush();
 					// Skip call to converters, as they may update the body.

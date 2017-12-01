@@ -59,7 +59,7 @@ public class WebRequestDataBinderTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addParameter("spouse", "someValue");
 		request.addParameter("spouse.name", "test");
-		binder.bind(new ServletWebRequest(request));
+		binder.bind(new ServletWebRequest(request));									// 这里的绑定操作 超级复杂, 里面设计到了 类型转换
 
 		assertNotNull(tb.getSpouse());
 		assertEquals("test", tb.getSpouse().getName());

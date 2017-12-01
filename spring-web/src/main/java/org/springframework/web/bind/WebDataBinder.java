@@ -187,8 +187,8 @@ public class WebDataBinder extends DataBinder {
 	 */
 	@Override
 	protected void doBind(MutablePropertyValues mpvs) {
-		checkFieldDefaults(mpvs);
-		checkFieldMarkers(mpvs);
+		checkFieldDefaults(mpvs);							// 操作 ! 前缀的字符串
+		checkFieldMarkers(mpvs);							// 操作 _ 前缀的字符串
 		super.doBind(mpvs);
 	}
 

@@ -97,35 +97,59 @@ public class RequestParamMethodArgumentResolverTests {
 		ParameterNameDiscoverer paramNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
 		Method method = ReflectionUtils.findMethod(getClass(), "handle", (Class<?>[]) null);
 
-		paramNamedDefaultValueString = new SynthesizingMethodParameter(method, 0);
-		paramNamedStringArray = new SynthesizingMethodParameter(method, 1);
-		paramNamedMap = new SynthesizingMethodParameter(method, 2);
-		paramMultipartFile = new SynthesizingMethodParameter(method, 3);
-		paramMultipartFileList = new SynthesizingMethodParameter(method, 4);
-		paramMultipartFileArray = new SynthesizingMethodParameter(method, 5);
-		paramPart = new SynthesizingMethodParameter(method, 6);
-		paramPartList  = new SynthesizingMethodParameter(method, 7);
-		paramPartArray  = new SynthesizingMethodParameter(method, 8);
-		paramMap = new SynthesizingMethodParameter(method, 9);
-		paramStringNotAnnot = new SynthesizingMethodParameter(method, 10);
-		paramStringNotAnnot.initParameterNameDiscovery(paramNameDiscoverer);
-		paramMultipartFileNotAnnot = new SynthesizingMethodParameter(method, 11);
-		paramMultipartFileNotAnnot.initParameterNameDiscovery(paramNameDiscoverer);
-		paramMultipartFileListNotAnnot = new SynthesizingMethodParameter(method, 12);
-		paramMultipartFileListNotAnnot.initParameterNameDiscovery(paramNameDiscoverer);
+		paramNamedDefaultValueString = new SynthesizingMethodParameter(method, 0);					// @RequestParam(name = "name", defaultValue = "bar") String param1,
+		paramNamedStringArray = new SynthesizingMethodParameter(method, 1);							// @RequestParam("name") String[] param2,
+		paramNamedMap = new SynthesizingMethodParameter(method, 2);									// @RequestParam("name") Map<?, ?> param3,
+		paramMultipartFile = new SynthesizingMethodParameter(method, 3);								// @RequestParam("mfile") MultipartFile param4,
+		paramMultipartFileList = new SynthesizingMethodParameter(method, 4);						// @RequestParam("mfilelist") List<MultipartFile> param5,
+		paramMultipartFileArray = new SynthesizingMethodParameter(method, 5);						// @RequestParam("mfilearray") MultipartFile[] param6,
+		paramPart = new SynthesizingMethodParameter(method, 6);										// @RequestParam("pfile") Part param7,
+		paramPartList  = new SynthesizingMethodParameter(method, 7);									// @RequestParam("pfilelist") List<Part> param8,
+		paramPartArray  = new SynthesizingMethodParameter(method, 8);									// @RequestParam("pfilearray") Part[] param9,
+		paramMap = new SynthesizingMethodParameter(method, 9);											// @RequestParam Map<?, ?> param10,
+		paramStringNotAnnot = new SynthesizingMethodParameter(method, 10);							// String stringNotAnnot,
+		paramStringNotAnnot.initParameterNameDiscovery(paramNameDiscoverer);							// MultipartFile multipartFileNotAnnot,
+		paramMultipartFileNotAnnot = new SynthesizingMethodParameter(method, 11);					// List<MultipartFile> multipartFileList,
+		paramMultipartFileNotAnnot.initParameterNameDiscovery(paramNameDiscoverer);					// Part part,
+		paramMultipartFileListNotAnnot = new SynthesizingMethodParameter(method, 12);				// @RequestPart MultipartFile requestPartAnnot,
+		paramMultipartFileListNotAnnot.initParameterNameDiscovery(paramNameDiscoverer);			// @RequestParam("name") String paramRequired,
 		paramPartNotAnnot = new SynthesizingMethodParameter(method, 13);
 		paramPartNotAnnot.initParameterNameDiscovery(paramNameDiscoverer);
-		paramRequestPartAnnot = new SynthesizingMethodParameter(method, 14);
-		paramRequired = new SynthesizingMethodParameter(method, 15);
-		paramNotRequired = new SynthesizingMethodParameter(method, 16);
-		paramOptional = new SynthesizingMethodParameter(method, 17);
-		multipartFileOptional = new SynthesizingMethodParameter(method, 18);
+		paramRequestPartAnnot = new SynthesizingMethodParameter(method, 14);						// @RequestPart MultipartFile requestPartAnnot,
+		paramRequired = new SynthesizingMethodParameter(method, 15);									// @RequestParam("name") String paramRequired,
+		paramNotRequired = new SynthesizingMethodParameter(method, 16);								// @RequestParam(name = "name", required = false) String paramNotRequired,
+		paramOptional = new SynthesizingMethodParameter(method, 17);									// @RequestParam("name") Optional<Integer> paramOptional,
+		multipartFileOptional = new SynthesizingMethodParameter(method, 18);						// @RequestParam("mfile") Optional<MultipartFile> multipartFileOptional
 
 		request = new MockHttpServletRequest();
 		webRequest = new ServletWebRequest(request, new MockHttpServletResponse());
 	}
 
 
+	/**
+	 * 	public void handle(
+			 @RequestParam(name = "name", defaultValue = "bar") String param1,
+			 @RequestParam("name") String[] param2,
+			 @RequestParam("name") Map<?, ?> param3,
+			 @RequestParam("mfile") MultipartFile param4,
+			 @RequestParam("mfilelist") List<MultipartFile> param5,
+			 @RequestParam("mfilearray") MultipartFile[] param6,
+			 @RequestParam("pfile") Part param7,
+			 @RequestParam("pfilelist") List<Part> param8,
+			 @RequestParam("pfilearray") Part[] param9,
+			 @RequestParam Map<?, ?> param10,
+			 String stringNotAnnot,
+			 MultipartFile multipartFileNotAnnot,
+			 List<MultipartFile> multipartFileList,
+			 Part part,
+			 @RequestPart MultipartFile requestPartAnnot,
+			 @RequestParam("name") String paramRequired,
+			 @RequestParam(name = "name", required = false) String paramNotRequired,
+			 @RequestParam("name") Optional<Integer> paramOptional,
+			 @RequestParam("mfile") Optional<MultipartFile> multipartFileOptional) {
+			 System.out.println("handle");
+			 }
+	 */
 	@Test
 	public void supportsParameter() {
 		resolver = new RequestParamMethodArgumentResolver(null, true);
@@ -494,6 +518,7 @@ public class RequestParamMethodArgumentResolverTests {
 			@RequestParam(name = "name", required = false) String paramNotRequired,
 			@RequestParam("name") Optional<Integer> paramOptional,
 			@RequestParam("mfile") Optional<MultipartFile> multipartFileOptional) {
+		System.out.println("handle");
 	}
 
 }

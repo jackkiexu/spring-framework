@@ -465,7 +465,7 @@ public class RequestResponseBodyMethodProcessorTests {
 		List<HttpMessageConverter<?>> converters = new ArrayList<>();
 		converters.add(new MappingJackson2HttpMessageConverter());
 
-		HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(
+		HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(						// 这里第二个参数是 null, 则程序默认会创建一个 ContentNegotiationManager(默认也会从 header 里面获取对应的 MediaType)
 				converters, null, Collections.singletonList(new JsonViewResponseBodyAdvice()));
 
 		Object returnValue = new JacksonController().handleResponseEntity();
@@ -968,12 +968,14 @@ public class RequestResponseBodyMethodProcessorTests {
 		@RequestMapping
 		@ResponseBody
 		public JacksonViewBean handleRequestBody(@JsonView(MyJacksonView1.class) @RequestBody JacksonViewBean bean) {
+			System.out.println("bean:" + bean);
 			return bean;
 		}
 
 		@RequestMapping
 		@ResponseBody
 		public JacksonViewBean handleHttpEntity(@JsonView(MyJacksonView1.class) HttpEntity<JacksonViewBean> entity) {
+			System.out.println("entity:" + entity);
 			return entity.getBody();
 		}
 

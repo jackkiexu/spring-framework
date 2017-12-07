@@ -53,7 +53,56 @@
 19. 命令模式,
     -- 完成一个 Http 请求
 
------------------------------------- Spring 里面使用的技术 --------------------------------------------
+------------------------------------ Spring 里面重要概念 --------------------------------------------
+1. FactoryBean
+2. 桥接方法
+3. Spring 里面的 3种数据转换 (PatternEditor, Converter, HandlerMethodArgumentResolver)
 
+------------------------------------ Spring 里面使用的技术 --------------------------------------------
+1. @Aspect 注解
+2. ASM 获取方法的参数名
 
 ------------------------------------ Spring 提供出来的技术 --------------------------------------------
+1. ReflectionUtils
+2. AnnotationUtils
+
+------------------------------------ Spring IOC ----------------------------------------------------
+1. 什么是 Spring IOC
+2. 为什么需要 IOC
+3. Resource 的架构
+3. BeanFactory, ApplicationContext(1. 自己手动注入Bean, 2. 查找对应配置文件, 3. 扫描配置文件, 4. 扫描对应类)
+4.
+
+------------------------------------ Spring AOP ----------------------------------------------------
+1. aop 基本概念 advisor, advice, pointcut, before, return, afterreturn, around
+2. 第一代 AOP ProxyFactory
+3. 第二代 AOP ProxyFactoryBean
+4. 第三代 AOP 通过 Spring scheme
+5. 第四代 AOP 通过 @AspectJ 注解
+
+------------------------------------ Spring tx ------------------------------------------------------
+1. Mysql 事务的基本概念 + Spring 对其的扩充 + Spring 里面组件基本概念
+2. 第一代事务 PlatformTransactionManager
+3. 第二代事务 TransactionTemplate
+4. 第三代事务 通过 Spring Scheme
+5. 第四代事务 通过 @Transaction 标签
+
+------------------------------------ Spring MVC ----------------------------------------------------
+1. 主要构建 DispatcherServlet, HandlerMapping, HandlerAdapter, HandlerMethod...
+2. 第一代 Spring MVC 处理流程(主要还是在 HandlerMapping, HandlerAdapter 的区别上)
+3. 第二代 Spring MVC
+
+------------------------------------ Spring 常用注解 ----------------------------------------------------
+1. @Autowire
+  AutowiredAnnotationBeanPostProcessor
+2. @Resource
+  CommonAnnotationBeanPostProcessor
+
+3. @Controller
+
+4. @Service
+
+5. @Repository
+
+6. @Component
+

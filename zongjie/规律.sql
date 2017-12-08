@@ -106,6 +106,29 @@
 
 6. @Component
 
+------------------------------------ Spring XML 常用配置 ----------------------------------------------------
+1. <aop:aspectj-autoproxy expose-proxy="true"/>
+  aop 暴露代理对象到 ThreadLocal 中
+
+2. <context:component-scan></>
+  扫描指定目录, 加载Bean到容器中
+
+3. <tx:annotation-driven />
+  增加 注解式事务支持
+
+4. <context:annotation-config />
+
+5. <context:property-placeholder />
+  解析配置文件(properties 文件)
+
+6. <mvc: annotation-driven />
+
+
+
+
+
+
+
 
 参考资料:
 http://blog.csdn.net/chjttony/article/category/1239946

@@ -17,9 +17,12 @@
 package example.scannable;
 
 
+import org.springframework.context.annotation.Lazy;
+
 /**
  * Marker class for example.scannable package.
  *
  * @see org.springframework.context.annotation.ComponentScan#basePackageClasses()
  */
+@TestAnnotation
 public class _package { }

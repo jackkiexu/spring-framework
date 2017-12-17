@@ -180,7 +180,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 	 *
 	 */
 	@SuppressWarnings("unchecked")
-	protected void registerDefaultFilters() {
+	protected void registerDefaultFilters() {											// 注册注解过滤器, 主要是过滤 被@Component, @ManagedBean, @Named 注解的注解或类
 		this.includeFilters.add(new AnnotationTypeFilter(Component.class));
 		ClassLoader cl = ClassPathScanningCandidateComponentProvider.class.getClassLoader();
 		try {

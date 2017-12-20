@@ -63,6 +63,8 @@
 2. ASM 获取方法的参数名
 
 ------------------------------------ Spring 提供出来的技术 --------------------------------------------
+0. PathMatchingResourcePatternResolver
+
 1. ReflectionUtils
 2. AnnotationUtils
 

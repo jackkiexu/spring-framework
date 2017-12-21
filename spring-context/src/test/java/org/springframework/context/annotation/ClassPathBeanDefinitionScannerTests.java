@@ -48,7 +48,7 @@ import static org.junit.Assert.*;
  */
 public class ClassPathBeanDefinitionScannerTests {
 
-	private static final String BASE_PACKAGE = "example.scannable";
+	private static final String BASE_PACKAGE = "example.scannable1";
 
 
 	@Test

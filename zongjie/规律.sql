@@ -87,7 +87,7 @@
 2. 第一代事务 PlatformTransactionManager
 3. 第二代事务 TransactionTemplate
 4. 第三代事务 通过 Spring Scheme
-5. 第四代事务 通过 @Transaction 标签
+5. 第四代事务 通过 @Transaction 标签 (TransactionInterceptor 拦截器)
 
 ------------------------------------ Spring MVC ----------------------------------------------------
 1. 主要构建 DispatcherServlet, HandlerMapping, HandlerAdapter, HandlerMethod...

@@ -478,9 +478,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		try {
-			// 给 beanPostProcessor 一个机会来返回代理来代替正真的实例
-			// 如果 Bean 配置le, PostProcessor, 那么这里返回的是yige Proxy
-			// 如果 Bean 配置了初始化前和初始化后的处理器, 则试图返回一个需要创建 Bean 的代理对象
+			// 给 beanPostProcessor 一个机会来返回代理来代替正真的实例 (PS: 这个是在 类的实例化前)
 			// Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
 			Object bean = resolveBeforeInstantiation(beanName, mbdToUse);							// 自动 AOP 的入口
 			if (bean != null) {
@@ -1058,7 +1056,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 * @param mbd the bean definition for the bean
 	 * @return the shortcut-determined bean instance, or {@code null} if none
 	 */
-	protected Object resolveBeforeInstantiation(String beanName, RootBeanDefinition mbd) {
+	protected Object resolveBeforeInstantiation(String beanName, RootBeanDefinition mbd) {		// 在 Bean 实例化前面, 调用  BeanPostProcessor
 		Object bean = null;
 		// 如果尚未被解析
 		if (!Boolean.FALSE.equals(mbd.beforeInstantiationResolved)) {
@@ -1780,7 +1778,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		Object wrappedBean = bean;
-		// 对 BeanPostProcessor 后置处理器的 postProcessBeforeInitialization 回调方法的调用, 为 bean 实例化前做些准备工作
+		// 对 BeanPostProcessor 后置处理器的 postProcessBeforeInitialization 回调方法的调用, 为 bean 初始化前做些准备工作
 		if (mbd == null || !mbd.isSynthetic()) {		// 这里有个奇怪的地方, 为什么 mdb == null 也会使用后置处理器 的 BeanPostProcessorBeforeInitialization
 			// 应用后置处理器
 			wrappedBean = applyBeanPostProcessorsBeforeInitialization(wrappedBean, beanName);
@@ -1800,7 +1798,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 					(mbd != null ? mbd.getResourceDescription() : null),
 					beanName, "Invocation of init method failed", ex);
 		}
-		// 对 beanPostProcessor 后置处理器的 postProcessAfterInitialization 回调方法的调用, 为 Bean 实例初始化之后做一些准备
+		// 对 beanPostProcessor 后置处理器的 postProcessAfterInitialization 回调方法的调用, 为 Bean 初始化之后做一些准备
 		if (mbd == null || !mbd.isSynthetic()) {
 			wrappedBean = applyBeanPostProcessorsAfterInitialization(wrappedBean, beanName);
 		}

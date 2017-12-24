@@ -415,7 +415,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	 */
 	public Class<?> getBeanClass() throws IllegalStateException {
 		Object beanClassObject = this.beanClass;
-		if (beanClassObject == null) {
+		if (beanClassObject == null) {								// 若BeanDefinition 没有设置 beanClassObject, 而想要直接获取 BeanClass 则会报错
 			throw new IllegalStateException("No bean class specified on bean definition");
 		}
 		if (!(beanClassObject instanceof Class)) {

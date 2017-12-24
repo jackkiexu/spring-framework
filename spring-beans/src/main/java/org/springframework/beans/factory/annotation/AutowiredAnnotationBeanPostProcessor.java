@@ -99,6 +99,7 @@ import org.springframework.util.StringUtils;
  * <p><b>NOTE:</b> Annotation injection will be performed <i>before</i> XML injection;
  * thus the latter configuration will override the former for properties wired through
  * both approaches.
+ * 注解注入将先于 xml 注入属性
  *
  * <p>In addition to regular injection points as discussed above, this post-processor
  * also handles Spring's {@link Lookup @Lookup} annotation which identifies lookup
@@ -287,7 +288,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 				if (candidateConstructors == null) {
 					Constructor<?>[] rawCandidates;
 					try {
-						rawCandidates = beanClass.getDeclaredConstructors();
+						rawCandidates = beanClass.getDeclaredConstructors();				// 获取声明的构造函数
 					}
 					catch (Throwable ex) {
 						throw new BeanCreationException(beanName,
@@ -331,7 +332,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 							}
 							candidates.add(candidate);
 						}
-						else if (candidate.getParameterTypes().length == 0) {
+						else if (candidate.getParameterTypes().length == 0) {		// 设置默认的构造函数
 							defaultConstructor = candidate;
 						}
 					}

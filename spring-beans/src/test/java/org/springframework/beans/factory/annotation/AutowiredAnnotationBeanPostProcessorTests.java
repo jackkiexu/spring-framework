@@ -101,8 +101,8 @@ public class AutowiredAnnotationBeanPostProcessorTests {
 	public void testResourceInjection() {
 		DefaultListableBeanFactory bf = new DefaultListableBeanFactory();
 		AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
-		bpp.setBeanFactory(bf);
-		bf.addBeanPostProcessor(bpp);
+		bpp.setBeanFactory(bf);									// 将 BeanFactory 设置到 BeanProcessor 里面
+		bf.addBeanPostProcessor(bpp);							// BeanFactory 添加 BeanPostProcessor
 		RootBeanDefinition bd = new RootBeanDefinition(ResourceInjectionBean.class);
 		bd.setScope(RootBeanDefinition.SCOPE_PROTOTYPE);
 		bf.registerBeanDefinition("annotatedBean", bd);

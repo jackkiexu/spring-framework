@@ -107,7 +107,7 @@ public class AnnotatedElementUtilsTests {
 
 	@Test
 	public void hasMetaAnnotationTypesOnClassWithMetaDepth1() {
-		assertTrue(hasMetaAnnotationTypes(TransactionalComponentClass.class, TX_NAME));
+		assertTrue(hasMetaAnnotationTypes(TransactionalComponentClass.class, TX_NAME));					// 查看是否 TransactionalComponentClass 上面是否有 Transactional 注解
 		assertTrue(hasMetaAnnotationTypes(TransactionalComponentClass.class, Component.class.getName()));
 	}
 

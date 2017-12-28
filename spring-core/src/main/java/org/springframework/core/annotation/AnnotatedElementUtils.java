@@ -1026,7 +1026,7 @@ public class AnnotatedElementUtils {
 		// Recursively search in meta-annotations			递归查询注解在类上的注解
 		for (Annotation annotation : annotations) {
 			Class<? extends Annotation> currentAnnotationType = annotation.annotationType();
-			if (!AnnotationUtils.isInJavaLangAnnotationPackage(currentAnnotationType)) {
+			if (!AnnotationUtils.isInJavaLangAnnotationPackage(currentAnnotationType)) {			// 处理不在 JDK 源码包里面的类
 				T result = searchWithGetSemantics(currentAnnotationType, annotationType,
 						annotationName, containerType, processor, visited, metaDepth + 1);
 				if (result != null) {

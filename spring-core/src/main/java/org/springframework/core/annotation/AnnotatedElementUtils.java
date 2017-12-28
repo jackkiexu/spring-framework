@@ -153,7 +153,7 @@ public class AnnotatedElementUtils {
 		Assert.notNull(element, "AnnotatedElement must not be null");
 		Assert.notNull(annotationType, "'annotationType' must not be null");
 
-		return getMetaAnnotationTypes(element, element.getAnnotation(annotationType));
+		return getMetaAnnotationTypes(element, element.getAnnotation(annotationType));				// 获取 annotationType 类型的注解
 	}
 
 	/**
@@ -184,7 +184,7 @@ public class AnnotatedElementUtils {
 
 		try {
 			final Set<String> types = new LinkedHashSet<String>();
-			searchWithGetSemantics(composed.annotationType(), null, null, null, new SimpleAnnotationProcessor<Object>(true) {
+			searchWithGetSemantics(composed.annotationType(), null, null, null, new SimpleAnnotationProcessor<Object>(true) {			// 这里其实就是处理 注解 composed
 					@Override
 					public Object process(AnnotatedElement annotatedElement, Annotation annotation, int metaDepth) {
 						types.add(annotation.annotationType().getName());
@@ -931,11 +931,11 @@ public class AnnotatedElementUtils {
 
 		Assert.notNull(element, "AnnotatedElement must not be null");
 
-		if (visited.add(element)) {
+		if (visited.add(element)) {								// 加入成功, 说明这个 注解没有处理过   TransactionalComponent
 			try {
 				// Start searching within locally declared annotations
-				List<Annotation> declaredAnnotations = Arrays.asList(element.getDeclaredAnnotations());
-				T result = searchWithGetSemanticsInAnnotations(element, declaredAnnotations,
+				List<Annotation> declaredAnnotations = Arrays.asList(element.getDeclaredAnnotations());			// 这里是获取注释在 注解上面的注解
+				T result = searchWithGetSemanticsInAnnotations(element, declaredAnnotations,					// 处理注释在注解上面的注解
 						annotationType, annotationName, containerType, processor, visited, metaDepth);
 				if (result != null) {
 					return result;
@@ -995,7 +995,7 @@ public class AnnotatedElementUtils {
 		// Search in annotations
 		for (Annotation annotation : annotations) {
 			Class<? extends Annotation> currentAnnotationType = annotation.annotationType();
-			if (!AnnotationUtils.isInJavaLangAnnotationPackage(currentAnnotationType)) {
+			if (!AnnotationUtils.isInJavaLangAnnotationPackage(currentAnnotationType)) {			// 检查是否是 JDK 源码包里面的注解
 				if (currentAnnotationType == annotationType ||
 						currentAnnotationType.getName().equals(annotationName) ||
 						processor.alwaysProcesses()) {
@@ -1023,7 +1023,7 @@ public class AnnotatedElementUtils {
 			}
 		}
 
-		// Recursively search in meta-annotations
+		// Recursively search in meta-annotations			递归查询注解在类上的注解
 		for (Annotation annotation : annotations) {
 			Class<? extends Annotation> currentAnnotationType = annotation.annotationType();
 			if (!AnnotationUtils.isInJavaLangAnnotationPackage(currentAnnotationType)) {

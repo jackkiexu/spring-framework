@@ -928,7 +928,7 @@ public abstract class AnnotationUtils {
 	 * @return {@code true} if the annotation is in the {@code java.lang.annotation} package
 	 * @since 4.2
 	 */
-	public static boolean isInJavaLangAnnotationPackage(String annotationType) {
+	public static boolean isInJavaLangAnnotationPackage(String annotationType) {					// 是否是 JDK 源码包里面的注解
 		return (annotationType != null && annotationType.startsWith("java.lang.annotation"));
 	}
 

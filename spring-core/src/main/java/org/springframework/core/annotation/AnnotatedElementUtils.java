@@ -431,7 +431,7 @@ public class AnnotatedElementUtils {
 
 		// Exhaustive retrieval of merged annotation attributes...
 		AnnotationAttributes attributes = getMergedAnnotationAttributes(element, annotationType);
-		return AnnotationUtils.synthesizeAnnotation(attributes, annotationType, element);
+		return AnnotationUtils.synthesizeAnnotation(attributes, annotationType, element);			// 这里最终返回的是一个代理类
 	}
 
 	/**
@@ -934,8 +934,8 @@ public class AnnotatedElementUtils {
 		if (visited.add(element)) {								// 加入成功, 说明这个 注解没有处理过   TransactionalComponent
 			try {
 				// Start searching within locally declared annotations
-				List<Annotation> declaredAnnotations = Arrays.asList(element.getDeclaredAnnotations());			// 这里是获取注释在 注解上面的注解
-				T result = searchWithGetSemanticsInAnnotations(element, declaredAnnotations,					// 处理注释在注解上面的注解
+				List<Annotation> declaredAnnotations = Arrays.asList(element.getDeclaredAnnotations());			// 这里是获取直接注释在 注解上面的注解
+				T result = searchWithGetSemanticsInAnnotations(element, declaredAnnotations,					// 处理 AnnotatedElement 上的注解
 						annotationType, annotationName, containerType, processor, visited, metaDepth);
 				if (result != null) {
 					return result;
@@ -943,8 +943,8 @@ public class AnnotatedElementUtils {
 
 				if (element instanceof Class) { // otherwise getAnnotations doesn't return anything new
 					List<Annotation> inheritedAnnotations = new ArrayList<Annotation>();
-					for (Annotation annotation : element.getAnnotations()) {
-						if (!declaredAnnotations.contains(annotation)) {
+					for (Annotation annotation : element.getAnnotations()) {									// 注释在 element 上的注解(PS: 包括父类)
+						if (!declaredAnnotations.contains(annotation)) {										// 已经处理过的注解, 就不需要再次处理了
 							inheritedAnnotations.add(annotation);
 						}
 					}
@@ -1024,7 +1024,7 @@ public class AnnotatedElementUtils {
 		}
 
 		// Recursively search in meta-annotations			递归查询注解在类上的注解
-		for (Annotation annotation : annotations) {
+		for (Annotation annotation : annotations) {												    // 这里就是一个递归的过程
 			Class<? extends Annotation> currentAnnotationType = annotation.annotationType();
 			if (!AnnotationUtils.isInJavaLangAnnotationPackage(currentAnnotationType)) {			// 处理不在 JDK 源码包里面的类
 				T result = searchWithGetSemantics(currentAnnotationType, annotationType,
@@ -1159,7 +1159,7 @@ public class AnnotatedElementUtils {
 				for (Annotation annotation : annotations) {
 					Class<? extends Annotation> currentAnnotationType = annotation.annotationType();
 					if (!AnnotationUtils.isInJavaLangAnnotationPackage(currentAnnotationType)) {
-						T result = searchWithFindSemantics(currentAnnotationType, annotationType, annotationName,
+						T result = searchWithFindSemantics(currentAnnotationType, annotationType, annotationName,				// 其实从这里开始就开始递归查询 注解
 								containerType, processor, visited, metaDepth + 1);
 						if (result != null) {
 							processor.postProcess(currentAnnotationType, annotation, result);

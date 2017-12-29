@@ -1078,8 +1078,8 @@ public abstract class AnnotationUtils {
 
 		for (Method method : getAttributeMethods(annotationType)) {
 			try {
-				Object attributeValue = method.invoke(annotation);
-				Object defaultValue = method.getDefaultValue();
+				Object attributeValue = method.invoke(annotation);								// 激活方法, 返回的数据
+				Object defaultValue = method.getDefaultValue();									// 方法的默认值
 				if (defaultValue != null && ObjectUtils.nullSafeEquals(attributeValue, defaultValue)) {
 					attributeValue = new DefaultValueHolder(defaultValue);
 				}
@@ -1236,6 +1236,8 @@ public abstract class AnnotationUtils {
 	 * @since 4.2
 	 * @see #retrieveAnnotationAttributes(Object, Annotation, boolean, boolean)
 	 * @see #getDefaultValue(Class, String)
+	 *
+	 * 注解的后置处理, 主要是针对别名之类的处理
 	 */
 	static void postProcessAnnotationAttributes(Object annotatedElement,
 			AnnotationAttributes attributes, boolean classValuesAsString, boolean nestedAnnotationsAsMap) {
@@ -1806,7 +1808,7 @@ public abstract class AnnotationUtils {
 	 * @return {@code true} if the method is an attribute method
 	 * @since 4.2
 	 */
-	static boolean isAttributeMethod(Method method) {
+	static boolean isAttributeMethod(Method method) {									// 判断方法是否是 对象的属性方法 (方法参数 及 方法返回值的类型)
 		return (method != null && method.getParameterTypes().length == 0 && method.getReturnType() != void.class);
 	}
 

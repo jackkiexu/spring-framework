@@ -107,7 +107,7 @@ public class AnnotatedElementUtilsTests {
 
 	@Test
 	public void hasMetaAnnotationTypesOnClassWithMetaDepth1() {
-		assertTrue(hasMetaAnnotationTypes(TransactionalComponentClass.class, TX_NAME));
+		assertTrue(hasMetaAnnotationTypes(TransactionalComponentClass.class, TX_NAME));					// 查看是否 TransactionalComponentClass 上面是否有 Transactional 注解
 		assertTrue(hasMetaAnnotationTypes(TransactionalComponentClass.class, Component.class.getName()));
 	}
 
@@ -115,7 +115,7 @@ public class AnnotatedElementUtilsTests {
 	public void hasMetaAnnotationTypesOnClassWithMetaDepth2() {
 		assertTrue(hasMetaAnnotationTypes(ComposedTransactionalComponentClass.class, TX_NAME));
 		assertTrue(hasMetaAnnotationTypes(ComposedTransactionalComponentClass.class, Component.class.getName()));
-		assertFalse(hasMetaAnnotationTypes(ComposedTransactionalComponentClass.class, ComposedTransactionalComponent.class.getName()));
+		assertFalse(hasMetaAnnotationTypes(ComposedTransactionalComponentClass.class, ComposedTransactionalComponent.class.getName()));		// 这里为什么失败, 主要是因为 ComposedTransactionalComponent 不是下一次的注解
 	}
 
 	@Test

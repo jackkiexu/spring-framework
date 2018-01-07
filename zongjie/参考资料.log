@@ -77,3 +77,10 @@ Proxy$B extend Proxy implementation A {
 原因:
     1. 代码量太大, 没个 2/3 个月的时间投入, 不可能吃透
     2. 很多资料 覆盖的知识点不全, 而且新版本的数据没有阐述 Spring 1.x, 2.x, 4.x 里面的知识点
+
+2. Spring 陷进
+    在类或方法上加上注解, 可通过
+    1. BeanPostProcessor 来实现,
+    2. 通过类的 InitializingBean 的方法
+    3. ApplicationContextAware 来激活(PS: ApplicationContextAwareProcessor 来进行激活)
+    4. ApplicationListener 来激活 onApplicationEvent -> ContextRefreshedEvent 事件

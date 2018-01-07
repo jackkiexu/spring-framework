@@ -290,7 +290,7 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
 				return this.owner.getBean(lo.getBeanName(), argsToUse);
 			}
 			else {
-				return this.owner.getBean(method.getReturnType(), argsToUse);
+				return this.owner.getBean(method.getReturnType(), argsToUse);		// 直接在 BeanFactory 中获取返回值相同的类型
 			}
 		}
 	}

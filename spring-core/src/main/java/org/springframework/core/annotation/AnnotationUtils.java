@@ -834,7 +834,8 @@ public abstract class AnnotationUtils {
 		Assert.notNull(annotationType, "Annotation type must not be null");
 		Assert.notNull(clazz, "Class must not be null");
 		try {
-			for (Annotation ann : clazz.getDeclaredAnnotations()) {
+			Annotation[] annotations = clazz.getDeclaredAnnotations();
+			for (Annotation ann : annotations) {
 				if (ann.annotationType() == annotationType) {
 					return true;
 				}
@@ -928,7 +929,7 @@ public abstract class AnnotationUtils {
 	 * @return {@code true} if the annotation is in the {@code java.lang.annotation} package
 	 * @since 4.2
 	 */
-	public static boolean isInJavaLangAnnotationPackage(String annotationType) {					// ÊÇ·ñÊÇ JDK Ô´Âë°üÀïÃæµÄ×¢½â
+	public static boolean isInJavaLangAnnotationPackage(String annotationType) {					// ï¿½Ç·ï¿½ï¿½ï¿½ JDK Ô´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¢ï¿½ï¿½
 		return (annotationType != null && annotationType.startsWith("java.lang.annotation"));
 	}
 
@@ -1078,8 +1079,8 @@ public abstract class AnnotationUtils {
 
 		for (Method method : getAttributeMethods(annotationType)) {
 			try {
-				Object attributeValue = method.invoke(annotation);								// ¼¤»î·½·¨, ·µ»ØµÄÊý¾Ý
-				Object defaultValue = method.getDefaultValue();									// ·½·¨µÄÄ¬ÈÏÖµ
+				Object attributeValue = method.invoke(annotation);								// ï¿½ï¿½ï¿½î·½ï¿½ï¿½, ï¿½ï¿½ï¿½Øµï¿½ï¿½ï¿½ï¿½ï¿½
+				Object defaultValue = method.getDefaultValue();									// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¬ï¿½ï¿½Öµ
 				if (defaultValue != null && ObjectUtils.nullSafeEquals(attributeValue, defaultValue)) {
 					attributeValue = new DefaultValueHolder(defaultValue);
 				}
@@ -1237,7 +1238,7 @@ public abstract class AnnotationUtils {
 	 * @see #retrieveAnnotationAttributes(Object, Annotation, boolean, boolean)
 	 * @see #getDefaultValue(Class, String)
 	 *
-	 * ×¢½âµÄºóÖÃ´¦Àí, Ö÷ÒªÊÇÕë¶Ô±ðÃûÖ®ÀàµÄ´¦Àí
+	 * ×¢ï¿½ï¿½Äºï¿½ï¿½Ã´ï¿½ï¿½ï¿½, ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½Ô±ï¿½ï¿½ï¿½Ö®ï¿½ï¿½Ä´ï¿½ï¿½ï¿½
 	 */
 	static void postProcessAnnotationAttributes(Object annotatedElement,
 			AnnotationAttributes attributes, boolean classValuesAsString, boolean nestedAnnotationsAsMap) {
@@ -1808,7 +1809,7 @@ public abstract class AnnotationUtils {
 	 * @return {@code true} if the method is an attribute method
 	 * @since 4.2
 	 */
-	static boolean isAttributeMethod(Method method) {									// ÅÐ¶Ï·½·¨ÊÇ·ñÊÇ ¶ÔÏóµÄÊôÐÔ·½·¨ (·½·¨²ÎÊý ¼° ·½·¨·µ»ØÖµµÄÀàÐÍ)
+	static boolean isAttributeMethod(Method method) {									// ï¿½Ð¶Ï·ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô·ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)
 		return (method != null && method.getParameterTypes().length == 0 && method.getReturnType() != void.class);
 	}
 

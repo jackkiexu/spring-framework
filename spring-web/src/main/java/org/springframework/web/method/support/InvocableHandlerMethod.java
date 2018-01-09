@@ -155,7 +155,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
 			}
 			if (this.argumentResolvers.supportsParameter(parameter)) {				// 判断是否 argumentResolvers 里面含有对应的 解释器
 				try {
-					args[i] = this.argumentResolvers.resolveArgument(
+					args[i] = this.argumentResolvers.resolveArgument(				// 解析 Controller 里面 对应的参数内容
 							parameter, mavContainer, request, this.dataBinderFactory);
 					continue;
 				}

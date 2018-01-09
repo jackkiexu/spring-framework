@@ -42,6 +42,7 @@ public interface MergedBeanDefinitionPostProcessor extends BeanPostProcessor {
 	 * @param beanDefinition the merged bean definition for the bean
 	 * @param beanType the actual type of the managed bean instance
 	 * @param beanName the name of the bean
+	 * 这里的 postProcessMergedBeanDefinition 主要是获取一些 Bean 中针对注解的描述信息, 比如在 (AutowiredAnnotationBeanProcessor, PersistenceAnnotationBeanPostProcessor, CommonAnnotationBeanPostProcessor 中都是用来获取注解的描述信息)
 	 */
 	void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Class<?> beanType, String beanName);
 

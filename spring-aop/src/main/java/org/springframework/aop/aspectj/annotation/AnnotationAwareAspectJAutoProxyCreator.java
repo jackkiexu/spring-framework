@@ -88,18 +88,18 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AspectJAwareAdvisorA
 
 
 	@Override
-	protected List<Advisor> findCandidateAdvisors() {
+	protected List<Advisor> findCandidateAdvisors() {																 // 获取所有的 候选的 Advisor (包括两部分)
 		// 当使用注解方式配置 AOP 的时候并不是丢弃了对 XML 配置的支持
 		// 在这里调用父类方法加载配置文件中的 AOP 声明
 		// Add all the Spring advisors found according to superclass rules.
-		List<Advisor> advisors = super.findCandidateAdvisors();
+		List<Advisor> advisors = super.findCandidateAdvisors();														// 获取 BeanFactory 中所有的 Advisor 的子类
 		// Build Advisors for all AspectJ aspects in the bean factory.
-		advisors.addAll(this.aspectJAdvisorsBuilder.buildAspectJAdvisors());
+		advisors.addAll(this.aspectJAdvisorsBuilder.buildAspectJAdvisors());					// 获取所有的 被 Aspect注解修饰的类, 并且生成对应的 Advisor
 		return advisors;
 	}
 
 	@Override
-	protected boolean isInfrastructureClass(Class<?> beanClass) {
+	protected boolean isInfrastructureClass(Class<?> beanClass) {											// 若是 被 Aspect 注释的类, 就不应该被 Spring AOP 被生成代理类
 		// Previously we setProxyTargetClass(true) in the constructor, but that has too
 		// broad an impact. Instead we now override isInfrastructureClass to avoid proxying
 		// aspects. I'm not entirely happy with that as there is no good reason not

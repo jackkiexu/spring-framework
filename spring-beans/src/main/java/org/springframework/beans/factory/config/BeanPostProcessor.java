@@ -20,7 +20,7 @@ import org.springframework.beans.BeansException;
 
 /**
  * Factory hook that allows for custom modification of new bean instances,
- * e.g. checking for marker interfaces or wrapping them with proxies.
+ * e.g. checking for marker interfaces or wrapping them with proxies.  (检查相应接口完成一些自定义功能实现, 如包装目标对象到代理对象)
  *
  * <p>ApplicationContexts can autodetect BeanPostProcessor beans in their
  * bean definitions and apply them to any beans subsequently created.
@@ -38,6 +38,9 @@ import org.springframework.beans.BeansException;
  * @see DestructionAwareBeanPostProcessor
  * @see ConfigurableBeanFactory#addBeanPostProcessor
  * @see BeanFactoryPostProcessor
+ *
+ * 参考资料:
+ * http://blog.csdn.net/novelly/article/details/37811279
  */
 public interface BeanPostProcessor {
 

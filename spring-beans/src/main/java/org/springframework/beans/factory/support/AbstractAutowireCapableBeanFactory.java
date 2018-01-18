@@ -668,7 +668,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			for (BeanPostProcessor bp : getBeanPostProcessors()) {
 				if (bp instanceof SmartInstantiationAwareBeanPostProcessor) {
 					SmartInstantiationAwareBeanPostProcessor ibp = (SmartInstantiationAwareBeanPostProcessor) bp;
-					Class<?> predicted = ibp.predictBeanType(targetType, beanName);
+					Class<?> predicted = ibp.predictBeanType(targetType, beanName);																// 通过 SmartInstantiationAwareBeanPostProcessor 来预测对应 Bean 的类型
 					if (predicted != null && (typesToMatch.length != 1 || FactoryBean.class != typesToMatch[0] ||
 							FactoryBean.class.isAssignableFrom(predicted))) {
 						return predicted;
@@ -1061,7 +1061,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		// 如果尚未被解析
 		if (!Boolean.FALSE.equals(mbd.beforeInstantiationResolved)) {
 			// Make sure bean class is actually resolved at this point.
-			if (!mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {
+			if (!mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {								// 这里是 Spring 的一个扩展点, 执行的是 InstantiationAwareBeanPostProcessor.postProcessBeforeInstantiation 与 applyBeanPostProcessorsAfterInitialization
 				Class<?> targetType = determineTargetType(beanName, mbd);
 				if (targetType != null) {
 					bean = applyBeanPostProcessorsBeforeInstantiation(targetType, beanName);			// 这里为什么 在 BeforeInstantiation 之前有返回值之后, 再要调用 AfterInitialization
@@ -1091,7 +1091,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			if (bp instanceof InstantiationAwareBeanPostProcessor) {
 				InstantiationAwareBeanPostProcessor ibp = (InstantiationAwareBeanPostProcessor) bp;
 				Object result = ibp.postProcessBeforeInstantiation(beanClass, beanName);
-				if (result != null) {
+				if (result != null) {													// 从这里发现, 只要有一个 InstantiationAwareBeanPostProcessor.postProcessBeforeInstantiation 成功实例化对象后, 就直接返回
 					return result;
 				}
 			}

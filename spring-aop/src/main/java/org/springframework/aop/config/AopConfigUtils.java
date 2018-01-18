@@ -58,11 +58,11 @@ public abstract class AopConfigUtils {
 
 	/**
 	 * Setup the escalation(增强, 扩展) list.
-	 */
-	static {
-		APC_PRIORITY_LIST.add(InfrastructureAdvisorAutoProxyCreator.class);
-		APC_PRIORITY_LIST.add(AspectJAwareAdvisorAutoProxyCreator.class);
-		APC_PRIORITY_LIST.add(AnnotationAwareAspectJAutoProxyCreator.class);
+	 */										//   BeanNameAutoProxyCreator
+	static {							//   DefaultAdvisorAutoProxyCreator                        直接注入到容器中, 它会直接查询容器里面所有 Advisor 中的, 并且匹配所有匹配得上的 bean, 而生成代理的类
+		APC_PRIORITY_LIST.add(InfrastructureAdvisorAutoProxyCreator.class);			// 只对 Spring 容器中的基础组件类进行动态代理 (beanName.getRole() = BeanDefinition.ROLE_INFRASTRUCTURE)
+		APC_PRIORITY_LIST.add(AspectJAwareAdvisorAutoProxyCreator.class);				// AopNamespaceHandler <aop: config> -> ConfigBeanDefinitionParser -> AspectJAwareAdvisorAutoProxyCreator
+		APC_PRIORITY_LIST.add(AnnotationAwareAspectJAutoProxyCreator.class);    // AopNamespaceHandler <aop: aspectj-autoproxy> -> AnnotationAwareAspectJAutoProxyCreator -> AnnotationAwareAspectJAutoProxyCreator
 	}
 
 

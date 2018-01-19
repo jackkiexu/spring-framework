@@ -55,6 +55,10 @@ import org.springframework.util.StringUtils;
  * @author Juergen Hoeller
  * @since 2.0
  * @see org.aopalliance.intercept.MethodInterceptor
+ *
+ * 这里是一个典型的装饰器模式, 通过 BeanDefinitionDecorator 对 原来的 BeanDefinitionHolder 进行装饰(添加新的属性)
+ * 装饰器: 更加关注于, 增加对象的属性
+ * 代理:   更加关在于, 控制对象方法属性的访问
  */
 public abstract class AbstractInterceptorDrivenBeanDefinitionDecorator implements BeanDefinitionDecorator {
 

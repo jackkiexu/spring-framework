@@ -79,7 +79,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 	 * @return the list of {@link org.springframework.aop.Advisor} beans
 	 * @see #isEligibleBean
 	 */
-	public List<Advisor> buildAspectJAdvisors() {
+	public List<Advisor> buildAspectJAdvisors() {															// 将 BeanFactory 中所有 被 Aspect 修饰的 类, 并且 生成对应的 Advisor (Pointcut 与 Advice)
 		List<String> aspectNames = this.aspectBeanNames;
 
 		if (aspectNames == null) {

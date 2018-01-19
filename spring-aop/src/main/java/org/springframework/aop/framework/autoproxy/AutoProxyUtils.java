@@ -62,7 +62,7 @@ public abstract class AutoProxyUtils {
 	 * @param beanName the name of the bean
 	 * @return whether the given bean should be proxied with its target class
 	 */
-	public static boolean shouldProxyTargetClass(ConfigurableListableBeanFactory beanFactory, String beanName) {
+	public static boolean shouldProxyTargetClass(ConfigurableListableBeanFactory beanFactory, String beanName) {		// 判断是否 设置 ProxyFactory.targetClass 成类, 而不是 interface
 		if (beanName != null && beanFactory.containsBeanDefinition(beanName)) {
 			BeanDefinition bd = beanFactory.getBeanDefinition(beanName);
 			return Boolean.TRUE.equals(bd.getAttribute(PRESERVE_TARGET_CLASS_ATTRIBUTE));

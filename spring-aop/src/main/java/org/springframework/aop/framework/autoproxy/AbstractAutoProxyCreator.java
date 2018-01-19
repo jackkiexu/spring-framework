@@ -246,11 +246,11 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		 * 参考资料: http://jinnianshilongnian.iteye.com/blog/1492424
 		 *
 		 */
-		if (beanName == null || !this.targetSourcedBeans.contains(beanName)) {									// 这里的
+		if (beanName == null || !this.targetSourcedBeans.contains(beanName)) {
 			if (this.advisedBeans.containsKey(cacheKey)) {
 				return null;
 			}
-			if (isInfrastructureClass(beanClass) || shouldSkip(beanClass, beanName)) { //
+			if (isInfrastructureClass(beanClass) || shouldSkip(beanClass, beanName)) { 						// 1. 基础类 与 被 Aspect 注释的类 应该直接跳过
 				this.advisedBeans.put(cacheKey, Boolean.FALSE);
 				return null;
 			}
@@ -262,12 +262,12 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		if (beanName != null) {
 			TargetSource targetSource = getCustomTargetSource(beanClass, beanName);								// 可以配置自己想要的 TargetSourceCreator
 			if (targetSource != null) {
-				this.targetSourcedBeans.add(beanName);
+				this.targetSourcedBeans.add(beanName);																						// 从这里可以看出 targetSourcedBeans 是已经被代理的 bean的 name
 				// 如果存在增强方法则创建代理
 				Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(beanClass, beanName, targetSource);
 				// 把所有的通知配置到代理类
 				Object proxy = createProxy(beanClass, beanName, specificInterceptors, targetSource);
-				this.proxyTypes.put(cacheKey, proxy.getClass());
+				this.proxyTypes.put(cacheKey, proxy.getClass());																	// key 是 对应的 beanName, value 是代理类的类型
 				return proxy;
 			}
 		}
@@ -303,7 +303,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 			// 根据给定的 bean 的 class 和 name 构建出个 key, 格式 beanClassName_beanName
 			Object cacheKey = getCacheKey(bean.getClass(), beanName);
 			// 是否由于避免循环依赖而创建 bean  代理
-			if (!this.earlyProxyReferences.contains(cacheKey)) {
+			if (!this.earlyProxyReferences.contains(cacheKey)) {						// 这里有个判断 !earlyProxyReferences.contains(cacheKey), 主要还是可能上面 getEarlyBeanReference 方法已经调用过了, 已经生成了代理对象
 				// 如果它适合被代理, 则需要封装指定 bean
 				return wrapIfNecessary(bean, beanName, cacheKey);
 			}
@@ -325,7 +325,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	 */
 	protected Object getCacheKey(Class<?> beanClass, String beanName) {
 		if (StringUtils.hasLength(beanName)) {
-			return (FactoryBean.class.isAssignableFrom(beanClass) ?
+			return (FactoryBean.class.isAssignableFrom(beanClass) ?				// 这里就是获取真实的 beanName
 					BeanFactory.FACTORY_BEAN_PREFIX + beanName : beanName);
 		}
 		else {
@@ -403,7 +403,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	 * @param beanName the name of the bean
 	 * @return whether to skip the given bean
 	 */
-	protected boolean shouldSkip(Class<?> beanClass, String beanName) {
+	protected boolean shouldSkip(Class<?> beanClass, String beanName) { // 如果子类想不被 post-processor 进行 auto-proxy 处理的话, 则就返回 true
 		return false;
 	}
 
@@ -555,7 +555,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		Advisor[] advisors = new Advisor[allInterceptors.size()];
 		for (int i = 0; i < allInterceptors.size(); i++) {
 			// 拦截器转化为封装为 Advisor
-			advisors[i] = this.advisorAdapterRegistry.wrap(allInterceptors.get(i));
+			advisors[i] = this.advisorAdapterRegistry.wrap(allInterceptors.get(i));						// 这里就是将 advice 包装成 MethodInterceptor 方法
 		}
 		return advisors;
 	}

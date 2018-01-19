@@ -57,7 +57,7 @@ public class BeanFactoryAdvisorRetrievalHelper {
 
 
 	/**
-	 * Find all eligible Advisor beans in the current bean factory,
+	 * Find all eligible(合格) Advisor beans in the current bean factory,
 	 * ignoring FactoryBeans and excluding beans that are currently in creation.
 	 * @return the list of {@link org.springframework.aop.Advisor} beans
 	 * @see #isEligibleBean
@@ -71,12 +71,12 @@ public class BeanFactoryAdvisorRetrievalHelper {
 				// Do not initialize FactoryBeans here: We need to leave all regular beans
 				// uninitialized to let the auto-proxy creator apply to them!
 				// 获取容器中声明的 Advisor
-				advisorNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
+				advisorNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(				// 获取所有 Advisor 类型的 Bean 的名称
 						this.beanFactory, Advisor.class, true, false);
 				this.cachedAdvisorBeanNames = advisorNames;
 			}
 		}
-		if (advisorNames.length == 0) {
+		if (advisorNames.length == 0) {																							// 若容器中没有 Advisor, 则直接返回
 			return new LinkedList<Advisor>();
 		}
 

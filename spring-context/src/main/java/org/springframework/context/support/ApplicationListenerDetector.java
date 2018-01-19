@@ -70,7 +70,7 @@ class ApplicationListenerDetector implements DestructionAwareBeanPostProcessor, 
 
 	@Override
 	public Object postProcessAfterInitialization(Object bean, String beanName) {
-		if (this.applicationContext != null && bean instanceof ApplicationListener) {
+		if (this.applicationContext != null && bean instanceof ApplicationListener) {			// 获取所有实现 ApplicationListener 接口的类, 并且加入到 Spring 的容器中
 			// potentially not detected as a listener by getBeanNamesForType retrieval
 			Boolean flag = this.singletonNames.get(beanName);
 			if (Boolean.TRUE.equals(flag)) {												// 若 ApplicationListener 是单例, 则就添加到 applicationContext 的 applicationListeners 里面

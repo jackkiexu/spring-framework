@@ -136,3 +136,6 @@ http://blog.csdn.net/chjttony/article/category/1239946
 http://www.cnblogs.com/ITtangtang/p/3978349.html
 https://muyinchen.github.io/tags/Spring/
 http://jinnianshilongnian.iteye.com/blog/1492424
+Spring 开闭原则
+  http://jinnianshilongnian.iteye.com/blog/1489787
+  http://jinnianshilongnian.iteye.com/blog/1492424

@@ -283,8 +283,7 @@ public class PathMatchingResourcePatternResolver implements ResourcePatternResol
 	@Override
 	public Resource[] getResources(String locationPattern) throws IOException {
 		Assert.notNull(locationPattern, "Location pattern must not be null");
-		// 处理带有 classpath 的 resource
-        // 判断查找路径是否以 classpath*: 开头
+		// 判断查找路径是否以 classpath*: 开头
 		if (locationPattern.startsWith(CLASSPATH_ALL_URL_PREFIX)) {
             // 判断查找多个文件还是单个, 即判断是否含有 * 或者 ?
 			// a class path resource (multiple resources for same name possible)	这里的 getPathMatcher 其实是 AntPathMatcher

@@ -45,6 +45,9 @@ import java.net.URL;
  * @see InputStreamResource
  *
  * 参考资料: http://www.cnblogs.com/VergiLyn/p/6130188.html
+ * 参考资料
+ * https://docs.spring.io/spring/docs/3.0.x/spring-framework-reference/html/resources.html
+ * http://spring.cndocs.ml/resources.html#resources-implementations-classpathresource
  *
  */
 public interface Resource extends InputStreamSource {

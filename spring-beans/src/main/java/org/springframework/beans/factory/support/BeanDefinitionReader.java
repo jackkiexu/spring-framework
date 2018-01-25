@@ -24,11 +24,11 @@ import org.springframework.core.io.ResourceLoader;
  * Simple interface for bean definition readers.
  * Specifies load methods with Resource and String location parameters.
  *
- * <p>Concrete bean definition readers can of course add additional
+ * <p>Concrete(具体) bean definition readers can of course add additional
  * load and register methods for bean definitions, specific to
- * their bean definition format.
+ * their bean definition format.   BeanDefinition 的读取者
  *
- * <p>Note that a bean definition reader does not have to implement
+ * <p>Note that a bean definition reader does not have to implement (PS: 这里有个注意点, BeanDefinition 的读取器不一定非要实现BeanDefinitionReader接口, 其实这里指的就是 AnnotatedBeanDefinitionReader 与 ClassPathBeanDefinitionScanner)
  * this interface. It only serves as suggestion for bean definition
  * readers that want to follow standard naming conventions.
  *
@@ -41,8 +41,9 @@ public interface BeanDefinitionReader {
 	/**
 	 * Return the bean factory to register the bean definitions with.
 	 * <p>The factory is exposed through the BeanDefinitionRegistry interface,
-	 * encapsulating the methods that are relevant for bean definition handling.
+	 * encapsulating(封装) the methods that are relevant for bean definition handling.
 	 */
+	// 这里的 BeanDefinitionRegistry 其实就是 beanFactory 的注册接口, BeanDefinition 通过这个接口注入到 BeanFactory 看一下 BeanDefinitionRegistry 的实现类就知道了
 	BeanDefinitionRegistry getRegistry();
 
 	/**
@@ -62,6 +63,7 @@ public interface BeanDefinitionReader {
 	 * @see #loadBeanDefinitions(String)
 	 * @see org.springframework.core.io.support.ResourcePatternResolver
 	 */
+	// ResourceLoader 代表的是 BeanDefinitionReader 需要读取的是 描述BeanDefinition的资源文件加载器, 以前 BeanFactory 与 ResourceLoader 是分离开的两个组件, 后来出现了 ApplicationContext, 将 beanFactory 与 ResourceLoader 结合到一个类中
 	ResourceLoader getResourceLoader();
 
 	/**
@@ -70,12 +72,14 @@ public interface BeanDefinitionReader {
 	 * but rather to just register bean definitions with class names,
 	 * with the corresponding Classes to be resolved later (or never).
 	 */
+	// 加载类的 ClassLoader
 	ClassLoader getBeanClassLoader();
 
 	/**
 	 * Return the BeanNameGenerator to use for anonymous beans
 	 * (without explicit bean name specified).
 	 */
+	// bean 的命名生成器
 	BeanNameGenerator getBeanNameGenerator();
 
 
@@ -85,6 +89,7 @@ public interface BeanDefinitionReader {
 	 * @return the number of bean definitions found
 	 * @throws BeanDefinitionStoreException in case of loading or parsing errors
 	 */
+	// 加载指定目录Resource下 BeanDefinition 的方法
 	int loadBeanDefinitions(Resource resource) throws BeanDefinitionStoreException;
 
 	/**
@@ -93,6 +98,7 @@ public interface BeanDefinitionReader {
 	 * @return the number of bean definitions found
 	 * @throws BeanDefinitionStoreException in case of loading or parsing errors
 	 */
+	// 加载多个指定目录Resource下 BeanDefinition 的方法
 	int loadBeanDefinitions(Resource... resources) throws BeanDefinitionStoreException;
 
 	/**
@@ -107,6 +113,7 @@ public interface BeanDefinitionReader {
 	 * @see #loadBeanDefinitions(org.springframework.core.io.Resource)
 	 * @see #loadBeanDefinitions(org.springframework.core.io.Resource[])
 	 */
+	// 加载指定目录Resource下 BeanDefinition 的方法
 	int loadBeanDefinitions(String location) throws BeanDefinitionStoreException;
 
 	/**
@@ -116,6 +123,7 @@ public interface BeanDefinitionReader {
 	 * @return the number of bean definitions found
 	 * @throws BeanDefinitionStoreException in case of loading or parsing errors
 	 */
+	// 加载多个指定目录Resource下 BeanDefinition 的方法
 	int loadBeanDefinitions(String... locations) throws BeanDefinitionStoreException;
 
 }

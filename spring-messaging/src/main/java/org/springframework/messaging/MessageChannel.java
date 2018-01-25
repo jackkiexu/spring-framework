@@ -35,7 +35,7 @@ public interface MessageChannel {
 	 * the method returns {@code true}. If the message cannot be sent due to a
 	 * non-fatal reason, the method returns {@code false}. The method may also
 	 * throw a RuntimeException in case of non-recoverable errors.
-	 * <p>This method may block indefinitely, depending on the implementation.
+	 * <p>This method may block indefinitely(无限期), depending on the implementation.
 	 * To provide a maximum wait time, use {@link #send(Message, long)}.
 	 * @param message the message to send
 	 * @return whether or not the message was sent

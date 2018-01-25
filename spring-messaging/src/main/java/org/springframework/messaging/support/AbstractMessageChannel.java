@@ -110,8 +110,8 @@ public abstract class AbstractMessageChannel implements MessageChannel, Intercep
 		ChannelInterceptorChain chain = new ChannelInterceptorChain();
 		boolean sent = false;
 		try {
-			message = chain.applyPreSend(message, this);
-			if (message == null) {
+			message = chain.applyPreSend(message, this);				// 调用消息发送的前置处理器
+			if (message == null) {										// 这里的 message == null, 说明 消息不需要进行发送
 				return false;
 			}
 			sent = sendInternal(message, timeout);
@@ -156,7 +156,7 @@ public abstract class AbstractMessageChannel implements MessageChannel, Intercep
 			Message<?> messageToUse = message;
 			for (ChannelInterceptor interceptor : interceptors) {
 				Message<?> resolvedMessage = interceptor.preSend(messageToUse, channel);
-				if (resolvedMessage == null) {
+				if (resolvedMessage == null) {						// 这里 resolvedMessage == null 说明前置处理器处理后, 不需要执行后面的消息发送, 所以才执行 triggerAfterSendCompletion
 					String name = interceptor.getClass().getSimpleName();
 					if (logger.isDebugEnabled()) {
 						logger.debug(name + " returned null from preSend, i.e. precluding the send.");

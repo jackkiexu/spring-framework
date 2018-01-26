@@ -50,7 +50,7 @@ public class MessageConverterTests {
 		Message<String> message = MessageBuilder.withPayload("ABC").build();
 
 		assertEquals("success-from", this.converter.fromMessage(message, String.class));
-		assertNull(this.converter.fromMessage(message, Integer.class));
+		assertNull(this.converter.fromMessage(message, Integer.class));					// 因为 TestMessageConverter 不支持转 Integer, 所以直接返回 null
 	}
 
 	@Test

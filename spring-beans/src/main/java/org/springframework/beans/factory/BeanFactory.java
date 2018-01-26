@@ -142,6 +142,7 @@ public interface BeanFactory {
 	 * @throws BeansException if the bean could not be obtained
 	 * 通过 Bean 的名字, 获取对应的实例
 	 */
+	// 通过 Bean 的名字, 获取对应的实例
 	Object getBean(String name) throws BeansException;
 
 	/**
@@ -164,6 +165,7 @@ public interface BeanFactory {
 	 *
 	 * 通过 Bean 名字 和 bean类型, 获取 Bean 实例
 	 */
+	// 获取指定名称的 Bean, 其中 requiredType 指的是 Bean的类型
 	<T> T getBean(String name, Class<T> requiredType) throws BeansException;
 
 	/**
@@ -183,6 +185,7 @@ public interface BeanFactory {
 	 *
 	 * 通过 Bean 的类型获取 Bean
 	 */
+	// 获取指定名称的 Bean
 	<T> T getBean(Class<T> requiredType) throws BeansException;
 
 	/**
@@ -199,6 +202,7 @@ public interface BeanFactory {
 	 * @throws BeansException if the bean could not be created
 	 * @since 2.5
 	 */
+	// 获取指定名称的 Bean, 其中 args 指的是 构造函数/工厂方法的参数
 	Object getBean(String name, Object... args) throws BeansException;
 
 	/**
@@ -220,6 +224,7 @@ public interface BeanFactory {
 	 * @throws BeansException if the bean could not be created
 	 * @since 4.1
 	 */
+	// 获取指定类型的 Bean, 其中 args 指的是 构造函数/工厂方法的参数
 	<T> T getBean(Class<T> requiredType, Object... args) throws BeansException;
 
 
@@ -240,6 +245,7 @@ public interface BeanFactory {
 	 *
 	 * 判断容器是否含有 Bean
 	 */
+	// 判断容器是否含有 Bean
 	boolean containsBean(String name);
 
 	/**
@@ -259,6 +265,7 @@ public interface BeanFactory {
 	 *
 	 * 根据 Bean 的名字判断是否是存在 Bean 实例, 并且是单例
 	 */
+	// 这个名称对应的 Bean 是否是 singleton 类型
 	boolean isSingleton(String name) throws NoSuchBeanDefinitionException;
 
 	/**
@@ -277,6 +284,7 @@ public interface BeanFactory {
 	 * @see #getBean
 	 * @see #isSingleton
 	 */
+	// 这个名称对应的 Bean 是否是 prototype 类型
 	boolean isPrototype(String name) throws NoSuchBeanDefinitionException;
 
 	/**
@@ -294,6 +302,7 @@ public interface BeanFactory {
 	 * @see #getBean
 	 * @see #getType
 	 */
+	// 判断指定名称对应的 Bean 是否与 typeToMatch 相匹配(这个方法使用得非常多)
 	boolean isTypeMatch(String name, ResolvableType typeToMatch) throws NoSuchBeanDefinitionException;
 
 	/**
@@ -311,6 +320,7 @@ public interface BeanFactory {
 	 * @see #getBean
 	 * @see #getType
 	 */
+	// 判断指定名称对应的 Bean 是否与 typeToMatch 相匹配(这个方法使用得非常多)
 	boolean isTypeMatch(String name, Class<?> typeToMatch) throws NoSuchBeanDefinitionException;
 
 	/**
@@ -327,6 +337,7 @@ public interface BeanFactory {
 	 * @see #getBean
 	 * @see #isTypeMatch
 	 */
+	// 获取指定 Name 的 bean 类型(PS: 一个特例, 若遇到 FactoryBean, 则会通过 FactoryBean.getObjectType 来获取最终对象的类型)
 	Class<?> getType(String name) throws NoSuchBeanDefinitionException;
 
 	/**

@@ -127,10 +127,21 @@
 
 
 参考资料:
-http://blog.csdn.net/chjttony/article/category/1239946
-http://www.cnblogs.com/ITtangtang/p/3978349.html
-https://muyinchen.github.io/tags/Spring/
-http://jinnianshilongnian.iteye.com/blog/1492424
+Spring BeanFactory 体系结构
+  http://www.cnblogs.com/zrtqsk/p/4028453.html
+
+Spring 技术内幕分析
+  http://blog.csdn.net/chjttony/article/category/1239946
+
+Spring IOC 启动过程
+  http://www.cnblogs.com/ITtangtang/p/3978349.html
+
+Spring 5 源码分析
+  https://muyinchen.github.io/tags/Spring/
+
+Spring 开涛
+  http://jinnianshilongnian.iteye.com/blog/1492424
+
 Spring 开闭原则
   http://jinnianshilongnian.iteye.com/blog/1489787
   http://jinnianshilongnian.iteye.com/blog/1492424

@@ -144,10 +144,32 @@ public class XmlBeanDefinitionReaderTests {
 		doTestValidation("validateWithXsd.xml");
 	}
 
-	private void doTestValidation(String resourceName) throws Exception {
+	/**
+	 * 测试最基本的 IOC 工厂
+	 * @throws Exception
+	 */
+	@Test
+	public void doTraditionBeanFactory() throws Exception {
+		String resourceName = "org/springframework/beans/factory/xml/application.xml";
+		// 最基本的 IOC 工厂 DefaultListableBeanFactory
 		DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
-		Resource resource = new ClassPathResource(resourceName, getClass());
+		// 配置Bean依赖文件
+		Resource resource = new ClassPathResource(resourceName);
+		// 使用 XML 读取器读取 xml 里面的信息, 并且设置到 BeanFactory 中
 		new XmlBeanDefinitionReader(factory).loadBeanDefinitions(resource);
+		// 获取 BeanFactory 中的对象 (PS: 注意这时 容器中指存在 BeanDefinition, 还未生成对应的 Bean)
+		TestBean bean = (TestBean) factory.getBean("testBean");
+		assertNotNull(bean);
+	}
+
+	private void doTestValidation(String resourceName) throws Exception {
+		// 最基本的 IOC 工厂 DefaultListableBeanFactory
+		DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
+		// 配置Bean依赖文件
+		Resource resource = new ClassPathResource(resourceName, getClass());
+		// 使用 XML 读取器读取 xml 里面的信息, 并且设置到 BeanFactory 中
+		new XmlBeanDefinitionReader(factory).loadBeanDefinitions(resource);
+		// 获取 BeanFactory 中的对象 (PS: 注意这时 容器中指存在 BeanDefinition, 还未生成对应的 Bean)
 		TestBean bean = (TestBean) factory.getBean("testBean");
 		assertNotNull(bean);
 	}

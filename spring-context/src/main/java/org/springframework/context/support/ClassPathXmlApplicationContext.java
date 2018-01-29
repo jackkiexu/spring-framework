@@ -132,10 +132,12 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
 	 */
 	public ClassPathXmlApplicationContext(String[] configLocations, boolean refresh, ApplicationContext parent)
 			throws BeansException {
-
+		// 在父类中设置 自己的 ResourcePatternResolver = PathMatchingResourcePatternResolver
 		super(parent);
+		// 解析 Bean 定义资源文件的路径, 处理多个资源文件字符串数组
 		setConfigLocations(configLocations);
-		if (refresh) {
+		// refresh 默认 true
+		if (refresh) { // refresh()才是正真的主逻辑
 			refresh();
 		}
 	}

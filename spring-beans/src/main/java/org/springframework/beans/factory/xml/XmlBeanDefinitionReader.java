@@ -337,33 +337,27 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 		if (logger.isInfoEnabled()) {
 			logger.info("Loading XML bean definitions from " + encodedResource.getResource());
 		}
-		// 通过类属性 resourcesCurrentlyBeingLoaded 记录已加载的资源
+		// 通过类属性 resourcesCurrentlyBeingLoaded 记录当前线程已加载的资源
 		Set<EncodedResource> currentResources = this.resourcesCurrentlyBeingLoaded.get();
 		if (currentResources == null) {
 			currentResources = new HashSet<EncodedResource>(4);
 			this.resourcesCurrentlyBeingLoaded.set(currentResources);
 		}
-		// 添加新资源到类属性, 最后 finally 中有 remove() 处理循环加载 exception
+		// 若配置信息已经加载过, 则直接抛出异常
 		if (!currentResources.add(encodedResource)) {
-			// 循环加载 exception
-			throw new BeanDefinitionStoreException(
-					"Detected cyclic loading of " + encodedResource + " - check your import definitions!");
+			throw new BeanDefinitionStoreException("Detected cyclic loading of " + encodedResource + " - check your import definitions!");
 		}
 		try {
-			// 这里得到 XML 文件, 并得到 IO 的 InputSource 准备进行读取
-			// 封装的 EncodedResource 先获取 Resource, 再通过 Resource 获取 InputStream
 			// 将资源文件转为 InputStream 的 IO 流
 			InputStream inputStream = encodedResource.getResource().getInputStream();
 			try {
-				// InputSource 这个类并不来自于 Spring, 它的全路径是 org.xml.sax.InputSource
-				// 从 InputStream 中得到XML的解析源
-				// 把 InputStream 封装成 InputSource
+				// 把 InputStream 封装成 InputSource(InputSource 这个类并不来自于 Spring, 它的全路径是 org.xml.sax.InputSource), 接着就是 通过 DocumentBuilder 解析 Docuement
 				InputSource inputSource = new InputSource(inputStream);
 				if (encodedResource.getEncoding() != null) {
 					inputSource.setEncoding(encodedResource.getEncoding());
 				}
 				// doLoadbeanDefinitions 才是核心加载资源文件的方法
-				return doLoadBeanDefinitions(inputSource, encodedResource.getResource());		// 这里是具体的读取过程
+				return doLoadBeanDefinitions(inputSource, encodedResource.getResource());
 			}
 			finally {
 				inputStream.close();				// 关闭从 Resource 中得到的 IO 流
@@ -415,10 +409,6 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * @see #doLoadDocument
 	 * @see #registerBeanDefinitions
 	 */
-	/**
-	 * 具体的读取过程可以在 doLoadBeanDefinitions 方法中找到
-	 * 这是从特定的 XML 文件中实际载入 BeanDefinition 的地方
-	 */
 	// 从特定 XML 文件中实际载入 Bean 定义资源的方法
 	protected int doLoadBeanDefinitions(InputSource inputSource, Resource resource)
 			throws BeanDefinitionStoreException {
@@ -429,11 +419,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 			 */
 			// 将 XML 文件转换为 DOM 对象, 解析过程由 documentLoader 实现
 			Document doc = doLoadDocument(inputSource, resource);
-			/**
-			 * 这里启动的是对 BeanDefinition 解析的详细过程, 这个解析会使用到 Spring 的 Bean
-			 * 配置规则
-			 */
-			// 这里是启动对 Bean 定义解析的详细过程, 该解析过程会用到 Spring 的 Bean 配置规则
+			// 这里开始对 Bean 定义解析的详细过程, 该解析过程会用到 Spring 的 Bean 配置规则
 			return registerBeanDefinitions(doc, resource);
 		}
 		catch (BeanDefinitionStoreException ex) {

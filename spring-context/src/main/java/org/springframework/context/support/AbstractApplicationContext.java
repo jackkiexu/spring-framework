@@ -309,7 +309,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	@Override
 	public ConfigurableEnvironment getEnvironment() {
 		if (this.environment == null) {
-			this.environment = createEnvironment();
+			this.environment = createEnvironment();   // 这里是 StandardServletEnvironment
 		}
 		return this.environment;
 	}
@@ -515,48 +515,33 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	/**
 	 * 参考资料:
 	 * http://www.cnblogs.com/ITtangtang/p/3978349.html
-	 *
-	 * refresh(): 方法的作用: 在创建Ioc容器前, 如果已经有了容器的存在, 则需要把自己已有的容器销毁和关闭, 以保证在 refresh 之后使用的是新建立起来的 Ioc 容器.
-	 * refresh 的作用类似于对于 Ioc 容器的重启, 在新建立好的容器进行初始化, 对 Bean 定义资源进行载入
 	 */
 	@Override
 	public void refresh() throws BeansException, IllegalStateException {
 		synchronized (this.startupShutdownMonitor) {
-			// 准备刷新上下文环境
-			// 这是在子类中启动 refreshBeanFactory 的地方
-			// 调用容器准备刷新的方法, 获取容器的当前时间, 同时给容器设置同步标识
-			// 调用的是 AbstractApplicationContext#refresh
+			// 准备刷新上下文环境 -> 调用的是 AbstractApplicationContext#refresh -> 设置容器启动的时间 -> 设置容器的激活状态 -> 将 servletContext, servletConfig 设置到 AbstractBeanFactory.StandardEnvironment.PropertySourcesPropertyResolver.propertySources 里面
 			// Prepare this context for refreshing.
 			prepareRefresh();
 
-			// 初始化 BeanFactory, 并进行 XML 文件读取
-			// 告诉子类启动 refreshBeanFactory 方法, bean 定义资源文件的载入从子类的 refreshBeanFactory 方法启动
-			// 涉及 接卸 spring 配置文件并且封装为 beanDefinition 对象保存在 beanFactory 中
-			// 调用的是 AbstractApplicationContext#obtainFreshBeanFactory
+			// 调用子类去创建 DefaultListableBeanFactory, 并且去加载配置文件中配置的 Bean 信息
+			// 调用的是 AbstractRefreshableApplicationContext#refreshBeanFactory -> AbstractRefreshableApplicationContext#getBeanFactory
 			// Tell the subclass to refresh the internal bean factory.
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
-			// 对 BeanFactory 进行各种功能的填充
-			// 为 BeanFactory 配置容器特性, 例如类加载器, 时间处理器等
+			// 为 BeanFactory 配置容器特性, 例如类加载器, 标准的 bean 表达式解析器, 属性编辑注册器, 时间处理器等
 			// Prepare the bean factory for use in this context.
 			// 调用的是 AbstractApplicationContext#prepareBeanFactory
-			// beanFactory 的准备工作, 设置 context 的属性配置
 			prepareBeanFactory(beanFactory);
 
 			try {
-				// 子类覆盖方法做额外的处理
-				// 设置 BeanFactory 的后置处理器
-				// 为容器的某些子类指定特殊的 BeanPost 事件处理器
 				// Allows post-processing of the bean factory in context subclasses.
-				// 主要添加 ServletContextAwareProcessor 处理类
+				// 主要是注册 request/session 类型的 scope, 与 ServletContextAwareProcessor
 				// 调用的是 AbstractRefreshableWebApplicationContext#postProcessBeanFactory
 				postProcessBeanFactory(beanFactory);
 
-				// 激活各种 BeanFactory 处理器
-				// 调用 BeanFactory 的后置处理器, 这些后置处理器实在 Bean 定义中向容器注册的
-				// 调用所有注册的 BeanFactoryPostProcessor 的 Bean
+				// 实例化并激活所有的 注册到容器中的  BeanFactoryPostProcessor (这里分为针对实现接口 PriorityOrdered, Ordered, 与剩下的其他BeanFactoryPostProcessor分别处理.)
 				// Invoke factory processors registered as beans in the context.
-				// 其实调用 PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors (PS: 里面很复杂)
+				// 其实调用 PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors (PS: 里面步骤很多, 但不复杂)
 				invokeBeanFactoryPostProcessors(beanFactory);
 
 				// 注册 Bean 的后主处理器, 这些后置处理器在 Bean 的创建过程中调用 (PS: getBean中)
@@ -566,43 +551,31 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				// 调用的是 PostProcessorRegistrationDelegate.registerBeanPostProcessors
 				registerBeanPostProcessors(beanFactory);
 
-				// 对上下文中的消息源进行初始化, 即不同语言的消息体, 国际化处理
-				// 初始化信息源, 和国际化相关
+				// 初始化 MessageSource(主要是完成 国际化处理), 如果 beanFactory 不存在此 bean 则采用默认的配置并社会父类 messageSource
 				// Initialize message source for this context.
-				// 初始化 MessageSource消息源, 如果 beanFactory 不存在此 bean 则采用默认的配置并社会父类 messageSource
 				initMessageSource();
 
-				// 初始化上下文中的事件机制, 放入 "applicationEventMulticaster" bean 中
-				// 初始化容器事件传播器
 				// Initialize event multicaster for this context.
 				// 初始化 ApplicationEventMulticaster 事件, 默认使用 SimpleApplicationEventMulticaster 事件
 				initApplicationEventMulticaster();
 
-				// 留给子类来初始化其他的 Bean
-				// 初始化其他的特殊 Bean
-				// 调用子类的某些特殊 Bean 初始化方法
+				// 调用子类的某些特殊 Bean 初始化方法, 比如这里的 ThemeSource
 				// Initialize other special beans in specific context subclasses.
 				// 其实调用的是 AbstractRefreshableWebApplicationContext.onRefresh
 				onRefresh();
 
-				// 在所有 Bean 中查找 Listener bean, 注册到消息广播中
-				// 检查监听 Bean 并且将这些 Bean 向容器中注册
-				// 为事件传播器注册事件监听器
+				// 在所有 Bean 中查找 ApplicationListener bean, 注册到消息广播器(SimpleApplicationEventMulticaster)中
 				// Check for listener beans and register them.
-				// 其实调用的是 AbstractRefreshableWebApplicationContext#registerListeners
+				// 其实调用的是 AbstractApplicationContext#registerListeners
 				registerListeners();
 
-				// 完成 BeanFactory 的初始化工作
-				// 初始化剩余的单实例
-				// 实例化所有的 (non-lazy-init) 单件
-				// 初始化所有剩余的 Bean
+				// 初始化所有除 非单例/抽象类/lazyInit = true 的类
+				// 这里调用 的是 BeanFactory 的 preInstantiateSingletons 这个方法是由 DefaultListableBeanFactory 实现的
 				// Instantiate all remaining (non-lazy-init) singletons.
-				// 调用的是 AbstractRefreshableWebApplicationContext#finishBeanFactoryInitialization
+				// 调用的是 AbstractApplicationContext#finishBeanFactoryInitialization
 				finishBeanFactoryInitialization(beanFactory);
 
 				// 完成刷新过程, 通知生命周期处理器,  lifecycleProcessor 刷新过程, 同时发出 ContextRefreshEvent 通知别人
-				// 发布容器事件, 结束 refresh 过程
-				// 初始化容器的生命周期事件处理器, 并发布容器的生命周期事件
 				// Last step: publish corresponding event.
 				// 调用的是 AbstractApplicationContext#finishRefresh
 				finishRefresh();
@@ -804,9 +777,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	protected void initMessageSource() {
 		// 获取 bean 工厂, 此处一般为 DefaultListableBeanFactory
 		ConfigurableListableBeanFactory beanFactory = getBeanFactory();
-		// 首先判断是否已经有 xml 文件定义了 id 为messageSource 的Bean 对象
+		// 首先判断是否已经有  id 为messageSource 的Bean 对象
 		if (beanFactory.containsLocalBean(MESSAGE_SOURCE_BEAN_NAME)) {
-			this.messageSource = beanFactory.getBean(MESSAGE_SOURCE_BEAN_NAME, MessageSource.class);
+			this.messageSource = beanFactory.getBean(MESSAGE_SOURCE_BEAN_NAME, MessageSource.class);  // 设置 applicationContext 中的 messageSource
 			// Make MessageSource aware of parent MessageSource.
 			if (this.parent != null && this.messageSource instanceof HierarchicalMessageSource) {
 				// 为 HierarchicalMessageSource 的实现类
@@ -913,7 +886,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 		// Do not initialize FactoryBeans here: We need to leave all regular beans
 		// uninitialized to let post-processors apply to them!
-		// 从 DefaultListableFactory 中获取 ApplicationListener beans
+																					// 从 DefaultListableFactory 中获取 ApplicationListener beans
 		String[] listenerBeanNames = getBeanNamesForType(ApplicationListener.class, true, false);
 		for (String listenerBeanName : listenerBeanNames) {
 			// 放入前文创建的 SimpleApplicationEventMultlcaster 中
@@ -973,9 +946,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		// Allow for caching all bean definition metadata, not expecting further changes.
 		beanFactory.freezeConfiguration();
 
-		// 初始化所有单例
+		// 初始化所有除 非单例/抽象类/lazyInit = true
 		// 这里调用 的是 BeanFactory 的 preInstantiateSingletons 这个方法是由 DefaultListableBeanFactory 实现的
-		// 对配置了 lazy-init 属性的单例模式 Bean 进行预实例化处理
 		// Instantiate all remaining (non-lazy-init) singletons.
 		beanFactory.preInstantiateSingletons();
 	}

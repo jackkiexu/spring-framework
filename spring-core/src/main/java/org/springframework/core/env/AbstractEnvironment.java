@@ -568,7 +568,7 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 
 	@Override
 	public String resolveRequiredPlaceholders(String text) throws IllegalArgumentException {
-		return this.propertyResolver.resolveRequiredPlaceholders(text);
+		return this.propertyResolver.resolveRequiredPlaceholders(text);		// 这里的 propertyResolver 其实就是 PropertySourcesPropertyResolver -> 主要是解决占位符 ${}
 	}
 
 

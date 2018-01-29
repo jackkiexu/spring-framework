@@ -240,7 +240,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 				if (recordSuppressedExceptions) {
 					this.suppressedExceptions = new LinkedHashSet<Exception>();
 				}
-				try { // 初始化 bean
+				try { // 正真创建 Bean 的地方, 这里会回调 createBean 方法
 					singletonObject = singletonFactory.getObject();
 					newSingleton = true;
 				}
@@ -267,7 +267,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					afterSingletonCreation(beanName);
 				}
 				if (newSingleton) {
-					// 将结果记录值缓存中, 并删除加载 bean 过程中所记录的各种辅助状态
+					// 将结果记录值缓存中, 并删除加载 bean 过程中所记录的各种辅助状态(比如提早暴露的类名, 以及提早暴露的单例工厂)
 					addSingleton(beanName, singletonObject);
 				}
 			}

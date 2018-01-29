@@ -98,7 +98,7 @@ public abstract class AbstractRefreshableWebApplicationContext extends AbstractR
 
 
 	@Override
-	public void setServletContext(ServletContext servletContext) {
+	public void setServletContext(ServletContext servletContext) { // 设置 servlet
 		this.servletContext = servletContext;
 	}
 
@@ -154,7 +154,7 @@ public abstract class AbstractRefreshableWebApplicationContext extends AbstractR
 
 	/**
 	 * Register request/session scopes, a {@link ServletContextAwareProcessor}, etc.
-	 * 注册 request/session 环境
+	 * 注册 request/session scope, 与 ServletContextAwareProcessor
 	 */
 	@Override
 	protected void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {

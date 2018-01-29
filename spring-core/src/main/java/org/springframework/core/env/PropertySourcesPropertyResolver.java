@@ -32,7 +32,7 @@ import org.springframework.util.ClassUtils;
  */
 public class PropertySourcesPropertyResolver extends AbstractPropertyResolver {
 
-	private final PropertySources propertySources;
+	private final PropertySources propertySources;			// 这个 propertySources 里面蕴藏着 KV 属性值
 
 
 	/**

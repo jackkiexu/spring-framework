@@ -164,13 +164,13 @@ public class ClassPathResource extends AbstractFileResolvingResource {
 	public InputStream getInputStream() throws IOException {
 		// 下面通过 class/ClassLoader 来判断怎么去读取资源
 		InputStream is;
-		if (this.clazz != null) {
+		if (this.clazz != null) {								// 若配置了 class, 则直接通过 class 来获取文件的数据流对象
 			is = this.clazz.getResourceAsStream(this.path);
 		}
-		else if (this.classLoader != null) {
+		else if (this.classLoader != null) {					// 若配置了 classLoader, 则直接通过 classLoader 来获取文件的数据流对象
 			is = this.classLoader.getResourceAsStream(this.path);
 		}
-		else {
+		else {													// 通过这个方法的调用类(也就是 Reflection.getCallerClass())背后的 classLoader 来获取数据流
 			is = ClassLoader.getSystemResourceAsStream(this.path);
 		}
 		if (is == null) {

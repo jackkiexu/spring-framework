@@ -145,3 +145,8 @@ Spring 开涛
 Spring 开闭原则
   http://jinnianshilongnian.iteye.com/blog/1489787
   http://jinnianshilongnian.iteye.com/blog/1492424
+
+Spring Document
+  Spring 3.x 中文: http://shouce.jb51.net/spring/
+  Spring 3.x 英文: https://docs.spring.io/spring/docs/3.0.x/reference/
+  Spring 4.x 中文: http://spring.cndocs.ml/

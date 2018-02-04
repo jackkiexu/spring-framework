@@ -173,9 +173,7 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 		Object target = null;
 
 		try {
-			// equals 方法的处理
 			// 被代理的接口中没有定义 equals 方法且目前方法是 equals 方法, 则调用 equals 方法比较两代对象所代理的接口
-			// 切面, 目标对象是不是相等的
 			if (!this.equalsDefined && AopUtils.isEqualsMethod(method)) {
 				// The target does not implement the equals(Object) method itself.
 				// 如果目标对象没有实现 object 类的基础方法 euqals
@@ -187,20 +185,19 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 				// 如果目标对象没有实现 object 类的基础方法 hashCode
 				return hashCode();
 			}
+			// 如果调用的方法是 DecoratingProxy声明的
 			else if (method.getDeclaringClass() == DecoratingProxy.class) {
 				// There is only getDecoratedClass() declared -> dispatch to proxy config.
-				// 根据代理对象配置来调用服务
 				return AopProxyUtils.ultimateTargetClass(this.advised);
 			}
 			/**
 			 * Class类的 isAssignableFrom(Class cls) 方法:
 			 * 自身类.class.isAssignableFrom(自身类或子类.class) 返回 true
 			 *
-			 * 对 Advised 接口或者子接口中的方法的调用不经过任何拦截器, 直接委托给它内部维护 Advised 对象中的方法
+			 * 对 Advised 接口或者子接口中的方法的调用不经过任何拦截器, 直接委托给Advised 对象中的方法
 			 * (此 if 块 的目的是实现将 advised 对象引入代理对象), this.advised.opaque 默认情况下是 false(它只是一个开关
 			 * 选项, 控制代理对象是否可以操作 advised)
 			 */
-			// 根据代理对象配置调用服务
 			else if (!this.advised.opaque && method.getDeclaringClass().isInterface() &&
 					method.getDeclaringClass().isAssignableFrom(Advised.class)) {
 				// Service invocations on ProxyConfig with the proxy config...
@@ -209,8 +206,6 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 			}
 
 			Object retVal;
-			// 有时候目标对象内部的自我调用将无法实施切面中的增强则需要通过此属性暴露代理
-			// 是否将 当前的代理对象做一个 AOP 框架暴露
 			// 当目标对象内部的自我调用无法实施切面中的增强则需要增强则需要通过此属性暴露代理
 			if (this.advised.exposeProxy) {
 				// 把当前代理对象放到 AopContext 中(其内部使用 ThreadLocal 存着), 并返回上下文中原来的代理对象, 并且保留之前暴露设置的代理
@@ -233,14 +228,13 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 
 			// Check whether we have any advice. If we don't, we can fallback on direct
 			// reflective invocation of the target, and avoid creating a MethodInvocation.
-			// 如果发现拦截器则直接点用切点方法
+			// 检测是否含有 MethodInterceptor
 			if (chain.isEmpty()) {
 				// 没有任何拦截器需要执行则直接执行目标对象方法
 				// We can skip creating a MethodInvocation: just invoke the target directly
 				// Note that the final invoker must be an InvokerInterceptor so we know it does
 				// nothing but a reflective operation on the target, and no hot swapping or fancy proxying.
 				Object[] argsToUse = AopProxyUtils.adaptArgumentsIfNecessary(method, args);
-				// 如果没有发现任何拦截器那么直接调用切点方法
 				retVal = AopUtils.invokeJoinpointUsingReflection(target, method, argsToUse);
 			}
 			else {
@@ -249,8 +243,6 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 				 * 通过 构造一个 ReflectiveMethodInvocation 来实现, 下面会看
 				 * 这个 ReflectiveMethodInvocation 类的具体实现
 				 */
-				// 将拦截器封装在 ReflectiveMethodInvocation, 以便于使用其 ReflectiveMethodInvocation
-				// 创建一个执行环境来处理拦截器和目标方法的执行(注意它的参数), 这是一个递归的过程, 后面再详细说明
 				// We need to create a method invocation...
 				invocation = new ReflectiveMethodInvocation(proxy, target, method, args, targetClass, chain);
 				// Proceed to the joinpoint through the interceptor chain.
@@ -261,7 +253,6 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 			// Massage return value if necessary.
 			Class<?> returnType = method.getReturnType();
 			// 处理返回目标对象本身的情况, 也许某些方法是返回this引用, 此时需要返回代理对象而不是目标对象
-			// 返回结果
 			if (retVal != null && retVal == target &&
 					returnType != Object.class && returnType.isInstance(proxy) &&
 					!RawTargetAccess.class.isAssignableFrom(method.getDeclaringClass())) {
@@ -277,7 +268,6 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 			return retVal;
 		}
 		finally {
-			// 也许你感觉 finally 中的代码不明白,  那么可以看一下介绍 AdvisedSupport的红色字
 			if (target != null && !targetSource.isStatic()) {
 				// Must have come from TargetSource.
 				// 如果此 targetSource 不是一个静态的 targetSource, 那么释放此 target, 默认的 SingletonTargetSource.isStatic 方法是 true 的

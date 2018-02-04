@@ -58,15 +58,15 @@ public class DefaultAdvisorChainFactory implements AdvisorChainFactory, Serializ
 		// but we need to preserve order in the ultimate list.
 		List<Object> interceptorList = new ArrayList<Object>(config.getAdvisors().length);									// PS: 这里 config.getAdvisors 获取的是 advisors 是数组
 		Class<?> actualClass = (targetClass != null ? targetClass : method.getDeclaringClass());
-		boolean hasIntroductions = hasMatchingIntroductions(config, actualClass);											// 判断是有 IntroductionAdvisor 匹配到
-		// 下面这个适配器将通知 [Advice] 包装成拦截器 [MethodInterceptor] [DefaultAdvisorAdapterRegistry] 适配器的默认实现
+		boolean hasIntroductions = hasMatchingIntroductions(config, actualClass);									    // 判断是有 IntroductionAdvisor 匹配到
+		// 下面这个适配器将通知 [Advice] 包装成拦截器 [MethodInterceptor]; 而 DefaultAdvisorAdapterRegistry则是适配器的默认实现
 		AdvisorAdapterRegistry registry = GlobalAdvisorAdapterRegistry.getInstance();
 
-		for (Advisor advisor : config.getAdvisors()) {
-			if (advisor instanceof PointcutAdvisor) {
+		for (Advisor advisor : config.getAdvisors()) {				// 获取所有的 Advisor
+			if (advisor instanceof PointcutAdvisor) {				// advisor 是 PointcutAdvisor 的子类
 				// Add it conditionally.
 				PointcutAdvisor pointcutAdvisor = (PointcutAdvisor) advisor;
-				// 判断此切面 [advisor] 是否匹配 targetClass
+																	// 判断此切面 [advisor] 是否匹配 targetClass (PS: 这里是类级别的匹配)
 				if (config.isPreFiltered() || pointcutAdvisor.getPointcut().getClassFilter().matches(actualClass)) {
 					/** 通过对适配器将通知 [Advice] 包装成 MethodInterceptor, 这里为什么是个数组? 因为一个通知类
 					 *  可能同时实现了前置通知[MethodBeforeAdvice], 后置通知[AfterReturingAdvice], 异常通知接口[ThrowsAdvice]
@@ -74,9 +74,9 @@ public class DefaultAdvisorChainFactory implements AdvisorChainFactory, Serializ
 					 */
 					MethodInterceptor[] interceptors = registry.getInterceptors(advisor);
 					MethodMatcher mm = pointcutAdvisor.getPointcut().getMethodMatcher();
-					// 是否匹配 targetClass 类的 method 方法
+																	// 是否匹配 targetClass 类的 method 方法     (PS: 这里是方法级别的匹配)
 					if (MethodMatchers.matches(mm, method, actualClass, hasIntroductions)) {
-						if (mm.isRuntime()) {			// 看了对应的所有实现类, 只有 ControlFlowPointcut 与 AspectJExpressionPointcut 有可能 返回 true
+						if (mm.isRuntime()) {						// 看了对应的所有实现类, 只有 ControlFlowPointcut 与 AspectJExpressionPointcut 有可能 返回 true
 							// Creating a new object instance in the getInterceptors() method
 							// isn't a problem as we normally cache created chains.
 							// 如果需要在运行时动态拦截方法的执行则创建一个简单的对象封装相关的数据, 它将延时
@@ -91,7 +91,7 @@ public class DefaultAdvisorChainFactory implements AdvisorChainFactory, Serializ
 					}
 				}
 			}
-			else if (advisor instanceof IntroductionAdvisor) {  // 这里不需要判断 MethodMatch
+			else if (advisor instanceof IntroductionAdvisor) {  // 这里是 IntroductionAdvisor
 				// 如果是引入切面的话则判断它是否适用于目标类, Spring 中默认的引入切面实现是 DefaultIntroductionAdvisor 类
 				// 默认的引入通知是 DelegatingIntroductionInterceptor 它实现了 MethodInterceptor 接口s
 				IntroductionAdvisor ia = (IntroductionAdvisor) advisor;
@@ -105,7 +105,6 @@ public class DefaultAdvisorChainFactory implements AdvisorChainFactory, Serializ
 				interceptorList.addAll(Arrays.asList(interceptors));
 			}
 		}
-
 		return interceptorList;
 	}
 

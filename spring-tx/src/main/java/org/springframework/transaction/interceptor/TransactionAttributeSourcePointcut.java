@@ -34,7 +34,7 @@ abstract class TransactionAttributeSourcePointcut extends StaticMethodMatcherPoi
 
 	// 判断当前的 目标方法是不是一个配置好的并且需要进行事务处理的方法调用
 	@Override
-	public boolean matches(Method method, Class<?> targetClass) {
+	public boolean matches(Method method, Class<?> targetClass) { // 决定是否 Pointcut 匹配成功
 		if (TransactionalProxy.class.isAssignableFrom(targetClass)) {
 			return false;
 		}

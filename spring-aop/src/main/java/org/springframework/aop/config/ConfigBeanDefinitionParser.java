@@ -382,7 +382,7 @@ class ConfigBeanDefinitionParser implements BeanDefinitionParser {
 			// configure the advisor
 			RootBeanDefinition advisorDefinition = new RootBeanDefinition(AspectJPointcutAdvisor.class);
 			advisorDefinition.setSource(parserContext.extractSource(adviceElement));
-			advisorDefinition.getConstructorArgumentValues().addGenericArgumentValue(adviceDef);
+			advisorDefinition.getConstructorArgumentValues().addGenericArgumentValue(adviceDef);  // 设置构造函数的参数
 			if (aspectElement.hasAttribute(ORDER_PROPERTY)) {
 				advisorDefinition.getPropertyValues().add(
 						ORDER_PROPERTY, aspectElement.getAttribute(ORDER_PROPERTY));

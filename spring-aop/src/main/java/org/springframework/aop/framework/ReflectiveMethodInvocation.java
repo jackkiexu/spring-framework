@@ -158,18 +158,18 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 	public Object proceed() throws Throwable {
 		// 执行完所有增强执行切点方法
 		// currentInterceptorIndex 默认等于 -1 的, 它记录着当前执行到了哪个拦截器
+		// interceptorsAndDynamicMethodMatchers 代表着匹配了的 MethodInterceptor
 		//	We start with an index of -1 and increment early.
 		if (this.currentInterceptorIndex == this.interceptorsAndDynamicMethodMatchers.size() - 1) {
 			// 如果所有的 拦截器都执行完了的话, 则调用 invokeJoinPoint 方法去执行目标对象的目标方法 (反射)
 			return invokeJoinpoint();
 		}
 
-		// 获取下一个要执行的拦截器
 		// 得到当前要执行的拦截器(拦截器是顺序执行的 )
 		Object interceptorOrInterceptionAdvice =
 				this.interceptorsAndDynamicMethodMatchers.get(++this.currentInterceptorIndex);
 		// 下面判断当前拦截器是不是一个动态拦截器
-		if (interceptorOrInterceptionAdvice instanceof InterceptorAndDynamicMethodMatcher) {
+		if (interceptorOrInterceptionAdvice instanceof InterceptorAndDynamicMethodMatcher) { // 其实在 Spring 中 主要的实现类是 AspectJExpressionPointcut
 			// 动态 匹配 方法 拦截
 			// Evaluate dynamic method matcher here: static part will already have
 			// been evaluated and found to match.
@@ -181,7 +181,6 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 				return dm.interceptor.invoke(this);
 			}
 			else {
-				// 不匹配则不执行拦截器
 				// 递归调用, 下一个拦截器或目标类的方法
 				// Dynamic matching failed.
 				// Skip this interceptor and invoke the next in the chain.
@@ -189,9 +188,7 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 			}
 		}
 		else {
-			// 将 this 作为参数  传递以保证当前实例中调用链的执行
-			// 普通拦截器, 直接调用拦截器
-			// 调用拦截器的 invoke 方法并将 this 传递过去, 这样拦截器里中的代码就有了是否继续执行的权限
+			// 将 this作为参数(MehtodInvocation)传递以保证当前实例中调用链的执行
 			// It's an interceptor, so we just invoke it: The pointcut will have
 			// been evaluated statically before this object was constructed.
 			return ((MethodInterceptor) interceptorOrInterceptionAdvice).invoke(this);

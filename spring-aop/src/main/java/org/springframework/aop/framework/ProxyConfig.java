@@ -91,12 +91,12 @@ public class ProxyConfig implements Serializable {
 	}
 
 	/**
-	 * Set whether proxies created by this configuration should be prevented
+	 * Set whether proxies created by this configuration should be prevented(阻止)
 	 * from being cast to {@link Advised} to query proxy status.
 	 * <p>Default is "false", meaning that any AOP proxy can be cast to
 	 * {@link Advised}.
 	 */
-	public void setOpaque(boolean opaque) {
+	public void setOpaque(boolean opaque) { // 不透明
 		this.opaque = opaque;
 	}
 

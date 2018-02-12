@@ -261,8 +261,8 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		 * 参考资料: http://jinnianshilongnian.iteye.com/blog/1492424
 		 *
 		 */
-		if (beanName == null || !this.targetSourcedBeans.contains(beanName)) {
-			if (this.advisedBeans.containsKey(cacheKey)) {				              // 此 cacheKey 已经被动态代理了
+		if (beanName == null || !this.targetSourcedBeans.contains(beanName)) {		  // targetSourcedBeans.contains(beanName) = true, 表示已经通过实例化前置动态代理过对象
+			if (this.advisedBeans.containsKey(cacheKey)) {				              // 此 cacheKey 已经被动态代理了, 直接返回 null
 				return null;
 			}
 			if (isInfrastructureClass(beanClass) || shouldSkip(beanClass, beanName)) {// 基础类 与 被 Aspect 注释的类 应该直接跳过
@@ -293,7 +293,6 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 				return proxy;
 			}
 		}
-
 		return null;
 	}
 

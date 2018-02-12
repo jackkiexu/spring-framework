@@ -84,7 +84,7 @@ public abstract class AbstractAspectJAdvisorFactoryTests {
 		try {
 			ReflectiveAspectJAdvisorFactory aspectJAdvisorFactory = (ReflectiveAspectJAdvisorFactory)getFixture();
 
-			getFixture().getAdvisors(new SingletonMetadataAwareAspectInstanceFactory(new PerCflowAspect(),"someBean")); // Spring 不支持 percflow (PS: 体现在 AspectMetadata的中)
+			getFixture().getAdvisors(new SingletonMetadataAwareAspectInstanceFactory(new PerCflowAspect(),"someBean")); // Spring 不支持 percflow (PS: 体现在 AspectMetadata的中, SINGLETON, PERTARGET, PERTHIS, PERTYPEWITHIN)
 			fail("Cannot accept cflow");
 		}
 		catch (Exception ex) {
@@ -95,7 +95,7 @@ public abstract class AbstractAspectJAdvisorFactoryTests {
 	@Test
 	public void testRejectsPerCflowBelowAspect() {
 		try {
-			getFixture().getAdvisors(new SingletonMetadataAwareAspectInstanceFactory(new PerCflowBelowAspect(),"someBean")); // Spring 不支持 percflowbelow (PS: 体现在 AspectMetadata 中)
+			getFixture().getAdvisors(new SingletonMetadataAwareAspectInstanceFactory(new PerCflowBelowAspect(),"someBean")); // Spring 不支持 percflow (PS: 体现在 AspectMetadata的中, SINGLETON, PERTARGET, PERTHIS, PERTYPEWITHIN)
 			fail("Cannot accept cflowbelow");
 		}
 		catch (Exception ex) {

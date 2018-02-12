@@ -273,7 +273,7 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 			if (annotation == null) {
 				return null;
 			}
-			StringTokenizer strTok = new StringTokenizer(annotation.getArgumentNames(), ",");
+			StringTokenizer strTok = new StringTokenizer(annotation.getArgumentNames(), ",");	// 获取 注解上的 参数名
 			if (strTok.countTokens() > 0) {
 				String[] names = new String[strTok.countTokens()];
 				for (int i = 0; i < names.length; i++) {

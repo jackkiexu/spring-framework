@@ -77,17 +77,17 @@ class InstantiationModelAwarePointcutAdvisorImpl
 			Method aspectJAdviceMethod, AspectJAdvisorFactory aspectJAdvisorFactory,
 			MetadataAwareAspectInstanceFactory aspectInstanceFactory, int declarationOrder, String aspectName) {
 
-		this.declaredPointcut = declaredPointcut;
-		this.declaringClass = aspectJAdviceMethod.getDeclaringClass();
-		this.methodName = aspectJAdviceMethod.getName();
-		this.parameterTypes = aspectJAdviceMethod.getParameterTypes();
-		this.aspectJAdviceMethod = aspectJAdviceMethod;
-		this.aspectJAdvisorFactory = aspectJAdvisorFactory;
-		this.aspectInstanceFactory = aspectInstanceFactory;
-		this.declarationOrder = declarationOrder;
-		this.aspectName = aspectName;
+		this.declaredPointcut = declaredPointcut;						// AspectJ expression 表达式定义的切面的点
+		this.declaringClass = aspectJAdviceMethod.getDeclaringClass();  // Advice 方法的声明类
+		this.methodName = aspectJAdviceMethod.getName();				// Advice 的方法名
+		this.parameterTypes = aspectJAdviceMethod.getParameterTypes();  // Advice 的方法对应的参数
+		this.aspectJAdviceMethod = aspectJAdviceMethod;					// Advice 所对应的激活方法
+		this.aspectJAdvisorFactory = aspectJAdvisorFactory;				// 获取 Advisor 的工厂
+		this.aspectInstanceFactory = aspectInstanceFactory;				// 获取被 @AspectJ 注解修饰的 实例工厂
+		this.declarationOrder = declarationOrder;						// Advisor 的 order 值
+		this.aspectName = aspectName;									// 被 @AspectJ 注解修饰的类的名称
 
-		if (aspectInstanceFactory.getAspectMetadata().isLazilyInstantiated()) {
+		if (aspectInstanceFactory.getAspectMetadata().isLazilyInstantiated()) {  // PERTARGET || PERTYPEWITHIN || PERTYPEWITHIN 类型的 <- 这个一般我们很少用到
 			// Static part of the pointcut is a lazy type.
 			Pointcut preInstantiationPointcut = Pointcuts.union(
 					aspectInstanceFactory.getAspectMetadata().getPerClausePointcut(), this.declaredPointcut);
@@ -95,15 +95,15 @@ class InstantiationModelAwarePointcutAdvisorImpl
 			// Make it dynamic: must mutate from pre-instantiation to post-instantiation state.
 			// If it's not a dynamic pointcut, it may be optimized out
 			// by the Spring AOP infrastructure after the first evaluation.
-			this.pointcut = new PerTargetInstantiationModelPointcut(
+			this.pointcut = new PerTargetInstantiationModelPointcut(			// 这里就有声明的切面, 又有实例的切面
 					this.declaredPointcut, preInstantiationPointcut, aspectInstanceFactory);
 			this.lazy = true;
 		}
 		else {
 			// A singleton aspect.
-			this.pointcut = this.declaredPointcut;
-			this.lazy = false;	      //  下面的 instantiateAdvice 就是实例化 Advice, 这里面其实非常重要
-			this.instantiatedAdvice = instantiateAdvice(this.declaredPointcut);				// 根据 Pointcut 来实例化 Advice
+			this.pointcut = this.declaredPointcut;								// 这是我们最常用的 singleton 切面
+			this.lazy = false;	      											//  下面的 instantiateAdvice 就是实例化 Advice, 这里面其实非常重要
+			this.instantiatedAdvice = instantiateAdvice(this.declaredPointcut);	// 根据 Pointcut 来实例化 Advice <- 这里的 Pointcut 其实就是 AspectJExpressionPointcut
 		}
 	}
 
@@ -155,9 +155,9 @@ class InstantiationModelAwarePointcutAdvisorImpl
 		return (this.instantiatedAdvice != null);
 	}
 
-
+	// 根据 AspectJExpressionPointcut, aspectJAdviceMethod(被 Before,Around,After,AfterReturning,AfterThrowing,Pointcut 注释的方法), aspectInstanceFactory(实例化被@AspectJ注解的类的工厂), declarationOrder (Advisor 的 order 值), aspectName (被 @AspectJ 注解修饰的类的名称)
 	private Advice instantiateAdvice(AspectJExpressionPointcut pcut) {
-		return this.aspectJAdvisorFactory.getAdvice(this.aspectJAdviceMethod, pcut,				// 根据被 Before,Around,After,AfterReturning,AfterThrowing,Pointcut 注释的方法转为 Advice
+		return this.aspectJAdvisorFactory.getAdvice(this.aspectJAdviceMethod, pcut,
 				this.aspectInstanceFactory, this.declarationOrder, this.aspectName);
 	}
 

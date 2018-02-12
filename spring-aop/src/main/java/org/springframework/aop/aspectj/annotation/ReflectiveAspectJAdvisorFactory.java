@@ -136,7 +136,7 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 
 		List<Advisor> advisors = new LinkedList<Advisor>();
 		for (Method method : getAdvisorMethods(aspectClass)) {							// getAdvisorMethods 是获取所有没有 标注 Pointcut 的方法
-			Advisor advisor = getAdvisor(method, lazySingletonAspectInstanceFactory, advisors.size(), aspectName);		// 这里通过 传入 advisors.size() 来确定 Advisor 的生命次序s
+			Advisor advisor = getAdvisor(method, lazySingletonAspectInstanceFactory, advisors.size(), aspectName);// 这里通过 传入 advisors.size() 来确定 Advisor 的生命次序s
 			if (advisor != null) {
 				advisors.add(advisor);
 			}
@@ -166,7 +166,7 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 			@Override
 			public void doWith(Method method) throws IllegalArgumentException {
 				// Exclude pointcuts
-				if (AnnotationUtils.getAnnotation(method, Pointcut.class) == null) {			// 增加所有的 没有标注 注解 Pointcut.class 的方法
+				if (AnnotationUtils.getAnnotation(method, Pointcut.class) == null) {		   // 获取所有 没有标注 Pointcut 注解的 方法
 					methods.add(method);
 				}
 			}
@@ -202,7 +202,7 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 	public Advisor getAdvisor(Method candidateAdviceMethod, MetadataAwareAspectInstanceFactory aspectInstanceFactory,
 			int declarationOrderInAspect, String aspectName) {
 
-		validate(aspectInstanceFactory.getAspectMetadata().getAspectClass());
+		validate(aspectInstanceFactory.getAspectMetadata().getAspectClass());			// 这里其实就是校验 AspectJ 标注的是否 PERCFLOW ｜ PERCFLOWBELOW
 		// 切点信息的获取
 		AspectJExpressionPointcut expressionPointcut = getPointcut(						// 根据方法 method 来获取 对应的 AspectJExpressionPointcut 对象 (主要还是标注在方法上的 注解信息)
 				candidateAdviceMethod, aspectInstanceFactory.getAspectMetadata().getAspectClass());
@@ -214,30 +214,36 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 				this, aspectInstanceFactory, declarationOrderInAspect, aspectName);
 	}
 
-	// 切点信息的获取, 所谓获取切点信息 就是指定注解的表达式信息的获取, 如 @Before("test()")
+	// 切点信息的获取, 所谓获取切点信息 就是指定注解的表达式信息的获取, 如 @Before("test()"), 最终封装成 AspectJExpressionPointcut 对象
 	private AspectJExpressionPointcut getPointcut(Method candidateAdviceMethod, Class<?> candidateAspectClass) {
 		// 获取方法上的注解
-		AspectJAnnotation<?> aspectJAnnotation =		// 获取标注在 方法上的注解 (Before, Around, After, AfterReturning, AfterThrowing, Pointcut)
+		AspectJAnnotation<?> aspectJAnnotation =		                    // 获取标注在 方法上的注解 (Before, Around, After, AfterReturning, AfterThrowing, Pointcut)
 				AbstractAspectJAdvisorFactory.findAspectJAnnotationOnMethod(candidateAdviceMethod);
-		if (aspectJAnnotation == null) {				// 判断是否标注在方法 candidateAdviceMethod 上有没有注解
+		if (aspectJAnnotation == null) {				                    // 判断是否标注在方法 candidateAdviceMethod 上有没有注解
 			return null;
 		}
-		// 使用 AspectJExpressionPointcut 实例封装获取的信息
+																			// 使用 AspectJExpressionPointcut 实例封装获取的信息
 		AspectJExpressionPointcut ajexp =
 				new AspectJExpressionPointcut(candidateAspectClass, new String[0], new Class<?>[0]);
-		// 提取得到的注解中的表达式 如: @Pointcut(execution(* *.*test*(..))) 中的 execution(* *.*test*(..))
-		ajexp.setExpression(aspectJAnnotation.getPointcutExpression());			// 设置匹配的 expression 表达式
+																			// 提取得到的注解中的表达式 如: @Pointcut(execution(* *.*test*(..))) 中的 execution(* *.*test*(..))
+		ajexp.setExpression(aspectJAnnotation.getPointcutExpression());		// 设置匹配的 expression 表达式
 		ajexp.setBeanFactory(this.beanFactory);								// 这里就厉害大了, 直接将 BeanFactory 赋值给 AspectJExpressionPointcut 上面
 		return ajexp;
 	}
 
-
+	/**
+	 * 根据 AspectJExpressionPointcut
+	 *  aspectJAdviceMethod: 被 Before,Around,After,AfterReturning,AfterThrowing,Pointcut 注释的方法
+	 *  aspectInstanceFactory: 实例化被@AspectJ注解的类的工厂
+	 *  declarationOrder: Advisor 的 order 值
+	 *  aspectName: 被 @AspectJ 注解修饰的类的名称
+	 */
 	@Override
 	public Advice getAdvice(Method candidateAdviceMethod, AspectJExpressionPointcut expressionPointcut,
 			MetadataAwareAspectInstanceFactory aspectInstanceFactory, int declarationOrder, String aspectName) {
 
 		Class<?> candidateAspectClass = aspectInstanceFactory.getAspectMetadata().getAspectClass();		// 获取被 AspectJ 注解标注的类
-		validate(candidateAspectClass);
+		validate(candidateAspectClass);					// 判断 不是 PERCFLOW | PERCFLOWBELOW 类型
 
 		AspectJAnnotation<?> aspectJAnnotation =
 				AbstractAspectJAdvisorFactory.findAspectJAnnotationOnMethod(candidateAdviceMethod);	    // 获取标注在方法上的注解信息
@@ -301,9 +307,9 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 		// Now to configure the advice...
 		springAdvice.setAspectName(aspectName);
 		springAdvice.setDeclarationOrder(declarationOrder);			// 下面的参数绑定其实很复杂, 用的是 AspectJAnnotationParameterNameDiscoverer
-		String[] argNames = this.parameterNameDiscoverer.getParameterNames(candidateAdviceMethod);
+		String[] argNames = this.parameterNameDiscoverer.getParameterNames(candidateAdviceMethod); // 获取标注在注解上的参数的名称
 		if (argNames != null) {
-			springAdvice.setArgumentNamesFromStringArray(argNames);
+			springAdvice.setArgumentNamesFromStringArray(argNames); // 计算 Advice 的参数的名称 <- 其中第一个很 可能是 THIS_JOIN_POINT
 		}
 		springAdvice.calculateArgumentBindings();
 		return springAdvice;

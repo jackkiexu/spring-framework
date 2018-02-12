@@ -260,7 +260,7 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 			}
 		}
 		if (this.argumentNames != null) {
-			if (this.aspectJAdviceMethod.getParameterTypes().length == this.argumentNames.length + 1) {
+			if (this.aspectJAdviceMethod.getParameterTypes().length == this.argumentNames.length + 1) {	// 这里说明 第一个参数其实是 JoinPoint| ProceedingJoinPoint | JoinPoint.StaticPart
 				// May need to add implicit join point arg name...
 				Class<?> firstArgType = this.aspectJAdviceMethod.getParameterTypes()[0];
 				if (firstArgType == JoinPoint.class ||
@@ -269,7 +269,7 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 					String[] oldNames = this.argumentNames;
 					this.argumentNames = new String[oldNames.length + 1];
 					this.argumentNames[0] = "THIS_JOIN_POINT";
-					System.arraycopy(oldNames, 0, this.argumentNames, 1, oldNames.length);
+					System.arraycopy(oldNames, 0, this.argumentNames, 1, oldNames.length);				// 第一个参数名就是 THIS_JOIN_POINT
 				}
 			}
 		}
@@ -381,7 +381,7 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 			numUnboundArgs--;
 		}
 
-		if (numUnboundArgs > 0) {
+		if (numUnboundArgs > 0) {								// 代码到这里说明 除了基础类, 还有参数没有绑定
 			// need to bind arguments by name as returned from the pointcut match
 			bindArgumentsByName(numUnboundArgs);
 		}
@@ -404,7 +404,7 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 			if (!supportsProceedingJoinPoint()) {
 				throw new IllegalArgumentException("ProceedingJoinPoint is only supported for around advice");
 			}
-			this.joinPointArgumentIndex = 0;
+			this.joinPointArgumentIndex = 0;   // 计算 ProceedingJoinPoint 参数的位置
 			return true;
 		}
 		else {
@@ -473,7 +473,7 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 		// So we match in number...
 		int argumentIndexOffset = this.parameterTypes.length - numArgumentsLeftToBind;
 		for (int i = argumentIndexOffset; i < this.argumentNames.length; i++) {
-			this.argumentBindings.put(this.argumentNames[i], i);
+			this.argumentBindings.put(this.argumentNames[i], i);					// 存储 参数名对应的索引
 		}
 
 		// Check that returning and throwing were in the argument names list if
@@ -523,15 +523,15 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 
 		int index = 0;
 		for (int i = 0; i < this.argumentNames.length; i++) {
-			if (i < argumentIndexOffset) {
+			if (i < argumentIndexOffset) {						// 过滤偏移量 (已经确定的参数的量)
 				continue;
 			}
 			if (this.argumentNames[i].equals(this.returningName) ||
 				this.argumentNames[i].equals(this.throwingName)) {
 				continue;
 			}
-			pointcutParameterNames[index] = this.argumentNames[i];
-			pointcutParameterTypes[index] = methodParameterTypes[i];
+			pointcutParameterNames[index] = this.argumentNames[i];		// 设置这个位置的参数名
+			pointcutParameterTypes[index] = methodParameterTypes[i];    // 设置这个位置的参数的类型
 			index++;
 		}
 
@@ -556,7 +556,7 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 		int numBound = 0;
 
 		if (this.joinPointArgumentIndex != -1) {
-			adviceInvocationArgs[this.joinPointArgumentIndex] = jp;
+			adviceInvocationArgs[this.joinPointArgumentIndex] = jp;			// 在 joinPointArgumentIndex 绑定 JoinPoint <- 其实就是 MethodInvocation
 			numBound++;
 		}
 		else if (this.joinPointStaticPartArgumentIndex != -1) {

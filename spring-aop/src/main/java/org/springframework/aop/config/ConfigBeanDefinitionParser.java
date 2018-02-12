@@ -102,28 +102,20 @@ class ConfigBeanDefinitionParser implements BeanDefinitionParser {
 		CompositeComponentDefinition compositeDef =
 				new CompositeComponentDefinition(element.getTagName(), parserContext.extractSource(element));
 		parserContext.pushContainingComponent(compositeDef);
-		// 1. 注册一个 AspectJAwareAdvisorAutoProxyCreator 类型的 bean
-		// 创建 AOP 自动代理创建器
-		configureAutoProxyCreator(parserContext, element);						// 在 DefaultListableBeanFactory 中注入 AspectJAwareAdvisorAutoProxyCreator
-		// 2. 解析主标签下面的 advisor 标签, 并且注册 advisor
-		// 遍历解析 aop:config 的子标签
-		List<Element> childElts = DomUtils.getChildElements(element);			// 得到 <aop: config> 标签下面的所有子标签
+		configureAutoProxyCreator(parserContext, element);			 // 1. 在 DefaultListableBeanFactory 中注入 AspectJAwareAdvisorAutoProxyCreator
+		List<Element> childElts = DomUtils.getChildElements(element);// 2. 得到 <aop: config> 标签下面的所有子标签
 		for (Element elt: childElts) {
 			String localName = parserContext.getDelegate().getLocalName(elt);
-			// 解析 aop:pointcut 标签
-			if (POINTCUT.equals(localName)) {
+			if (POINTCUT.equals(localName)) {						 // 3. 解析 aop:pointcut 标签, 生成 AspectJExpressionPointcut, 并注入到 BeanFactory
 				parsePointcut(elt, parserContext);
 			}
-			// 解析 aop:advisor 标签
-			else if (ADVISOR.equals(localName)) {
+			else if (ADVISOR.equals(localName)) {					 // 4. 解析 aop:advisor 标签, 生成 DefaultBeanFactoryPointcutAdvisor, 并注入到容器中
 				parseAdvisor(elt, parserContext);
 			}
-			// 解析 aop:aspect 标签
-			else if (ASPECT.equals(localName)) {
+			else if (ASPECT.equals(localName)) {					 // 5. 解析 aop:aspect 标签, 并解析其下面得所有子标签, 生成 AspectJPointcutAdvisor/AspectJExpressionPointcut/AbstractAspectJAdvice 并注入 BeanFactory
 				parseAspect(elt, parserContext);
 			}
 		}
-
 		parserContext.popAndRegisterContainingComponent();
 		return null;
 	}

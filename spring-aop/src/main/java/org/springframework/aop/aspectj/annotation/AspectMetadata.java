@@ -100,19 +100,19 @@ public class AspectMetadata implements Serializable {
 		this.aspectClass = ajType.getJavaClass();
 		this.ajType = ajType;
 
-		switch (this.ajType.getPerClause().getKind()) {							// 这里主要还是根据标注在 Aspect 上的信息进行判断
-			case SINGLETON:														// SINGLETON 表示 在注解 Aspect 后面 Value 里面没有标注任何数据
+		switch (this.ajType.getPerClause().getKind()) {							    // 这里主要还是根据标注在 Aspect 上的信息进行判断
+			case SINGLETON:														    // SINGLETON 表示 在注解 Aspect 后面 Value 里面没有标注任何数据
 				this.perClausePointcut = Pointcut.TRUE;
 				return;
 			case PERTARGET:
 			case PERTHIS:
-				AspectJExpressionPointcut ajexp = new AspectJExpressionPointcut();
+				AspectJExpressionPointcut ajexp = new AspectJExpressionPointcut();	// 若是 PERTHIS | PERTARGET 类型
 				ajexp.setLocation(aspectClass.getName());
-				ajexp.setExpression(findPerClause(aspectClass));
+				ajexp.setExpression(findPerClause(aspectClass));					// 设置 Pointcut 的切入点的表达式 Expression
 				ajexp.setPointcutDeclarationScope(aspectClass);
 				this.perClausePointcut = ajexp;
 				return;
-			case PERTYPEWITHIN:
+			case PERTYPEWITHIN:														// 若是 PERTYPEWITHIN, 则 还是通过 Aspect 注解后面的类匹配表达式来进行匹配
 				// Works with a type pattern
 				this.perClausePointcut = new ComposablePointcut(new TypePatternClassFilter(findPerClause(aspectClass)));
 				return;

@@ -53,10 +53,11 @@ import org.springframework.util.Assert;
 @SuppressWarnings("serial")
 public class AnnotationAwareAspectJAutoProxyCreator extends AspectJAwareAdvisorAutoProxyCreator {
 
+	// 匹配 被 @AspectJ 注解修饰的 类名
 	private List<Pattern> includePatterns;
-
+	// 这个类是 @AspectJ 注解式 aop 的核型类 -> 1. 判断类是否被 @AspectJ 所注释 2. 根据 @AspectJ 所注解的类获取 Advisor
 	private AspectJAdvisorFactory aspectJAdvisorFactory;
-
+	// 将 BeanFactory 中所有 被 Aspect 修饰的 类, 并且 生成对应的 Advisor (Pointcut 与 Advice)
 	private BeanFactoryAspectJAdvisorsBuilder aspectJAdvisorsBuilder;
 
 
@@ -88,18 +89,16 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AspectJAwareAdvisorA
 
 
 	@Override
-	protected List<Advisor> findCandidateAdvisors() {																 // 获取所有的 候选的 Advisor (包括两部分)
-		// 当使用注解方式配置 AOP 的时候并不是丢弃了对 XML 配置的支持
-		// 在这里调用父类方法加载配置文件中的 AOP 声明
+	protected List<Advisor> findCandidateAdvisors() {						 // 获取所有的 候选的 Advisor (包括两部分)
 		// Add all the Spring advisors found according to superclass rules.
-		List<Advisor> advisors = super.findCandidateAdvisors();														// 获取 BeanFactory 中所有的 Advisor 的子类
+		List<Advisor> advisors = super.findCandidateAdvisors();				 // 获取 BeanFactory 中所有 Advisor类
 		// Build Advisors for all AspectJ aspects in the bean factory.
-		advisors.addAll(this.aspectJAdvisorsBuilder.buildAspectJAdvisors());					// 获取所有的 被 Aspect注解修饰的类, 并且生成对应的 Advisor
+		advisors.addAll(this.aspectJAdvisorsBuilder.buildAspectJAdvisors()); // 获取所有的 被 Aspect注解修饰的类, 并且生成对应的 Advisor
 		return advisors;
 	}
 
 	@Override
-	protected boolean isInfrastructureClass(Class<?> beanClass) {											// 若是 被 Aspect 注释的类, 就不应该被 Spring AOP 被生成代理类
+	protected boolean isInfrastructureClass(Class<?> beanClass) {	// 若是 Advice, Pointcut, Advisor,AopInfrastructureBean 的子类 或 被 Aspect 注释的类, 就不应该被 Spring AOP 被生成代理类
 		// Previously we setProxyTargetClass(true) in the constructor, but that has too
 		// broad an impact. Instead we now override isInfrastructureClass to avoid proxying
 		// aspects. I'm not entirely happy with that as there is no good reason not
@@ -117,7 +116,7 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AspectJAwareAdvisorA
 	 * {@code null} and all beans are included. If "includePatterns" is non-null,
 	 * then one of the patterns must match.
 	 */
-	protected boolean isEligibleAspectBean(String beanName) {
+	protected boolean isEligibleAspectBean(String beanName) {  // 判断 AspectJ 是否在 includePatterns 里面
 		if (this.includePatterns == null) {
 			return true;
 		}

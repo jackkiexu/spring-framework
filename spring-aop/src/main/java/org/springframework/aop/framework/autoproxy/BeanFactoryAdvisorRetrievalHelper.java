@@ -37,6 +37,7 @@ import org.springframework.util.Assert;
  * @since 2.0.2
  * @see AbstractAdvisorAutoProxyCreator
  */
+// 从  BeanFactory 中收集 Advisor 的一个工具类
 public class BeanFactoryAdvisorRetrievalHelper {
 
 	private static final Log logger = LogFactory.getLog(BeanFactoryAdvisorRetrievalHelper.class);
@@ -76,22 +77,22 @@ public class BeanFactoryAdvisorRetrievalHelper {
 				this.cachedAdvisorBeanNames = advisorNames;
 			}
 		}
-		if (advisorNames.length == 0) {																							// 若容器中没有 Advisor, 则直接返回
+		if (advisorNames.length == 0) {															// 若容器中没有 Advisor, 则直接返回
 			return new LinkedList<Advisor>();
 		}
 
 		List<Advisor> advisors = new LinkedList<Advisor>();
 		for (String name : advisorNames) {
 			// 判断返回
-			if (isEligibleBean(name)) {
-				if (this.beanFactory.isCurrentlyInCreation(name)) {
+			if (isEligibleBean(name)) {															// 判断 beanName 是否合法, 从子类中看出, 默认是 true
+				if (this.beanFactory.isCurrentlyInCreation(name)) {								// 判断是否 bean 在创建过程中 (PS: 一般很少有类的创建循环依赖其他的 Advisor 类)
 					if (logger.isDebugEnabled()) {
 						logger.debug("Skipping currently created advisor '" + name + "'");
 					}
 				}
 				else {
 					try {
-						advisors.add(this.beanFactory.getBean(name, Advisor.class));
+						advisors.add(this.beanFactory.getBean(name, Advisor.class));			// 获取 Advisor
 					}
 					catch (BeanCreationException ex) {
 						Throwable rootCause = ex.getMostSpecificCause();
@@ -112,7 +113,7 @@ public class BeanFactoryAdvisorRetrievalHelper {
 				}
 			}
 		}
-		return advisors;
+		return advisors;																		// 返回收集到的 Advisor
 	}
 
 	/**

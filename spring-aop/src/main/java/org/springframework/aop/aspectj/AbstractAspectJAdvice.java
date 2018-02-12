@@ -161,11 +161,11 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 			Method aspectJAdviceMethod, AspectJExpressionPointcut pointcut, AspectInstanceFactory aspectInstanceFactory) {
 
 		Assert.notNull(aspectJAdviceMethod, "Advice method must not be null");
-		this.declaringClass = aspectJAdviceMethod.getDeclaringClass();
-		this.methodName = aspectJAdviceMethod.getName();
-		this.parameterTypes = aspectJAdviceMethod.getParameterTypes();
-		this.aspectJAdviceMethod = aspectJAdviceMethod;
-		this.pointcut = pointcut;
+		this.declaringClass = aspectJAdviceMethod.getDeclaringClass();		// 被 @AspectJ 标注的类
+		this.methodName = aspectJAdviceMethod.getName();					// 被 Before,Around,After,AfterReturning,AfterThrowing,Pointcut 注解标注的方法的方法名
+		this.parameterTypes = aspectJAdviceMethod.getParameterTypes();      // 方法的参数
+		this.aspectJAdviceMethod = aspectJAdviceMethod;						// 被 Before,Around,After,AfterReturning,AfterThrowing,Pointcut 注解标注的方法
+		this.pointcut = pointcut;											// 此 Advice 对应的 Pointcut
 		this.aspectInstanceFactory = aspectInstanceFactory;
 	}
 
@@ -427,7 +427,7 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 	}
 
 	private void bindArgumentsByName(int numArgumentsExpectingToBind) {
-		if (this.argumentNames == null) {
+		if (this.argumentNames == null) {	// 获取 方法上的参数名, 见 AspectJAnnotationParameterNameDiscoverer
 			this.argumentNames = createParameterNameDiscoverer().getParameterNames(this.aspectJAdviceMethod);
 		}
 		if (this.argumentNames != null) {
@@ -460,7 +460,7 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 		return discoverer;
 	}
 
-	private void bindExplicitArguments(int numArgumentsLeftToBind) {
+	private void bindExplicitArguments(int numArgumentsLeftToBind) {  // 参数绑定
 		this.argumentBindings = new HashMap<String, Integer>();
 
 		int numExpectedArgumentNames = this.aspectJAdviceMethod.getParameterTypes().length;

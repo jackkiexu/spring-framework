@@ -104,10 +104,10 @@ class ConfigBeanDefinitionParser implements BeanDefinitionParser {
 		parserContext.pushContainingComponent(compositeDef);
 		// 1. 注册一个 AspectJAwareAdvisorAutoProxyCreator 类型的 bean
 		// 创建 AOP 自动代理创建器
-		configureAutoProxyCreator(parserContext, element);
+		configureAutoProxyCreator(parserContext, element);						// 在 DefaultListableBeanFactory 中注入 AspectJAwareAdvisorAutoProxyCreator
 		// 2. 解析主标签下面的 advisor 标签, 并且注册 advisor
 		// 遍历解析 aop:config 的子标签
-		List<Element> childElts = DomUtils.getChildElements(element);
+		List<Element> childElts = DomUtils.getChildElements(element);			// 得到 <aop: config> 标签下面的所有子标签
 		for (Element elt: childElts) {
 			String localName = parserContext.getDelegate().getLocalName(elt);
 			// 解析 aop:pointcut 标签
@@ -244,7 +244,7 @@ class ConfigBeanDefinitionParser implements BeanDefinitionParser {
 			boolean adviceFoundAlready = false;
 			for (int i = 0; i < nodeList.getLength(); i++) {
 				Node node = nodeList.item(i);
-				if (isAdviceNode(node, parserContext)) {
+				if (isAdviceNode(node, parserContext)) {					// 判断是否是 Advice 类型的标签
 					if (!adviceFoundAlready) {
 						adviceFoundAlready = true;
 						if (!StringUtils.hasText(aspectName)) {
@@ -365,9 +365,9 @@ class ConfigBeanDefinitionParser implements BeanDefinitionParser {
 			methodDefinition.getPropertyValues().add("methodName", adviceElement.getAttribute("method"));
 			methodDefinition.setSynthetic(true);
 
-			// 创建一个用于获取 aspect 实例的工厂
+
 			// create instance factory definition
-			RootBeanDefinition aspectFactoryDef =
+			RootBeanDefinition aspectFactoryDef =													// 创建一个用于获取 aspect 实例的工厂
 					new RootBeanDefinition(SimpleBeanFactoryAwareAspectInstanceFactory.class);
 			aspectFactoryDef.getPropertyValues().add("aspectBeanName", aspectName);
 			aspectFactoryDef.setSynthetic(true);
@@ -409,7 +409,7 @@ class ConfigBeanDefinitionParser implements BeanDefinitionParser {
 			Element adviceElement, ParserContext parserContext, String aspectName, int order,
 			RootBeanDefinition methodDef, RootBeanDefinition aspectFactoryDef,
 			List<BeanDefinition> beanDefinitions, List<BeanReference> beanReferences) {
-
+																									// 生成 Advice 对应的 RootBeanDefinition
 		RootBeanDefinition adviceDefinition = new RootBeanDefinition(getAdviceClass(adviceElement, parserContext));
 		adviceDefinition.setSource(parserContext.extractSource(adviceElement));
 

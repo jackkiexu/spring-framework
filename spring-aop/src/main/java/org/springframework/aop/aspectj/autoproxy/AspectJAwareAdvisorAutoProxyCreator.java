@@ -61,7 +61,7 @@ public class AspectJAwareAdvisorAutoProxyCreator extends AbstractAdvisorAutoProx
 
 
 	/**
-	 * Sort the rest by AspectJ precedence. If two pieces of advice have
+	 * Sort the rest by AspectJ precedence(优先权). If two pieces of advice have
 	 * come from the same aspect they will have the same order.
 	 * Advice from the same aspect is then further ordered according to the
 	 * following rules:
@@ -103,6 +103,7 @@ public class AspectJAwareAdvisorAutoProxyCreator extends AbstractAdvisorAutoProx
 	 * These additional advices are needed when using AspectJ expression pointcuts
 	 * and when using AspectJ-style advice.
 	 */
+	// 在 Advisor 链中增加 ExposeInvocationInterceptor.ADVISOR, 主要是为了后续得 Advice 中能获取到当前的 JointPoint, 也就是 MethodInvocation
 	@Override
 	protected void extendAdvisors(List<Advisor> candidateAdvisors) {
 		AspectJProxyUtils.makeAdvisorChainAspectJCapableIfNecessary(candidateAdvisors);

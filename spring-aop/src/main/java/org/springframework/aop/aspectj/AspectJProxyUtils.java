@@ -39,6 +39,7 @@ public abstract class AspectJProxyUtils {
 	 * @param advisors Advisors available
 	 * @return {@code true} if any special {@link Advisor Advisors} were added, otherwise {@code false}.
 	 */
+	// 在 声明式aop中需要加入 ExposeInvocationInterceptor.ADVISOR, 并且放在第一位
 	public static boolean makeAdvisorChainAspectJCapableIfNecessary(List<Advisor> advisors) {
 		// Don't add advisors to an empty list; may indicate that proxying is just not required
 		if (!advisors.isEmpty()) {
@@ -46,7 +47,7 @@ public abstract class AspectJProxyUtils {
 			for (Advisor advisor : advisors) {
 				// Be careful not to get the Advice without a guard, as
 				// this might eagerly instantiate a non-singleton AspectJ aspect
-				if (isAspectJAdvice(advisor)) {
+				if (isAspectJAdvice(advisor)) {																// 是否收集了 AbstractAspectJAdvice || AspectJExpressionPointcut
 					foundAspectJAdvice = true;
 				}
 			}

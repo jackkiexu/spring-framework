@@ -121,7 +121,7 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 
 	// 增强器的获取
 	@Override
-	public List<Advisor> getAdvisors(MetadataAwareAspectInstanceFactory aspectInstanceFactory) {
+	public List<Advisor> getAdvisors(MetadataAwareAspectInstanceFactory aspectInstanceFactory) { // 参数aspectInstanceFactory -> 表示被 @AspectJ 注解注释的类的元数据工厂
 		// 获取标记为 AspectJ 的类
 		Class<?> aspectClass = aspectInstanceFactory.getAspectMetadata().getAspectClass();
 		// 获取标记为 AspectJ 的 name
@@ -247,7 +247,7 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 
 		// If we get here, we know we have an AspectJ method.
 		// Check that it's an AspectJ-annotated class
-		if (!isAspect(candidateAspectClass)) {
+		if (!isAspect(candidateAspectClass)) {															// 判断这个类是否是被 @AspectJ 注解注释的类
 			throw new AopConfigException("Advice must be declared inside an aspect type: " +
 					"Offending method '" + candidateAdviceMethod + "' in class [" +
 					candidateAspectClass.getName() + "]");
@@ -300,7 +300,7 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 
 		// Now to configure the advice...
 		springAdvice.setAspectName(aspectName);
-		springAdvice.setDeclarationOrder(declarationOrder);			// 下面的参数绑定其实很复杂, 发现里面 用 LocalVariableTableParameterNameDiscoverer
+		springAdvice.setDeclarationOrder(declarationOrder);			// 下面的参数绑定其实很复杂, 用的是 AspectJAnnotationParameterNameDiscoverer
 		String[] argNames = this.parameterNameDiscoverer.getParameterNames(candidateAdviceMethod);
 		if (argNames != null) {
 			springAdvice.setArgumentNamesFromStringArray(argNames);

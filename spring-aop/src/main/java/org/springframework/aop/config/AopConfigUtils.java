@@ -105,13 +105,13 @@ public abstract class AopConfigUtils {
 		}
 	}
 
-
+	// 参数中的 registry 其实就是我们常用的 DefaultListableBeanFactory
 	private static BeanDefinition registerOrEscalateApcAsRequired(Class<?> cls, BeanDefinitionRegistry registry, Object source) {
 		Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
 		// 定义 AUTO_PROXY_CREATOR_BEAN_NAME = org.springframework.aop.config.internalAutoProxyCreator
 		if (registry.containsBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME)) {
 			// 如果已经存在了自动代理创建器且存在的自动代理创建器与现在的不一致, 那么需要根据优先级来判断到底需要使用哪
-			// 如果容器中已经存在自动代理构建器, 则比较两个构建器的优先级
+			// 如果容器中已经存在自动代理构建器, 则比较两个构建器的优先级 ( AnnotationAwareAspectJAutoProxyCreator --> AspectJAwareAdvisorAutoProxyCreator --> InfrastructureAdvisorAutoProxyCreator)
 			BeanDefinition apcDefinition = registry.getBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME);
 			if (!cls.getName().equals(apcDefinition.getBeanClassName())) {
 				int currentPriority = findPriorityForClass(apcDefinition.getBeanClassName());
@@ -128,10 +128,10 @@ public abstract class AopConfigUtils {
 		// 如果容器中还没有自动代理构建器相应的 BeanDefinition 对象
 		RootBeanDefinition beanDefinition = new RootBeanDefinition(cls);
 		beanDefinition.setSource(source);
-		beanDefinition.getPropertyValues().add("order", Ordered.HIGHEST_PRECEDENCE);
-		beanDefinition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-		// 向容器中注册构建器的 beanDefinition 对象
-		registry.registerBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME, beanDefinition);
+		beanDefinition.getPropertyValues().add("order", Ordered.HIGHEST_PRECEDENCE);			// 从这里我们也看出 order 值越小, 优先级越高(包含负数)
+		beanDefinition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);								// 设置 BeanDefinition 为基础组件
+
+		registry.registerBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME, beanDefinition);			// 向容器中注册构建器的 beanDefinition 对象
 		return beanDefinition;
 	}
 

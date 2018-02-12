@@ -125,7 +125,7 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 	 * (there <i>should</i> only be one anyway...)
 	 */
 	@SuppressWarnings("unchecked")
-	protected static AspectJAnnotation<?> findAspectJAnnotationOnMethod(Method method) {
+	protected static AspectJAnnotation<?> findAspectJAnnotationOnMethod(Method method) {  // 返回注释在 方法上的注解
 		// 设置敏感的注解类
 		Class<?>[] classesToLookFor = new Class<?>[] {
 				Before.class, Around.class, After.class, AfterReturning.class, AfterThrowing.class, Pointcut.class};
@@ -179,15 +179,16 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 			annotationTypes.put(Around.class,AspectJAnnotationType.AtAround);
 			annotationTypes.put(Before.class,AspectJAnnotationType.AtBefore);
 		}
-
+		// 修饰在方法上的注解 比如: Pointcut, After, AfterReturning, AfterThrowing, Around, Before
 		private final A annotation;
-
+		// 注解的类型, 对应枚举类 AspectJAnnotationType
 		private final AspectJAnnotationType annotationType;
-
+		// 得到注解上的 value / pointcut 值
 		private final String pointcutExpression;
-
+		// 得到注解上的参数 argNames
 		private final String argumentNames;
 
+		// 根据 annotation 构造 AspectJAnnotation
 		public AspectJAnnotation(A annotation) {
 			this.annotation = annotation;
 			this.annotationType = determineAnnotationType(annotation);
@@ -202,6 +203,7 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 			}
 		}
 
+		// 决定注解的类型
 		private AspectJAnnotationType determineAnnotationType(A annotation) {
 			for (Class<?> type : annotationTypes.keySet()) {
 				if (type.isInstance(annotation)) {
@@ -211,6 +213,7 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 			throw new IllegalStateException("Unknown annotation type: " + annotation.toString());
 		}
 
+		// 解析注解上的 value, pointcut 属性
 		private String resolveExpression(A annotation) throws Exception {
 			String expression = null;
 			for (String methodName : EXPRESSION_PROPERTIES) {
@@ -260,6 +263,7 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 	 */
 	private static class AspectJAnnotationParameterNameDiscoverer implements ParameterNameDiscoverer {
 
+		// 得到方法上的参数名, 主要还是通过 annotation.getArgumentNames() 来获取到
 		@Override
 		public String[] getParameterNames(Method method) {
 			if (method.getParameterTypes().length == 0) {

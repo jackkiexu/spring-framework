@@ -42,7 +42,7 @@ public class AnnotationBindingTests {
 
 	@Test
 	public void testAnnotationBindingInAroundAdvice() {
-		assertEquals("this value", testBean.doThis());
+ 		assertEquals("this value", testBean.doThis());
 		assertEquals("that value", testBean.doThat());
 	}
 

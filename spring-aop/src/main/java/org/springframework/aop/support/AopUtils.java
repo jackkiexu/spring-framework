@@ -217,12 +217,11 @@ public abstract class AopUtils {
 	 */
 	public static boolean canApply(Pointcut pc, Class<?> targetClass, boolean hasIntroductions) {
 		Assert.notNull(pc, "Pointcut must not be null");
-		if (!pc.getClassFilter().matches(targetClass)) {
+		if (!pc.getClassFilter().matches(targetClass)) {											// Pointcut 是否匹配 类
 			return false;
 		}
 
-		// 此时的 pc 表示 TransactionAttributeSourcePointcut
-		// pc.getMethodMatchar() 返回的正是自身 (this)
+		// PS: 在用声明式事务时, 此时的 pc 表示 TransactionAttributeSourcePointcut, pc.getMethodMatchar() 返回的正是自身 (this)
 		MethodMatcher methodMatcher = pc.getMethodMatcher();
 		if (methodMatcher == MethodMatcher.TRUE) {
 			// No need to iterate the methods if we're matching any method anyway...
@@ -230,18 +229,18 @@ public abstract class AopUtils {
 		}
 
 		IntroductionAwareMethodMatcher introductionAwareMethodMatcher = null;
-		if (methodMatcher instanceof IntroductionAwareMethodMatcher) {
+		if (methodMatcher instanceof IntroductionAwareMethodMatcher) {								// AspectJExpressionPointcut 其实是我们用得最多得, 通过 aop命名空间/aspectJ 注解来声明 aop 时就会产生这个 Pointcut
 			introductionAwareMethodMatcher = (IntroductionAwareMethodMatcher) methodMatcher;
 		}
-
+		// 获取目标类的所有的接口
 		Set<Class<?>> classes = new LinkedHashSet<Class<?>>(ClassUtils.getAllInterfacesForClassAsSet(targetClass));
 		classes.add(targetClass);
 		for (Class<?> clazz : classes) {
-			Method[] methods = ReflectionUtils.getAllDeclaredMethods(clazz);
+			Method[] methods = ReflectionUtils.getAllDeclaredMethods(clazz); 						// 获取 clazz声明的 Method
 			for (Method method : methods) {
 				if ((introductionAwareMethodMatcher != null &&
 						introductionAwareMethodMatcher.matches(method, targetClass, hasIntroductions)) ||
-						methodMatcher.matches(method, targetClass)) { // 这里的 mathodMatcher 是 TransactionAttributeSourcePointcut
+						methodMatcher.matches(method, targetClass)) { 								// 调用 MethodMatcher.matches 来进行匹配 (PS: 在用声明式事务时, 这里的 mathodMatcher 是 TransactionAttributeSourcePointcut)
 					return true;
 				}
 			}
@@ -273,11 +272,11 @@ public abstract class AopUtils {
 	 * @return whether the pointcut can apply on any method
 	 */
 	public static boolean canApply(Advisor advisor, Class<?> targetClass, boolean hasIntroductions) {
-		// 如果是 IntroductionAdvisor 则调用 AspectJExpressionPointcut 的 mathches 方法
+		// IntroductionAdvisor 的 matches 过程 (PS: 如果是 IntroductionAdvisor 则调用 AspectJExpressionPointcut 的 mathches 方法)
 		if (advisor instanceof IntroductionAdvisor) {
 			return ((IntroductionAdvisor) advisor).getClassFilter().matches(targetClass);
 		}
-		// 如果是 PointcutAdvisor 则调用 AspectJExpressionPointcut 的matches方法(与上面相比非同一个方法)
+		// 普通PointcutAdvisor 的 matches 过程 (PS: 如果是 PointcutAdvisor 则调用 AspectJExpressionPointcut 的matches方法(与上面相比非同一个方法))
 		else if (advisor instanceof PointcutAdvisor) {
 			PointcutAdvisor pca = (PointcutAdvisor) advisor;
 			return canApply(pca.getPointcut(), targetClass, hasIntroductions);
@@ -296,29 +295,26 @@ public abstract class AopUtils {
 	 * @return sublist of Advisors that can apply to an object of the given class
 	 * (may be the incoming List as-is)
 	 */
-	// 过滤已经得到的 advisors
+	// 过滤 候选 candidateAdvisors, 得到所有满足 clazz 的类
 	public static List<Advisor> findAdvisorsThatCanApply(List<Advisor> candidateAdvisors, Class<?> clazz) {
 		if (candidateAdvisors.isEmpty()) {
 			return candidateAdvisors;
 		}
 		List<Advisor> eligibleAdvisors = new LinkedList<Advisor>();
-		// 首先处理引介增强
-		// 遍历
+		// 遍历所有 IntroductionAdvisor, 收集起来
 		for (Advisor candidate : candidateAdvisors) {
 			if (candidate instanceof IntroductionAdvisor && canApply(candidate, clazz)) {
-				// 是否 IntroductionAdvisor
 				eligibleAdvisors.add(candidate);
 			}
 		}
 		boolean hasIntroductions = !eligibleAdvisors.isEmpty();
 		for (Advisor candidate : candidateAdvisors) {
-			// 引介增强已经处理
+			// 若是 IntroductionAdvisor, 则跳过
 			if (candidate instanceof IntroductionAdvisor) {
 				// already processed
 				continue;
 			}
-			// 对于普通 bean 的处理
-			// 执行
+			// 判断 candidateAdvisor 是否满足 clazz
 			if (canApply(candidate, clazz, hasIntroductions)) {
 				eligibleAdvisors.add(candidate);
 			}

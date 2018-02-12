@@ -47,6 +47,7 @@ import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 @SuppressWarnings("serial")
 public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyCreator {
 
+	// 这是一个通过 BeanFactory 获取 Advisor 的工具类
 	private BeanFactoryAdvisorRetrievalHelper advisorRetrievalHelper;
 
 
@@ -68,7 +69,7 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 	// 查找合适的 Advisors
 	@Override
 	protected Object[] getAdvicesAndAdvisorsForBean(Class<?> beanClass, String beanName, TargetSource targetSource) {
-		List<Advisor> advisors = findEligibleAdvisors(beanClass, beanName);
+		List<Advisor> advisors = findEligibleAdvisors(beanClass, beanName);		// 获取符合 beanClass 的 Advisor
 		if (advisors.isEmpty()) {
 			return DO_NOT_PROXY;
 		}
@@ -85,14 +86,15 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 	 * @see #sortAdvisors
 	 * @see #extendAdvisors
 	 */
+	// 为动态代理获取所有合法的 Advisor 类
 	protected List<Advisor> findEligibleAdvisors(Class<?> beanClass, String beanName) {
-		// 寻找候选增强器
+		// 收集 BeanFactory 中所有的 Advisor 类, 委托给 BeanFactoryAdvisorRetrievalHelper 处理
 		List<Advisor> candidateAdvisors = findCandidateAdvisors();
-		// 候选增强器中寻找到匹配项
+		// 候选增强器中寻找到匹配项, 主要通过 Pointcut 方法
 		List<Advisor> eligibleAdvisors = findAdvisorsThatCanApply(candidateAdvisors, beanClass, beanName);
-		extendAdvisors(eligibleAdvisors);
+		extendAdvisors(eligibleAdvisors);						// 扩展 Advisor, 比如增加 ExposeInvocationInterceptor.ADVISOR -> 主要是 通过 aop namespace 配置 或 通过 @AspactJ 配置的 Advice 方法需要 Joinpoint 作为参数
 		if (!eligibleAdvisors.isEmpty()) {
-			eligibleAdvisors = sortAdvisors(eligibleAdvisors);
+			eligibleAdvisors = sortAdvisors(eligibleAdvisors);  // 对 Advisor 进行排序
 		}
 		return eligibleAdvisors;
 	}
@@ -102,7 +104,7 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 	 * @return the List of candidate Advisors
 	 */
 	protected List<Advisor> findCandidateAdvisors() {
-		// 委托给 BeanFactoryAdvisorRetrievalHelper 处理
+		// 收集 BeanFactory 中所有的 Advisor 类, 委托给 BeanFactoryAdvisorRetrievalHelper 处理
 		return this.advisorRetrievalHelper.findAdvisorBeans();
 	}
 
@@ -120,7 +122,7 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 
 		ProxyCreationContext.setCurrentProxiedBeanName(beanName);
 		try {
-			// 定位到 AopUtils.findAdvisorsThatCanApply
+			// 从 candidateAdvisors 中帅选出符合 beanClass 的 Advisor <- 只要其中一个 Method 符合就可以
 			return AopUtils.findAdvisorsThatCanApply(candidateAdvisors, beanClass);
 		}
 		finally {

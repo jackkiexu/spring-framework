@@ -39,8 +39,10 @@ import org.springframework.util.Assert;
  */
 public class BeanFactoryAspectJAdvisorsBuilder {
 
+	// Spring ioc 工厂
 	private final ListableBeanFactory beanFactory;
 
+	// 通过 被@AspectJ标注的类上提取 Advisor 的AspectJAdvisorFactory工厂, 默认 ReflectiveAspectJAdvisorFactory
 	private final AspectJAdvisorFactory advisorFactory;
 
 	private volatile List<String> aspectBeanNames;
@@ -68,7 +70,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 		Assert.notNull(beanFactory, "ListableBeanFactory must not be null");
 		Assert.notNull(advisorFactory, "AspectJAdvisorFactory must not be null");
 		this.beanFactory = beanFactory;
-		this.advisorFactory = advisorFactory;
+		this.advisorFactory = advisorFactory;	// 这里的 AdvisorFactory 是针对被 @AspectJ 注解修饰的类的, 也就是 ReflectiveAspectJAdvisorFactory
 	}
 
 
@@ -107,14 +109,14 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 						// 检测类 beanType 上是否存在 Aspect 注解
 						if (this.advisorFactory.isAspect(beanType)) {
 							aspectNames.add(beanName);
-							AspectMetadata amd = new AspectMetadata(beanType, beanName);
+							AspectMetadata amd = new AspectMetadata(beanType, beanName);				// 封装 AspectMetadata 元数据
 							if (amd.getAjType().getPerClause().getKind() == PerClauseKind.SINGLETON) {
-								MetadataAwareAspectInstanceFactory factory =
+								MetadataAwareAspectInstanceFactory factory =							// 封装 元数据工厂, 这里是 BeanFactoryAspectInstanceFactory -> 代表着元数据是从 BeanFactory 里面获取到的
 										new BeanFactoryAspectInstanceFactory(this.beanFactory, beanName);
 								// 解析标记 AspectJ 注解中的增强方法
-								List<Advisor> classAdvisors = this.advisorFactory.getAdvisors(factory);  // 这里很复杂
+								List<Advisor> classAdvisors = this.advisorFactory.getAdvisors(factory); // 将 被 @AspectJ 注解注释的类转换成 Advisor
 								if (this.beanFactory.isSingleton(beanName)) {
-									this.advisorsCache.put(beanName, classAdvisors);
+									this.advisorsCache.put(beanName, classAdvisors);					// 将 beanName 对应的 Advisors 缓存起来
 								}
 								else {
 									this.aspectFactoryCache.put(beanName, factory);
@@ -127,10 +129,10 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 									throw new IllegalArgumentException("Bean with name '" + beanName +
 											"' is a singleton, but aspect instantiation model is not singleton");
 								}
-								MetadataAwareAspectInstanceFactory factory =
+								MetadataAwareAspectInstanceFactory factory =							// 封装元数据工厂
 										new PrototypeAspectInstanceFactory(this.beanFactory, beanName);
 								this.aspectFactoryCache.put(beanName, factory);
-								advisors.addAll(this.advisorFactory.getAdvisors(factory));
+								advisors.addAll(this.advisorFactory.getAdvisors(factory));				// AdvisorFactory 从元数据工厂 里面获取对应的所有 Advisor
 							}
 						}
 					}
@@ -143,9 +145,9 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 		if (aspectNames.isEmpty()) {
 			return Collections.emptyList();
 		}
-		// 记录在缓存中
+
 		List<Advisor> advisors = new LinkedList<Advisor>();
-		for (String aspectName : aspectNames) {
+		for (String aspectName : aspectNames) {			// 记录在缓存中
 			List<Advisor> cachedAdvisors = this.advisorsCache.get(aspectName);
 			if (cachedAdvisors != null) {
 				advisors.addAll(cachedAdvisors);

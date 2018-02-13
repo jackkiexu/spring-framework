@@ -402,11 +402,11 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 				return status;
 			}
 			catch (RuntimeException ex) {
-				resume(null, suspendedResources);
+				resume(null, suspendedResources);  // resume 挂起来的 资源
 				throw ex;
 			}
 			catch (Error err) {
-				resume(null, suspendedResources);
+				resume(null, suspendedResources);  // resume 挂起来的 资源
 				throw err;
 			}
 		}
@@ -480,7 +480,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			}
 		}
 
-		// 嵌套事务的处理
+		// 嵌套事务的处理, 创建 TransactionStatus, 创建保存点
 		if (definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_NESTED) {
 			if (!isNestedTransactionAllowed()) {						// 检查是否允许嵌套事务
 				throw new NestedTransactionNotSupportedException(
@@ -876,7 +876,6 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 				doRollbackOnCommitException(status, err); // 提交过程中出现异常则回滚
 				throw err;
 			}
-
 			// Trigger afterCommit callbacks, with an exception thrown there
 			// propagated to callers but the transaction still considered as committed.
 			// 触发 AfterCommit 回滚
@@ -886,7 +885,6 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			finally {									  // 添加的 TransactionSynchronization 中的对应方法 afterCompletion 的调用
 				triggerAfterCompletion(status, TransactionSynchronization.STATUS_COMMITTED);
 			}
-
 		}
 		finally {										   // commit 完成, 这里做一些清理数据的工作
 			cleanupAfterCompletion(status);
@@ -1139,6 +1137,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	 * @see #doRollback
 	 * @see DefaultTransactionStatus#getTransaction
 	 */
+	// 获取 连接器, 比如 DataSourceTransactionManager 中的 DataSourceTransactionObject
 	protected abstract Object doGetTransaction() throws TransactionException;
 
 	/**
@@ -1156,6 +1155,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	 * @throws TransactionException in case of system errors
 	 * @see #doGetTransaction
 	 */
+	// 判断连接器是否存在事务中
 	protected boolean isExistingTransaction(Object transaction) throws TransactionException {
 		return false;
 	}
@@ -1197,6 +1197,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	 * behavior, isolation level, read-only flag, timeout, and transaction name
 	 * @throws TransactionException in case of creation or system errors
 	 */
+	// 对连接器 开始事务, 包括设置配置属性 (隔离级别, 超时时间, 事务自动提交)
 	protected abstract void doBegin(Object transaction, TransactionDefinition definition)
 			throws TransactionException;
 
@@ -1213,6 +1214,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	 * @throws TransactionException in case of system errors
 	 * @see #doResume
 	 */
+	// 将 transaction 从 ThreadLocal 解除
 	protected Object doSuspend(Object transaction) throws TransactionException {
 		throw new TransactionSuspensionNotSupportedException(
 				"Transaction manager [" + getClass().getName() + "] does not support transaction suspension");
@@ -1231,6 +1233,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	 * @throws TransactionException in case of system errors
 	 * @see #doSuspend
 	 */
+	// 将悬挂起来的资源 suspendedResources 再次绑定到 ThreadLocal 中
 	protected void doResume(Object transaction, Object suspendedResources) throws TransactionException {
 		throw new TransactionSuspensionNotSupportedException(
 				"Transaction manager [" + getClass().getName() + "] does not support transaction suspension");
@@ -1291,6 +1294,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	 * @throws TransactionException in case of commit or system errors
 	 * @see DefaultTransactionStatus#getTransaction
 	 */
+	// 进行事务的提交操作
 	protected abstract void doCommit(DefaultTransactionStatus status) throws TransactionException;
 
 	/**
@@ -1302,6 +1306,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	 * @throws TransactionException in case of system errors
 	 * @see DefaultTransactionStatus#getTransaction
 	 */
+	// 进行事务的回滚操作
 	protected abstract void doRollback(DefaultTransactionStatus status) throws TransactionException;
 
 	/**

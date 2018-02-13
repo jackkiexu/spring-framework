@@ -47,17 +47,17 @@ import org.springframework.transaction.SavepointManager;
  * @see SimpleTransactionStatus
  */
 public class DefaultTransactionStatus extends AbstractTransactionStatus {
-
+	// 事务连接器, 比如 DataSourceTransactionManager 中的 DataSourceTransactionObject
 	private final Object transaction;
-
+	// 是否是新事务
 	private final boolean newTransaction;
-
+	// 是否开启 事务同步器 <- 其实就是在 TransactionSynchronousManager 中注册属性信息
 	private final boolean newSynchronization;
-
+	// 这个事务是否是 readOnly
 	private final boolean readOnly;
-
+	// debug模式
 	private final boolean debug;
-
+	//  suspend 的上个事务的信息, suspendedResources 可能是 null
 	private final Object suspendedResources;
 
 

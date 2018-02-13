@@ -29,6 +29,7 @@ import org.springframework.util.Assert;
  * @since 2.0
  */
 @SuppressWarnings("serial")
+// 组合多个 TransactionAttributeSource, 只要其中有一个获取 TransactionAttribute, 就 OK
 public class CompositeTransactionAttributeSource implements TransactionAttributeSource, Serializable {
 
 	private final TransactionAttributeSource[] transactionAttributeSources;

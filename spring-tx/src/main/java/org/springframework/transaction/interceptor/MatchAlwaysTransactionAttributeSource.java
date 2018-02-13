@@ -35,6 +35,7 @@ import org.springframework.util.ObjectUtils;
  * @see org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator
  */
 @SuppressWarnings("serial")
+// 只要是用户定义的方法就返回 true 的 TransactionAttributeSource
 public class MatchAlwaysTransactionAttributeSource implements TransactionAttributeSource, Serializable {
 
 	private TransactionAttribute transactionAttribute = new DefaultTransactionAttribute();

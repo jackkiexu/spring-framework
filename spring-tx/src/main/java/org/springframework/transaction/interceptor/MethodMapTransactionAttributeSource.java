@@ -42,6 +42,7 @@ import org.springframework.util.PatternMatchUtils;
  * @see #isMatch
  * @see NameMatchTransactionAttributeSource
  */
+// 通过配置文件配置 className.methodName <--> TransactionAttribute 形式注入的 MethodMapTransactionAttributeSource
 public class MethodMapTransactionAttributeSource
 		implements TransactionAttributeSource, BeanClassLoaderAware, InitializingBean {
 

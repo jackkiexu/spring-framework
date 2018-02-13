@@ -39,6 +39,7 @@ import org.springframework.util.PatternMatchUtils;
  * @see #isMatch
  * @see MethodMapTransactionAttributeSource
  */
+// 通过将 Properties 里面的属性转化成 methodName <--> TransactionAttribute 的TransactionAttributeSource
 @SuppressWarnings("serial")
 public class NameMatchTransactionAttributeSource implements TransactionAttributeSource, Serializable {
 
@@ -73,7 +74,7 @@ public class NameMatchTransactionAttributeSource implements TransactionAttribute
 	 * @see TransactionAttributeEditor
 	 */
 	// 设置 配置的事务方法
-	public void setProperties(Properties transactionAttributes) {
+	public void setProperties(Properties transactionAttributes) { // 通过将 Properties 里面的属性转化成 methodName <--> TransactionAttribute 的TransactionAttributeSource
 		TransactionAttributeEditor tae = new TransactionAttributeEditor();
 		Enumeration<?> propNames = transactionAttributes.propertyNames();
 		while (propNames.hasMoreElements()) {
@@ -116,7 +117,7 @@ public class NameMatchTransactionAttributeSource implements TransactionAttribute
 			// Look for most specific name match.
 			String bestNameMatch = null;
 			for (String mappedName : this.nameMap.keySet()) {
-				if (isMatch(methodName, mappedName) &&
+				if (isMatch(methodName, mappedName) &&			// 方法名称匹配
 						(bestNameMatch == null || bestNameMatch.length() <= mappedName.length())) {
 					attr = this.nameMap.get(mappedName);
 					bestNameMatch = mappedName;

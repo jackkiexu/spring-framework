@@ -48,6 +48,7 @@ import org.springframework.util.ClassUtils;
  * @author Juergen Hoeller
  * @since 1.1
  */
+// 获取 目标方法, 目标类, 声明方法(比如方法的声明在接口层), 声明类/接口 中获取事务属性
 public abstract class AbstractFallbackTransactionAttributeSource implements TransactionAttributeSource {
 
 	/**
@@ -88,8 +89,8 @@ public abstract class AbstractFallbackTransactionAttributeSource implements Tran
 		}
 
 		// First, see if we have a cached value.
-		Object cacheKey = getCacheKey(method, targetClass);
-		Object cached = this.attributeCache.get(cacheKey);
+		Object cacheKey = getCacheKey(method, targetClass);   // 将 Method, Class 封装成 MethodClassKey
+		Object cached = this.attributeCache.get(cacheKey);    // 从缓存中获取 TransactionAttribute
 		if (cached != null) {
 			// Value will either be canonical value indicating there is no transaction attribute,
 			// or an actual transaction attribute.
@@ -103,12 +104,12 @@ public abstract class AbstractFallbackTransactionAttributeSource implements Tran
 		else {
 			// 提取事务标签
 			// We need to work it out.
-			TransactionAttribute txAttr = computeTransactionAttribute(method, targetClass);
+			TransactionAttribute txAttr = computeTransactionAttribute(method, targetClass); // 获取 method 上的事务属性
 			// Put it in the cache.
 			if (txAttr == null) {
 				this.attributeCache.put(cacheKey, NULL_TRANSACTION_ATTRIBUTE);
 			}
-			else {
+			else {											// 生成 唯一标示
 				String methodIdentification = ClassUtils.getQualifiedMethodName(method, targetClass);
 				if (txAttr instanceof DefaultTransactionAttribute) {
 					((DefaultTransactionAttribute) txAttr).setDescriptor(methodIdentification);
@@ -116,7 +117,7 @@ public abstract class AbstractFallbackTransactionAttributeSource implements Tran
 				if (logger.isDebugEnabled()) {
 					logger.debug("Adding transactional method '" + methodIdentification + "' with attribute: " + txAttr);
 				}
-				this.attributeCache.put(cacheKey, txAttr);
+				this.attributeCache.put(cacheKey, txAttr);  // 将获取的 cacheKey 与 TransactionAttribute 存储到 attributeCache 中
 			}
 			return txAttr;
 		}
@@ -142,13 +143,13 @@ public abstract class AbstractFallbackTransactionAttributeSource implements Tran
 	 * @see #getTransactionAttribute
 	 */
 	protected TransactionAttribute computeTransactionAttribute(Method method, Class<?> targetClass) {
-		// Don't allow no-public methods as required.
+		// Don't allow no-public methods as required.                // 判断方法是否是 public 方法 <- 当使用 aop 时 外部类不能调用其 protected/private 方法
 		if (allowPublicMethodsOnly() && !Modifier.isPublic(method.getModifiers())) {
 			return null;
 		}
 
 		// Ignore CGLIB subclasses - introspect the actual user class.
-		Class<?> userClass = ClassUtils.getUserClass(targetClass);
+		Class<?> userClass = ClassUtils.getUserClass(targetClass);	 // 若是 CGLib 类, 则直接调用其超类 <- 其实可以通过 AopUtils, 因为其中还有可能是 Proxy
 		// method 代表接口中的 方法, specificMethod 代表实现类中的方法
 		// The method may be on an interface, but we need attributes from the target class.
 		// If the target class is null, the method will be unchanged.
@@ -156,14 +157,12 @@ public abstract class AbstractFallbackTransactionAttributeSource implements Tran
 		// If we are dealing with method with generic parameters, find the original method.
 		specificMethod = BridgeMethodResolver.findBridgedMethod(specificMethod);
 
-		// 查看是否存在事务声明
-		// First try is the method in the target class.
+		// First try is the method in the target class.              // 这是一个模版方法, 交由子类来实现获取事务属性
 		TransactionAttribute txAttr = findTransactionAttribute(specificMethod);
 		if (txAttr != null) {
 			return txAttr;
 		}
-
-		// 查看方法所在的类中是否存在事务声明
+																	 // 这是一个模版方法, 交由子类来实现获取事务属性 查看方法所在的类中是否存在事务声明
 		// Second try is the transaction attribute on the target class.
 		txAttr = findTransactionAttribute(specificMethod.getDeclaringClass());
 		if (txAttr != null && ClassUtils.isUserLevelMethod(method)) {
@@ -178,7 +177,7 @@ public abstract class AbstractFallbackTransactionAttributeSource implements Tran
 			if (txAttr != null) {
 				return txAttr;
 			}
-			// 到接口中的勒种去寻找
+			// 到接口中的类中去寻找
 			// Last fallback is the class of the original method.
 			txAttr = findTransactionAttribute(method.getDeclaringClass());
 			if (txAttr != null && ClassUtils.isUserLevelMethod(method)) {

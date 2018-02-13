@@ -126,27 +126,31 @@ public class TransactionTemplate extends DefaultTransactionDefinition
 		if (this.transactionManager instanceof CallbackPreferringPlatformTransactionManager) {
 			return ((CallbackPreferringPlatformTransactionManager) this.transactionManager).execute(this, action);
 		}
-		else {
+		else {    // 获取事务, 并进行开启
 			TransactionStatus status = this.transactionManager.getTransaction(this);
 			T result;
-			try {
+			try { // 执行回调方法
 				result = action.doInTransaction(status);
 			}
 			catch (RuntimeException ex) {
+				// 异常回滚
 				// Transactional code threw application exception -> rollback
 				rollbackOnException(status, ex);
 				throw ex;
 			}
 			catch (Error err) {
+				// 异常回滚
 				// Transactional code threw error -> rollback
 				rollbackOnException(status, err);
 				throw err;
 			}
 			catch (Throwable ex) {
+				// 异常回滚
 				// Transactional code threw unexpected exception -> rollback
 				rollbackOnException(status, ex);
 				throw new UndeclaredThrowableException(ex, "TransactionCallback threw undeclared checked exception");
 			}
+			// 提交事务
 			this.transactionManager.commit(status);
 			return result;
 		}

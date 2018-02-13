@@ -19,7 +19,7 @@ package org.springframework.transaction.interceptor;
 import java.lang.reflect.Method;
 
 /**
- * Strategy interface used by {@link TransactionInterceptor} for metadata retrieval.
+ * Strategy interface used by {@link TransactionInterceptor} for metadata retrieval(获取).
  *
  * <p>Implementations know how to source transaction attributes, whether from configuration,
  * metadata attributes at source level (such as Java 5 annotations), or anywhere else.
@@ -30,6 +30,7 @@ import java.lang.reflect.Method;
  * @see TransactionProxyFactoryBean#setTransactionAttributeSource
  * @see org.springframework.transaction.annotation.AnnotationTransactionAttributeSource
  */
+// 这是一个定义获取 TransactionAttribute 的接口
 public interface TransactionAttributeSource {
 
 	/**

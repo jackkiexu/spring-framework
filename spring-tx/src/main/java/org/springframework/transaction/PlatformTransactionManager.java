@@ -66,6 +66,7 @@ public interface PlatformTransactionManager {
 	 * @see TransactionDefinition#getTimeout
 	 * @see TransactionDefinition#isReadOnly
 	 */
+	// 开始事务
 	TransactionStatus getTransaction(TransactionDefinition definition) throws TransactionException;
 
 	/**
@@ -95,6 +96,7 @@ public interface PlatformTransactionManager {
 	 * is already completed (that is, committed or rolled back)
 	 * @see TransactionStatus#setRollbackOnly
 	 */
+	// 提交事务
 	void commit(TransactionStatus status) throws TransactionException;
 
 	/**
@@ -113,6 +115,7 @@ public interface PlatformTransactionManager {
 	 * @throws IllegalTransactionStateException if the given transaction
 	 * is already completed (that is, committed or rolled back)
 	 */
+	// 回滚事务
 	void rollback(TransactionStatus status) throws TransactionException;
 
 }

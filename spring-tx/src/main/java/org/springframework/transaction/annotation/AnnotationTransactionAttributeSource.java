@@ -86,7 +86,7 @@ public class AnnotationTransactionAttributeSource extends AbstractFallbackTransa
 	public AnnotationTransactionAttributeSource(boolean publicMethodsOnly) {
 		this.publicMethodsOnly = publicMethodsOnly;
 		this.annotationParsers = new LinkedHashSet<TransactionAnnotationParser>(2);
-		this.annotationParsers.add(new SpringTransactionAnnotationParser());
+		this.annotationParsers.add(new SpringTransactionAnnotationParser());   // 设置注解解析器
 		if (jta12Present) {
 			this.annotationParsers.add(new JtaTransactionAnnotationParser());
 		}
@@ -149,7 +149,7 @@ public class AnnotationTransactionAttributeSource extends AbstractFallbackTransa
 	 * @return TransactionAttribute the configured transaction attribute,
 	 * or {@code null} if none was found
 	 */
-	protected TransactionAttribute determineTransactionAttribute(AnnotatedElement ae) {
+	protected TransactionAttribute determineTransactionAttribute(AnnotatedElement ae) {  // 通过注解解析器来进行解析
 		if (ae.getAnnotations().length > 0) {
 			for (TransactionAnnotationParser annotationParser : this.annotationParsers) {
 				TransactionAttribute attr = annotationParser.parseTransactionAnnotation(ae);

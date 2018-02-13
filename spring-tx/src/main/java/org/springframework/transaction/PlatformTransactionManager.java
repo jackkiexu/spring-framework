@@ -17,21 +17,21 @@
 package org.springframework.transaction;
 
 /**
- * This is the central interface in Spring's transaction infrastructure.
+ * This is the central interface in Spring's transaction infrastructure(基础).
  * Applications can use this directly, but it is not primarily meant as API:
  * Typically, applications will work with either TransactionTemplate or
- * declarative transaction demarcation through AOP.
+ * declarative transaction demarcation through AOP.   <-- 通常通过 TransactionTemplate 或通过 Spring 的 AOP
  *
- * <p>For implementors, it is recommended to derive from the provided
+ * <p>For implementors, it is recommended to derive(源于, 衍生于, 派生) from the provided
  * {@link org.springframework.transaction.support.AbstractPlatformTransactionManager}
- * class, which pre-implements the defined propagation behavior and takes care
+ * class, which pre-implements the defined propagation behavior(传播行为) and takes care
  * of transaction synchronization handling. Subclasses have to implement
  * template methods for specific states of the underlying transaction,
- * for example: begin, suspend, resume, commit.
+ * for example: begin, suspend, resume, commit. <- 子类只需实现模版方法 , 比如 begin, suspend, resume, commit, rollback
  *
  * <p>The default implementations of this strategy interface are
  * {@link org.springframework.transaction.jta.JtaTransactionManager} and
- * {@link org.springframework.jdbc.datasource.DataSourceTransactionManager},
+ * {@link org.springframework.jdbc.datasource.DataSourceTransactionManager},  <- 这里其实用了 模版 + 策略 + 回调 这种模式
  * which can serve as an implementation guide for other transaction strategies.
  *
  * @author Rod Johnson
@@ -47,10 +47,10 @@ public interface PlatformTransactionManager {
 	 * Return a currently active transaction or create a new one, according to
 	 * the specified propagation behavior.
 	 * <p>Note that parameters like isolation level or timeout will only be applied
-	 * to new transactions, and thus be ignored when participating in active ones.
+	 * to new transactions, and thus be ignored when participating(参与, 参加) in active ones.
 	 * <p>Furthermore, not all transaction definition settings will be supported
 	 * by every transaction manager: A proper transaction manager implementation
-	 * should throw an exception when unsupported settings are encountered.
+	 * should throw an exception when unsupported settings are encountered.      <-- 当出现不支持的设置时, 会报出异常
 	 * <p>An exception to the above rule is the read-only flag, which should be
 	 * ignored if no explicit read-only mode is supported. Essentially, the
 	 * read-only flag is just a hint for potential optimization.
@@ -69,14 +69,14 @@ public interface PlatformTransactionManager {
 	TransactionStatus getTransaction(TransactionDefinition definition) throws TransactionException;
 
 	/**
-	 * Commit the given transaction, with regard to its status. If the transaction
+	 * Commit the given transaction, with regard(注意, 关注) to its status. If the transaction
 	 * has been marked rollback-only programmatically, perform a rollback.
-	 * <p>If the transaction wasn't a new one, omit the commit for proper
-	 * participation in the surrounding transaction. If a previous transaction
+	 * <p>If the transaction wasn't a new one, omit(省略, 删除) the commit for proper
+	 * participation(参与, 分享) in the surrounding transaction. If a previous transaction
 	 * has been suspended to be able to create a new one, resume the previous
 	 * transaction after committing the new one.
 	 * <p>Note that when the commit call completes, no matter if normally or
-	 * throwing an exception, the transaction must be fully completed and
+	 * throwing an exception, the transaction must be fully completed and  ---> 在事务提交后, 必需进行资源的清理
 	 * cleaned up. No rollback call should be expected in such a case.
 	 * <p>If this method throws an exception other than a TransactionException,
 	 * then some before-commit error caused the commit attempt to fail. For
@@ -100,8 +100,8 @@ public interface PlatformTransactionManager {
 	/**
 	 * Perform a rollback of the given transaction.
 	 * <p>If the transaction wasn't a new one, just set it rollback-only for proper
-	 * participation in the surrounding transaction. If a previous transaction
-	 * has been suspended to be able to create a new one, resume the previous
+	 * participation(参与, 分享) in the surrounding transaction. If a previous transaction
+	 * has been suspended to be able to create a new one, resume(重新开始) the previous
 	 * transaction after rolling back the new one.
 	 * <p><b>Do not call rollback on a transaction if commit threw an exception.</b>
 	 * The transaction will already have been completed and cleaned up when commit

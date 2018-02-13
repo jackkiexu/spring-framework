@@ -21,11 +21,11 @@ import java.io.Flushable;
 /**
  * Representation of the status of a transaction.
  *
- * <p>Transactional code can use this to retrieve status information,
+ * <p>Transactional code can use this to retrieve(检索, 恢复, 取回) status information,
  * and to programmatically request a rollback (instead of throwing
  * an exception that causes an implicit rollback).
  *
- * <p>Derives from the SavepointManager interface to provide access
+ * <p>Derives(源于) from the SavepointManager interface to provide access
  * to savepoint management facilities. Note that savepoint management
  * is only available if supported by the underlying transaction manager.
  *
@@ -43,6 +43,7 @@ public interface TransactionStatus extends SavepointManager, Flushable {
 	 * in an existing transaction, or potentially not running in an
 	 * actual transaction in the first place).
 	 */
+	// 是否是新的事务
 	boolean isNewTransaction();
 
 	/**
@@ -56,10 +57,11 @@ public interface TransactionStatus extends SavepointManager, Flushable {
 	 * @see #rollbackToSavepoint(Object)
 	 * @see #releaseSavepoint(Object)
 	 */
+	// 返回当前事务是否存在保存点 <-- 保存点这个功能一般用于 嵌套式事务里面
 	boolean hasSavepoint();
 
 	/**
-	 * Set the transaction rollback-only. This instructs the transaction manager
+	 * Set the transaction rollback-only. This instructs(命令) the transaction manager
 	 * that the only possible outcome of the transaction may be a rollback, as
 	 * alternative to throwing an exception which would in turn trigger a rollback.
 	 * <p>This is mainly intended for transactions managed by
@@ -69,12 +71,14 @@ public interface TransactionStatus extends SavepointManager, Flushable {
 	 * @see org.springframework.transaction.support.TransactionCallback#doInTransaction
 	 * @see org.springframework.transaction.interceptor.TransactionAttribute#rollbackOn
 	 */
+	// 设置这个事务是 read-only
 	void setRollbackOnly();
 
 	/**
 	 * Return whether the transaction has been marked as rollback-only
 	 * (either by the application or by the transaction infrastructure).
 	 */
+	// 返回事务是否标志为 read-only
 	boolean isRollbackOnly();
 
 	/**
@@ -85,6 +89,7 @@ public interface TransactionStatus extends SavepointManager, Flushable {
 	 * get applied to the primary resource or to transaction synchronizations,
 	 * depending on the underlying resource.
 	 */
+	// 刷新数据到底层服务
 	@Override
 	void flush();
 
@@ -94,6 +99,7 @@ public interface TransactionStatus extends SavepointManager, Flushable {
 	 * @see PlatformTransactionManager#commit
 	 * @see PlatformTransactionManager#rollback
 	 */
+	// 返回事务是否已经完成
 	boolean isCompleted();
 
 }

@@ -49,8 +49,10 @@ public abstract class AbstractTransactionStatus implements TransactionStatus {
 	// 这个 rollbackOnly 会在 PlatformTransactionManager.commit() 时会进行判断
 	private boolean rollbackOnly = false;
 
+	// 事务的操作是否完成
 	private boolean completed = false;
 
+	// 保存点的对象, 这个针对嵌入式 事务
 	private Object savepoint;
 
 
@@ -142,6 +144,7 @@ public abstract class AbstractTransactionStatus implements TransactionStatus {
 	 * @throws org.springframework.transaction.NestedTransactionNotSupportedException
 	 * if the underlying transaction does not support savepoints
 	 */
+	// 设置保存点
 	public void createAndHoldSavepoint() throws TransactionException {
 		setSavepoint(getSavepointManager().createSavepoint());
 	}
@@ -150,6 +153,7 @@ public abstract class AbstractTransactionStatus implements TransactionStatus {
 	 * Roll back to the savepoint that is held for the transaction
 	 * and release the savepoint right afterwards.
 	 */
+	// 基于保存点的回滚
 	public void rollbackToHeldSavepoint() throws TransactionException {
 		if (!hasSavepoint()) {
 			throw new TransactionUsageException(
@@ -163,12 +167,12 @@ public abstract class AbstractTransactionStatus implements TransactionStatus {
 	/**
 	 * Release the savepoint that is held for the transaction.
 	 */
-	public void releaseHeldSavepoint() throws TransactionException {
+	public void releaseHeldSavepoint() throws TransactionException { // 释放保存点 <- 在事务最终提交前会释放保存点
 		if (!hasSavepoint()) {
 			throw new TransactionUsageException(
 					"Cannot release savepoint - no savepoint associated with current transaction");
 		}
-		getSavepointManager().releaseSavepoint(getSavepoint());
+		getSavepointManager().releaseSavepoint(getSavepoint());     // 释放保存点
 		setSavepoint(null);
 	}
 
@@ -184,7 +188,7 @@ public abstract class AbstractTransactionStatus implements TransactionStatus {
 	 * @see org.springframework.transaction.SavepointManager
 	 */
 	@Override
-	public Object createSavepoint() throws TransactionException {
+	public Object createSavepoint() throws TransactionException { // 创建一个保存点
 		return getSavepointManager().createSavepoint();
 	}
 
@@ -207,7 +211,7 @@ public abstract class AbstractTransactionStatus implements TransactionStatus {
 	 * @see org.springframework.transaction.SavepointManager
 	 */
 	@Override
-	public void releaseSavepoint(Object savepoint) throws TransactionException {
+	public void releaseSavepoint(Object savepoint) throws TransactionException { // 释放保存点
 		getSavepointManager().releaseSavepoint(savepoint);
 	}
 

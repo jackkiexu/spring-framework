@@ -19,10 +19,10 @@ package org.springframework.transaction;
 import java.sql.Connection;
 
 /**
- * Interface that defines Spring-compliant transaction properties.
+ * Interface that defines Spring-compliant(适合, 适用) transaction properties.
  * Based on the propagation behavior definitions analogous to EJB CMT attributes.
  *
- * <p>Note that isolation level and timeout settings will not get applied unless
+ * <p>Note that isolation level and timeout settings will not get applied unless   <-- 隔离级别, 超时设置是不会运用上来, 除非开启一个新的事务
  * an actual new transaction gets started. As only {@link #PROPAGATION_REQUIRED},
  * {@link #PROPAGATION_REQUIRES_NEW} and {@link #PROPAGATION_NESTED} can cause
  * that, it usually doesn't make sense to specify those settings in other cases.
@@ -49,6 +49,7 @@ public interface TransactionDefinition {
 	 * <p>This is typically the default setting of a transaction definition,
 	 * and typically defines a transaction synchronization scope.
 	 */
+	// 若当前线程不存在事务中, 则开启一个事务, 若当前存在事务, 则加入其中
 	int PROPAGATION_REQUIRED = 0;
 
 	/** 支持当前事务, 若不存在事务, 则以没事务的方式进行执行
@@ -70,6 +71,7 @@ public interface TransactionDefinition {
 	 * @see org.springframework.transaction.support.AbstractPlatformTransactionManager#setTransactionSynchronization
 	 * @see org.springframework.transaction.support.AbstractPlatformTransactionManager#SYNCHRONIZATION_ON_ACTUAL_TRANSACTION
 	 */
+	// 若当前存在事务, 则加入到事务中, 若不存在, 则以非事务的方式运行
 	int PROPAGATION_SUPPORTS = 1;
 
 	/** 若有事务, 则用当前的事务, 若没有, 则直接抛出异常
@@ -93,6 +95,7 @@ public interface TransactionDefinition {
 	 * and resumed appropriately.
 	 * @see org.springframework.transaction.jta.JtaTransactionManager#setTransactionManager
 	 */
+	// 若当前存在事务, 则挂起事务, 若当前不存在事务, 则开启一个新事务运行
 	int PROPAGATION_REQUIRES_NEW = 3;
 
 	/** 不支持以事务的方式运行, 若当前存在事务, 则将当前的事务挂起
@@ -116,6 +119,7 @@ public interface TransactionDefinition {
 	 * <p>Note that transaction synchronization is <i>not</i> available within a
 	 * {@code PROPAGATION_NEVER} scope.
 	 */
+	// 不支持事务, 若当前线程含有事务, 则直接抛出异常
 	int PROPAGATION_NEVER = 5;
 
 	/**
@@ -129,6 +133,7 @@ public interface TransactionDefinition {
 	 * nested transactions as well.
 	 * @see org.springframework.jdbc.datasource.DataSourceTransactionManager
 	 */
+	// 这个时在原来的事务中通过 savepoint 的方式 开启一个局部事务
 	int PROPAGATION_NESTED = 6;
 
 
@@ -199,6 +204,7 @@ public interface TransactionDefinition {
 	 * @see #PROPAGATION_REQUIRED
 	 * @see org.springframework.transaction.support.TransactionSynchronizationManager#isActualTransactionActive()
 	 */
+	// 获取传播行为
 	int getPropagationBehavior();
 
 	/**
@@ -211,6 +217,7 @@ public interface TransactionDefinition {
 	 * will throw an exception when given any other level than {@link #ISOLATION_DEFAULT}.
 	 * @return the isolation level
 	 */
+	//  获取隔离级别
 	int getIsolationLevel();
 
 	/**
@@ -222,6 +229,7 @@ public interface TransactionDefinition {
 	 * an exception when given any other timeout than {@link #TIMEOUT_DEFAULT}.
 	 * @return the transaction timeout
 	 */
+	// 获取超时时间
 	int getTimeout();
 
 	/**
@@ -241,6 +249,7 @@ public interface TransactionDefinition {
 	 * @see org.springframework.transaction.support.TransactionSynchronization#beforeCommit(boolean)
 	 * @see org.springframework.transaction.support.TransactionSynchronizationManager#isCurrentTransactionReadOnly()
 	 */
+	// 事务是否是只读模式
 	boolean isReadOnly();
 
 	/**
@@ -253,6 +262,7 @@ public interface TransactionDefinition {
 	 * @see org.springframework.transaction.interceptor.TransactionAspectSupport
 	 * @see org.springframework.transaction.support.TransactionSynchronizationManager#getCurrentTransactionName()
 	 */
+	// 返回事务的名字
 	String getName();
 
 }

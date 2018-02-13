@@ -339,7 +339,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 									return invocation.proceedWithInvocation();
 								}
 								catch (Throwable ex) {
-									if (txAttr.rollbackOn(ex)) {
+									if (txAttr.rollbackOn(ex)) { 			// 只有满足异常回滚条件时, 才会进行回滚
 										// RuntimeException 会导致事务回滚
 										// A RuntimeException: will lead to a rollback.
 										if (ex instanceof RuntimeException) {
@@ -576,7 +576,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 						"] after exception: " + ex);
 			}
 			// 这里是判断是否回滚默认的依据是抛出异常 是否是 RuntimeException 或者是 Error 的类型
-			if (txInfo.transactionAttribute.rollbackOn(ex)) { // 调用的是 DefaultTransactionAttribute
+			if (txInfo.transactionAttribute.rollbackOn(ex)) { // 只有满足异常回滚条件,才会回滚, 调用的是 DefaultTransactionAttribute
 				try {
 					// 根据 TransactionStatus 信息进行回滚处理
 					txInfo.getTransactionManager().rollback(txInfo.getTransactionStatus());

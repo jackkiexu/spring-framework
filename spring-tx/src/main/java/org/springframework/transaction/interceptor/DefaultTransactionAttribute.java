@@ -29,8 +29,10 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 @SuppressWarnings("serial")
 public class DefaultTransactionAttribute extends DefaultTransactionDefinition implements TransactionAttribute {
 
+	// 这里的 qualifier -> 用得最多的还是在 TransactionAspectSupport.transactionManagerCache 里面设置当前线程适用的 PlatformTransactionManager
 	private String qualifier;
 
+	// 默认只在 AbstractFallbackTransactionAttributeSource 的 getTransactionAttribute(Method method, Class<?> targetClass) 中设置一个 descriptor 描述信息
 	private String descriptor;
 
 
@@ -97,6 +99,7 @@ public class DefaultTransactionAttribute extends DefaultTransactionDefinition im
 	 * e.g. indicating where the attribute is applying.
 	 * @since 4.3.4
 	 */
+	// 默认只在 AbstractFallbackTransactionAttributeSource 的 getTransactionAttribute(Method method, Class<?> targetClass) 中设置一个 descriptor 描述信息
 	public void setDescriptor(String descriptor) {
 		this.descriptor = descriptor;
 	}
@@ -124,6 +127,7 @@ public class DefaultTransactionAttribute extends DefaultTransactionDefinition im
 	 * intentionally declared as business exceptions, leading to a commit by default.
 	 * @see org.springframework.transaction.support.TransactionTemplate#execute
 	 */
+	// 进行异常回滚的条件, 默认 RuntimeException | Error
 	@Override
 	public boolean rollbackOn(Throwable ex) {
 		return (ex instanceof RuntimeException || ex instanceof Error);

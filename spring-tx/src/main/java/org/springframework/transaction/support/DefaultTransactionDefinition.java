@@ -32,6 +32,7 @@ import org.springframework.transaction.TransactionDefinition;
  * @author Juergen Hoeller
  * @since 08.05.2003
  */
+// 默认的 TransactionDefinition
 @SuppressWarnings("serial")
 public class DefaultTransactionDefinition implements TransactionDefinition, Serializable {
 
@@ -51,10 +52,13 @@ public class DefaultTransactionDefinition implements TransactionDefinition, Seri
 	/** Constants instance for TransactionDefinition */
 	static final Constants constants = new Constants(TransactionDefinition.class);
 
+	// 默认的传播行为
 	private int propagationBehavior = PROPAGATION_REQUIRED;
 
+	// 默认的隔离级别
 	private int isolationLevel = ISOLATION_DEFAULT;
 
+	// 默认的超时时间
 	private int timeout = TIMEOUT_DEFAULT;
 
 	private boolean readOnly = false;

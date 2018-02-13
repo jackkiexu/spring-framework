@@ -219,13 +219,11 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 
 	@Override
 	protected Object doGetTransaction() {
-		DataSourceTransactionObject txObject = new DataSourceTransactionObject();
+		DataSourceTransactionObject txObject = new DataSourceTransactionObject(); // ConnectionHolder 的包装器
 		txObject.setSavepointAllowed(isNestedTransactionAllowed());
-		// 如果当前线程已经记录数据库连接则使用原有连接
-		ConnectionHolder conHolder =
+		ConnectionHolder conHolder =											  // ThreadLocal 中获取当前线程对应的连接 ConnectionHolder
 				(ConnectionHolder) TransactionSynchronizationManager.getResource(this.dataSource);
-		// false 表示非新创建连接
-		txObject.setConnectionHolder(conHolder, false);
+		txObject.setConnectionHolder(conHolder, false);							  // false 表示非新创建连接
 		return txObject;
 	}
 
@@ -236,10 +234,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 	}
 
 	/**
-	 * 构造 transaction, 包括设置 ConnectionHolder, 隔离级别, timeout
-	 * 如果是新连接, 绑定到当前线程
-	 *
-	 * 这里是处理事务开始的地方
+	 * 构造 transaction, 包括设置 ConnectionHolder, 隔离级别, timeout; 如果是新连接, 绑定到当前线程
 	 * This implementation sets the isolation level but ignores the timeout.
 	 */
 	@Override
@@ -248,7 +243,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 		Connection con = null;
 
 		try {
-			if (txObject.getConnectionHolder() == null ||
+			if (txObject.getConnectionHolder() == null ||				// 若当前还未获取连接, 则从 dataSource 获取
 					txObject.getConnectionHolder().isSynchronizedWithTransaction()) {
 				Connection newCon = this.dataSource.getConnection();
 				if (logger.isDebugEnabled()) {
@@ -256,38 +251,34 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 				}
 				txObject.setConnectionHolder(new ConnectionHolder(newCon), true);
 			}
-
+																		// 设置现在连接资源与事务同步 <- 这个单在 DataSourceUtils 与 DataSourceTransactionManager 中暂时没有什么特别的处理
 			txObject.getConnectionHolder().setSynchronizedWithTransaction(true);
-			con = txObject.getConnectionHolder().getConnection();
-			// 设置隔离级别
+			con = txObject.getConnectionHolder().getConnection();       // 获取连接
+																		// 获取隔离级别 包括 设置 readOnly
 			Integer previousIsolationLevel = DataSourceUtils.prepareConnectionForTransaction(con, definition);
-			txObject.setPreviousIsolationLevel(previousIsolationLevel);
+			txObject.setPreviousIsolationLevel(previousIsolationLevel); // 设置隔离级别
 
-			// 更改自动提交, 由 Spring 控制提交
-			// 这里是数据库 Connection 完成事务处理的重要配置, 需要把autoCommit 关掉
 			// Switch to manual commit if necessary. This is very expensive in some JDBC drivers,
 			// so we don't want to do it unnecessarily (for example if we've explicitly
 			// configured the connection pool to set it already).
-			if (con.getAutoCommit()) {
+			if (con.getAutoCommit()) {									// 更改自动提交, 由 Spring 控制提交
 				txObject.setMustRestoreAutoCommit(true);
 				if (logger.isDebugEnabled()) {
 					logger.debug("Switching JDBC Connection [" + con + "] to manual commit");
 				}
-				con.setAutoCommit(false);					// 这里将自动提交设置为 false, 其实就是将事务的控制权交由 Spring
+				con.setAutoCommit(false);								// 这里将自动提交设置为 false, 其实就是将事务的控制权交由 Spring
 			}
 
-			prepareTransactionalConnection(con, definition);
-			// 设置判断当前线程是否存在事务的依据 (transactionActive)
-			txObject.getConnectionHolder().setTransactionActive(true);
+			prepareTransactionalConnection(con, definition);			// 这一步在 DataSourceTransactionManager 中就是设置 Transaction ReadOnly
+			txObject.getConnectionHolder().setTransactionActive(true);  // 设置当前事务激活 (transactionActive), 这个在 isExistingTransaction 中用到
 
-			int timeout = determineTimeout(definition);
+			int timeout = determineTimeout(definition);					// 获取事务的超时时间 <- 这里的 timeout, 现在只看到 DataSourceUtils.applyTimeout 或 jdbc.Template.applyStatementSettings 中用到
 			if (timeout != TransactionDefinition.TIMEOUT_DEFAULT) {
 				txObject.getConnectionHolder().setTimeoutInSeconds(timeout);
 			}
-			// 把当前的数据库的 Connection 和线程绑定
+
 			// Bind the connection holder to the thread.
-			if (txObject.isNewConnectionHolder()) {
-				// 将当前获取到的连接绑定到当前的线程
+			if (txObject.isNewConnectionHolder()) {						// 把当前的数据库的 Connection 和线程绑定
 				TransactionSynchronizationManager.bindResource(getDataSource(), txObject.getConnectionHolder());
 			}
 		}

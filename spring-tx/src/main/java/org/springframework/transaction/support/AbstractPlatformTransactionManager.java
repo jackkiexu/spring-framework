@@ -345,72 +345,57 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	 */
 	@Override
 	public final TransactionStatus getTransaction(TransactionDefinition definition) throws TransactionException {
-		/**
-		 * 这个 doGetTransaction() 抽象函数, Transaction 对象的 取得由具体的事务处理器实现, 比如 DataSourceTransactionManager
-		 */
-		Object transaction = doGetTransaction();		// 这里是 DataSourceTransactionObject 对象（存放的是 connect, savePoint, 是否是新事务）
+		// 这个 doGetTransaction() 抽象函数, transaction对象的获取 由具体的事务处理器实现, 比如 DataSourceTransactionManager
+		// 这里是 DataSourceTransactionObject 对象（存放的是 connect, savePoint, 是否是新事务）
+		Object transaction = doGetTransaction();
 
-		// 缓存 debug 标志位
 		// Cache debug flag to avoid repeated checks.
 		boolean debugEnabled = logger.isDebugEnabled();
-		/**
-		 * 关于这个 DefaultTransactionDefinition, 在前面编程式使用事务处理的时候遇到过, 这个 DefaultTransactionDefinition 的默认事务处理属性是
-		 * propagationBehavior = PROPAGATION_REQUIRED; isolationLevel = ISOLATION_DEFAULT; timeout=TIMEOUT_DEFAULT; readlyOnly = false
-		 */
-		if (definition == null) {
+
+		// 关于这个 DefaultTransactionDefinition, 在前面编程式使用事务处理的时候遇到过, 这个 DefaultTransactionDefinition 的默认事务处理属性是
+		// propagationBehavior = PROPAGATION_REQUIRED; isolationLevel = ISOLATION_DEFAULT; timeout=TIMEOUT_DEFAULT; readlyOnly = false
+		if (definition == null) {						// 如果参数 definition == null -> 则创建一个默认的 TransactionDefinition <- 这其实就是一个事务属性配置的对象
 			// Use defaults if no transaction definition given.
-			// 如果没有给定任何事务处理定义就使用 默认定义
 			definition = new DefaultTransactionDefinition();
 		}
 
-		/**
-		 * 判断当前被线程是否存在事务, 判断依据为当前线程记录的连接不为空且连接中(connectionHolder) 中的 tranactionActive 属性不为空
-		 * 检查当前线程是否已经存在事务, 如果已经存在事务, 那么需要要根据在事务属性中定义的事务传播属性配置来处理事务的产生
-		 */
+		// 判断当前被线程是否存在事务, 判断依据为当前线程记录的连接不为空且连接中(connectionHolder) 中的 tranactionActive 属性 = true
+		// 如果已经存在事务, 那么需要要根据在事务属性中定义的事务传播属性配置来处理事务
 		if (isExistingTransaction(transaction)) {
-			// 这里对当前线程中已经由事务存在的情况进行处理, 结果封装在 TransactionStatus 中
+			// 这里对当前线程中已经由事务存在的情况进行处理, 所有的处理结果都封装在 TransactionStatus 中
 			// Existing transaction found -> check propagation behavior to find out how to behave.
 			return handleExistingTransaction(definition, transaction, debugEnabled);
 		}
 
-		// 事务超时设置验证
-		// 检查事务属性中 timeout 的设置是否合理
+		// 检查事务属性中 timeout 的设置是否合理  <-- 这里的 timeout 只在 DataSourceUtils.applyTransactionTimeout 中看到有对应的检查工作
 		// Check definition settings for new transaction.
 		if (definition.getTimeout() < TransactionDefinition.TIMEOUT_DEFAULT) {
 			throw new InvalidTimeoutException("Invalid transaction timeout", definition.getTimeout());
 		}
 
-		/**
-		 * 如果当前线程不存在事务, 但是 propagationBehavior 却被声明为 PROPAGATION_MANDATORY 抛弃异常
-		 *
-		 * 当前没有事务存在, 这是需要根据事务属性设置来创建事务
-		 * 这里会看到对事务传播属性设置的处理, 比如 mandatory, required, required_new, nested 等
-		 * 这里的处理对理解这些属性的使用是非常有帮助的
-		 */
+		// 如果当前线程不存在事务, 但是 propagationBehavior 被设置为 PROPAGATION_MANDATORY 抛弃异常
 		// No existing transaction found -> check propagation behavior to find out how to proceed.
 		if (definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_MANDATORY) {
 			throw new IllegalTransactionStateException(
 					"No existing transaction found for transaction marked with propagation 'mandatory'");
 		}
+		// PROPAGATION_REQUIRED, PROPAGATION_REQUIRES_NEW, PROPAGATION_NEXTED 都需要新建事务
 		else if (definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_REQUIRED ||
 				definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_REQUIRES_NEW ||
 				definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_NESTED) {
-			// PROPAGATION_REQUIRED, PROPAGATION_REQUIRES_NEW, PROPAGATION_NEXTED 都需要新建事务
-			// 空挂起
-			SuspendedResourcesHolder suspendedResources = suspend(null);
+
+			// 空挂起 <- 这里挂起 (PS: 有同学可能疑问, 上面明明判断了是否在事务中, 这里没有必要挂起, 但有种情况 txObject.getConnectionHolder() != null && txObject.getConnectionHolder().isTransactionActive() == false)
+			SuspendedResourcesHolder suspendedResources = suspend(null); // <- 这里挂起其实主要还是 TransactionSynchronizationManager 中配置的资源
 			if (debugEnabled) {
 				logger.debug("Creating new transaction with name [" + definition.getName() + "]: " + definition);
 			}
 			try {
+				// 是否开启一个新的 事务同步器
 				boolean newSynchronization = (getTransactionSynchronization() != SYNCHRONIZATION_NEVER);
+				// 创建事务状态 DefaultTransactionStatus
 				DefaultTransactionStatus status = newTransactionStatus(
 						definition, transaction, true, newSynchronization, debugEnabled, suspendedResources);
-				/**
-				 * 构造 transaction, 包括设置 ConnectionHolder, 隔离级别, timeout, 如果是新连接, 绑定到当前线程
-				 *
-				 * 这里是创建事务的调用, 由具体的事务处理器完成, 比如 HibernateTransactioManager
-				 * 和 DataSourceTransactionManager 等
-				 */
+				// 构造 transaction, 包括设置 ConnectionHolder, 隔离级别, timeout, 如果是新连接, 绑定到当前线程
 				doBegin(transaction, definition);
 				// 新同步事务的设置, 针对当前线程的设置
 				prepareSynchronization(status, definition);
@@ -426,6 +411,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			}
 		}
 		else {
+			// 这里其实就是没有开启事务, 相比上面的 if 中, 就少了 doBegin 函数的调用
 			// Create "empty" transaction: no actual transaction, but potentially synchronization.
 			if (definition.getIsolationLevel() != TransactionDefinition.ISOLATION_DEFAULT && logger.isWarnEnabled()) {
 				logger.warn("Custom isolation level specified but no actual transaction initiated; " +
@@ -442,50 +428,45 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	private TransactionStatus handleExistingTransaction(
 			TransactionDefinition definition, Object transaction, boolean debugEnabled)
 			throws TransactionException {
-		/**
-		 * 如果当前已经存在事务, 且当前事务的传播属性设置为 never, 那么抛出异常, 说明是有问题的, Spring 无法处理当前事务的创建
-		 */
+
+		// 如果当前已经存在事务, 且当前事务的传播属性设置为 PROPAGATION_NEVER, 那么抛出异常
 		if (definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_NEVER) {
 			throw new IllegalTransactionStateException(
 					"Existing transaction found for transaction marked with propagation 'never'");
 		}
-		/**
-		 * 如果当前事务的配置属性是 PROPAGATION_NOT_SUPPORTED, 同时当前线程已经存在事务了, 那么将事务挂起
-		 */
+
+		// 如果当前事务的配置属性是 PROPAGATION_NOT_SUPPORTED, 同时当前线程已经存在事务了, 那么将事务挂起
 		if (definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_NOT_SUPPORTED) {
 			if (debugEnabled) {
 				logger.debug("Suspending current transaction");
 			}
+			// 将事务的挂起 <- 其实就是 TransactionSynchronizationManager 中的属性
 			Object suspendedResources = suspend(transaction);
-			// 注意这里的 transaction 为 null, newTransaction 为 false
+			// 是否开启一个新的事务同步器
 			boolean newSynchronization = (getTransactionSynchronization() == SYNCHRONIZATION_ALWAYS);
-			/**
-			 * 意味着事务方法不需要放在事务环境中执行
-			 * 同时挂起事务的信息保存在 TransactionStatus 中, 这里包括了
-			 * 进程 ThreadLocal 对事务信息的记录
-			 */
+
+			// 意味着事务方法不需要放在事务环境中执行, 同时挂起事务的信息保存在 TransactionStatus 中, 这里包括了, 进程 ThreadLocal 对事务信息的记录
 			return prepareTransactionStatus( // 注意这里第二个参数是 null
 					definition, null, false, newSynchronization, debugEnabled, suspendedResources);
 		}
-		/**
-		 * 如果当前事务的配置属性是 PROPAGATION_REQUIRES_NEW, 创建新事务, 同时将当前线程存在的事务挂起
-		 * 与创建全新事务的过程类是, 区别在于在创建全新事务时不用考虑已有事务的挂起, 但在这里, 需要考虑已有事务的挂起
-		 */
+
+		// 如果当前事务的配置属性是 PROPAGATION_REQUIRES_NEW, 创建新事务, 同时将当前线程存在的事务挂起, 与创建全新事务的过程类是, 区别在于在创建全新事务时不用考虑已有事务的挂起, 但在这里, 需要考虑已有事务的挂起
 		if (definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_REQUIRES_NEW) {
 			if (debugEnabled) {
 				logger.debug("Suspending current transaction, creating new transaction with name [" +
 						definition.getName() + "]");
 			}
-			// 新事务的建立
+			// 将事务的挂起 <- 其实就是 TransactionSynchronizationManager 中的属性
 			SuspendedResourcesHolder suspendedResources = suspend(transaction);
 			try {
+				// 是否开启一个新的事务同步器
 				boolean newSynchronization = (getTransactionSynchronization() != SYNCHRONIZATION_NEVER);
-				/**
-				 * 挂起事务的信息记录保存在 TransactionStatus 中,  这里包括ThreadLocal 对事务信息的记录
-				 */
+				// 挂起事务的信息记录保存在 TransactionStatus 中,  这里包括ThreadLocal 对事务信息的记录
 				DefaultTransactionStatus status = newTransactionStatus(
 						definition, transaction, true, newSynchronization, debugEnabled, suspendedResources);
+				// 构造 transaction, 包括设置 ConnectionHolder, 隔离级别, timeout, 如果是新连接, 绑定到当前线程
 				doBegin(transaction, definition);
+				// 新同步事务的设置, 针对当前线程的设置
 				prepareSynchronization(status, definition);
 				return status;
 			}
@@ -514,9 +495,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 				// Create savepoint within existing Spring-managed transaction,
 				// through the SavepointManager API implemented by TransactionStatus.
 				// Usually uses JDBC 3.0 savepoints. Never activates Spring synchronization.
-				/**
-				 * 在 Spring 管理的事务中, 创建事务保存点
-				 */
+				// 在 Spring 管理的事务中, 创建事务保存点
 				DefaultTransactionStatus status =
 						prepareTransactionStatus(definition, transaction, false, false, debugEnabled, null);   //  <-- 这里的两个 false 分别表示 是否是新事务, 新的事务同步器
 				status.createAndHoldSavepoint();
@@ -528,9 +507,12 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 				// in case of a pre-existing JTA transaction.
 				// 有些情况是不能使用保存点操作, 比如 JTA, 那么就建立新事务
 				boolean newSynchronization = (getTransactionSynchronization() != SYNCHRONIZATION_NEVER);
+				// 挂起事务的信息记录保存在 TransactionStatus 中,  这里包括ThreadLocal 对事务信息的记录
 				DefaultTransactionStatus status = newTransactionStatus(
 						definition, transaction, true, newSynchronization, debugEnabled, null);
+				// 构造 transaction, 包括设置 ConnectionHolder, 隔离级别, timeout, 如果是新连接, 绑定到当前线程
 				doBegin(transaction, definition);
+				// 新同步事务的设置, 针对当前线程的设置
 				prepareSynchronization(status, definition);
 				return status;
 			}
@@ -542,6 +524,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 		}
 		// 对已经存在的事务的属性进行校验
 		if (isValidateExistingTransaction()) {
+			// 隔离级别的校验 <- 是否一致性 TransactionDefinition 与 TransactionSynchronizationManager 中的值
 			if (definition.getIsolationLevel() != TransactionDefinition.ISOLATION_DEFAULT) {
 				Integer currentIsolationLevel = TransactionSynchronizationManager.getCurrentTransactionIsolationLevel();
 				if (currentIsolationLevel == null || currentIsolationLevel != definition.getIsolationLevel()) {
@@ -553,6 +536,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 									"(unknown)"));
 				}
 			}
+			// readOnly 的校验 <- 是否一致性 TransactionDefinition 与 TransactionSynchronizationManager 中的值
 			if (!definition.isReadOnly()) {
 				if (TransactionSynchronizationManager.isCurrentTransactionReadOnly()) {
 					throw new IllegalTransactionStateException("Participating transaction with definition [" +
@@ -561,9 +545,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			}
 		}
 		boolean newSynchronization = (getTransactionSynchronization() != SYNCHRONIZATION_NEVER);
-		/**
-		 * 返回 TransactionStatus 注意第三个参数 false 表示 当前事务没有使用新事务
-		 */
+		//  返回 TransactionStatus 注意第三个参数 false 表示 当前事务没有使用新事务
 		return prepareTransactionStatus(definition, transaction, false, newSynchronization, debugEnabled, null);
 	}
 
@@ -788,11 +770,12 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	// 提交事务的模版方法
 	@Override
 	public final void commit(TransactionStatus status) throws TransactionException {
+		// 若 TransactionStatus 已经被 commit | rollback 则这里抛异常
 		if (status.isCompleted()) {
 			throw new IllegalTransactionStateException(
 					"Transaction is already completed - do not call commit or rollback more than once per transaction");
 		}
-		// 如果事务处理过程中发生了异常, 调用回调
+
 		DefaultTransactionStatus defStatus = (DefaultTransactionStatus) status;
 		// 如果在事务链中已经被标识回滚, 那么不会尝试提交事务, 直接回滚
 		if (defStatus.isLocalRollbackOnly()) {
@@ -802,7 +785,9 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			processRollback(defStatus);
 			return;
 		}
-		if (!shouldCommitOnGlobalRollbackOnly() && defStatus.isGlobalRollbackOnly()) {		// 这里的 shouldCommitOnGlobalRollbackOnly 与 isGlobalRollbackOnly 其实是运用于 分布式事务环境的(比如 JtaTransactionManager), 其中可能还涉及 jndi (PS: 这里其实是比较老的技术, 这个东西的存在也加大了 学习 AbstractPlatformManager 的难度)
+
+		// 这里的 shouldCommitOnGlobalRollbackOnly 与 isGlobalRollbackOnly 其实是运用于 分布式事务环境的(比如 JtaTransactionManager), 其中可能还涉及 jndi (PS: 这里其实是比较老的技术, 这个东西的存在也加大了 学习 AbstractPlatformManager 的难度)
+		if (!shouldCommitOnGlobalRollbackOnly() && defStatus.isGlobalRollbackOnly()) {
 			if (defStatus.isDebug()) {
 				logger.debug("Global transaction is marked as rollback-only but transactional code requested commit");
 			}
@@ -831,21 +816,19 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			boolean beforeCompletionInvoked = false;
 			try {
 				// 事务提交的准备工作由具体的事务处理器完成
-				// 预留
-				prepareForCommit(status);
+				prepareForCommit(status);					// 预留方法, 留给子类区扩充
 				triggerBeforeCommit(status);				// 添加的 TransactionSynchronization 中的对应方法 beforeCommit 的调用
 				triggerBeforeCompletion(status);			// 添加的 TransactionSynchronization 中的对应方法 beforeCompletion 的调用
 				beforeCompletionInvoked = true;
-				boolean globalRollbackOnly = false;
+				boolean globalRollbackOnly = false;         // 手动设置回回滚 <- 这里是 针对分布式事务
 				if (status.isNewTransaction() || isFailEarlyOnGlobalRollbackOnly()) {
-					globalRollbackOnly = status.isGlobalRollbackOnly(); // 手动设置回回滚 <- 这里是 针对分布式事务
+					globalRollbackOnly = status.isGlobalRollbackOnly();
 				}
 				if (status.hasSavepoint()) {   				// 若是嵌套事务, 则直接释放保存点
 					if (status.isDebug()) {
 						logger.debug("Releasing transaction savepoint");
 					}
-					// 如果存在保存点则清除保存点信息
-					status.releaseHeldSavepoint();
+					status.releaseHeldSavepoint();			// 如果存在保存点则清除保存点信息
 				}
 				/**
 				 * 下面对当前线程中保存的事务状态进行处理, 如果当前的事务是一个新事务, 调用具体的事务处理器完成提交
@@ -871,15 +854,15 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			}
 			catch (TransactionException ex) {
 				// can only be caused by doCommit
-				if (isRollbackOnCommitFailure()) {
+				if (isRollbackOnCommitFailure()) {		   // 在 commit 提交异常时, 是否需要进行回滚操作
 					doRollbackOnCommitException(status, ex);
 				}
-				else {
+				else {									   // 添加的 TransactionSynchronization 中的对应方法 afterCompletion 的调用
 					triggerAfterCompletion(status, TransactionSynchronization.STATUS_UNKNOWN);
 				}
 				throw ex;
 			}
-			catch (RuntimeException ex) {
+			catch (RuntimeException ex) {				   // 提交的过程中, 若出现 RuntimeException 则直接回滚
 				if (!beforeCompletionInvoked) {
 					triggerBeforeCompletion(status);
 				}
@@ -888,11 +871,9 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			}
 			catch (Error err) {
 				if (!beforeCompletionInvoked) {
-					// 添加的 TransactionSynchronization 中的对应方法的调用
-					triggerBeforeCompletion(status);
+					triggerBeforeCompletion(status);	  // 添加的 TransactionSynchronization 中的对应方法 beforeCompletion 的调用
 				}
-				// 提交过程中出现异常则回滚
-				doRollbackOnCommitException(status, err);
+				doRollbackOnCommitException(status, err); // 提交过程中出现异常则回滚
 				throw err;
 			}
 
@@ -900,14 +881,14 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			// propagated to callers but the transaction still considered as committed.
 			// 触发 AfterCommit 回滚
 			try {
-				triggerAfterCommit(status);						// 添加的 TransactionSynchronization 中的对应方法 afterCommit 的调用
+				triggerAfterCommit(status);				  // 添加的 TransactionSynchronization 中的对应方法 afterCommit 的调用
 			}
-			finally {											// 添加的 TransactionSynchronization 中的对应方法 afterCompletion 的调用
+			finally {									  // 添加的 TransactionSynchronization 中的对应方法 afterCompletion 的调用
 				triggerAfterCompletion(status, TransactionSynchronization.STATUS_COMMITTED);
 			}
 
 		}
-		finally {
+		finally {										   // commit 完成, 这里做一些清理数据的工作
 			cleanupAfterCompletion(status);
 		}
 	}
@@ -999,12 +980,12 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	 */
 	private void doRollbackOnCommitException(DefaultTransactionStatus status, Throwable ex) throws TransactionException {
 		try {
-			if (status.isNewTransaction()) {
+			if (status.isNewTransaction()) {		// 若是新事务, 则进行回滚
 				if (status.isDebug()) {
 					logger.debug("Initiating transaction rollback after commit exception", ex);
 				}
 				doRollback(status);
-			}
+			}										// 设置回滚标示
 			else if (status.hasTransaction() && isGlobalRollbackOnParticipationFailure()) {
 				if (status.isDebug()) {
 					logger.debug("Marking existing transaction as rollback-only after commit exception", ex);

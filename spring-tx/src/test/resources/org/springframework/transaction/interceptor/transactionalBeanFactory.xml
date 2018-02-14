@@ -18,6 +18,7 @@
 
 	<bean id="mockMan" class="org.springframework.transaction.interceptor.PlatformTransactionManagerFacade"/>
 
+	// 设置
 	<bean id="txInterceptor" class="org.springframework.transaction.interceptor.TransactionInterceptor">
 		<property name="transactionManager"><ref local="mockMan"/></property>
 		<property name="transactionAttributeSource">

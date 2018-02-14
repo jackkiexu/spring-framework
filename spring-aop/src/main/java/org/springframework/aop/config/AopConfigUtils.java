@@ -108,7 +108,7 @@ public abstract class AopConfigUtils {
 	// 参数中的 registry 其实就是我们常用的 DefaultListableBeanFactory
 	private static BeanDefinition registerOrEscalateApcAsRequired(Class<?> cls, BeanDefinitionRegistry registry, Object source) {
 		Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
-		// 定义 AUTO_PROXY_CREATOR_BEAN_NAME = org.springframework.aop.config.internalAutoProxyCreator
+		// 定义 AUTO_PROXY_CREATOR_BEAN_NAME = org.springframework.aop.config.internalAutoProxyCreator, 而 registry 其实就是 DefaultListableBeanFactory
 		if (registry.containsBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME)) {
 			// 如果已经存在了自动代理创建器且存在的自动代理创建器与现在的不一致, 那么需要根据优先级来判断到底需要使用哪
 			// 如果容器中已经存在自动代理构建器, 则比较两个构建器的优先级 ( AnnotationAwareAspectJAutoProxyCreator --> AspectJAwareAdvisorAutoProxyCreator --> InfrastructureAdvisorAutoProxyCreator)

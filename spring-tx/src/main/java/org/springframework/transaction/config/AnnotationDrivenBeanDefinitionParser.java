@@ -101,36 +101,36 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 	private static class AopAutoProxyConfigurer {
 
 		public static void configureAutoProxyCreator(Element element, ParserContext parserContext) {
+			// 若 BeanFactory 中没有注入 自动代理创建器, 则将注入 InfrastructureAdvisorAutoProxyCreator
 			AopNamespaceUtils.registerAutoProxyCreatorIfNecessary(parserContext, element);
 
 			String txAdvisorBeanName = TransactionManagementConfigUtils.TRANSACTION_ADVISOR_BEAN_NAME;
+			// 没有注入过 internalTransactionAdvisor
 			if (!parserContext.getRegistry().containsBeanDefinition(txAdvisorBeanName)) {
 				Object eleSource = parserContext.extractSource(element);
 
-				// 创建 TransactionAttributeSource 的 bean
 				// Create the TransactionAttributeSource definition.
-				RootBeanDefinition sourceDef = new RootBeanDefinition(
+				RootBeanDefinition sourceDef = new RootBeanDefinition(		// 注入 AnnotationTransactionAttributeSource (TransactionAttribute 提取器, 其主要是通过注释在方法上的 @Transactional 获取 TransactionAttribute)
 						"org.springframework.transaction.annotation.AnnotationTransactionAttributeSource");
 				sourceDef.setSource(eleSource);
-				sourceDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-				// 注册 Bean 并使用 Spring 中的定义规则生成 beanName
+				sourceDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);		// 这里标志 AnnotationTransactionAttributeSource 是 IOC 的基础类 <- 针对基础类不会进行 AOP 等操作
 				String sourceName = parserContext.getReaderContext().registerWithGeneratedName(sourceDef);
 
-				// 创建 TransactionInterceptor 的 bean
-				// Create the TransactionInterceptor definition.
+				// Create the TransactionInterceptor definition.			// 注入 TransactionInterceptor, 正真的事务操作就是在这里拦截器里面 <- 主要还是通过 PlatformTransactionManager
 				RootBeanDefinition interceptorDef = new RootBeanDefinition(TransactionInterceptor.class);
 				interceptorDef.setSource(eleSource);
-				interceptorDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-				registerTransactionManager(element, interceptorDef);
+				interceptorDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);	// 标志这是个基础类 <- 基础类不会被 AOP 等特性操作
+				registerTransactionManager(element, interceptorDef);		// 设置 transactionManager 的 beanName
 				interceptorDef.getPropertyValues().add("transactionAttributeSource", new RuntimeBeanReference(sourceName));
-				// 注册 bean, 并使用 Spring 中的定义规则生成 beanName
+				// 注册 TransactionInterceptor, 并使用 Spring 中的定义规则生成 beanName
 				String interceptorName = parserContext.getReaderContext().registerWithGeneratedName(interceptorDef);
 
-				// 创建 TransactionAttributeSourceAdvisor 的 bean
+				// 注入 BeanFactoryTransactionAttributeSourceAdvisor, 这个类中的 Pointcut 是 TransactionAttributeSourcePointcut, 而
+				// 只要 TransactionAttributeSource 通 Method, Class 中获取 TransactionAttribute 就表示这个方法将被事务操作
 				// Create the TransactionAttributeSourceAdvisor definition.
 				RootBeanDefinition advisorDef = new RootBeanDefinition(BeanFactoryTransactionAttributeSourceAdvisor.class);
 				advisorDef.setSource(eleSource);
-				advisorDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+				advisorDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);		// 标志这是个基础类 <- 基础类不会被 AOP 等特性操作
 				// 将 sourceName 的 bean 注入 advisorDef 的 transactionAttributeSource 属性中
 				advisorDef.getPropertyValues().add("transactionAttributeSource", new RuntimeBeanReference(sourceName));
 				advisorDef.getPropertyValues().add("adviceBeanName", interceptorName);
@@ -138,8 +138,9 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 				if (element.hasAttribute("order")) {
 					advisorDef.getPropertyValues().add("order", element.getAttribute("order"));
 				}
+				// 注入 BeanFactoryTransactionAttributeSourceAdvisor
 				parserContext.getRegistry().registerBeanDefinition(txAdvisorBeanName, advisorDef);
-				// 创建 CompositeComponentDefinition
+				// 创建 CompositeComponentDefinition <- 其中包含上面的需要注入的 BeanDefinition <-- 组合模式
 				CompositeComponentDefinition compositeDef = new CompositeComponentDefinition(element.getTagName(), eleSource);
 				compositeDef.addNestedComponent(new BeanComponentDefinition(sourceDef, sourceName));
 				compositeDef.addNestedComponent(new BeanComponentDefinition(interceptorDef, interceptorName));

@@ -111,21 +111,22 @@ public class NameMatchTransactionAttributeSource implements TransactionAttribute
 
 		// Look for direct name match.
 		String methodName = method.getName();
+		// 通过方法名从 nameMap 中获取 attr
 		TransactionAttribute attr = this.nameMap.get(methodName);
 		// 如果不能直接匹配, 就通过 PatternMatchUtils 的 simpleMatch 方法来进行匹配判断
 		if (attr == null) {
 			// Look for most specific name match.
 			String bestNameMatch = null;
 			for (String mappedName : this.nameMap.keySet()) {
-				if (isMatch(methodName, mappedName) &&			// 方法名称匹配
+				if (isMatch(methodName, mappedName) &&			// 方法名称匹配 <- 正则匹配
 						(bestNameMatch == null || bestNameMatch.length() <= mappedName.length())) {
-					attr = this.nameMap.get(mappedName);
+					attr = this.nameMap.get(mappedName);        // 匹配成功, 则直接获取 TransactionAttribute <- 这里的 TransactionAttribute 是在解析 xml 时注入 BeanFactory 的
 					bestNameMatch = mappedName;
 				}
 			}
 		}
 
-		return attr;
+		return attr;											// 返回通过 methodName 获取的 attr
 	}
 
 	/**

@@ -56,12 +56,12 @@ public class BeanNameUrlHandlerMapping extends AbstractDetectingUrlHandlerMappin
 	@Override
 	protected String[] determineUrlsForHandler(String beanName) {
 		List<String> urls = new ArrayList<String>();
-		if (beanName.startsWith("/")) {
+		if (beanName.startsWith("/")) {				// 若 Bean 的名称以 "/" 开始, 则作为 url
 			urls.add(beanName);
 		}
 		String[] aliases = getApplicationContext().getAliases(beanName);
 		for (String alias : aliases) {
-			if (alias.startsWith("/")) {
+			if (alias.startsWith("/")) {			// 获取以 "/" 开头的别名
 				urls.add(alias);
 			}
 		}

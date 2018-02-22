@@ -20,7 +20,7 @@ import org.springframework.core.MethodParameter;
 import org.springframework.web.context.request.NativeWebRequest;
 
 /**
- * Strategy interface to handle the value returned from the invocation of a
+ * Strategy interface to handle the value returned from the invocation(调用 | 启用) of a
  * handler method .
  *
  * @author Arjen Poutsma

@@ -32,7 +32,7 @@ import org.springframework.web.servlet.HandlerExecutionChain;
 
 /**
  * Abstract base class for URL-mapped {@link org.springframework.web.servlet.HandlerMapping}
- * implementations. Provides infrastructure for mapping handlers to URLs and configurable
+ * implementations. Provides infrastructure(基础) for mapping handlers to URLs and configurable
  * URL lookup. For information on the latter, see "alwaysUseFullPath" property.
  *
  * <p>Supports direct matches, e.g. a registered "/test" matches "/test", and
@@ -51,8 +51,10 @@ import org.springframework.web.servlet.HandlerExecutionChain;
  */
 public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping implements MatchableHandlerMapping {
 
+	// 处理根目录 "/" 的 handler
 	private Object rootHandler;
 
+	// 用尾部反斜杆进行匹配
 	private boolean useTrailingSlashMatch = false;
 
 	private boolean lazyInitHandlers = false;
@@ -114,7 +116,6 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 	 */
 	@Override
 	protected Object getHandlerInternal(HttpServletRequest request) throws Exception {
-		// 截取用于匹配的 url 有效路径
 		// 从 Request 中得到 请求的 URL 路径
 		String lookupPath = getUrlPathHelper().getLookupPathForRequest(request);
 		// 根据路径寻找 Handler
@@ -160,8 +161,8 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 
 	/**
 	 * Look up a handler instance for the given URL path.
-	 * <p>Supports direct matches, e.g. a registered "/test" matches "/test",
-	 * and various Ant-style pattern matches, e.g. a registered "/t*" matches
+	 * <p>Supports direct matches, e.g. a registered "/test" matches "/test",  支持直接匹配
+	 * and various Ant-style pattern matches, e.g. a registered "/t*" matches  Ant-style 风格匹配
 	 * both "/test" and "/team". For details, see the AntPathMatcher class.
 	 * <p>Looks for the most exact pattern, where most exact is defined as
 	 * the longest path pattern.
@@ -179,7 +180,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 		Object handler = this.handlerMap.get(urlPath);
 		if (handler != null) {
 			// Bean name or resolved handler?
-			if (handler instanceof String) {
+			if (handler instanceof String) {			// 若 handler 是 string 类型, 则将 handler 当作类名, 直接从 BeanFactory 中获取 Bean
 				String handlerName = (String) handler;
 				handler = getApplicationContext().getBean(handlerName);
 			}
@@ -192,28 +193,28 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 		// Pattern match?
 		List<String> matchingPatterns = new ArrayList<String>();
 		for (String registeredPattern : this.handlerMap.keySet()) {
-			if (getPathMatcher().match(registeredPattern, urlPath)) {
+			if (getPathMatcher().match(registeredPattern, urlPath)) { // 通过 AntPathMatcher 来进行匹配
 				matchingPatterns.add(registeredPattern);
 			}
-			else if (useTrailingSlashMatch()) {
+			else if (useTrailingSlashMatch()) { // 是否使用尾部反斜杆进行匹配, 若是的话, 则直接在尾部加上 "/" 再进行匹配
 				if (!registeredPattern.endsWith("/") && getPathMatcher().match(registeredPattern + "/", urlPath)) {
 					matchingPatterns.add(registeredPattern +"/");
 				}
 			}
 		}
 
-		String bestMatch = null;
+		String bestMatch = null; // 获取 AntPatternComparator, 主要是处理多个 urlPath 的排序
 		Comparator<String> patternComparator = getPathMatcher().getPatternComparator(urlPath);
-		if (!matchingPatterns.isEmpty()) {
+		if (!matchingPatterns.isEmpty()) { // 通过 AntPatternComparator 进行排序, 获取排序的第一个值
 			Collections.sort(matchingPatterns, patternComparator);
 			if (logger.isDebugEnabled()) {
 				logger.debug("Matching patterns for request [" + urlPath + "] are " + matchingPatterns);
 			}
 			bestMatch = matchingPatterns.get(0);
 		}
-		if (bestMatch != null) {
+		if (bestMatch != null) { // 从 handlerMap 从获取 bestMatch 匹配的 handler
 			handler = this.handlerMap.get(bestMatch);
-			if (handler == null) {
+			if (handler == null) { // 若获取不到, 但 bestMatch 又是以 "/" 结尾的, 则去除 "/", 再从 handlerMap 里面获取一次
 				if (bestMatch.endsWith("/")) {
 					handler = this.handlerMap.get(bestMatch.substring(0, bestMatch.length() - 1));
 				}
@@ -222,14 +223,17 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 							"Could not find handler for best pattern match [" + bestMatch + "]");
 				}
 			}
+			// 若从 handlerMap 里面获取出的 handler 是 String, 则再从 ApplicationContext 里面获取对应的 Bean
 			// Bean name or resolved handler?
 			if (handler instanceof String) {
 				String handlerName = (String) handler;
 				handler = getApplicationContext().getBean(handlerName);
 			}
 			validateHandler(handler, request);
+			// 获取 正则表达式中 *, ? 所代表的真实字符串
 			String pathWithinMapping = getPathMatcher().extractPathWithinPattern(bestMatch, urlPath);
 
+			// 针对 多个 "best patterns" 的附加处理
 			// There might be multiple 'best patterns', let's make sure we have the correct URI template variables
 			// for all of them
 			Map<String, String> uriTemplateVariables = new LinkedHashMap<String, String>();
@@ -325,6 +329,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 	 * @throws BeansException if the handler couldn't be registered
 	 * @throws IllegalStateException if there is a conflicting handler registered
 	 */
+	// 将处理的 url 与 beanName 注册
 	protected void registerHandler(String[] urlPaths, String beanName) throws BeansException, IllegalStateException {
 		Assert.notNull(urlPaths, "URL path array must not be null");
 		for (String urlPath : urlPaths) {

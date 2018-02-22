@@ -23,7 +23,7 @@ import org.springframework.util.ObjectUtils;
 
 /**
  * Abstract implementation of the {@link org.springframework.web.servlet.HandlerMapping}
- * interface, detecting URL mappings for handler beans through introspection of all
+ * interface, detecting URL mappings for handler beans through introspection(内省, 反省) of all
  * defined beans in the application context.
  *
  * @author Juergen Hoeller
@@ -36,7 +36,7 @@ public abstract class AbstractDetectingUrlHandlerMapping extends AbstractUrlHand
 
 
 	/**
-	 * Set whether to detect handler beans in ancestor ApplicationContexts.
+	 * Set whether to detect handler beans in ancestor(祖先, 原种) ApplicationContexts.
 	 * <p>Default is "false": Only handler beans in the current ApplicationContext
 	 * will be detected, i.e. only in the context that this HandlerMapping itself
 	 * is defined in (typically the current DispatcherServlet's context).
@@ -76,7 +76,7 @@ public abstract class AbstractDetectingUrlHandlerMapping extends AbstractUrlHand
 
 		// Take any bean name that we can determine URLs for.
 		for (String beanName : beanNames) {
-			String[] urls = determineUrlsForHandler(beanName);
+			String[] urls = determineUrlsForHandler(beanName);		// 通过  beanName 获取 url, 比如 BeanNameUrlHandlerMapping 是以 beanName 为 url <-- beanName 必需以 "/" 开头
 			if (!ObjectUtils.isEmpty(urls)) {
 				// URL paths found: Let's consider it a handler.
 				registerHandler(urls, beanName);

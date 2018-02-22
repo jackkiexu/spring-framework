@@ -19,7 +19,7 @@ package org.springframework.web.servlet;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * Interface to be implemented by objects that define a mapping between
+ * Interface to be implemented by objects that define a mapping between --> 在请求 与 处理器 之间做映射的实现接口 HandlerMapping
  * requests and handler objects.
  *
  * <p>This class can be implemented by application developers, although this is not
@@ -29,9 +29,9 @@ import javax.servlet.http.HttpServletRequest;
  * HandlerMapping bean is registered in the application context.
  *
  * <p>HandlerMapping implementations can support mapped interceptors but do not
- * have to. A handler will always be wrapped in a {@link HandlerExecutionChain}
- * instance, optionally accompanied by some {@link HandlerInterceptor} instances.
- * The DispatcherServlet will first call each HandlerInterceptor's
+ * have to. A handler will always be wrapped in a {@link HandlerExecutionChain}  <-- handler 一般都是包裹在 HandlerExecutionChain
+ * instance, optionally(随意的) accompanied(伴随) by some {@link HandlerInterceptor} instances.
+ * The DispatcherServlet will first call each HandlerInterceptor's				 <-- 先激活 preHandle 方法
  * {@code preHandle} method in the given order, finally invoking the handler
  * itself if all {@code preHandle} methods have returned {@code true}.
  *

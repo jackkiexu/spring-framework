@@ -38,13 +38,13 @@ import org.springframework.web.servlet.handler.AbstractDetectingUrlHandlerMappin
 
 /**
  * Implementation of the {@link org.springframework.web.servlet.HandlerMapping}
- * interface that maps handlers based on HTTP paths expressed through the
+ * interface that maps handlers based on HTTP paths expressed through the  通过 RequestMapping 注解
  * {@link RequestMapping} annotation at the type or method level.
  *
  * <p>Registered by default in {@link org.springframework.web.servlet.DispatcherServlet}
  * on Java 5+. <b>NOTE:</b> If you define custom HandlerMapping beans in your
  * DispatcherServlet context, you need to add a DefaultAnnotationHandlerMapping bean
- * explicitly, since custom HandlerMapping beans replace the default mapping strategies.
+ * explicitly(明确的), since custom HandlerMapping beans replace the default mapping strategies.
  * Defining a DefaultAnnotationHandlerMapping also allows for registering custom
  * interceptors:
  *
@@ -87,7 +87,7 @@ public class DefaultAnnotationHandlerMapping extends AbstractDetectingUrlHandler
 	static final String USE_DEFAULT_SUFFIX_PATTERN = DefaultAnnotationHandlerMapping.class.getName() + ".useDefaultSuffixPattern";
 
 	private boolean useDefaultSuffixPattern = true;
-
+	// 缓存的 class 与 RequestMapping 的映射关系
 	private final Map<Class<?>, RequestMapping> cachedMappings = new HashMap<Class<?>, RequestMapping>();
 
 
@@ -99,7 +99,7 @@ public class DefaultAnnotationHandlerMapping extends AbstractDetectingUrlHandler
 	 * <p>Note that paths which include a ".xxx" suffix or end with "/" already will not be
 	 * transformed using the default suffix pattern in any case.
 	 */
-	public void setUseDefaultSuffixPattern(boolean useDefaultSuffixPattern) {
+	public void setUseDefaultSuffixPattern(boolean useDefaultSuffixPattern) {		// 是否用后缀 <- 这里指加载 url 后面的附加路径
 		this.useDefaultSuffixPattern = useDefaultSuffixPattern;
 	}
 
@@ -111,42 +111,42 @@ public class DefaultAnnotationHandlerMapping extends AbstractDetectingUrlHandler
 	@Override
 	protected String[] determineUrlsForHandler(String beanName) {
 		ApplicationContext context = getApplicationContext();
-		Class<?> handlerType = context.getType(beanName);
-		RequestMapping mapping = context.findAnnotationOnBean(beanName, RequestMapping.class);
+		Class<?> handlerType = context.getType(beanName);			  // 获取 beanName 对应的 handler
+		RequestMapping mapping = context.findAnnotationOnBean(beanName, RequestMapping.class); // 获取指定 beanName 上 RequestMapping 的注解信息
 		if (mapping != null) {
 			// @RequestMapping found at type level
 			this.cachedMappings.put(handlerType, mapping);
 			Set<String> urls = new LinkedHashSet<String>();
 			String[] typeLevelPatterns = mapping.value();
 			if (typeLevelPatterns.length > 0) {
-				// @RequestMapping specifies paths at type level
+				// @RequestMapping specifies paths at type level	  // 从类级别开始解析 方法
 				String[] methodLevelPatterns = determineUrlsForHandlerMethods(handlerType, true);
 				for (String typeLevelPattern : typeLevelPatterns) {
-					if (!typeLevelPattern.startsWith("/")) {
+					if (!typeLevelPattern.startsWith("/")) {		  // 若注解 url 不是以 "/" 则加上 "/"
 						typeLevelPattern = "/" + typeLevelPattern;
 					}
 					boolean hasEmptyMethodLevelMappings = false;
 					for (String methodLevelPattern : methodLevelPatterns) {
 						if (methodLevelPattern == null) {
-							hasEmptyMethodLevelMappings = true;
+							hasEmptyMethodLevelMappings = true;		  // hasEmptyMethodLevelMappings 表示是否存在 没有设置 url 的 RequestMapping
 						}
-						else {
+						else {										  // 组合 类级别的 url 与 方法级别的 url
 							String combinedPattern = getPathMatcher().combine(typeLevelPattern, methodLevelPattern);
-							addUrlsForPath(urls, combinedPattern);
+							addUrlsForPath(urls, combinedPattern);	  // 将组合后的 url 加入 urls
 						}
 					}
 					if (hasEmptyMethodLevelMappings ||
 							org.springframework.web.servlet.mvc.Controller.class.isAssignableFrom(handlerType)) {
-						addUrlsForPath(urls, typeLevelPattern);
+						addUrlsForPath(urls, typeLevelPattern);		 // 若存在 "没有设置url的RequestMapping" -> 则 method 处理的就是注释在 Class 上的 url
 					}
 				}
-				return StringUtils.toStringArray(urls);
+				return StringUtils.toStringArray(urls);				 // 返回能处理的 url
 			}
-			else {
+			else {													 // 若class上是"没设置url的RequestMapping", 则直接返回 determineUrlsForHandlerMethods 解析的 url
 				// actual paths specified by @RequestMapping at method level
 				return determineUrlsForHandlerMethods(handlerType, false);
 			}
-		}
+		}															// 若 handler 被 Controller 注解, 则从方法级别获取 RequestMapping 来注册信息
 		else if (AnnotationUtils.findAnnotation(handlerType, Controller.class) != null) {
 			// @RequestMapping to be introspected at method level
 			return determineUrlsForHandlerMethods(handlerType, false);
@@ -157,35 +157,35 @@ public class DefaultAnnotationHandlerMapping extends AbstractDetectingUrlHandler
 	}
 
 	/**
-	 * Derive URL mappings from the handler's method-level mappings.
+	 * Derive(起源, 获得) URL mappings from the handler's method-level mappings.
 	 * @param handlerType the handler type to introspect
 	 * @param hasTypeLevelMapping whether the method-level mappings are nested
 	 * within a type-level mapping
 	 * @return the array of mapped URLs
 	 */
 	protected String[] determineUrlsForHandlerMethods(Class<?> handlerType, final boolean hasTypeLevelMapping) {
-		String[] subclassResult = determineUrlsForHandlerMethods(handlerType);
+		String[] subclassResult = determineUrlsForHandlerMethods(handlerType);	//  默认返回 null
 		if (subclassResult != null) {
 			return subclassResult;
 		}
 
 		final Set<String> urls = new LinkedHashSet<String>();
 		Set<Class<?>> handlerTypes = new LinkedHashSet<Class<?>>();
-		handlerTypes.add(handlerType);
+		handlerTypes.add(handlerType);							// 获取类, 及接口
 		handlerTypes.addAll(Arrays.asList(handlerType.getInterfaces()));
-		for (Class<?> currentHandlerType : handlerTypes) {
+		for (Class<?> currentHandlerType : handlerTypes) {		// 解析 handler类及接口 中的所有方法 -> 解析其中被 RequestMapping 的方法
 			ReflectionUtils.doWithMethods(currentHandlerType, new ReflectionUtils.MethodCallback() {
 				@Override
-				public void doWith(Method method) {
+				public void doWith(Method method) {				// 获取方法上的 RequestMapping 注解信息
 					RequestMapping mapping = AnnotationUtils.findAnnotation(method, RequestMapping.class);
 					if (mapping != null) {
 						String[] mappedPatterns = mapping.value();
 						if (mappedPatterns.length > 0) {
-							for (String mappedPattern : mappedPatterns) {
+							for (String mappedPattern : mappedPatterns) { // 下面的 hasTypeLevelMapping 表示是否已经有了方法级别的 RequestMapping
 								if (!hasTypeLevelMapping && !mappedPattern.startsWith("/")) {
 									mappedPattern = "/" + mappedPattern;
 								}
-								addUrlsForPath(urls, mappedPattern);
+								addUrlsForPath(urls, mappedPattern);	 // 将请求路径加入 urls
 							}
 						}
 						else if (hasTypeLevelMapping) {
@@ -200,8 +200,8 @@ public class DefaultAnnotationHandlerMapping extends AbstractDetectingUrlHandler
 	}
 
 	/**
-	 * Derive URL mappings from the handler's method-level mappings.
-	 * @param handlerType the handler type to introspect
+	 * Derive(获得) URL mappings from the handler's method-level mappings.
+	 * @param handlerType the handler type to introspect (内省)
 	 * @return the array of mapped URLs
 	 */
 	protected String[] determineUrlsForHandlerMethods(Class<?> handlerType) {

@@ -94,6 +94,7 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport im
 	 * @see org.springframework.web.portlet.HandlerInterceptor
 	 * @see org.springframework.web.context.request.WebRequestInterceptor
 	 */
+	// 设置 拦截器
 	public void setInterceptors(Object[] interceptors) {
 		this.interceptors.addAll(Arrays.asList(interceptors));
 	}

@@ -150,3 +150,6 @@ Spring Document
   Spring 3.x 中文: http://shouce.jb51.net/spring/
   Spring 3.x 英文: https://docs.spring.io/spring/docs/3.0.x/reference/
   Spring 4.x 中文: http://spring.cndocs.ml/
+
+枚举的写法:
+  org.springframework.http.HttpMethod

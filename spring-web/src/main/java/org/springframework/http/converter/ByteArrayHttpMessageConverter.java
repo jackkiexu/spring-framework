@@ -35,7 +35,7 @@ import org.springframework.util.StreamUtils;
  * @author Juergen Hoeller
  * @since 3.0
  */
-public class ByteArrayHttpMessageConverter extends AbstractHttpMessageConverter<byte[]> {
+public class ByteArrayHttpMessageConverter extends AbstractHttpMessageConverter<byte[]> { // 读写都是字节流的 HttpMessageConverter
 
 	/**
 	 * Create a new instance of the {@code ByteArrayHttpMessageConverter}.
@@ -52,10 +52,10 @@ public class ByteArrayHttpMessageConverter extends AbstractHttpMessageConverter<
 
 	@Override
 	public byte[] readInternal(Class<? extends byte[]> clazz, HttpInputMessage inputMessage) throws IOException {
-		long contentLength = inputMessage.getHeaders().getContentLength();
-		ByteArrayOutputStream bos =
+		long contentLength = inputMessage.getHeaders().getContentLength();	// 获取字节流的长度
+		ByteArrayOutputStream bos =											// 创建字节流缓冲区
 				new ByteArrayOutputStream(contentLength >= 0 ? (int) contentLength : StreamUtils.BUFFER_SIZE);
-		StreamUtils.copy(inputMessage.getBody(), bos);
+		StreamUtils.copy(inputMessage.getBody(), bos);						// 将数据 copy 到字节流中
 		return bos.toByteArray();
 	}
 
@@ -66,7 +66,7 @@ public class ByteArrayHttpMessageConverter extends AbstractHttpMessageConverter<
 
 	@Override
 	protected void writeInternal(byte[] bytes, HttpOutputMessage outputMessage) throws IOException {
-		StreamUtils.copy(bytes, outputMessage.getBody());
+		StreamUtils.copy(bytes, outputMessage.getBody());					// 将字节流 copy 到 HttpOutputMessage 中
 	}
 
 }

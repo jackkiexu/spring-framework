@@ -72,7 +72,7 @@ public interface HandlerMapping {
 	 * typically support it, but handlers should not necessarily expect
 	 * this request attribute to be present in all scenarios.
 	 */
-	String BEST_MATCHING_PATTERN_ATTRIBUTE = HandlerMapping.class.getName() + ".bestMatchingPattern";
+	String BEST_MATCHING_PATTERN_ATTRIBUTE = HandlerMapping.class.getName() + ".bestMatchingPattern";  // 存储的是 RequestMappingInfo 中的 uri -> 包括 {xx} 这类
 
 	/**
 	 * Name of the boolean {@link HttpServletRequest} attribute that indicates
@@ -90,7 +90,7 @@ public interface HandlerMapping {
 	 * typically support it, but handlers should not necessarily expect
 	 * this request attribute to be present in all scenarios.
 	 */
-	String URI_TEMPLATE_VARIABLES_ATTRIBUTE = HandlerMapping.class.getName() + ".uriTemplateVariables";
+	String URI_TEMPLATE_VARIABLES_ATTRIBUTE = HandlerMapping.class.getName() + ".uriTemplateVariables";  // 解析uri中的 /{name}/{id}, 并将 key <-> 形式存储到 Map 中
 
 	/**
 	 * Name of the {@link HttpServletRequest} attribute that contains a map with

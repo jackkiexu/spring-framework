@@ -521,14 +521,14 @@ public class UrlPathHelper {
 	 * @param vars URI variables extracted from the URL path
 	 * @return the same Map or a new Map instance
 	 */
-	public Map<String, String> decodePathVariables(HttpServletRequest request, Map<String, String> vars) {
+	public Map<String, String> decodePathVariables(HttpServletRequest request, Map<String, String> vars) { // 对数据进行编码
 		if (this.urlDecode) {
 			return vars;
 		}
 		else {
 			Map<String, String> decodedVars = new LinkedHashMap<String, String>(vars.size());
 			for (Entry<String, String> entry : vars.entrySet()) {
-				decodedVars.put(entry.getKey(), decodeInternal(request, entry.getValue()));
+				decodedVars.put(entry.getKey(), decodeInternal(request, entry.getValue()));	// 对数据进行编码
 			}
 			return decodedVars;
 		}

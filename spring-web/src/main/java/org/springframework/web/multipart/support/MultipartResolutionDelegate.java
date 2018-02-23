@@ -85,6 +85,9 @@ public abstract class MultipartResolutionDelegate {
 
 	public static boolean isMultipartArgument(MethodParameter parameter) {
 		Class<?> paramType = parameter.getNestedParameterType();
+		boolean isSimpleMultipartFile = MultipartFile.class == paramType;
+		boolean isMultipartFileCollection = isMultipartFileCollection(parameter);
+
 		return (MultipartFile.class == paramType ||
 				isMultipartFileCollection(parameter) || isMultipartFileArray(parameter) ||
 				(servletPartClass != null && (servletPartClass == paramType ||
@@ -94,23 +97,23 @@ public abstract class MultipartResolutionDelegate {
 	public static Object resolveMultipartArgument(String name, MethodParameter parameter, HttpServletRequest request)
 			throws Exception {
 
-		MultipartHttpServletRequest multipartRequest =
+		MultipartHttpServletRequest multipartRequest =			// 从 HttpServletRequest 中获取 MultipartHttpServletRequest <-- 这里有点怪
 				WebUtils.getNativeRequest(request, MultipartHttpServletRequest.class);
-		boolean isMultipart = (multipartRequest != null || isMultipartContent(request));
+		boolean isMultipart = (multipartRequest != null || isMultipartContent(request));	// 是否是 multipart 这种上传形式
 
-		if (MultipartFile.class == parameter.getNestedParameterType()) {
+		if (MultipartFile.class == parameter.getNestedParameterType()) {				// 参数类型是否是 MultipartFile
 			if (multipartRequest == null && isMultipart) {
 				multipartRequest = adaptToMultipartHttpServletRequest(request);
 			}
 			return (multipartRequest != null ? multipartRequest.getFile(name) : null);
 		}
-		else if (isMultipartFileCollection(parameter)) {
+		else if (isMultipartFileCollection(parameter)) {								// 是否是 集合类型的 MultipartFile
 			if (multipartRequest == null && isMultipart) {
 				multipartRequest = adaptToMultipartHttpServletRequest(request);
 			}
 			return (multipartRequest != null ? multipartRequest.getFiles(name) : null);
 		}
-		else if (isMultipartFileArray(parameter)) {
+		else if (isMultipartFileArray(parameter)) {										// 是否是 Array类型的 MultipartFile
 			if (multipartRequest == null && isMultipart) {
 				multipartRequest = adaptToMultipartHttpServletRequest(request);
 			}
@@ -122,14 +125,14 @@ public abstract class MultipartResolutionDelegate {
 				return null;
 			}
 		}
-		else if (servletPartClass != null) {
-			if (servletPartClass == parameter.getNestedParameterType()) {
+		else if (servletPartClass != null) {											// 从 HttpServletRequest.getParts() 来获取数据
+			if (servletPartClass == parameter.getNestedParameterType()) {				// 是否是 javax.servlet.http.Part
 				return (isMultipart ? RequestPartResolver.resolvePart(request, name) : null);
 			}
-			else if (isPartCollection(parameter)) {
+			else if (isPartCollection(parameter)) {										// 是否是 集合类型的 javax.servlet.http.Part
 				return (isMultipart ? RequestPartResolver.resolvePartList(request, name) : null);
 			}
-			else if (isPartArray(parameter)) {
+			else if (isPartArray(parameter)) {											// 是否是 Array类型的 javax.servlet.http.Part
 				return (isMultipart ? RequestPartResolver.resolvePartArray(request, name) : null);
 			}
 		}
@@ -151,7 +154,7 @@ public abstract class MultipartResolutionDelegate {
 	private static boolean isPartArray(MethodParameter methodParam) {
 		return (servletPartClass == methodParam.getNestedParameterType().getComponentType());
 	}
-
+	// 获取 集合里面的属性 <-- 非常厉害的方法
 	private static Class<?> getCollectionParameterType(MethodParameter methodParam) {
 		Class<?> paramType = methodParam.getNestedParameterType();
 		if (Collection.class == paramType || List.class.isAssignableFrom(paramType)){

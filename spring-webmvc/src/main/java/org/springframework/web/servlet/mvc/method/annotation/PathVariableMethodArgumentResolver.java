@@ -60,6 +60,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  * @author Juergen Hoeller
  * @since 3.1
  */
+// 解决被注解 @PathVariable 注释的参数 <- 这个注解对应的是 uri 中的数据, 在解析 URI 中已经进行解析好了 <- 在 RequestMappingInfoHandlerMapping.handleMatch -> getPathMatcher().extractUriTemplateVariables
 public class PathVariableMethodArgumentResolver extends AbstractNamedValueMethodArgumentResolver
 		implements UriComponentsContributor {
 

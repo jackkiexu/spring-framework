@@ -115,23 +115,23 @@ import org.springframework.web.util.WebUtils;
  */
 public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 		implements BeanFactoryAware, InitializingBean {
-
+	// 参数解析器 HandlerMethodArgumentResolver, 比如 RequestResponseBodyMethodProcessor
 	private List<HandlerMethodArgumentResolver> customArgumentResolvers;
-
+	// 组合模式的参数解析器
 	private HandlerMethodArgumentResolverComposite argumentResolvers;
-
+	// initBinderArgumentResolvers 的 参数解析器
 	private HandlerMethodArgumentResolverComposite initBinderArgumentResolvers;
-
+	// 返回值处理器 比如 RequestResponseBodyMethodProcessor
 	private List<HandlerMethodReturnValueHandler> customReturnValueHandlers;
-
+	// 组合模式的 返回值解析器
 	private HandlerMethodReturnValueHandlerComposite returnValueHandlers;
-
+	// ModelAndView 解析器
 	private List<ModelAndViewResolver> modelAndViewResolvers;
-
+	// 内容解析器 <-- 一般通过 HttpServletRequest 获取 MediaType
 	private ContentNegotiationManager contentNegotiationManager = new ContentNegotiationManager();
-
+	// HttpMessageConverter 转换器 --> 比如 form 表单的 FormHttpMessageConverter, Json 对应的 MappingJackson2HttpMessageConverter
 	private List<HttpMessageConverter<?>> messageConverters;
-
+	// request|response 对应的 Advice <-- 其实就像 AOP 中的 Advice的概念
 	private List<Object> requestResponseBodyAdvice = new ArrayList<Object>();
 
 	private WebBindingInitializer webBindingInitializer;
@@ -174,7 +174,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 	public RequestMappingHandlerAdapter() {
 		StringHttpMessageConverter stringHttpMessageConverter = new StringHttpMessageConverter();
 		stringHttpMessageConverter.setWriteAcceptCharset(false);  // see SPR-7316
-
+		// 初始化 HttpMessageConverter
 		this.messageConverters = new ArrayList<HttpMessageConverter<?>>(4);
 		this.messageConverters.add(new ByteArrayHttpMessageConverter());
 		this.messageConverters.add(stringHttpMessageConverter);
@@ -513,20 +513,20 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 		initControllerAdviceCache();
 
 		if (this.argumentResolvers == null) {
-			List<HandlerMethodArgumentResolver> resolvers = getDefaultArgumentResolvers();
-			this.argumentResolvers = new HandlerMethodArgumentResolverComposite().addResolvers(resolvers);					// Spring 里面 composite 模式 的提现
+			List<HandlerMethodArgumentResolver> resolvers = getDefaultArgumentResolvers();					// 初始化 HandlerMethodArgumentResolver <-- 参数解析器
+			this.argumentResolvers = new HandlerMethodArgumentResolverComposite().addResolvers(resolvers);	// Spring 里面 composite 模式 的提现
 		}
-		if (this.initBinderArgumentResolvers == null) {
+		if (this.initBinderArgumentResolvers == null) {														// 初始化initBinderArgumentResolvers <-- 这个平时用得比较少
 			List<HandlerMethodArgumentResolver> resolvers = getDefaultInitBinderArgumentResolvers();
 			this.initBinderArgumentResolvers = new HandlerMethodArgumentResolverComposite().addResolvers(resolvers);
 		}
 		if (this.returnValueHandlers == null) {
-			List<HandlerMethodReturnValueHandler> handlers = getDefaultReturnValueHandlers();
+			List<HandlerMethodReturnValueHandler> handlers = getDefaultReturnValueHandlers();				// 初始化 HandlerMethodReturnValueHandler 比如 -> RequestResponseBodyMethodProcessor
 			this.returnValueHandlers = new HandlerMethodReturnValueHandlerComposite().addHandlers(handlers);
 		}
 	}
 
-	private void initControllerAdviceCache() {
+	private void initControllerAdviceCache() {  // 获取 ControllerAdvice
 		if (getApplicationContext() == null) {
 			return;
 		}
@@ -577,7 +577,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 	 * Return the list of argument resolvers to use including built-in resolvers
 	 * and custom resolvers provided via {@link #setCustomArgumentResolvers}.
 	 */
-	private List<HandlerMethodArgumentResolver> getDefaultArgumentResolvers() {
+	private List<HandlerMethodArgumentResolver> getDefaultArgumentResolvers() { // 获取默认的 HandlerMethodArgumentResolver
 		List<HandlerMethodArgumentResolver> resolvers = new ArrayList<HandlerMethodArgumentResolver>();
 
 		// Annotation-based argument resolution

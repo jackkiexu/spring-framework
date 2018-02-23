@@ -283,9 +283,9 @@ public class RequestMappingInfoHandlerMappingTests {
 		RequestMappingInfo key = RequestMappingInfo.paths("/{group}/{identifier}").build();
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/group/a%2Fb");
 
-		UrlPathHelper pathHelper = new UrlPathHelper();
+		UrlPathHelper pathHelper = new UrlPathHelper();						// uri 解析器, 主要是解析 uri 中的 {xx} 信息
 		pathHelper.setUrlDecode(false);
-		String lookupPath = pathHelper.getLookupPathForRequest(request);
+		String lookupPath = pathHelper.getLookupPathForRequest(request);	// 获取真实的请求 uri
 
 		this.handlerMapping.setUrlPathHelper(pathHelper);
 		this.handlerMapping.handleMatch(key, lookupPath, request);

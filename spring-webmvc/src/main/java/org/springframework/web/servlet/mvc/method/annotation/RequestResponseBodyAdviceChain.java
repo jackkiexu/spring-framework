@@ -62,10 +62,10 @@ class RequestResponseBodyAdviceChain implements RequestBodyAdvice, ResponseBodyA
 		for (Object advice : requestResponseBodyAdvice) {
 			Class<?> beanType = (advice instanceof ControllerAdviceBean ?
 					((ControllerAdviceBean) advice).getBeanType() : advice.getClass());
-			if (RequestBodyAdvice.class.isAssignableFrom(beanType)) {
+			if (RequestBodyAdvice.class.isAssignableFrom(beanType)) {	// 将 Advice 加入 requestBodyAdvice 中
 				this.requestBodyAdvice.add(advice);
 			}
-			else if (ResponseBodyAdvice.class.isAssignableFrom(beanType)) {
+			else if (ResponseBodyAdvice.class.isAssignableFrom(beanType)) { // 将 Advice 加入 responseBodyAdvice 中
 				this.responseBodyAdvice.add(advice);
 			}
 		}
@@ -144,14 +144,14 @@ class RequestResponseBodyAdviceChain implements RequestBodyAdvice, ResponseBodyA
 			ServerHttpRequest request, ServerHttpResponse response) {
 
 		for (ResponseBodyAdvice<?> advice : getMatchingAdvice(returnType, ResponseBodyAdvice.class)) {
-			if (advice.supports(returnType, converterType)) {
+			if (advice.supports(returnType, converterType)) {  // 通过 ResponseBodyAdvice 来修改 body 中的数据
 				body = ((ResponseBodyAdvice<T>) advice).beforeBodyWrite((T) body, returnType,
 						contentType, converterType, request, response);
 			}
 		}
 		return body;
 	}
-
+	// 获取 Advice
 	@SuppressWarnings("unchecked")
 	private <A> List<A> getMatchingAdvice(MethodParameter parameter, Class<? extends A> adviceType) {
 		List<Object> availableAdvice = getAdvice(adviceType);

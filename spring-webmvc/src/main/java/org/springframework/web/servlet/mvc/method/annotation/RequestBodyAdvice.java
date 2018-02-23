@@ -36,6 +36,7 @@ import org.springframework.http.converter.HttpMessageConverter;
  * @author Rossen Stoyanchev
  * @since 4.2
  */
+// 这个其实是针对 Request 的一个 Advice  <-- 类似于 Aop 中的 Advice 概念
 public interface RequestBodyAdvice {
 
 	/**

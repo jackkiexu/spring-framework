@@ -35,6 +35,7 @@ import org.springframework.http.server.ServerHttpResponse;
  * @author Rossen Stoyanchev
  * @since 4.1
  */
+// 这个其实就是针对返回 Response 的一个切面类, 只不过这个类包裹在 RequestResponseBodyAdviceChain
 public interface ResponseBodyAdvice<T> {
 
 	/**

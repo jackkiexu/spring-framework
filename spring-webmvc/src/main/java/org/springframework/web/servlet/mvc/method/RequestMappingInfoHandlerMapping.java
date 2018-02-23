@@ -129,7 +129,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 		}
 		else {
 			bestPattern = patterns.iterator().next();
-			uriVariables = getPathMatcher().extractUriTemplateVariables(bestPattern, lookupPath);
+			uriVariables = getPathMatcher().extractUriTemplateVariables(bestPattern, lookupPath);	// 将 lookupPath 里面的数据匹配到 bestPattern 中
 			decodedUriVariables = getUrlPathHelper().decodePathVariables(request, uriVariables);
 		}
 

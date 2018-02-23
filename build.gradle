@@ -818,6 +818,7 @@ project("spring-webmvc") {
 		optional(project(":spring-oxm"))  // for MarshallingView
 		optional("javax.servlet.jsp:javax.servlet.jsp-api:2.2.1")
 		optional("javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api:1.2.1")
+		optional("com.google.code.gson:gson:${gsonVersion}")
 		optional("net.sourceforge.jexcelapi:jxl:2.6.12")
 		optional("org.apache.poi:poi:${poiVersion}")
 		optional("org.apache.poi:poi-ooxml:${poiVersion}")

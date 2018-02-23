@@ -49,7 +49,7 @@ public class DefaultDataBinderFactory implements WebDataBinderFactory {
 	@Override
 	public final WebDataBinder createBinder(NativeWebRequest webRequest, Object target, String objectName)
 			throws Exception {
-
+		// 够着 WebDataBinder
 		WebDataBinder dataBinder = createBinderInstance(target, objectName, webRequest);
 		if (this.initializer != null) {
 			this.initializer.initBinder(dataBinder, webRequest);

@@ -56,6 +56,7 @@ public interface HandlerMethodArgumentResolver {
 	 * @return the resolved argument value, or {@code null}
 	 * @throws Exception in case of errors with the preparation of argument values
 	 */
+	// 解决对应位置上的参数
 	Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
 			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception;
 

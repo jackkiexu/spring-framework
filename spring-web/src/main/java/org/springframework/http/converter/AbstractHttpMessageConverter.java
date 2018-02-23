@@ -128,7 +128,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
 	 * {@linkplain MediaType#includes(MediaType) include} the given media type.
 	 */
 	@Override
-	public boolean canRead(Class<?> clazz, MediaType mediaType) {
+	public boolean canRead(Class<?> clazz, MediaType mediaType) { // 内容转化器是否支持 给定的class && 是否对给定的 MediaType 是否有读取能力
 		return supports(clazz) && canRead(mediaType);
 	}
 
@@ -142,10 +142,10 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
 	 * or if the media type is {@code null}
 	 */
 	protected boolean canRead(MediaType mediaType) {
-		if (mediaType == null) {
+		if (mediaType == null) {								// 若传入的 mediaType 是 null, 则支持
 			return true;
 		}
-		for (MediaType supportedMediaType : getSupportedMediaTypes()) {			// ������Ҫ�ǿ� MediaType �Ƿ�֧��
+		for (MediaType supportedMediaType : getSupportedMediaTypes()) { // 判断 内容转换器是否支持 传入的 MediaType
 			if (supportedMediaType.includes(mediaType)) {
 				return true;
 			}
@@ -173,10 +173,10 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
 	 * or if the media type is {@code null}
 	 */
 	protected boolean canWrite(MediaType mediaType) {
-		if (mediaType == null || MediaType.ALL.equals(mediaType)) {
+		if (mediaType == null || MediaType.ALL.equals(mediaType)) { // 若传入的 mediaType 是 null 或 */*, 则支持
 			return true;
 		}
-		for (MediaType supportedMediaType : getSupportedMediaTypes()) {
+		for (MediaType supportedMediaType : getSupportedMediaTypes()) { // 判断 内容转换器是否支持 传入的 MediaType
 			if (supportedMediaType.isCompatibleWith(mediaType)) {
 				return true;
 			}
@@ -190,7 +190,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
 	 */
 	@Override
 	public final T read(Class<? extends T> clazz, HttpInputMessage inputMessage) throws IOException {
-		return readInternal(clazz, inputMessage);
+		return readInternal(clazz, inputMessage);   // 传入 clazz, inputMessage 来读取数据并返回
 	}
 
 	/**
@@ -202,7 +202,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
 			throws IOException, HttpMessageNotWritableException {
 
 		final HttpHeaders headers = outputMessage.getHeaders();
-		addDefaultHeaders(headers, t, contentType);
+		addDefaultHeaders(headers, t, contentType);					// 在 http header 中设置 字符编码, 数据的长度等
 
 		if (outputMessage instanceof StreamingHttpOutputMessage) {
 			StreamingHttpOutputMessage streamingOutputMessage =
@@ -246,18 +246,18 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
 				MediaType mediaType = getDefaultContentType(t);
 				contentTypeToUse = (mediaType != null ? mediaType : contentTypeToUse);
 			}
-			if (contentTypeToUse != null) {
+			if (contentTypeToUse != null) {							// 给 MediaType 设置 defaultCharset
 				if (contentTypeToUse.getCharset() == null) {
 					Charset defaultCharset = getDefaultCharset();
 					if (defaultCharset != null) {
 						contentTypeToUse = new MediaType(contentTypeToUse, defaultCharset);
 					}
 				}
-				headers.setContentType(contentTypeToUse);
+				headers.setContentType(contentTypeToUse);			// 在 Http Header 中设置 contentType
 			}
 		}
 		if (headers.getContentLength() < 0 && !headers.containsKey(HttpHeaders.TRANSFER_ENCODING)) {
-			Long contentLength = getContentLength(t, headers.getContentType());
+			Long contentLength = getContentLength(t, headers.getContentType());	// 在 Http Header 中设置 contentLength
 			if (contentLength != null) {
 				headers.setContentLength(contentLength);
 			}

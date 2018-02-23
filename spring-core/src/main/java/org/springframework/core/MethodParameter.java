@@ -318,8 +318,9 @@ public class MethodParameter {
 	 * in the form of Java 8's {@link java.util.Optional}.
 	 * @since 4.3
 	 */
-	public boolean isOptional() {
-		return (getParameterType() == javaUtilOptionalClass);
+	public boolean isOptional() {	// 检查参数的类型是否是 Optional
+		boolean isOptional =  (getParameterType() == javaUtilOptionalClass);
+		return isOptional;
 	}
 
 	/**
@@ -330,7 +331,7 @@ public class MethodParameter {
 	 * @see #isOptional()
 	 * @see #nested()
 	 */
-	public MethodParameter nestedIfOptional() {
+	public MethodParameter nestedIfOptional() { // 若参数是 Optional, 则参数更深一层
 		return (isOptional() ? nested() : this);
 	}
 
@@ -359,11 +360,11 @@ public class MethodParameter {
 	 */
 	public Class<?> getParameterType() {
 		if (this.parameterType == null) {
-			if (this.parameterIndex < 0) {
+			if (this.parameterIndex < 0) {	// < 0  表示返回值
 				this.parameterType = (this.method != null ? this.method.getReturnType() : null);
 			}
-			else {
-				this.parameterType = (this.method != null ?
+			else {							// >= 0 表示参数
+				this.parameterType = (this.method != null ?		// 获取参数对应的类型
 					this.method.getParameterTypes()[this.parameterIndex] :
 					this.constructor.getParameterTypes()[this.parameterIndex]);
 			}
@@ -377,14 +378,14 @@ public class MethodParameter {
 	 * @since 3.0
 	 */
 	public Type getGenericParameterType() {
-		if (this.genericParameterType == null) {
-			if (this.parameterIndex < 0) {
+		if (this.genericParameterType == null) { // 若 genericParameterType==null, 则开始计算
+			if (this.parameterIndex < 0) {   // 返回返回值的类型
 				this.genericParameterType = (this.method != null ? this.method.getGenericReturnType() : null);
 			}
 			else {
-				this.genericParameterType = (this.method != null ?
+				this.genericParameterType = (this.method != null ?   // 返回 方法的参数类型
 					this.method.getGenericParameterTypes()[this.parameterIndex] :
-					this.constructor.getGenericParameterTypes()[this.parameterIndex]);
+					this.constructor.getGenericParameterTypes()[this.parameterIndex]); // 返回构造方法的类型
 			}
 		}
 		return this.genericParameterType;

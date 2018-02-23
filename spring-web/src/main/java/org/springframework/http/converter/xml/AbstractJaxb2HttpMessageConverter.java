@@ -34,6 +34,7 @@ import org.springframework.util.Assert;
  * @author Rossen Stoyanchev
  * @since 3.0
  */
+// 通过 JAXB2 实现 XML 编解码的 HttpMessageConverter
 public abstract class AbstractJaxb2HttpMessageConverter<T> extends AbstractXmlHttpMessageConverter<T> {
 
 	private final ConcurrentMap<Class<?>, JAXBContext> jaxbContexts = new ConcurrentHashMap<Class<?>, JAXBContext>(64);

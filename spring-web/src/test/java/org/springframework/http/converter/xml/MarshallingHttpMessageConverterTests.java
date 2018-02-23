@@ -40,7 +40,7 @@ import static org.mockito.BDDMockito.*;
  *
  * @author Arjen Poutsma
  */
-public class MarshallingHttpMessageConverterTests {
+public class MarshallingHttpMessageConverterTests { // 支持 Xml 格式的 HttpMessageConverter
 
 	@Test
 	public void canRead() throws Exception {
@@ -73,7 +73,7 @@ public class MarshallingHttpMessageConverterTests {
 	}
 
 	@Test
-	public void read() throws Exception {
+	public void read() throws Exception { // 从输入流中读取数据
 		String body = "<root>Hello World</root>";
 		MockHttpInputMessage inputMessage = new MockHttpInputMessage(body.getBytes("UTF-8"));
 

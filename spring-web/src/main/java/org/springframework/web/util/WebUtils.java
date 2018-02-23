@@ -423,7 +423,7 @@ public abstract class WebUtils {
 			if (requiredType.isInstance(request)) {
 				return (T) request;
 			}
-			else if (request instanceof ServletRequestWrapper) {
+			else if (request instanceof ServletRequestWrapper) {	// 若是包装 ServletRequestWrapper, 则递归过滤
 				return getNativeRequest(((ServletRequestWrapper) request).getRequest(), requiredType);
 			}
 		}

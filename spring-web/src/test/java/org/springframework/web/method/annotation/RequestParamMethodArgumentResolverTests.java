@@ -100,25 +100,25 @@ public class RequestParamMethodArgumentResolverTests {
 		paramNamedDefaultValueString = new SynthesizingMethodParameter(method, 0);					// @RequestParam(name = "name", defaultValue = "bar") String param1,
 		paramNamedStringArray = new SynthesizingMethodParameter(method, 1);							// @RequestParam("name") String[] param2,
 		paramNamedMap = new SynthesizingMethodParameter(method, 2);									// @RequestParam("name") Map<?, ?> param3,
-		paramMultipartFile = new SynthesizingMethodParameter(method, 3);								// @RequestParam("mfile") MultipartFile param4,
+		paramMultipartFile = new SynthesizingMethodParameter(method, 3);							// @RequestParam("mfile") MultipartFile param4,
 		paramMultipartFileList = new SynthesizingMethodParameter(method, 4);						// @RequestParam("mfilelist") List<MultipartFile> param5,
 		paramMultipartFileArray = new SynthesizingMethodParameter(method, 5);						// @RequestParam("mfilearray") MultipartFile[] param6,
 		paramPart = new SynthesizingMethodParameter(method, 6);										// @RequestParam("pfile") Part param7,
-		paramPartList  = new SynthesizingMethodParameter(method, 7);									// @RequestParam("pfilelist") List<Part> param8,
-		paramPartArray  = new SynthesizingMethodParameter(method, 8);									// @RequestParam("pfilearray") Part[] param9,
-		paramMap = new SynthesizingMethodParameter(method, 9);											// @RequestParam Map<?, ?> param10,
+		paramPartList  = new SynthesizingMethodParameter(method, 7);								// @RequestParam("pfilelist") List<Part> param8,
+		paramPartArray  = new SynthesizingMethodParameter(method, 8);								// @RequestParam("pfilearray") Part[] param9,
+		paramMap = new SynthesizingMethodParameter(method, 9);										// @RequestParam Map<?, ?> param10,
 		paramStringNotAnnot = new SynthesizingMethodParameter(method, 10);							// String stringNotAnnot,
-		paramStringNotAnnot.initParameterNameDiscovery(paramNameDiscoverer);							// MultipartFile multipartFileNotAnnot,
-		paramMultipartFileNotAnnot = new SynthesizingMethodParameter(method, 11);					// List<MultipartFile> multipartFileList,
-		paramMultipartFileNotAnnot.initParameterNameDiscovery(paramNameDiscoverer);					// Part part,
-		paramMultipartFileListNotAnnot = new SynthesizingMethodParameter(method, 12);				// @RequestPart MultipartFile requestPartAnnot,
-		paramMultipartFileListNotAnnot.initParameterNameDiscovery(paramNameDiscoverer);			// @RequestParam("name") String paramRequired,
-		paramPartNotAnnot = new SynthesizingMethodParameter(method, 13);
+		paramStringNotAnnot.initParameterNameDiscovery(paramNameDiscoverer);
+		paramMultipartFileNotAnnot = new SynthesizingMethodParameter(method, 11);					// MultipartFile multipartFileNotAnnot,
+		paramMultipartFileNotAnnot.initParameterNameDiscovery(paramNameDiscoverer);
+		paramMultipartFileListNotAnnot = new SynthesizingMethodParameter(method, 12);				// List<MultipartFile> multipartFileList,   // @RequestPart MultipartFile requestPartAnnot,
+		paramMultipartFileListNotAnnot.initParameterNameDiscovery(paramNameDiscoverer);			    // @RequestParam("name") String paramRequired,
+		paramPartNotAnnot = new SynthesizingMethodParameter(method, 13);							// Part part,
 		paramPartNotAnnot.initParameterNameDiscovery(paramNameDiscoverer);
 		paramRequestPartAnnot = new SynthesizingMethodParameter(method, 14);						// @RequestPart MultipartFile requestPartAnnot,
-		paramRequired = new SynthesizingMethodParameter(method, 15);									// @RequestParam("name") String paramRequired,
+		paramRequired = new SynthesizingMethodParameter(method, 15);								// @RequestParam("name") String paramRequired,
 		paramNotRequired = new SynthesizingMethodParameter(method, 16);								// @RequestParam(name = "name", required = false) String paramNotRequired,
-		paramOptional = new SynthesizingMethodParameter(method, 17);									// @RequestParam("name") Optional<Integer> paramOptional,
+		paramOptional = new SynthesizingMethodParameter(method, 17);								// @RequestParam("name") Optional<Integer> paramOptional,
 		multipartFileOptional = new SynthesizingMethodParameter(method, 18);						// @RequestParam("mfile") Optional<MultipartFile> multipartFileOptional
 
 		request = new MockHttpServletRequest();

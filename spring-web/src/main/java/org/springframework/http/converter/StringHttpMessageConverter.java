@@ -61,7 +61,7 @@ public class StringHttpMessageConverter extends AbstractHttpMessageConverter<Str
 	 * type does not specify one.
 	 */
 	public StringHttpMessageConverter(Charset defaultCharset) {
-		super(defaultCharset, MediaType.TEXT_PLAIN, MediaType.ALL);		// ���� ������Ĭ�ϵĴ�����������
+		super(defaultCharset, MediaType.TEXT_PLAIN, MediaType.ALL);		// 设置 处理器默认的处理数据类型
 	}
 
 
@@ -81,8 +81,8 @@ public class StringHttpMessageConverter extends AbstractHttpMessageConverter<Str
 
 	@Override
 	protected String readInternal(Class<? extends String> clazz, HttpInputMessage inputMessage) throws IOException {
-		Charset charset = getContentTypeCharset(inputMessage.getHeaders().getContentType());
-		return StreamUtils.copyToString(inputMessage.getBody(), charset);
+		Charset charset = getContentTypeCharset(inputMessage.getHeaders().getContentType());  // 读取数据的编码格式
+		return StreamUtils.copyToString(inputMessage.getBody(), charset);					  // 将数据流中的数据转化成指定格式
 	}
 
 	@Override
@@ -100,10 +100,10 @@ public class StringHttpMessageConverter extends AbstractHttpMessageConverter<Str
 	@Override
 	protected void writeInternal(String str, HttpOutputMessage outputMessage) throws IOException {
 		if (this.writeAcceptCharset) {
-			outputMessage.getHeaders().setAcceptCharset(getAcceptedCharsets());
+			outputMessage.getHeaders().setAcceptCharset(getAcceptedCharsets());  // 设置可接受的字符编码集
 		}
 		Charset charset = getContentTypeCharset(outputMessage.getHeaders().getContentType());
-		StreamUtils.copy(str, charset, outputMessage.getBody());
+		StreamUtils.copy(str, charset, outputMessage.getBody());				// 将 str 中的内容 copy 到 数据流中
 	}
 
 

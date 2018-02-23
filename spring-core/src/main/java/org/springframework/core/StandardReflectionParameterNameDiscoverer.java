@@ -31,8 +31,9 @@ import org.springframework.lang.UsesJava8;
  * @see java.lang.reflect.Method#getParameters()
  * @see java.lang.reflect.Parameter#getName()
  */
+// 通过反射的方式获取 方法的所有的参数的名称 (PS: 基于 java8)
 @UsesJava8
-public class StandardReflectionParameterNameDiscoverer implements ParameterNameDiscoverer { // 通过反射的方式获取 方法的所有的参数的名称 (PS: 基于 java8)
+public class StandardReflectionParameterNameDiscoverer implements ParameterNameDiscoverer {
 
 	@Override
 	public String[] getParameterNames(Method method) {

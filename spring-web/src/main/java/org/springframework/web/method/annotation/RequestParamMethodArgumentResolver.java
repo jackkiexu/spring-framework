@@ -71,6 +71,7 @@ import org.springframework.web.util.WebUtils;
  * @since 3.1
  * @see RequestParamMapMethodArgumentResolver
  */
+// PS: UriComponentsContributor 中实现的方法在实际运用中很少碰到
 public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethodArgumentResolver
 		implements UriComponentsContributor {
 
@@ -97,7 +98,7 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethod
 	 * that is a simple type, as defined in {@link BeanUtils#isSimpleProperty},
 	 * is treated as a request parameter even if it isn't annotated, the
 	 * request parameter name is derived from the method parameter name.
-	 */
+	 */ // beanFactory 主要是解决占位符
 	public RequestParamMethodArgumentResolver(ConfigurableBeanFactory beanFactory, boolean useDefaultResolution) {
 		super(beanFactory);
 		this.useDefaultResolution = useDefaultResolution;
@@ -120,25 +121,25 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethod
 	 * </ul>
 	 */
 	@Override
-	public boolean supportsParameter(MethodParameter parameter) {				// 支持简单类型的注解 @RequestParam
+	public boolean supportsParameter(MethodParameter parameter) {		// 支持简单类型的注解 @RequestParam
 		if (parameter.hasParameterAnnotation(RequestParam.class)) {		// 检测参数上面是否含有 RequestParam 注解
-			if (Map.class.isAssignableFrom(parameter.nestedIfOptional().getNestedParameterType())) {
+			if (Map.class.isAssignableFrom(parameter.nestedIfOptional().getNestedParameterType())) { // 这里的 nestedIfOptional 主要是当参数是用 Optional 时获取真实的参数
 				String paramName = parameter.getParameterAnnotation(RequestParam.class).name();
-				return StringUtils.hasText(paramName);
+				return StringUtils.hasText(paramName);					// 若是 Map 类型, 且 @RequestParam 中也有 name, 则返回 true
 			}
 			else {
 				return true;
 			}
 		}
 		else {
-			if (parameter.hasParameterAnnotation(RequestPart.class)) {
+			if (parameter.hasParameterAnnotation(RequestPart.class)) {	      // 检测参数是否含有 @RequestPart 注解
 				return false;
 			}
-			parameter = parameter.nestedIfOptional();
-			if (MultipartResolutionDelegate.isMultipartArgument(parameter)) {
+			parameter = parameter.nestedIfOptional();					      // 若参数是用 Optional, 则是用下一层参数
+			if (MultipartResolutionDelegate.isMultipartArgument(parameter)) { // 若参数是 MultipartFile 类型, 则返回 true
 				return true;
 			}
-			else if (this.useDefaultResolution) {
+			else if (this.useDefaultResolution) {						      // 若 参数的类型是简单数据类型, 则也返回 true, useDefaultResolution 默认值 true
 				return BeanUtils.isSimpleProperty(parameter.getNestedParameterType());
 			}
 			else {
@@ -155,24 +156,28 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethod
 
 	@Override
 	protected Object resolveName(String name, MethodParameter parameter, NativeWebRequest request) throws Exception {
-		HttpServletRequest servletRequest = request.getNativeRequest(HttpServletRequest.class);
-		MultipartHttpServletRequest multipartRequest =
+		/** 整个解析分成两个方向
+		 *  1. 从 MultipartHttpServletRequest 中获取数据
+		 *  2. 从 HttpServletRequest 中获取数据
+		 */
+		HttpServletRequest servletRequest = request.getNativeRequest(HttpServletRequest.class);		// 从 NativeWebRequest 中获取 HttpServletRequest
+		MultipartHttpServletRequest multipartRequest =												// 从 NativeWebRequest 中获取 MultipartHttpServletRequest
 				WebUtils.getNativeRequest(servletRequest, MultipartHttpServletRequest.class);
-
+		// 从 Multipart 角度获取对应数据
 		Object mpArg = MultipartResolutionDelegate.resolveMultipartArgument(name, parameter, servletRequest);
-		if (mpArg != MultipartResolutionDelegate.UNRESOLVABLE) {
+		if (mpArg != MultipartResolutionDelegate.UNRESOLVABLE) {	// 若获取到数据, 则返回
 			return mpArg;
 		}
 
 		Object arg = null;
-		if (multipartRequest != null) {
+		if (multipartRequest != null) {		// 尝试从 multipartRequest 中获取 MultipartFile
 			List<MultipartFile> files = multipartRequest.getFiles(name);
 			if (!files.isEmpty()) {
 				arg = (files.size() == 1 ? files.get(0) : files);
 			}
 		}
 		if (arg == null) {
-			String[] paramValues = request.getParameterValues(name);				// 通过 Servlet 的 Request 里面获取对应的 value
+			String[] paramValues = request.getParameterValues(name); // 通过 HttpServletRequest 获取对应的 value
 			if (paramValues != null) {
 				arg = (paramValues.length == 1 ? paramValues[0] : paramValues);
 			}
@@ -185,7 +190,7 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethod
 			throws Exception {
 
 		HttpServletRequest servletRequest = request.getNativeRequest(HttpServletRequest.class);
-		if (MultipartResolutionDelegate.isMultipartArgument(parameter)) {
+		if (MultipartResolutionDelegate.isMultipartArgument(parameter)) {				// 参数是 Multipart, 但 Request 不是 MultipartRequest, 则直接报错
 			if (!MultipartResolutionDelegate.isMultipartRequest(servletRequest)) {
 				throw new MultipartException("Current request is not a multipart request");
 			}

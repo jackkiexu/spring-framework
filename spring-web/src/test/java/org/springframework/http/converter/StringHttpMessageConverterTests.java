@@ -53,12 +53,12 @@ public class StringHttpMessageConverterTests {
 
 
 	@Test
-	public void canRead() {
+	public void canRead() { // 测试是否具有读取权限
 		assertTrue(this.converter.canRead(String.class, MediaType.TEXT_PLAIN));				// 测试是否支持 给定的 TEXT_PLAIN
 	}
 
 	@Test
-	public void canWrite() {
+	public void canWrite() { // 测试是否具有写权限
 		assertTrue(this.converter.canWrite(String.class, MediaType.TEXT_PLAIN));
 		assertTrue(this.converter.canWrite(String.class, MediaType.ALL));
 	}

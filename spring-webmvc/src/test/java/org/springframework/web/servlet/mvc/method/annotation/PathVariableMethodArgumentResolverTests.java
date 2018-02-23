@@ -71,7 +71,7 @@ public class PathVariableMethodArgumentResolverTests {
 	public void setUp() throws Exception {
 		resolver = new PathVariableMethodArgumentResolver();
 
-		Method method = ReflectionUtils.findMethod(getClass(), "handle", (Class<?>[]) null);
+		Method method = ReflectionUtils.findMethod(getClass(), "handle", (Class<?>[]) null); // 获取要解决的方法
 		paramNamedString = new SynthesizingMethodParameter(method, 0);
 		paramString = new SynthesizingMethodParameter(method, 1);
 		paramNotRequired = new SynthesizingMethodParameter(method, 2);
@@ -93,7 +93,7 @@ public class PathVariableMethodArgumentResolverTests {
 	public void resolveArgument() throws Exception {
 		Map<String, String> uriTemplateVars = new HashMap<String, String>();
 		uriTemplateVars.put("name", "value");
-		request.setAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, uriTemplateVars);
+		request.setAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, uriTemplateVars);			// 真实场景中 uriTemplateVars 是在 AbstractHandlerMapping 中进行解析的
 
 		String result = (String) resolver.resolveArgument(paramNamedString, mavContainer, webRequest, null);
 		assertEquals("PathVariable not resolved correctly", "value", result);

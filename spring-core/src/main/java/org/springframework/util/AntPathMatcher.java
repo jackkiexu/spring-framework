@@ -192,12 +192,12 @@ public class AntPathMatcher implements PathMatcher {
 			return false;
 		}
 
-		String[] pattDirs = tokenizePattern(pattern);
+		String[] pattDirs = tokenizePattern(pattern);	// 通过 "/" 来进行划分字符串
 		if (fullMatch && this.caseSensitive && !isPotentialMatch(path, pattDirs)) {
 			return false;
 		}
 
-		String[] pathDirs = tokenizePath(path);
+		String[] pathDirs = tokenizePath(path);			// 通过 "/" 来进行划分字符串
 
 		int pattIdxStart = 0;
 		int pattIdxEnd = pattDirs.length - 1;
@@ -210,7 +210,7 @@ public class AntPathMatcher implements PathMatcher {
 			if ("**".equals(pattDir)) {
 				break;
 			}
-			if (!matchStrings(pattDir, pathDirs[pathIdxStart], uriTemplateVariables)) {			// 进行正则匹配
+			if (!matchStrings(pattDir, pathDirs[pathIdxStart], uriTemplateVariables)) {			// 进行正则匹配, 并将匹配的结果放到 uriTemplateVariables 里面
 				return false;
 			}
 			pattIdxStart++;
@@ -373,7 +373,7 @@ public class AntPathMatcher implements PathMatcher {
 	 * @param pattern the pattern to tokenize
 	 * @return the tokenized pattern parts
 	 */
-	protected String[] tokenizePattern(String pattern) {
+	protected String[] tokenizePattern(String pattern) {	// 通过 "/" 来进行划分数据
 		String[] tokenized = null;
 		Boolean cachePatterns = this.cachePatterns;
 		if (cachePatterns == null || cachePatterns.booleanValue()) {

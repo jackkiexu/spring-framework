@@ -261,6 +261,7 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 	 * ParameterNameDiscoverer implementation that analyzes the arg names
 	 * specified at the AspectJ annotation level.
 	 */
+	// 通过注解里面的内容来获取参数名称
 	private static class AspectJAnnotationParameterNameDiscoverer implements ParameterNameDiscoverer {
 
 		// 得到方法上的参数名, 主要还是通过 annotation.getArgumentNames() 来获取到

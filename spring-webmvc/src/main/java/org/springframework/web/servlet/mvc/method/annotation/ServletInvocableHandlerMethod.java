@@ -110,7 +110,7 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 
 		mavContainer.setRequestHandled(false);
 		try {
-			this.returnValueHandlers.handleReturnValue(								// 处理返回结果 在这里使用了
+			this.returnValueHandlers.handleReturnValue(										// 处理返回结果 在这里使用了 HandlerMethodReturnValueHandler
 					returnValue, getReturnValueType(returnValue), mavContainer, webRequest);
 		}
 		catch (Exception ex) {

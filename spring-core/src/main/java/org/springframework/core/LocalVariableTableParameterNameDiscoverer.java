@@ -52,7 +52,8 @@ import org.springframework.util.ClassUtils;
  * @author Chris Beams
  * @since 2.0
  */
-public class LocalVariableTableParameterNameDiscoverer implements ParameterNameDiscoverer { // 这里是通过 字节码库 ASM 获取所有方法的 参数名称
+// 通过 字节码库 ASM 读取 class 文件, 并且解析出方法及构造方法的参数名
+public class LocalVariableTableParameterNameDiscoverer implements ParameterNameDiscoverer {
 
 	private static final Log logger = LogFactory.getLog(LocalVariableTableParameterNameDiscoverer.class);
 

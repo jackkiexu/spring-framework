@@ -32,7 +32,7 @@ import org.springframework.util.ClassUtils;
  * @see LocalVariableTableParameterNameDiscoverer
  */
 public class DefaultParameterNameDiscoverer extends PrioritizedParameterNameDiscoverer {
-
+	// 目前发现 Executable 是在 Java 8 里面存在的
 	private static final boolean standardReflectionAvailable = ClassUtils.isPresent(
 			"java.lang.reflect.Executable", DefaultParameterNameDiscoverer.class.getClassLoader());
 

@@ -198,8 +198,9 @@ public class GenericConversionService implements ConfigurableConversionService {
 			throw new IllegalArgumentException("Source to convert from must be an instance of [" +
 					sourceType + "]; instead it was a [" + source.getClass().getName() + "]");
 		}
-		GenericConverter converter = getConverter(sourceType, targetType);
-		if (converter != null) {
+		GenericConverter converter = getConverter(sourceType, targetType);		// 获取  sourceType, targetType 对应的 GenericConverter
+		System.out.println("converter:" + converter);
+		if (converter != null) {												// 激活对应的 GenericConverter
 			Object result = ConversionUtils.invokeConverter(converter, source, sourceType, targetType);
 			return handleResult(sourceType, targetType, result);
 		}
@@ -260,18 +261,18 @@ public class GenericConversionService implements ConfigurableConversionService {
 	 * @see #getDefaultConverter(TypeDescriptor, TypeDescriptor)
 	 */
 	protected GenericConverter getConverter(TypeDescriptor sourceType, TypeDescriptor targetType) {
-		ConverterCacheKey key = new ConverterCacheKey(sourceType, targetType);
-		GenericConverter converter = this.converterCache.get(key);				// 先从缓存中
-		if (converter != null) {
+		ConverterCacheKey key = new ConverterCacheKey(sourceType, targetType);	// 将 sourceType, targetType 封装成 ConverterCacheKey
+		GenericConverter converter = this.converterCache.get(key);				// 先从缓存中进行查找
+		if (converter != null) {												// 获取成功, 则返回
 			return (converter != NO_MATCH ? converter : null);
 		}
 
-		converter = this.converters.find(sourceType, targetType);
+		converter = this.converters.find(sourceType, targetType);				// 通过 sourceType, targetType 到已经注册的集合中进行查找
 		if (converter == null) {
-			converter = getDefaultConverter(sourceType, targetType);
+			converter = getDefaultConverter(sourceType, targetType);			// 获取不到 GenericConverter, 则直接返回默认转换器
 		}
 
-		if (converter != null) {
+		if (converter != null) {												// 将获取到的 GenericConverter 存储到缓存中
 			this.converterCache.put(key, converter);
 			return converter;
 		}
@@ -515,14 +516,14 @@ public class GenericConversionService implements ConfigurableConversionService {
 			else {
 				for (ConvertiblePair convertiblePair : convertibleTypes) {
 					ConvertersForPair convertersForPair = getMatchableConverters(convertiblePair);
-					convertersForPair.add(converter);
+					convertersForPair.add(converter);						// 将 GenericConverter 存入 ConvertersForPair -> 里面是个 LinkedList
 				}
 			}
 		}
-
+		// // 从 converters 这个 LinkedHashMap 中获取 ConvertiblePair (这里面存储的是数据类型), ConvertersForPair 中存储的是 转换器
 		private ConvertersForPair getMatchableConverters(ConvertiblePair convertiblePair) {
-			ConvertersForPair convertersForPair = this.converters.get(convertiblePair);
-			if (convertersForPair == null) {
+			ConvertersForPair convertersForPair = this.converters.get(convertiblePair);	// 先从 converters 中获取以下
+			if (convertersForPair == null) {											// 若获取失败, 则创建一个放入其中
 				convertersForPair = new ConvertersForPair();
 				this.converters.put(convertiblePair, convertersForPair);
 			}
@@ -547,7 +548,7 @@ public class GenericConversionService implements ConfigurableConversionService {
 			List<Class<?>> targetCandidates = getClassHierarchy(targetType.getType());
 			for (Class<?> sourceCandidate : sourceCandidates) {							// sourceCandidates 是 原对象的所有 类型(本来Class类型, 父类的类型, 所有的接口的类型)
 				for (Class<?> targetCandidate : targetCandidates) {						// targetCandidates 是 原对象的所有 类型(本来Class类型, 父类的类型, 所有的接口的类型)
-					ConvertiblePair convertiblePair = new ConvertiblePair(sourceCandidate, targetCandidate);
+					ConvertiblePair convertiblePair = new ConvertiblePair(sourceCandidate, targetCandidate); // 将两个 Class 构成 ConvertiblePair
 					GenericConverter converter = getRegisteredConverter(sourceType, targetType, convertiblePair);
 					if (converter != null) {
 						return converter;
@@ -561,11 +562,11 @@ public class GenericConversionService implements ConfigurableConversionService {
 				TypeDescriptor targetType, ConvertiblePair convertiblePair) {					// 这个函数其实就是 从 converters 里面获取 convertiblePair 对应的转换器(PS: converters 里面的数据是通过代码添加进去的)
 
 			// Check specifically registered converters
-			ConvertersForPair convertersForPair = this.converters.get(convertiblePair);
-			if (convertersForPair != null) {
-				GenericConverter converter = convertersForPair.getConverter(sourceType, targetType);				// 在这里会进行检测 converter 是否满足
+			ConvertersForPair convertersForPair = this.converters.get(convertiblePair);			// 通过 ConvertiblePair 从 converters 中获取
+			if (convertersForPair != null) {													// 获取到对应的 ConvertersForPair, 接着就是检测其中的 GenericConverter 是否 match
+				GenericConverter converter = convertersForPair.getConverter(sourceType, targetType); // 在这里会进行检测 converter 是否满足
 				if (converter != null) {
-					return converter;
+					return converter;															// 获取成功, 返回 converter
 				}
 			}
 			// Check ConditionalConverters for a dynamic match

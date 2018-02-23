@@ -33,7 +33,7 @@ import org.springframework.http.MediaType;
  * @author Sebastien Deleuze
  * @since 3.2
  * @see org.springframework.core.ParameterizedTypeReference
- */
+ */ // 支持 Type 的 HttpMessageConverter
 public interface GenericHttpMessageConverter<T> extends HttpMessageConverter<T> {
 
 	/**

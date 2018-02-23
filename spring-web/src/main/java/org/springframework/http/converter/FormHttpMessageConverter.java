@@ -104,11 +104,11 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 		this.supportedMediaTypes.add(MediaType.APPLICATION_FORM_URLENCODED);
 		this.supportedMediaTypes.add(MediaType.MULTIPART_FORM_DATA);
 
-		this.partConverters.add(new ByteArrayHttpMessageConverter());
+		this.partConverters.add(new ByteArrayHttpMessageConverter());	// 字节数组
 		StringHttpMessageConverter stringHttpMessageConverter = new StringHttpMessageConverter();
 		stringHttpMessageConverter.setWriteAcceptCharset(false);
-		this.partConverters.add(stringHttpMessageConverter);
-		this.partConverters.add(new ResourceHttpMessageConverter());
+		this.partConverters.add(stringHttpMessageConverter);			// String 形式的 HttpMessageConverter
+		this.partConverters.add(new ResourceHttpMessageConverter());	// Resource 形式的 HttpMessageConverter
 
 		applyDefaultCharset();
 	}
@@ -224,24 +224,24 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 	public MultiValueMap<String, String> read(Class<? extends MultiValueMap<String, ?>> clazz,
 			HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
 
-		MediaType contentType = inputMessage.getHeaders().getContentType();									// 获取 Http Header 中的 MediaType
-		Charset charset = (contentType.getCharset() != null ? contentType.getCharset() : this.charset);	// 获取 body 里面的 编码格式
-		String body = StreamUtils.copyToString(inputMessage.getBody(), charset);							// 获取 body 里面的字符串
+		MediaType contentType = inputMessage.getHeaders().getContentType();							    // 获取 Http Header 中的 MediaType
+		Charset charset = (contentType.getCharset() != null ? contentType.getCharset() : this.charset); // 获取 body 里面的 编码格式
+		String body = StreamUtils.copyToString(inputMessage.getBody(), charset);					    // 获取 body 里面的字符串
 
-		String[] pairs = StringUtils.tokenizeToStringArray(body, "&");										// form 表单都是通过 & 符号进行分割
+		String[] pairs = StringUtils.tokenizeToStringArray(body, "&");								    // form 表单都是通过 & 符号进行分割
 		MultiValueMap<String, String> result = new LinkedMultiValueMap<String, String>(pairs.length);
 		for (String pair : pairs) {
 			int idx = pair.indexOf('=');
 			if (idx == -1) {
-				result.add(URLDecoder.decode(pair, charset.name()), null);
+				result.add(URLDecoder.decode(pair, charset.name()), null);							    // 以 = 做为分隔符 获取 name
 			}
 			else {
-				String name = URLDecoder.decode(pair.substring(0, idx), charset.name());
-				String value = URLDecoder.decode(pair.substring(idx + 1), charset.name());
+				String name = URLDecoder.decode(pair.substring(0, idx), charset.name());				// 以 = 做为分隔符 获取 name
+				String value = URLDecoder.decode(pair.substring(idx + 1), charset.name());				// 以 = 做为分隔符 获取 value
 				result.add(name, value);
 			}
 		}
-		return result;																						// 获取最终 form 表单提交的数据
+		return result;																					// 获取最终 form 表单提交的数据
 	}
 
 	@Override
@@ -249,7 +249,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 	public void write(MultiValueMap<String, ?> map, MediaType contentType, HttpOutputMessage outputMessage)
 			throws IOException, HttpMessageNotWritableException {
 
-		if (!isMultipart(map, contentType)) {																// 判断是否是文件上传类型的 http 请求
+		if (!isMultipart(map, contentType)) {			// http header 不是 multipart/form-data <- 文件上传
 			writeForm((MultiValueMap<String, String>) map, contentType, outputMessage);
 		}
 		else {
@@ -277,15 +277,15 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 
 		Charset charset;
 		if (contentType != null) {
-			outputMessage.getHeaders().setContentType(contentType);												// 设置 Http 请求的 contentType
-			charset = (contentType.getCharset() != null ? contentType.getCharset() : this.charset);			// 获取对应的 body 编码格式
+			outputMessage.getHeaders().setContentType(contentType);									// 设置 Http 请求的 contentType
+			charset = (contentType.getCharset() != null ? contentType.getCharset() : this.charset);	// 获取对应的 body 编码格式
 		}
 		else {
 			outputMessage.getHeaders().setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 			charset = this.charset;
 		}
 		StringBuilder builder = new StringBuilder();
-		for (Iterator<String> nameIterator = form.keySet().iterator(); nameIterator.hasNext();) {			    // 拼接对应的 form 里面的数据
+		for (Iterator<String> nameIterator = form.keySet().iterator(); nameIterator.hasNext();) {   // 拼接对应的 form 里面的数据
 			String name = nameIterator.next();
 			for (Iterator<String> valueIterator = form.get(name).iterator(); valueIterator.hasNext();) {
 				String value = valueIterator.next();
@@ -302,8 +302,8 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 				builder.append('&');
 			}
 		}
-		final byte[] bytes = builder.toString().getBytes(charset.name());										// 获取对应内容的 字节数组
-		outputMessage.getHeaders().setContentLength(bytes.length);
+		final byte[] bytes = builder.toString().getBytes(charset.name());	// 获取对应内容的 字节数组
+		outputMessage.getHeaders().setContentLength(bytes.length);			// 设置字节流的长度
 
 		if (outputMessage instanceof StreamingHttpOutputMessage) {
 			StreamingHttpOutputMessage streamingOutputMessage = (StreamingHttpOutputMessage) outputMessage;
@@ -315,7 +315,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 			});
 		}
 		else {
-			StreamUtils.copy(bytes, outputMessage.getBody());													// 将 byte 数组 放入到 HttpOutputMessage 里面
+			StreamUtils.copy(bytes, outputMessage.getBody());				// 将 byte 数组 放入到 HttpOutputMessage 里面
 		}
 	}
 
@@ -348,9 +348,9 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 			String name = entry.getKey();
 			for (Object part : entry.getValue()) {
 				if (part != null) {
-					writeBoundary(os, boundary);
-					writePart(name, getHttpEntity(part), os);
-					writeNewLine(os);
+					writeBoundary(os, boundary);				// Http multipart 上传时的数据分割符号
+					writePart(name, getHttpEntity(part), os);   // 写数据 <- 其间有利用 FormHttpMessageConverter 里面的 Converter 进行写数据的地方
+					writeNewLine(os);							// 换行
 				}
 			}
 		}
@@ -362,7 +362,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 		Class<?> partType = partBody.getClass();
 		HttpHeaders partHeaders = partEntity.getHeaders();
 		MediaType partContentType = partHeaders.getContentType();
-		for (HttpMessageConverter<?> messageConverter : this.partConverters) {
+		for (HttpMessageConverter<?> messageConverter : this.partConverters) {	// 遍历 HttpMessageConverter 来决定用哪一个
 			if (messageConverter.canWrite(partType, partContentType)) {
 				HttpOutputMessage multipartMessage = new MultipartHttpOutputMessage(os);
 				multipartMessage.getHeaders().setContentDispositionFormData(name, getFilename(partBody));

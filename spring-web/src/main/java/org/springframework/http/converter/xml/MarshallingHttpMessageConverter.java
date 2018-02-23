@@ -45,6 +45,7 @@ import org.springframework.util.Assert;
  * @author Arjen Poutsma
  * @since 3.0
  */
+// 通过 Marshaller 实现 xml 数据的读取 写入
 public class MarshallingHttpMessageConverter extends AbstractXmlHttpMessageConverter<Object> {
 
 	private Marshaller marshaller;

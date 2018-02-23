@@ -22,9 +22,9 @@ import java.lang.reflect.Method;
 /**
  * Interface to discover parameter names for methods and constructors.
  *
- * <p>Parameter name discovery is not always possible, but various strategies are
+ * <p>Parameter name discovery is not always possible, but various strategies (各种策略) are
  * available to try, such as looking for debug information that may have been
- * emitted at compile time, and looking for argname annotation values optionally
+ * emitted(排放, 发散) at compile time, and looking for argname annotation values optionally  <-- 被 AspectJ 注解修饰的 参数名
  * accompanying AspectJ annotated methods.
  *
  * @author Rod Johnson
@@ -40,6 +40,7 @@ public interface ParameterNameDiscoverer {
 	 * @return an array of parameter names if the names can be resolved,
 	 * or {@code null} if they cannot
 	 */
+	// 返回方法的参数名
 	String[] getParameterNames(Method method);
 
 	/**
@@ -49,6 +50,7 @@ public interface ParameterNameDiscoverer {
 	 * @return an array of parameter names if the names can be resolved,
 	 * or {@code null} if they cannot
 	 */
+	// 返回构造方法的参数名
 	String[] getParameterNames(Constructor<?> ctor);
 
 }

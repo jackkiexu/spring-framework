@@ -47,6 +47,7 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.ResourceHttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.http.converter.json.GsonHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.converter.support.AllEncompassingFormHttpMessageConverter;
 import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
@@ -114,11 +115,11 @@ public class RequestResponseBodyMethodProcessorTests {
 		 return null;
 		 }
 		 */
-		paramGenericList = new MethodParameter(method, 0);			// MethodParameter ���캯������� 0, 1, 2, 3 ��ʾ���� ���캯��������λ��
-		paramSimpleBean = new MethodParameter(method, 1);			// 第二个参数代表 几号参数
-		paramMultiValueMap = new MethodParameter(method, 2);
-		paramString = new MethodParameter(method, 3);
-		returnTypeString = new MethodParameter(method, -1);
+		paramGenericList = new MethodParameter(method, 0);			// @RequestBody List<SimpleBean> list
+		paramSimpleBean = new MethodParameter(method, 1);			// @RequestBody SimpleBean simpleBean
+		paramMultiValueMap = new MethodParameter(method, 2);		// @RequestBody MultiValueMap<String, String> multiValueMap
+		paramString = new MethodParameter(method, 3);				// @RequestBody String string
+		returnTypeString = new MethodParameter(method, -1);			// return null
 
 		container = new ModelAndViewContainer();
 
@@ -137,12 +138,12 @@ public class RequestResponseBodyMethodProcessorTests {
 		this.servletRequest.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
 		List<HttpMessageConverter<?>> converters = new ArrayList<>();
-		converters.add(new MappingJackson2HttpMessageConverter());
+//		converters.add(new MappingJackson2HttpMessageConverter());
+		converters.add(new GsonHttpMessageConverter());
 		RequestResponseBodyMethodProcessor processor = new RequestResponseBodyMethodProcessor(converters);
 
 		@SuppressWarnings("unchecked")
-		List<SimpleBean> result = (List<SimpleBean>) processor.resolveArgument(
-				paramGenericList, container, request, factory);
+		List<SimpleBean> result = (List<SimpleBean>) processor.resolveArgument(paramGenericList, container, request, factory);
 
 		assertNotNull(result);
 		assertEquals("Jad", result.get(0).getName());
@@ -161,8 +162,7 @@ public class RequestResponseBodyMethodProcessorTests {
 		RequestResponseBodyMethodProcessor processor = new RequestResponseBodyMethodProcessor(converters);
 
 		@SuppressWarnings("unchecked")
-		MultiValueMap<String, String> result = (MultiValueMap<String, String>) processor.resolveArgument(
-				paramMultiValueMap, container, request, factory);
+		MultiValueMap<String, String> result = (MultiValueMap<String, String>) processor.resolveArgument(paramMultiValueMap, container, request, factory);
 
 		assertNotNull(result);
 		assertEquals("apple", result.getFirst("fruit"));
@@ -179,8 +179,7 @@ public class RequestResponseBodyMethodProcessorTests {
 		converters.add(new MappingJackson2HttpMessageConverter());
 		RequestResponseBodyMethodProcessor processor = new RequestResponseBodyMethodProcessor(converters);
 
-		SimpleBean result = (SimpleBean) processor.resolveArgument(
-				paramSimpleBean, container, request, factory);
+		SimpleBean result = (SimpleBean) processor.resolveArgument(paramSimpleBean, container, request, factory);
 
 		assertNotNull(result);
 		assertEquals("Jad", result.getName());
@@ -196,8 +195,7 @@ public class RequestResponseBodyMethodProcessorTests {
 		converters.add(new StringHttpMessageConverter());
 		RequestResponseBodyMethodProcessor processor = new RequestResponseBodyMethodProcessor(converters);
 
-		String result = (String) processor.resolveArgument(
-				paramString, container, request, factory);
+		String result = (String) processor.resolveArgument(paramString, container, request, factory);
 
 		assertNotNull(result);
 		assertEquals("foobarbaz", result);
@@ -456,6 +454,8 @@ public class RequestResponseBodyMethodProcessorTests {
 		assertFalse(content.contains("\"withoutView\":\"without\""));
 	}
 
+
+	/////////////////////////////////////////// 分割线 下面的不是用得很多 ///////////////////////////////////////////////
 	@Test
 	public void jacksonJsonViewWithResponseEntityAndJsonMessageConverter() throws Exception {
 		Method method = JacksonController.class.getMethod("handleResponseEntity");

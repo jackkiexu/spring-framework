@@ -51,16 +51,17 @@ public abstract class AbstractXmlHttpMessageConverter<T> extends AbstractHttpMes
 	 * Protected constructor that sets the {@link #setSupportedMediaTypes(java.util.List) supportedMediaTypes}
 	 * to {@code text/xml} and {@code application/xml}, and {@code application/*-xml}.
 	 */
-	protected AbstractXmlHttpMessageConverter() {
+	protected AbstractXmlHttpMessageConverter() {	//  设置 HttpMessageConverter 支持的 MediaType 类型
 		super(MediaType.APPLICATION_XML, MediaType.TEXT_XML, new MediaType("application", "*+xml"));
 	}
 
-
+	// 将数据读取的模版方法
 	@Override
 	public final T readInternal(Class<? extends T> clazz, HttpInputMessage inputMessage) throws IOException {
 		return readFromSource(clazz, inputMessage.getHeaders(), new StreamSource(inputMessage.getBody()));
 	}
 
+	// 将数据写入的模版方法
 	@Override
 	protected final void writeInternal(T t, HttpOutputMessage outputMessage) throws IOException {
 		writeToResult(t, outputMessage.getHeaders(), new StreamResult(outputMessage.getBody()));

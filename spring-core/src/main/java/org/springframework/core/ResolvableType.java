@@ -1244,7 +1244,7 @@ public class ResolvableType implements Serializable {
 	 * @see #forMethodParameter(Method, int)
 	 */
 	public static ResolvableType forMethodParameter(MethodParameter methodParameter, Type targetType) {
-		Assert.notNull(methodParameter, "MethodParameter must not be null");
+		Assert.notNull(methodParameter, "MethodParameter must not be null"); // 这里就是解析范型的地方
 		ResolvableType owner = forType(methodParameter.getContainingClass()).as(methodParameter.getDeclaringClass());
 		ResolvableType tmp = forType(targetType, new MethodParameterTypeProvider(methodParameter), owner.asVariableResolver());
 		ResolvableType result = tmp.getNested(methodParameter.getNestingLevel(), methodParameter.typeIndexesPerLevel);

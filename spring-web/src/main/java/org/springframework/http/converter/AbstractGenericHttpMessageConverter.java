@@ -82,7 +82,7 @@ public abstract class AbstractGenericHttpMessageConverter<T> extends AbstractHtt
 			throws IOException, HttpMessageNotWritableException {
 
 		final HttpHeaders headers = outputMessage.getHeaders();
-		addDefaultHeaders(headers, t, contentType);
+		addDefaultHeaders(headers, t, contentType);		// 设置默认的 Header 信息
 
 		if (outputMessage instanceof StreamingHttpOutputMessage) {
 			StreamingHttpOutputMessage streamingOutputMessage = (StreamingHttpOutputMessage) outputMessage;

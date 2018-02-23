@@ -125,12 +125,12 @@ public class InvocableHandlerMethod extends HandlerMethod {
 	public Object invokeForRequest(NativeWebRequest request, ModelAndViewContainer mavContainer,
 			Object... providedArgs) throws Exception {
 		// 下面 getMethodArgumentValues 获取参数有两种情况, 一种是直接通过 providedArgs 与请求类型进行匹配, 另外一种是通过 argumentResolver 进行获取
-		Object[] args = getMethodArgumentValues(request, mavContainer, providedArgs);				// 这里就是通过默认的 argumentResolver 来解释对应参数
+		Object[] args = getMethodArgumentValues(request, mavContainer, providedArgs);				// 这里就是通过默认的 HandlerMethodArgumentResolver 来解释对应参数
 		if (logger.isTraceEnabled()) {
 			logger.trace("Invoking '" + ClassUtils.getQualifiedMethodName(getMethod(), getBeanType()) +
 					"' with arguments " + Arrays.toString(args));
 		}
-		Object returnValue = doInvoke(args);
+		Object returnValue = doInvoke(args);						// 通过解析得到的参数 + 反射 -> invoke 方法
 		if (logger.isTraceEnabled()) {
 			logger.trace("Method [" + ClassUtils.getQualifiedMethodName(getMethod(), getBeanType()) +
 					"] returned [" + returnValue + "]");
@@ -146,9 +146,9 @@ public class InvocableHandlerMethod extends HandlerMethod {
 
 		MethodParameter[] parameters = getMethodParameters();			// 这里的 getMethodParameters 其实是在构造 MethodParameters 时创建的
 		Object[] args = new Object[parameters.length];
-		for (int i = 0; i < parameters.length; i++) {
+		for (int i = 0; i < parameters.length; i++) {					// 从这里开始对参数进行一个一个解析 <- 主要是通过 HandlerMethodArgumentResolver
 			MethodParameter parameter = parameters[i];
-			parameter.initParameterNameDiscovery(this.parameterNameDiscoverer);
+			parameter.initParameterNameDiscovery(this.parameterNameDiscoverer);	    // 设置参数名解析器 ParameterNameDiscoverer (默认通过 ASM)
 			args[i] = resolveProvidedArgument(parameter, providedArgs);			    // 这一步是校验参数providedArgs 里面的类型是否满足 parameter 里面的类型
 			if (args[i] != null) {
 				continue;

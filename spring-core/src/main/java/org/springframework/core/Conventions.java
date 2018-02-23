@@ -109,12 +109,12 @@ public abstract class Conventions {
 		Class<?> valueClass;
 		boolean pluralize = false;
 
-		if (parameter.getParameterType().isArray()) {
+		if (parameter.getParameterType().isArray()) {				// 是否是 Array
 			valueClass = parameter.getParameterType().getComponentType();
 			pluralize = true;
 		}
-		else if (Collection.class.isAssignableFrom(parameter.getParameterType())) {
-			valueClass = ResolvableType.forMethodParameter(parameter).asCollection().resolveGeneric();
+		else if (Collection.class.isAssignableFrom(parameter.getParameterType())) { // 是否是集合类型
+			valueClass = ResolvableType.forMethodParameter(parameter).asCollection().resolveGeneric(); // 参数的类型 <-- 这里就是获取 List<?> 的范型值
 			if (valueClass == null) {
 				throw new IllegalArgumentException(
 						"Cannot generate variable name for non-typed Collection parameter type");
@@ -125,7 +125,7 @@ public abstract class Conventions {
 			valueClass = parameter.getParameterType();
 		}
 
-		String name = ClassUtils.getShortNameAsProperty(valueClass);
+		String name = ClassUtils.getShortNameAsProperty(valueClass);	// 获取小写的类名
 		return (pluralize ? pluralize(name) : name);
 	}
 

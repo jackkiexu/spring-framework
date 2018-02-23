@@ -57,6 +57,11 @@ import org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolv
  * @author Juergen Hoeller
  * @since 3.1
  */
+
+/** 主要功能
+ * 1. 解决被 @RequestBody 注释的方法参数  <- 其间是用 HttpMessageConverter 进行参数的转换
+ * 2. 解决被 @ResponseBody 注释的返回值  <- 其间是用 HttpMessageConverter 进行参数的转换
+ */
 public class RequestResponseBodyMethodProcessor extends AbstractMessageConverterMethodProcessor {
 
 	/**
@@ -104,12 +109,12 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 
 
 	@Override
-	public boolean supportsParameter(MethodParameter parameter) {
+	public boolean supportsParameter(MethodParameter parameter) {	// 若参数被 @RequestBody 注释则支持
 		return parameter.hasParameterAnnotation(RequestBody.class);
 	}
 
 	@Override
-	public boolean supportsReturnType(MethodParameter returnType) {					// ��� ReturnValueHandler �����ע ResponseBody �ķ���/���
+	public boolean supportsReturnType(MethodParameter returnType) {					// Handler 类上是否被 @ResponseBody 注解 || 返回类型上是否被 @ResponseBody 修饰
 		boolean first = AnnotatedElementUtils.hasAnnotation(returnType.getContainingClass(), ResponseBody.class); //
 		boolean sesond = returnType.hasMethodAnnotation(ResponseBody.class);
 		return (AnnotatedElementUtils.hasAnnotation(returnType.getContainingClass(), ResponseBody.class) ||
@@ -126,19 +131,20 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 	public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
 			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
 
-		parameter = parameter.nestedIfOptional();
+		parameter = parameter.nestedIfOptional();	// 获取嵌套参数 <- 有可能参数是用 Optional
+		// 通过 HttpMessageConverter 来将数据转换成合适的类型
 		Object arg = readWithMessageConverters(webRequest, parameter, parameter.getNestedGenericParameterType());
-		String name = Conventions.getVariableNameForParameter(parameter);
+		String name = Conventions.getVariableNameForParameter(parameter);		  // 获取参数的名字
 
 		WebDataBinder binder = binderFactory.createBinder(webRequest, arg, name);
 		if (arg != null) {
-			validateIfApplicable(binder, parameter);
-			if (binder.getBindingResult().hasErrors() && isBindExceptionRequired(binder, parameter)) {
+			validateIfApplicable(binder, parameter);		// @Validated 进行参数的校验
+			if (binder.getBindingResult().hasErrors() && isBindExceptionRequired(binder, parameter)) { // 若有异常则直接暴出来
 				throw new MethodArgumentNotValidException(parameter, binder.getBindingResult());
 			}
 		}
 		mavContainer.addAttribute(BindingResult.MODEL_KEY_PREFIX + name, binder.getBindingResult());
-
+		// 对 Optional 的处理
 		return adaptArgumentIfNecessary(arg, parameter);
 	}
 
@@ -146,9 +152,9 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 	protected <T> Object readWithMessageConverters(NativeWebRequest webRequest, MethodParameter parameter,
 			Type paramType) throws IOException, HttpMediaTypeNotSupportedException, HttpMessageNotReadableException {
 
-		HttpServletRequest servletRequest = webRequest.getNativeRequest(HttpServletRequest.class);
-		ServletServerHttpRequest inputMessage = new ServletServerHttpRequest(servletRequest);
-
+		HttpServletRequest servletRequest = webRequest.getNativeRequest(HttpServletRequest.class);	// 从 NativeWebRequest 中获取  HttpServletRequest
+		ServletServerHttpRequest inputMessage = new ServletServerHttpRequest(servletRequest);       // 封装 ServletServerHttpRequest
+		// 通过 InputMessage 中读取参数的内容, 其中 paramType 是参数的类型
 		Object arg = readWithMessageConverters(inputMessage, parameter, paramType);
 		if (arg == null) {
 			if (checkRequired(parameter)) {
@@ -156,10 +162,10 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 						parameter.getMethod().toGenericString());
 			}
 		}
-		return arg;
+		return arg; // 返回参数值
 	}
 
-	protected boolean checkRequired(MethodParameter parameter) {
+	protected boolean checkRequired(MethodParameter parameter) { // 检查是否是必需
 		return (parameter.getParameterAnnotation(RequestBody.class).required() && !parameter.isOptional());
 	}
 

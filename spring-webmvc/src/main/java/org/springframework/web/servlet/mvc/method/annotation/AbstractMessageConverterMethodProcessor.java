@@ -144,8 +144,8 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 	protected <T> void writeWithMessageConverters(T value, MethodParameter returnType, NativeWebRequest webRequest)
 			throws IOException, HttpMediaTypeNotAcceptableException, HttpMessageNotWritableException {
 
-		ServletServerHttpRequest inputMessage = createInputMessage(webRequest);
-		ServletServerHttpResponse outputMessage = createOutputMessage(webRequest);
+		ServletServerHttpRequest inputMessage = createInputMessage(webRequest);      // 获取 封装了的 ServletServerHttpRequest
+		ServletServerHttpResponse outputMessage = createOutputMessage(webRequest);   // 获取 封装了的 ServletServerHttpResponse
 		writeWithMessageConverters(value, returnType, inputMessage, outputMessage);
 	}
 
@@ -168,19 +168,19 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 		Class<?> valueType;
 		Type declaredType;
 
-		if (value instanceof CharSequence) {
-			outputValue = value.toString();
-			valueType = String.class;
+		if (value instanceof CharSequence) {		// 若 value 是 Char
+			outputValue = value.toString();			// 设置 outputValue
+			valueType = String.class;				// 设置 返回值的类型
 			declaredType = String.class;
 		}
 		else {
-			outputValue = value;
-			valueType = getReturnValueType(outputValue, returnType);
-			declaredType = getGenericType(returnType);
+			outputValue = value;					// 设置返回值
+			valueType = getReturnValueType(outputValue, returnType);	// 获取 返回值的类型
+			declaredType = getGenericType(returnType); // 返回值类型
 		}
 
 		HttpServletRequest request = inputMessage.getServletRequest();
-		List<MediaType> requestedMediaTypes = getAcceptableMediaTypes(request);								// 获取 request 对应的 MediaType, 其中涉及 ContentNegotiationManager
+		List<MediaType> requestedMediaTypes = getAcceptableMediaTypes(request);	 // 获取 request 对应的 MediaType, 其中涉及 ContentNegotiationManager
 		List<MediaType> producibleMediaTypes = getProducibleMediaTypes(request, valueType, declaredType);	// 返回 converter 所支持的 MediaType
 
 		if (outputValue != null && producibleMediaTypes.isEmpty()) {
@@ -188,7 +188,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 		}
 
 		Set<MediaType> compatibleMediaTypes = new LinkedHashSet<MediaType>();
-		for (MediaType requestedType : requestedMediaTypes) {												// 获取所有支持的 MediaType
+		for (MediaType requestedType : requestedMediaTypes) {		  	// 获取所有支持的 MediaType
 			for (MediaType producibleType : producibleMediaTypes) {
 				if (requestedType.isCompatibleWith(producibleType)) {
 					compatibleMediaTypes.add(getMostSpecificMediaType(requestedType, producibleType));
@@ -203,10 +203,10 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 		}
 
 		List<MediaType> mediaTypes = new ArrayList<MediaType>(compatibleMediaTypes);
-		MediaType.sortBySpecificityAndQuality(mediaTypes);												// 将所有的 MediaType 进行排序
+		MediaType.sortBySpecificityAndQuality(mediaTypes);	// 将所有的 MediaType 进行排序
 
 		MediaType selectedMediaType = null;
-		for (MediaType mediaType : mediaTypes) {														// 筛选出
+		for (MediaType mediaType : mediaTypes) {		// 筛选出
 			if (mediaType.isConcrete()) {
 				selectedMediaType = mediaType;
 				break;
@@ -219,16 +219,16 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 
 		if (selectedMediaType != null) {
 			selectedMediaType = selectedMediaType.removeQualityValue();
-			for (HttpMessageConverter<?> messageConverter : this.messageConverters) {						// 下面进行选择 converter 时, 加入 MediaType 作为考虑
-				if (messageConverter instanceof GenericHttpMessageConverter) {
+			for (HttpMessageConverter<?> messageConverter : this.messageConverters) {	// 下面进行选择 converter 时, 加入 MediaType 作为考虑
+				if (messageConverter instanceof GenericHttpMessageConverter) {			// 下面分类 HttpMessageConverter 进行分开处理
 					if (((GenericHttpMessageConverter) messageConverter).canWrite(
-							declaredType, valueType, selectedMediaType)) {
+							declaredType, valueType, selectedMediaType)) { // 通过 Advice beforeBodyWrite 处理一下
 						outputValue = (T) getAdvice().beforeBodyWrite(outputValue, returnType, selectedMediaType,
 								(Class<? extends HttpMessageConverter<?>>) messageConverter.getClass(),
 								inputMessage, outputMessage);
 						if (outputValue != null) {
 							addContentDispositionHeader(inputMessage, outputMessage);
-							((GenericHttpMessageConverter) messageConverter).write(
+							((GenericHttpMessageConverter) messageConverter).write(	// HttpMessageConverter 进行处理
 									outputValue, declaredType, selectedMediaType, outputMessage);
 							if (logger.isDebugEnabled()) {
 								logger.debug("Written [" + outputValue + "] as \"" + selectedMediaType +
@@ -300,7 +300,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 	 * </ul>
 	 * @since 4.2
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked") // 获取 HttpMessageConverter 支持的 MediaType
 	protected List<MediaType> getProducibleMediaTypes(HttpServletRequest request, Class<?> valueClass, Type declaredType) {
 		Set<MediaType> mediaTypes = (Set<MediaType>) request.getAttribute(HandlerMapping.PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE);
 		if (!CollectionUtils.isEmpty(mediaTypes)) {
@@ -308,14 +308,14 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 		}
 		else if (!this.allSupportedMediaTypes.isEmpty()) {
 			List<MediaType> result = new ArrayList<MediaType>();
-			for (HttpMessageConverter<?> converter : this.messageConverters) {
+			for (HttpMessageConverter<?> converter : this.messageConverters) { // 循环遍历 HttpMessageConverter 获得支持的 MediaType
 				if (converter instanceof GenericHttpMessageConverter && declaredType != null) {
-					if (((GenericHttpMessageConverter<?>) converter).canWrite(declaredType, valueClass, null)) {
+					if (((GenericHttpMessageConverter<?>) converter).canWrite(declaredType, valueClass, null)) { // 若 HttpMessageConverter 支持, 则获取其支持的 MediaType
 						result.addAll(converter.getSupportedMediaTypes());
 					}
 				}
 				else if (converter.canWrite(valueClass, null)) {
-					result.addAll(converter.getSupportedMediaTypes());				// 若 converter 支持的话, 则将 converter 支持的 MediaType 加入到 result 里面
+					result.addAll(converter.getSupportedMediaTypes());	// 若 converter 支持的话, 则将 converter 支持的 MediaType 加入到 result 里面
 				}
 			}
 			return result;
@@ -324,9 +324,9 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 			return Collections.singletonList(MediaType.ALL);
 		}
 	}
-
+	// 获取 HttpServletRequest 中获取 MediaType
 	private List<MediaType> getAcceptableMediaTypes(HttpServletRequest request) throws HttpMediaTypeNotAcceptableException {
-		List<MediaType> mediaTypes = this.contentNegotiationManager.resolveMediaTypes(new ServletWebRequest(request));
+		List<MediaType> mediaTypes = this.contentNegotiationManager.resolveMediaTypes(new ServletWebRequest(request)); // 通过 Request 获取 MediaType
 		return (mediaTypes.isEmpty() ? Collections.singletonList(MediaType.ALL) : mediaTypes);
 	}
 

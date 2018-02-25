@@ -159,6 +159,10 @@ public class ResolvableTypeTests {
 	public void forInstanceProviderNull() {
 		ResolvableType type = ResolvableType.forInstance(new MyGenericInterfaceType<String>(null));
 		assertThat(type.getType(), equalTo(MyGenericInterfaceType.class));
+//		Object object3 = type.getType().getGeneric();
+		Object object1 = type.getSuperType();
+		Object object2 = type.getInterfaces()[0].getGenerics();
+		Object object = type.getSuperType().getGenerics();
 		assertThat(type.resolve(), equalTo(MyGenericInterfaceType.class));
 	}
 
@@ -173,6 +177,14 @@ public class ResolvableTypeTests {
 	public void forPrivateField() throws Exception {
 		Field field = Fields.class.getDeclaredField("privateField");
 		ResolvableType type = ResolvableType.forField(field);
+		Object object = type.getGenerics();
+		Object object1 = type.getSuperType();
+		Object object2 = type.getComponentType();
+		Object object3 = type.getType();
+		Object object4 = type.getRawClass();
+		Object object5 = type.getSource();
+		Object object6 = type.getSuperType();
+		Object object7 = type.getInterfaces();
 		assertThat(type.getType(), equalTo(field.getGenericType()));
 		assertThat(type.resolve(), equalTo((Class) List.class));
 
@@ -196,6 +208,15 @@ public class ResolvableTypeTests {
 	public void forConstructorParameter() throws Exception {
 		Constructor<Constructors> constructor = Constructors.class.getConstructor(List.class);
 		ResolvableType type = ResolvableType.forConstructorParameter(constructor, 0);
+		Object object = type.getGenerics();
+		Object object1 = type.getSuperType();
+		Object object2 = type.getComponentType();
+		Object object3 = type.getType();
+		Object object4 = type.getRawClass();
+		Object object5 = type.getSource();
+		Object object6 = type.getSuperType();
+		Object object7 = type.getInterfaces();
+
 		assertThat(type.getType(), equalTo(constructor.getGenericParameterTypes()[0]));
 	}
 
@@ -210,6 +231,16 @@ public class ResolvableTypeTests {
 	public void forMethodParameterByIndex() throws Exception {
 		Method method = Methods.class.getMethod("charSequenceParameter", List.class);
 		ResolvableType type = ResolvableType.forMethodParameter(method, 0);
+
+		Object object = type.getGenerics();
+		Object object1 = type.getSuperType();
+		Object object2 = type.getComponentType();
+		Object object3 = type.getType();
+		Object object4 = type.getRawClass();
+		Object object5 = type.getSource();
+		Object object6 = type.getSuperType();
+		Object object7 = type.getInterfaces();
+
 		assertThat(type.getType(), equalTo(method.getGenericParameterTypes()[0]));
 	}
 
@@ -262,6 +293,15 @@ public class ResolvableTypeTests {
 	public void forMethodReturn() throws Exception {
 		Method method = Methods.class.getMethod("charSequenceReturn");
 		ResolvableType type = ResolvableType.forMethodReturnType(method);
+		Object object = type.getGenerics();
+		Object object1 = type.getSuperType();
+		Object object2 = type.getComponentType();
+		Object object3 = type.getType();
+		Object object4 = type.getRawClass();
+		Object object5 = type.getSource();
+		Object object6 = type.getSuperType();
+		Object object7 = type.getInterfaces();
+
 		assertThat(type.getType(), equalTo(method.getGenericReturnType()));
 	}
 
@@ -275,12 +315,31 @@ public class ResolvableTypeTests {
 	@Test
 	public void classType() throws Exception {
 		ResolvableType type = ResolvableType.forField(Fields.class.getField("classType"));
+
+		Object object = type.getGenerics();
+		Object object1 = type.getSuperType();
+		Object object2 = type.getComponentType();
+		Object object3 = type.getType();
+		Object object4 = type.getRawClass();
+		Object object5 = type.getSource();
+		Object object6 = type.getSuperType();
+		Object object7 = type.getInterfaces();
+
 		assertThat(type.getType().getClass(), equalTo((Class) Class.class));
 	}
 
 	@Test
 	public void paramaterizedType() throws Exception {
 		ResolvableType type = ResolvableType.forField(Fields.class.getField("parameterizedType"));
+
+		Object object = type.getGenerics(); // 获取参数中的 泛型
+		Object object1 = type.getSuperType();
+		Object object2 = type.getComponentType();
+		Object object3 = type.getType();
+		Object object4 = type.getRawClass();  // 获取参数
+		Object object5 = type.getSource();
+		Object object6 = type.getSuperType();
+		Object object7 = type.getInterfaces(); // 获取参数实现的接口
 		assertThat(type.getType(), instanceOf(ParameterizedType.class));
 	}
 
@@ -288,18 +347,48 @@ public class ResolvableTypeTests {
 	public void arrayClassType() throws Exception {
 		ResolvableType type = ResolvableType.forField(Fields.class.getField("arrayClassType"));
 		assertThat(type.getType(), instanceOf(Class.class));
+
+		Object object = type.getGenerics(); // 获取参数中的 泛型
+		Object object1 = type.getSuperType();
+		Object object2 = type.getComponentType();
+		Object object3 = type.getType();
+		Object object4 = type.getRawClass();  // 获取参数
+		Object object5 = type.getSource();
+		Object object6 = type.getSuperType();
+		Object object7 = type.getInterfaces(); // 获取参数实现的接口
+
 		assertThat(((Class) type.getType()).isArray(), equalTo(true));
 	}
 
 	@Test
 	public void genericArrayType() throws Exception {
 		ResolvableType type = ResolvableType.forField(Fields.class.getField("genericArrayType"));
+
+		Object object = type.getGenerics(); // 获取参数中的 泛型
+		Object object1 = type.getSuperType();
+		Object object2 = type.getComponentType();
+		Object object3 = ((GenericArrayType)type.getType()).getGenericComponentType();
+		Object object4 = type.getRawClass();  // 获取参数
+		Object object5 = type.getSource();
+		Object object6 = type.getSuperType();
+		Object object7 = type.getInterfaces(); // 获取参数实现的接口
+
 		assertThat(type.getType(), instanceOf(GenericArrayType.class));
 	}
 
 	@Test
 	public void wildcardType() throws Exception {
 		ResolvableType type = ResolvableType.forField(Fields.class.getField("wildcardType"));
+
+		Object object = type.getGenerics(); // 获取参数中的 泛型
+		Object object1 = type.getSuperType();
+		Object object2 = type.getComponentType();
+		Object object3 = type.getType();
+		Object object4 = type.getRawClass();  // 获取参数
+		Object object5 = type.getSource();
+		Object object6 = type.getSuperType();
+		Object object7 = type.getInterfaces(); // 获取参数实现的接口
+
 		assertThat(type.getType(), instanceOf(ParameterizedType.class));
 		assertThat(type.getGeneric().getType(), instanceOf(WildcardType.class));
 	}
@@ -307,6 +396,16 @@ public class ResolvableTypeTests {
 	@Test
 	public void typeVariableType() throws Exception {
 		ResolvableType type = ResolvableType.forField(Fields.class.getField("typeVariableType"));
+
+		Object object = type.getGenerics(); // 获取参数中的 泛型
+		Object object1 = type.getSuperType();
+		Object object2 = type.getComponentType();
+		Object object3 = type.getType();
+		Object object4 = type.getRawClass();  // 获取参数
+		Object object5 = type.getSource();
+		Object object6 = type.getSuperType();
+		Object object7 = type.getInterfaces(); // 获取参数实现的接口
+
 		assertThat(type.getType(), instanceOf(TypeVariable.class));
 	}
 
@@ -322,6 +421,16 @@ public class ResolvableTypeTests {
 	@Test
 	public void getComponentTypeForGenericArrayType() throws Exception {
 		ResolvableType type = ResolvableType.forField(Fields.class.getField("genericArrayType"));
+
+		Object object = type.getGenerics(); // 获取参数中的 泛型
+		Object object1 = type.getSuperType();
+		Object object2 = type.getComponentType();
+		Object object3 = type.getType();
+		Object object4 = type.getRawClass();  // 获取参数
+		Object object5 = type.getSource();
+		Object object6 = type.getSuperType();
+		Object object7 = type.getInterfaces(); // 获取参数实现的接口
+
 		assertThat(type.isArray(), equalTo(true));
 		assertThat(type.getComponentType().getType(),
 				equalTo(((GenericArrayType) type.getType()).getGenericComponentType()));
@@ -330,6 +439,8 @@ public class ResolvableTypeTests {
 	@Test
 	public void getComponentTypeForVariableThatResolvesToGenericArray() throws Exception {
 		ResolvableType type = ResolvableType.forClass(ListOfGenericArray.class).asCollection().getGeneric();
+		ResolvableType type1 = ResolvableType.forClass(ListOfGenericArray.class).asCollection();
+		type1.getGenerics();
 		assertThat(type.isArray(), equalTo(true));
 		assertThat(type.getType(), instanceOf(TypeVariable.class));
 		assertThat(type.getComponentType().getType().toString(),
@@ -346,6 +457,16 @@ public class ResolvableTypeTests {
 	@Test
 	public void asCollection() throws Exception {
 		ResolvableType type = ResolvableType.forClass(ExtendsList.class).asCollection();
+
+		Object object = type.getGenerics(); // 获取参数中的 泛型
+		Object object1 = type.getSuperType();
+		Object object2 = type.getComponentType();
+		Object object3 = type.getType();
+		Object object4 = type.getRawClass();  // 获取参数
+		Object object5 = type.getSource();
+		Object object6 = type.getSuperType();
+		Object object7 = type.getInterfaces(); // 获取参数实现的接口
+
 		assertThat(type.resolve(), equalTo((Class) Collection.class));
 		assertThat(type.resolveGeneric(), equalTo((Class) CharSequence.class));
 	}
@@ -353,6 +474,16 @@ public class ResolvableTypeTests {
 	@Test
 	public void asMap() throws Exception {
 		ResolvableType type = ResolvableType.forClass(ExtendsMap.class).asMap();
+
+		Object object = type.getGenerics(); // 获取参数中的 泛型
+		Object object1 = type.getSuperType();
+		Object object2 = type.getComponentType();
+		Object object3 = type.getType();
+		Object object4 = type.getRawClass();  // 获取参数
+		Object object5 = type.getSource();
+		Object object6 = type.getSuperType();
+		Object object7 = type.getInterfaces(); // 获取参数实现的接口
+
 		assertThat(type.resolve(), equalTo((Class) Map.class));
 		assertThat(type.resolveGeneric(0), equalTo((Class) String.class));
 		assertThat(type.resolveGeneric(1), equalTo((Class) Integer.class));
@@ -367,12 +498,32 @@ public class ResolvableTypeTests {
 	@Test
 	public void asFromInheritedInterface() throws Exception {
 		ResolvableType type = ResolvableType.forClass(ExtendsList.class).as(Collection.class);
+
+		Object object = type.getGenerics(); // 获取参数中的 泛型
+		Object object1 = type.getSuperType();
+		Object object2 = type.getComponentType();
+		Object object3 = type.getType();
+		Object object4 = type.getRawClass();  // 获取参数
+		Object object5 = type.getSource();
+		Object object6 = type.getSuperType();
+		Object object7 = type.getInterfaces(); // 获取参数实现的接口
+
 		assertThat(type.getType().toString(), equalTo("java.util.Collection<E>"));
 	}
 
 	@Test
 	public void asFromSuperType() throws Exception {
 		ResolvableType type = ResolvableType.forClass(ExtendsList.class).as(ArrayList.class);
+
+		Object object = type.getGenerics(); // 获取参数中的 泛型
+		Object object1 = type.getSuperType();
+		Object object2 = type.getComponentType();
+		Object object3 = type.getType();
+		Object object4 = type.getRawClass();  // 获取参数
+		Object object5 = type.getSource();
+		Object object6 = type.getSuperType();
+		Object object7 = type.getInterfaces(); // 获取参数实现的接口
+
 		assertThat(type.getType().toString(), equalTo("java.util.ArrayList<java.lang.CharSequence>"));
 	}
 
@@ -397,6 +548,16 @@ public class ResolvableTypeTests {
 	@Test
 	public void getSuperType() throws Exception {
 		ResolvableType type = ResolvableType.forClass(ExtendsList.class).getSuperType();
+
+		Object object = type.getGenerics(); // 获取参数中的 泛型
+		Object object1 = type.getSuperType();
+		Object object2 = type.getComponentType();
+		Object object3 = type.getType();
+		Object object4 = type.getRawClass();  // 获取参数
+		Object object5 = type.getSource();
+		Object object6 = type.getSuperType();
+		Object object7 = type.getInterfaces(); // 获取参数实现的接口
+
 		assertThat(type.resolve(), equalTo((Class) ArrayList.class));
 		type = type.getSuperType();
 		assertThat(type.resolve(), equalTo((Class) AbstractList.class));
@@ -438,6 +599,15 @@ public class ResolvableTypeTests {
 	@Test
 	public void nested() throws Exception {
 		ResolvableType type = ResolvableType.forField(Fields.class.getField("nested"));
+		Object object = type.getGenerics(); // 获取参数中的 泛型
+		Object object1 = type.getSuperType();
+		Object object2 = type.getComponentType();
+		Object object3 = type.getType();
+		Object object4 = type.getRawClass();  // 获取参数
+		Object object5 = type.getSource();
+		Object object6 = type.getSuperType();
+		Object object7 = type.getInterfaces(); // 获取参数实现的接口
+
 		type = type.getNested(2);
 		assertThat(type.resolve(), equalTo((Class) Map.class));
 		assertThat(type.getGeneric(0).resolve(), equalTo((Class) Byte.class));
@@ -470,6 +640,16 @@ public class ResolvableTypeTests {
 	@Test
 	public void getGenericByIndex() throws Exception {
 		ResolvableType type = ResolvableType.forField(Fields.class.getField("stringIntegerMultiValueMap"));
+
+		Object object = type.getGenerics(); // 获取参数中的 泛型
+		Object object1 = type.getSuperType();
+		Object object2 = type.getComponentType();
+		Object object3 = type.getType();
+		Object object4 = type.getRawClass();  // 获取参数
+		Object object5 = type.getSource();
+		Object object6 = type.getSuperType();
+		Object object7 = type.getInterfaces(); // 获取参数实现的接口
+
 		assertThat(type.getGeneric(0).getType(), equalTo((Type) String.class));
 		assertThat(type.getGeneric(1).getType(), equalTo((Type) Integer.class));
 	}
@@ -477,6 +657,17 @@ public class ResolvableTypeTests {
 	@Test
 	public void getGenericOfGeneric() throws Exception {
 		ResolvableType type = ResolvableType.forField(Fields.class.getField("stringListList"));
+
+		type = type.getNested(2);
+		Object object = type.getGenerics(); // 获取参数中的 泛型
+		Object object1 = type.getSuperType();
+		Object object2 = type.getComponentType();
+		Object object3 = type.getType();
+		Object object4 = type.getRawClass();  // 获取参数
+		Object object5 = type.getSource();
+		Object object6 = type.getSuperType();
+		Object object7 = type.getInterfaces(); // 获取参数实现的接口
+
 		assertThat(type.getGeneric().getType().toString(), equalTo("java.util.List<java.lang.String>"));
 		assertThat(type.getGeneric().getGeneric().getType(), equalTo((Type) String.class));
 	}
@@ -661,6 +852,16 @@ public class ResolvableTypeTests {
 	@Test
 	public void resolveBoundedTypeVariableResult() throws Exception {
 		ResolvableType type = ResolvableType.forMethodReturnType(Methods.class.getMethod("boundedTypeVaraibleResult"));
+
+		Object object = type.getGenerics(); // 获取参数中的 泛型
+		Object object1 = type.getSuperType();
+		Object object2 = type.getComponentType();
+		Object object3 = type.getType();
+		Object object4 = type.getRawClass();  // 获取参数
+		Object object5 = type.getSource();
+		Object object6 = type.getSuperType();
+		Object object7 = type.getInterfaces(); // 获取参数实现的接口
+
 		assertThat(type.resolve(), equalTo((Class) CharSequence.class));
 	}
 
@@ -686,7 +887,17 @@ public class ResolvableTypeTests {
 	@Test
 	public void resolveTypeVaraibleFromSimpleInterfaceType() {
 		ResolvableType type = ResolvableType.forClass(
-				MySimpleInterfaceType.class).as(MyInterfaceType.class);
+				MySimpleInterfaceType.class);
+
+		Object object = type.getGenerics(); // 获取参数中的 泛型
+		Object object1 = type.getSuperType();
+		Object object2 = type.getComponentType();
+		Object object3 = type.getType();
+		Object object4 = type.getRawClass();  // 获取参数
+		Object object5 = type.getSource();
+		Object object6 = type.getSuperType();
+		Object object7 = type.getInterfaces()[0].getGenerics(); // 获取参数实现的接口
+
 		assertThat(type.resolveGeneric(), equalTo((Class) String.class));
 	}
 
@@ -1209,8 +1420,18 @@ public class ResolvableTypeTests {
 
 	@Test
 	public void forArrayComponent() throws Exception {
-		ResolvableType elementType = ResolvableType.forField(Fields.class.getField("stringList"));
-		ResolvableType type = ResolvableType.forArrayComponent(elementType);
+		ResolvableType type = ResolvableType.forField(Fields.class.getField("stringList"));
+
+		Object object = type.getGenerics(); // 获取参数中的 泛型
+		Object object1 = type.getSuperType();
+		Object object2 = type.getComponentType();
+		Object object3 = type.getType();
+		Object object4 = type.getRawClass();  // 获取参数
+		Object object5 = type.getSource();
+		Object object6 = type.getSuperType();
+		Object object7 = type.getInterfaces()[0].getGenerics(); // 获取参数实现的接口
+
+		ResolvableType type2 = ResolvableType.forArrayComponent(type);
 		assertThat(type.toString(), equalTo("java.util.List<java.lang.String>[]"));
 		assertThat(type.resolve(), equalTo((Class) List[].class));
 	}
@@ -1272,6 +1493,16 @@ public class ResolvableTypeTests {
 	@Test
 	public void hasUnresolvableGenericsWhenExtends() throws Exception {
 		ResolvableType type = ResolvableType.forClass(ExtendsMySimpleInterfaceTypeWithImplementsRaw.class);
+
+		Object object = type.getGenerics(); // 获取参数中的 泛型
+		Object object1 = type.getSuperType();
+		Object object2 = type.getComponentType();
+		Object object3 = type.getType();
+		Object object4 = type.getRawClass();  // 获取参数
+		Object object5 = type.getSource();
+		Object object6 = type.getSuperType();
+		Object object7 = type.getInterfaces(); // 获取参数实现的接口
+
 		for (ResolvableType generic : type.getGenerics()) {
 			assertThat(generic.resolve(), not(nullValue()));
 		}

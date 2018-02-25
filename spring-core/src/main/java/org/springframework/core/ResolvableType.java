@@ -181,7 +181,7 @@ public class ResolvableType implements Serializable {
 	 * @since 4.2
 	 */
 	private ResolvableType(Class<?> clazz) {
-		this.resolved = (clazz != null ? clazz : Object.class);
+		this.resolved = (clazz != null ? clazz : Object.class); // 若传来的是 null, 则默认的属性是 Object.class
 		this.type = this.resolved;		// type 代表的是 对应的 class
 		this.typeProvider = null;
 		this.variableResolver = null;

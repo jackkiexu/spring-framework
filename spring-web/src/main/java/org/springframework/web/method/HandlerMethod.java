@@ -80,12 +80,12 @@ public class HandlerMethod {
 	public HandlerMethod(Object bean, Method method) {
 		Assert.notNull(bean, "Bean is required");
 		Assert.notNull(method, "Method is required");
-		this.bean = bean;
-		this.beanFactory = null;
-		this.beanType = ClassUtils.getUserClass(bean);
-		this.method = method;
-		this.bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
-		this.parameters = initMethodParameters();
+		this.bean = bean;		  // Method 从属的 Bean
+		this.beanFactory = null;  // BeanFactory
+		this.beanType = ClassUtils.getUserClass(bean); // 获取 Bean 类型, 这时的 bean 可能是一个 CGLib 生成的 类
+		this.method = method;	  // 设置方法
+		this.bridgedMethod = BridgeMethodResolver.findBridgedMethod(method); // 获取桥接方法
+		this.parameters = initMethodParameters();	// 设置方法的参数值
 		evaluateResponseStatus();						// ResponseStatus 获取对应注解上的信息
 	}
 
@@ -292,7 +292,7 @@ public class HandlerMethod {
 	 * If the provided instance contains a bean name rather than an object instance,
 	 * the bean name is resolved before a {@link HandlerMethod} is created and returned.
 	 */
-	public HandlerMethod createWithResolvedBean() {
+	public HandlerMethod createWithResolvedBean() { // 若 handler是 String类别, 则获取真实的Bean
 		Object handler = this.bean;
 		if (this.bean instanceof String) {
 			String beanName = (String) this.bean;

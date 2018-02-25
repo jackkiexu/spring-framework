@@ -70,7 +70,7 @@ public class RequestMappingHandlerMappingTests {
 
 		Map<String, MediaType> fileExtensions = Collections.singletonMap("json", MediaType.APPLICATION_JSON);
 		PathExtensionContentNegotiationStrategy strategy = new PathExtensionContentNegotiationStrategy(fileExtensions);
-		ContentNegotiationManager manager = new ContentNegotiationManager(strategy);
+		ContentNegotiationManager manager = new ContentNegotiationManager(strategy); // 构建基于 fileExtension 判断 MediaType  Negotiation
 
 		this.handlerMapping.setContentNegotiationManager(manager);
 		this.handlerMapping.setUseRegisteredSuffixPatternMatch(true);
@@ -195,11 +195,11 @@ public class RequestMappingHandlerMappingTests {
 
 		assertNotNull(info);
 
-		Set<String> paths = info.getPatternsCondition().getPatterns();
+		Set<String> paths = info.getPatternsCondition().getPatterns(); // 获取 @RequestMapping 上的 value | path
 		assertEquals(1, paths.size());
 		assertEquals(path, paths.iterator().next());
 
-		Set<RequestMethod> methods = info.getMethodsCondition().getMethods();
+		Set<RequestMethod> methods = info.getMethodsCondition().getMethods(); // 获取 @RequestMapping 上的 RequestMethod
 		assertEquals(1, methods.size());
 		assertEquals(requestMethod, methods.iterator().next());
 

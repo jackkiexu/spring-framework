@@ -101,8 +101,8 @@ public class RequestMappingInfoHandlerMappingTests {
 	@Test
 	public void getMappingPathPatterns() throws Exception {
 		String[] patterns = {"/foo/*", "/foo", "/bar/*", "/bar"};
-		RequestMappingInfo info = RequestMappingInfo.paths(patterns).build();
-		Set<String> actual = this.handlerMapping.getMappingPathPatterns(info);
+		RequestMappingInfo info = RequestMappingInfo.paths(patterns).build();  // 通过 pattern -> RequestCondition -> RequestMappingInfo
+		Set<String> actual = this.handlerMapping.getMappingPathPatterns(info); // 从 RequestCondition 获取 pattern
 
 		assertEquals(new HashSet<>(Arrays.asList(patterns)), actual);
 	}
@@ -528,8 +528,10 @@ public class RequestMappingInfoHandlerMappingTests {
 
 		@Override
 		protected RequestMappingInfo getMappingForMethod(Method method, Class<?> handlerType) {
+			// 获取方法上的注解 @RequestMapping
 			RequestMapping annot = AnnotationUtils.findAnnotation(method, RequestMapping.class);
 			if (annot != null) {
+				// 构建 RequestMappingInfo
 				return new RequestMappingInfo(
 					new PatternsRequestCondition(annot.value(), getUrlPathHelper(), getPathMatcher(), true, true),
 					new RequestMethodsRequestCondition(annot.method()),

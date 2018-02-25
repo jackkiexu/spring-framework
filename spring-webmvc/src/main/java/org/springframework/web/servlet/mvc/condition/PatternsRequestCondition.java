@@ -207,7 +207,7 @@ public final class PatternsRequestCondition extends AbstractRequestCondition<Pat
 			return this;
 		}
 
-		String lookupPath = this.pathHelper.getLookupPathForRequest(request); // 获取请求的 uri
+		String lookupPath = this.pathHelper.getLookupPathForRequest(request); // 获取 HttpServletRequest 的 uri
 		List<String> matches = getMatchingPatterns(lookupPath);				  // 解析出
 
 		return matches.isEmpty() ? null :
@@ -227,7 +227,7 @@ public final class PatternsRequestCondition extends AbstractRequestCondition<Pat
 	public List<String> getMatchingPatterns(String lookupPath) { // 根据 uri 获取 @RequestMapping 中 path 中与之匹配的 pattern
 		List<String> matches = new ArrayList<String>();
 		for (String pattern : this.patterns) {
-			String match = getMatchingPattern(pattern, lookupPath); // 获取匹配 lookupPath 的 pattern
+			String match = getMatchingPattern(pattern, lookupPath); // 判断 lookupPath 与 pattern 是否匹配
 			if (match != null) {
 				matches.add(match);
 			}

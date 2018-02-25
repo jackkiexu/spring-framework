@@ -41,17 +41,17 @@ public class RequestMappingInfoHandlerMethodMappingNamingStrategy
 
 	@Override
 	public String getName(HandlerMethod handlerMethod, RequestMappingInfo mapping) {
-		if (mapping.getName() != null) {
+		if (mapping.getName() != null) {           // 获取 @RequestMapping 中的 value
 			return mapping.getName();
 		}
-		StringBuilder sb = new StringBuilder();
-		String simpleTypeName = handlerMethod.getBeanType().getSimpleName();
+		StringBuilder sb = new StringBuilder();	   // 若没有设置 name, 则进行生成
+		String simpleTypeName = handlerMethod.getBeanType().getSimpleName(); // 获取 beanName
 		for (int i = 0 ; i < simpleTypeName.length(); i++) {
-			if (Character.isUpperCase(simpleTypeName.charAt(i))) {
+			if (Character.isUpperCase(simpleTypeName.charAt(i))) { // 指获取 BeanName 中的大写字母
 				sb.append(simpleTypeName.charAt(i));
 			}
 		}
-		sb.append(SEPARATOR).append(handlerMethod.getMethod().getName());
+		sb.append(SEPARATOR).append(handlerMethod.getMethod().getName()); // BeanName 的大写字母 # 方法名
 		return sb.toString();
 	}
 

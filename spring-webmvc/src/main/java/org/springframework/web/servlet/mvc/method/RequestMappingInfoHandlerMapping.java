@@ -89,7 +89,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 	 * current request -- for example with a subset of URL patterns.
 	 * @return an info in case of a match; or {@code null} otherwise.
 	 */
-	@Override
+	@Override // 获取 RequestMappingInfo 与 HttpServletRequest 相匹配的 RequestMappingInfo
 	protected RequestMappingInfo getMatchingMapping(RequestMappingInfo info, HttpServletRequest request) {
 		return info.getMatchingCondition(request);
 	}
@@ -121,27 +121,27 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 		Map<String, String> uriVariables;
 		Map<String, String> decodedUriVariables;
 
-		Set<String> patterns = info.getPatternsCondition().getPatterns();
+		Set<String> patterns = info.getPatternsCondition().getPatterns(); // 获取 RequestMappingInfo 中的 PatternRequestCondition 的 pattern
 		if (patterns.isEmpty()) {
 			bestPattern = lookupPath;
 			uriVariables = Collections.emptyMap();
 			decodedUriVariables = Collections.emptyMap();
 		}
 		else {
-			bestPattern = patterns.iterator().next();
+			bestPattern = patterns.iterator().next();  // URI template variable URI 模版变量的提取
 			uriVariables = getPathMatcher().extractUriTemplateVariables(bestPattern, lookupPath);	// 将 lookupPath 里面的数据匹配到 bestPattern 中
-			decodedUriVariables = getUrlPathHelper().decodePathVariables(request, uriVariables);
+			decodedUriVariables = getUrlPathHelper().decodePathVariables(request, uriVariables);    // URI template variable URI 模版变量的编码
 		}
 
-		request.setAttribute(BEST_MATCHING_PATTERN_ATTRIBUTE, bestPattern);
-		request.setAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, decodedUriVariables);
+		request.setAttribute(BEST_MATCHING_PATTERN_ATTRIBUTE, bestPattern); // @RequestMapping 中 uriPath 的存储
+		request.setAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, decodedUriVariables); // URI template 变量的存储
 
-		if (isMatrixVariableContentAvailable()) {
+		if (isMatrixVariableContentAvailable()) { // 是否删除 ;
 			Map<String, MultiValueMap<String, String>> matrixVars = extractMatrixVariables(request, uriVariables);
 			request.setAttribute(HandlerMapping.MATRIX_VARIABLES_ATTRIBUTE, matrixVars);
 		}
 
-		if (!info.getProducesCondition().getProducibleMediaTypes().isEmpty()) {
+		if (!info.getProducesCondition().getProducibleMediaTypes().isEmpty()) { // 对 @RequestMapping 中 produce 的处理
 			Set<MediaType> mediaTypes = info.getProducesCondition().getProducibleMediaTypes();
 			request.setAttribute(PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE, mediaTypes);
 		}

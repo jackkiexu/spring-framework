@@ -99,7 +99,7 @@ public interface HandlerMapping {
 	 * HandlerMapping implementations and may also not be present depending on
 	 * whether the HandlerMapping is configured to keep matrix variable content
 	 * in the request URI.
-	 */
+	 */ // 提取了 ; 后存储的 uri template 变量值
 	String MATRIX_VARIABLES_ATTRIBUTE = HandlerMapping.class.getName() + ".matrixVariables";
 
 	/**
@@ -108,7 +108,7 @@ public interface HandlerMapping {
 	 * <p>Note: This attribute is not required to be supported by all
 	 * HandlerMapping implementations. Handlers should not necessarily expect
 	 * this request attribute to be present in all scenarios.
-	 */
+	 */ // @RequestMapping 中 produces 对应的 MediaType 的存储 key值
 	String PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE = HandlerMapping.class.getName() + ".producibleMediaTypes";
 
 	/**

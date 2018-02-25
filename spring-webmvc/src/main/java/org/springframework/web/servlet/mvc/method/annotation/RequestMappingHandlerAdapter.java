@@ -149,11 +149,11 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
 	private int cacheSecondsForSessionAttributeHandlers = 0;
 
 	private boolean synchronizeOnSession = false;
-
+	// Session 中存储|获取器
 	private SessionAttributeStore sessionAttributeStore = new DefaultSessionAttributeStore();
-
+	// 方法解析器, 默认使用 ASM | 反射来获取 <- 反射针对 Java 8
 	private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
-
+	// BeanFactory
 	private ConfigurableBeanFactory beanFactory;
 
 
@@ -769,13 +769,16 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
 	 * Return the {@link SessionAttributesHandler} instance for the given handler type
 	 * (never {@code null}).
 	 */
+	//
 	private SessionAttributesHandler getSessionAttributesHandler(HandlerMethod handlerMethod) {
 		Class<?> handlerType = handlerMethod.getBeanType();
+		// 先从缓存中换取 Session 存储|获取器
 		SessionAttributesHandler sessionAttrHandler = this.sessionAttributesHandlerCache.get(handlerType);
+		// 若缓存中不存在, 则创建一个
 		if (sessionAttrHandler == null) {
 			synchronized (this.sessionAttributesHandlerCache) {
 				sessionAttrHandler = this.sessionAttributesHandlerCache.get(handlerType);
-				if (sessionAttrHandler == null) {
+				if (sessionAttrHandler == null) { // 封装 Session 存储|获取器
 					sessionAttrHandler = new SessionAttributesHandler(handlerType, sessionAttributeStore);
 					this.sessionAttributesHandlerCache.put(handlerType, sessionAttrHandler);
 				}

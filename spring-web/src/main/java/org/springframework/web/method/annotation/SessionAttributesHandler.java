@@ -45,8 +45,9 @@ import org.springframework.web.context.request.WebRequest;
  * @author Rossen Stoyanchev
  * @since 3.1
  */
+// 将 name <--> value 存储到 HttpServletRequest 中
 public class SessionAttributesHandler {
-
+	// 属性名称, 对应注解的 value
 	private final Set<String> attributeNames = new HashSet<String>();
 
 	private final Set<Class<?>> attributeTypes = new HashSet<Class<?>>();

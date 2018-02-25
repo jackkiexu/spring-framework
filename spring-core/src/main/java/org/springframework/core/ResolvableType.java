@@ -41,7 +41,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 /**
- * Encapsulates a Java {@link java.lang.reflect.Type}, providing access to
+ * Encapsulates(封装) a Java {@link java.lang.reflect.Type}, providing access to
  * {@link #getSuperType() supertypes}, {@link #getInterfaces() interfaces}, and
  * {@link #getGeneric(int...) generic parameters} along with the ability to ultimately
  * {@link #resolve() resolve} to a {@link java.lang.Class}.
@@ -77,6 +77,12 @@ import org.springframework.util.StringUtils;
  * @see #forType(Type)
  * @see #forInstance(Object)
  * @see ResolvableTypeProvider
+ */
+
+/** 参考资料
+ *  https://my.oschina.net/lixin91/blog/677109
+ *  http://blog.csdn.net/zbw18297786698/article/details/73441623   <-- 非常重要
+ *  http://jinnianshilongnian.iteye.com/blog/1993608
  */
 @SuppressWarnings("serial")
 public class ResolvableType implements Serializable {

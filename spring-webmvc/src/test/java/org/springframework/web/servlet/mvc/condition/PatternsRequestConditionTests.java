@@ -33,7 +33,7 @@ public class PatternsRequestConditionTests {
 
 	@Test
 	public void prependSlash() {
-		PatternsRequestCondition c = new PatternsRequestCondition("foo");
+		PatternsRequestCondition c = new PatternsRequestCondition("foo"); // foo 传入 /foo 出来
 		assertEquals("/foo", c.getPatterns().iterator().next());
 	}
 

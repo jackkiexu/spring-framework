@@ -29,7 +29,7 @@ import java.util.Iterator;
 public abstract class AbstractRequestCondition<T extends AbstractRequestCondition<T>> implements RequestCondition<T> {
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(Object obj) {  //  equal 方法比较
 		if (this == obj) {
 			return true;
 		}
@@ -61,23 +61,23 @@ public abstract class AbstractRequestCondition<T extends AbstractRequestConditio
 
 	/**
 	 * Indicates whether this condition is empty, i.e. whether or not it
-	 * contains any discrete items.
+	 * contains any discrete(离散, 独立) items.
 	 * @return {@code true} if empty; {@code false} otherwise
 	 */
-	public boolean isEmpty() {
+	public boolean isEmpty() { // 显示条件是否是 空
 		return getContent().isEmpty();
 	}
 
 
 	/**
-	 * Return the discrete items a request condition is composed of.
+	 * Return the discrete(离散, 独立) items a request condition is composed of.
 	 * <p>For example URL patterns, HTTP request methods, param expressions, etc.
 	 * @return a collection of objects, never {@code null}
 	 */
 	protected abstract Collection<?> getContent();
 
 	/**
-	 * The notation to use when printing discrete items of content.
+	 * The notation(符号) to use when printing discrete items of content.
 	 * <p>For example {@code " || "} for URL patterns or {@code " && "}
 	 * for param expressions.
 	 */

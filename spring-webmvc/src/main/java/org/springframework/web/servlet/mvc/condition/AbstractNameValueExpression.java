@@ -35,6 +35,7 @@ abstract class AbstractNameValueExpression<T> implements NameValueExpression<T> 
 
 	protected final boolean isNegated;
 
+	// 解析 expression
 	AbstractNameValueExpression(String expression) {
 		int separator = expression.indexOf('=');
 		if (separator == -1) {

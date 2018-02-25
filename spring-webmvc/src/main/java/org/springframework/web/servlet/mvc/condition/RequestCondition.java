@@ -19,9 +19,9 @@ package org.springframework.web.servlet.mvc.condition;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * Contract for request mapping conditions.
+ * Contract(契约, 合约) for request mapping conditions.
  *
- * <p>Request conditions can be combined via {@link #combine(Object)}, matched to
+ * <p>Request conditions can be combined(组合) via {@link #combine(Object)}, matched to
  * a request via {@link #getMatchingCondition(HttpServletRequest)}, and compared
  * to each other via {@link #compareTo(Object, HttpServletRequest)} to determine
  * which is a closer match for a given request.
@@ -35,7 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 public interface RequestCondition<T> {
 
 	/**
-	 * Combine this condition with another such as conditions from a
+	 * Combine(组合) this condition with another such as conditions from a
 	 * type-level and method-level {@code @RequestMapping} annotation.
 	 * @param other the condition to combine with.
 	 * @return a request condition instance that is the result of combining
@@ -44,7 +44,7 @@ public interface RequestCondition<T> {
 	T combine(T other);
 
 	/**
-	 * Check if the condition matches the request returning a potentially new
+	 * Check if the condition matches the request returning a potentially(可能, 潜在) new
 	 * instance created for the current request. For example a condition with
 	 * multiple URL patterns may return a new instance only with those patterns
 	 * that match the request.

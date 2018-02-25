@@ -188,7 +188,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 		}
 
 		Set<MediaType> compatibleMediaTypes = new LinkedHashSet<MediaType>();
-		for (MediaType requestedType : requestedMediaTypes) {		  	// 获取所有支持的 MediaType
+		for (MediaType requestedType : requestedMediaTypes) {		  	// 找出两端都兼容的 MediaType
 			for (MediaType producibleType : producibleMediaTypes) {
 				if (requestedType.isCompatibleWith(producibleType)) {
 					compatibleMediaTypes.add(getMostSpecificMediaType(requestedType, producibleType));
@@ -206,7 +206,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 		MediaType.sortBySpecificityAndQuality(mediaTypes);	// 将所有的 MediaType 进行排序
 
 		MediaType selectedMediaType = null;
-		for (MediaType mediaType : mediaTypes) {		// 筛选出
+		for (MediaType mediaType : mediaTypes) {		// 筛选出其中一个 mediaType
 			if (mediaType.isConcrete()) {
 				selectedMediaType = mediaType;
 				break;
@@ -220,7 +220,8 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 		if (selectedMediaType != null) {
 			selectedMediaType = selectedMediaType.removeQualityValue();
 			for (HttpMessageConverter<?> messageConverter : this.messageConverters) {	// 下面进行选择 converter 时, 加入 MediaType 作为考虑
-				if (messageConverter instanceof GenericHttpMessageConverter) {			// 下面分类 HttpMessageConverter 进行分开处理
+				// 下面分类 HttpMessageConverter 进行分开处理 <-- 先是支持 Type 的 HttpMessageConverter
+				if (messageConverter instanceof GenericHttpMessageConverter) {
 					if (((GenericHttpMessageConverter) messageConverter).canWrite(
 							declaredType, valueType, selectedMediaType)) { // 通过 Advice beforeBodyWrite 处理一下
 						outputValue = (T) getAdvice().beforeBodyWrite(outputValue, returnType, selectedMediaType,
@@ -238,6 +239,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 						return;
 					}
 				}
+				// 普通 HttpMessageConverter 处理
 				else if (messageConverter.canWrite(valueType, selectedMediaType)) {
 					outputValue = (T) getAdvice().beforeBodyWrite(outputValue, returnType, selectedMediaType,
 							(Class<? extends HttpMessageConverter<?>>) messageConverter.getClass(),

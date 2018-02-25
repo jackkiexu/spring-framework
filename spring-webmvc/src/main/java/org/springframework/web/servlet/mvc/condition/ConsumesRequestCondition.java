@@ -35,7 +35,7 @@ import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.servlet.mvc.condition.HeadersRequestCondition.HeaderExpression;
 
 /**
- * A logical disjunction (' || ') request condition to match a request's
+ * A logical disjunction(区分) (' || ') request condition to match a request's
  * 'Content-Type' header to a list of media type expressions. Two kinds of
  * media type expressions are supported, which are described in
  * {@link RequestMapping#consumes()} and {@link RequestMapping#headers()}
@@ -46,11 +46,12 @@ import org.springframework.web.servlet.mvc.condition.HeadersRequestCondition.Hea
  * @author Rossen Stoyanchev
  * @since 3.1
  */
+// 这个类就是解析 @RequestMapping 里面 consumes, 并进行条件判断的处理器
 public final class ConsumesRequestCondition extends AbstractRequestCondition<ConsumesRequestCondition> {
 
 	private final static ConsumesRequestCondition PRE_FLIGHT_MATCH = new ConsumesRequestCondition();
 
-
+	// 这里是 支持的 MediaType 的 MediaTypeExpression
 	private final List<ConsumeMediaTypeExpression> expressions;
 
 
@@ -60,7 +61,7 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
 	 * {@link RequestMapping#consumes()}; if 0 expressions are provided,
 	 * the condition will match to every request
 	 */
-	public ConsumesRequestCondition(String... consumes) {
+	public ConsumesRequestCondition(String... consumes) { // 这里参数 consumes 是 MediaType 的字符串
 		this(consumes, null);
 	}
 
@@ -80,11 +81,11 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
 	 * Private constructor accepting parsed media type expressions.
 	 */
 	private ConsumesRequestCondition(Collection<ConsumeMediaTypeExpression> expressions) {
-		this.expressions = new ArrayList<ConsumeMediaTypeExpression>(expressions);
+		this.expressions = new ArrayList<ConsumeMediaTypeExpression>(expressions);  //
 		Collections.sort(this.expressions);
 	}
 
-
+	// 解析出 ConsumeMediaTypeExpression
 	private static Set<ConsumeMediaTypeExpression> parseExpressions(String[] consumes, String[] headers) {
 		Set<ConsumeMediaTypeExpression> result = new LinkedHashSet<ConsumeMediaTypeExpression>();
 		if (headers != null) {
@@ -163,6 +164,7 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
 	 * or a new condition with matching expressions only;
 	 * or {@code null} if no expressions match.
 	 */
+	// 通过 HttpServletRequest 解析出 ConsumesRequestCondition
 	@Override
 	public ConsumesRequestCondition getMatchingCondition(HttpServletRequest request) {
 		if (CorsUtils.isPreFlightRequest(request)) {
@@ -172,7 +174,7 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
 			return this;
 		}
 		MediaType contentType;
-		try {
+		try {					// 获取 HttpServletRequest 中的 contentType
 			contentType = StringUtils.hasLength(request.getContentType()) ?
 					MediaType.parseMediaType(request.getContentType()) :
 					MediaType.APPLICATION_OCTET_STREAM;
@@ -183,7 +185,7 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
 		Set<ConsumeMediaTypeExpression> result = new LinkedHashSet<ConsumeMediaTypeExpression>(this.expressions);
 		for (Iterator<ConsumeMediaTypeExpression> iterator = result.iterator(); iterator.hasNext();) {
 			ConsumeMediaTypeExpression expression = iterator.next();
-			if (!expression.match(contentType)) {
+			if (!expression.match(contentType)) {	// 解析出 @RequestMapping, HttpServletReques 中都支持的 ConsumesRequestCondition
 				iterator.remove();
 			}
 		}
@@ -231,7 +233,7 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
 			super(mediaType, negated);
 		}
 
-		public final boolean match(MediaType contentType) {
+		public final boolean match(MediaType contentType) {  // MediaType 是否匹配, 通过这里判断
 			boolean match = getMediaType().includes(contentType);
 			return (!isNegated() ? match : !match);
 		}

@@ -36,6 +36,7 @@ import org.springframework.web.servlet.ModelAndView;
  * @see LastModified
  * @see HttpRequestHandlerAdapter
  */
+// 适配实现 Controller 接口的 Handler, 默认调用其 handleRequest 方法
 public class SimpleControllerHandlerAdapter implements HandlerAdapter {
 
 	@Override

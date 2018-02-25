@@ -37,6 +37,7 @@ import org.springframework.web.servlet.support.WebContentGenerator;
  * http://www.cnblogs.com/question-sky/p/7170295.html
  * 处理 HandlerMethod 业务
  */
+// 适配实现 HandlerMethod 这类 Handler, 默认通过反射来进行激活类
 public abstract class AbstractHandlerMethodAdapter extends WebContentGenerator implements HandlerAdapter, Ordered {
 
 	private int order = Ordered.LOWEST_PRECEDENCE;

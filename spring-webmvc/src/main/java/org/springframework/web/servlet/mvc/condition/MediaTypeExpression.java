@@ -20,7 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
- * A contract for media type expressions (e.g. "text/plain", "!text/plain") as
+ * A contract(合约, 合同) for media type expressions (e.g. "text/plain", "!text/plain") as
  * defined in the {@code @RequestMapping} annotation for "consumes" and
  * "produces" conditions.
  *
@@ -34,6 +34,6 @@ public interface MediaTypeExpression {
 
 	MediaType getMediaType();
 
-	boolean isNegated();
+	boolean isNegated(); // 否定
 
 }

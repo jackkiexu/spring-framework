@@ -45,6 +45,7 @@ import org.springframework.web.servlet.mvc.condition.HeadersRequestCondition.Hea
  * @author Rossen Stoyanchev
  * @since 3.1
  */
+// 解析 @RequestMapping 中 produces 的处理器
 public final class ProducesRequestCondition extends AbstractRequestCondition<ProducesRequestCondition> {
 
 	private final static ProducesRequestCondition PRE_FLIGHT_MATCH = new ProducesRequestCondition();
@@ -65,7 +66,7 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
 	 * are provided in total, this condition will match to any request.
 	 * @param produces expressions with syntax defined by {@link RequestMapping#produces()}
 	 */
-	public ProducesRequestCondition(String... produces) {
+	public ProducesRequestCondition(String... produces) { // 这里的 produces 其实是 MediaType
 		this(produces, (String[]) null);
 	}
 
@@ -103,7 +104,7 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
 		this.contentNegotiationManager = (manager != null ? manager : new ContentNegotiationManager());
 	}
 
-
+	// 解析 produces 出 MediaType
 	private Set<ProduceMediaTypeExpression> parseExpressions(String[] produces, String[] headers) {
 		Set<ProduceMediaTypeExpression> result = new LinkedHashSet<ProduceMediaTypeExpression>();
 		if (headers != null) {
@@ -134,7 +135,7 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
 	/**
 	 * Return the contained producible media types excluding negated expressions.
 	 */
-	public Set<MediaType> getProducibleMediaTypes() {
+	public Set<MediaType> getProducibleMediaTypes() { // 获取 produces 对应的 MediaType
 		Set<MediaType> result = new LinkedHashSet<MediaType>();
 		for (ProduceMediaTypeExpression expression : this.expressions) {
 			if (!expression.isNegated()) {
@@ -181,6 +182,7 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
 	 * or a new condition with matching expressions;
 	 * or {@code null} if no expressions match.
 	 */
+	// 得到 HttpServletRequest 中 produces 代表的MediaType
 	@Override
 	public ProducesRequestCondition getMatchingCondition(HttpServletRequest request) {
 		if (CorsUtils.isPreFlightRequest(request)) {
@@ -190,7 +192,7 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
 			return this;
 		}
 		List<MediaType> acceptedMediaTypes;
-		try {
+		try {								// 解析 HttpServletRequest可接受的 MediaType
 			acceptedMediaTypes = getAcceptedMediaTypes(request);
 		}
 		catch (HttpMediaTypeException ex) {
@@ -199,7 +201,7 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
 		Set<ProduceMediaTypeExpression> result = new LinkedHashSet<ProduceMediaTypeExpression>(expressions);
 		for (Iterator<ProduceMediaTypeExpression> iterator = result.iterator(); iterator.hasNext();) {
 			ProduceMediaTypeExpression expression = iterator.next();
-			if (!expression.match(acceptedMediaTypes)) {
+			if (!expression.match(acceptedMediaTypes)) {  // 获取HttpServletRequest 可接受, @RequestMapping 可生产的 MediaType
 				iterator.remove();
 			}
 		}
@@ -257,6 +259,7 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
 		}
 	}
 
+	// 得到 HttpServletRequest 可接受的 MediaType
 	private List<MediaType> getAcceptedMediaTypes(HttpServletRequest request) throws HttpMediaTypeNotAcceptableException {
 		List<MediaType> mediaTypes = this.contentNegotiationManager.resolveMediaTypes(new ServletWebRequest(request));
 		return mediaTypes.isEmpty() ? Collections.singletonList(MediaType.ALL) : mediaTypes;
@@ -320,7 +323,7 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
 			super(expression);
 		}
 
-		public final boolean match(List<MediaType> acceptedMediaTypes) {
+		public final boolean match(List<MediaType> acceptedMediaTypes) { // MediaType 是否匹配, 通过这里判断
 			boolean match = matchMediaType(acceptedMediaTypes);
 			return (!isNegated() ? match : !match);
 		}

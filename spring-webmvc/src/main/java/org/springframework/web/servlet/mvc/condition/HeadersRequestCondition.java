@@ -37,6 +37,7 @@ import org.springframework.web.cors.CorsUtils;
  * @author Rossen Stoyanchev
  * @since 3.1
  */
+// @RequestMapping headers 的解析器 + 匹配器
 public final class HeadersRequestCondition extends AbstractRequestCondition<HeadersRequestCondition> {
 
 	private final static HeadersRequestCondition PRE_FLIGHT_MATCH = new HeadersRequestCondition();
@@ -52,7 +53,7 @@ public final class HeadersRequestCondition extends AbstractRequestCondition<Head
 	 * @param headers media type expressions with syntax defined in {@link RequestMapping#headers()};
 	 * if 0, the condition will match to every request
 	 */
-	public HeadersRequestCondition(String... headers) {
+	public HeadersRequestCondition(String... headers) { // 这里的 headers 指 Http 请求中的信息
 		this(parseExpressions(headers));
 	}
 
@@ -61,7 +62,7 @@ public final class HeadersRequestCondition extends AbstractRequestCondition<Head
 	}
 
 
-	private static Collection<HeaderExpression> parseExpressions(String... headers) {
+	private static Collection<HeaderExpression> parseExpressions(String... headers) { // 解析 @RequestMapping 中的 headers
 		Set<HeaderExpression> expressions = new LinkedHashSet<HeaderExpression>();
 		if (headers != null) {
 			for (String header : headers) {

@@ -145,9 +145,9 @@ public class SerializableTypeWrapperTests {
 
 		public String classType;
 
-		public List<String>[] genericArrayType;
+		public List<String>[] genericArrayType; // 泛型数组类型
 
-		public List<String> parameterizedType;
+		public List<String> parameterizedType; // 参数的类型
 
 		public T typeVariableType;
 

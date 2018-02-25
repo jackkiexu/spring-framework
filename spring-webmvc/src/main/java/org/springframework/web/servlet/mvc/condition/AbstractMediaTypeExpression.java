@@ -36,18 +36,18 @@ abstract class AbstractMediaTypeExpression implements MediaTypeExpression, Compa
 
 	private final MediaType mediaType;
 
-	private final boolean isNegated;
+	private final boolean isNegated; // 是否否定
 
 
 	AbstractMediaTypeExpression(String expression) {
-		if (expression.startsWith("!")) {
+		if (expression.startsWith("!")) {			// ! 表示否定
 			this.isNegated = true;
-			expression = expression.substring(1);
+			expression = expression.substring(1);   // 获取表达式 espression
 		}
 		else {
 			this.isNegated = false;
 		}
-		this.mediaType = MediaType.parseMediaType(expression);
+		this.mediaType = MediaType.parseMediaType(expression); // 根据 expression 解析出 MediaType
 	}
 
 	AbstractMediaTypeExpression(MediaType mediaType, boolean negated) {

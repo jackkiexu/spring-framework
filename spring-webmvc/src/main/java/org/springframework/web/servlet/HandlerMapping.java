@@ -72,7 +72,7 @@ public interface HandlerMapping {
 	 * typically support it, but handlers should not necessarily expect
 	 * this request attribute to be present in all scenarios.
 	 */
-	String BEST_MATCHING_PATTERN_ATTRIBUTE = HandlerMapping.class.getName() + ".bestMatchingPattern";  // 存储的是 RequestMappingInfo 中的 uri -> 包括 {xx} 这类
+	String BEST_MATCHING_PATTERN_ATTRIBUTE = HandlerMapping.class.getName() + ".bestMatchingPattern";  // 存储的是 RequestMappingInfo 中的
 
 	/**
 	 * Name of the boolean {@link HttpServletRequest} attribute that indicates

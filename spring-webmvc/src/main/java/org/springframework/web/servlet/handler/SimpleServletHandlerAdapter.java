@@ -27,11 +27,11 @@ import org.springframework.web.servlet.ModelAndView;
  * Adapter to use the Servlet interface with the generic DispatcherServlet.
  * Calls the Servlet's {@code service} method to handle a request.
  *
- * <p>Last-modified checking is not explicitly supported: This is typically
+ * <p>Last-modified checking is not explicitly(明确) supported: This is typically
  * handled by the Servlet implementation itself (usually deriving from
  * the HttpServlet base class).
  *
- * <p>This adapter is not activated by default; it needs to be defined as a
+ * <p>This adapter is not activated by default(默认不激活); it needs to be defined as a
  * bean in the DispatcherServlet context. It will automatically apply to
  * mapped handler beans that implement the Servlet interface then.
  *
@@ -51,6 +51,7 @@ import org.springframework.web.servlet.ModelAndView;
  * @see SimpleServletPostProcessor
  * @see org.springframework.web.servlet.mvc.ServletWrappingController
  */
+// 适配实现 Servlet 接口的 Handler, 默认调用其 service 方法
 public class SimpleServletHandlerAdapter implements HandlerAdapter {
 
 	@Override

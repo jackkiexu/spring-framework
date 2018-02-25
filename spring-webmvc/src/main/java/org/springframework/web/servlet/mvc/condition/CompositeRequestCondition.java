@@ -38,6 +38,7 @@ import org.springframework.util.ObjectUtils;
  * @author Rossen Stoyanchev
  * @since 3.2
  */
+// 组合模式的 RequestCondition
 public class CompositeRequestCondition extends AbstractRequestCondition<CompositeRequestCondition> {
 
 	private final RequestConditionHolder[] requestConditions;

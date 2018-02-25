@@ -32,11 +32,12 @@ import org.springframework.util.ObjectUtils;
  */
 public abstract class AbstractDetectingUrlHandlerMapping extends AbstractUrlHandlerMapping {
 
+	// 是否在父类 ApplicationContext 中递归获取 Handlers
 	private boolean detectHandlersInAncestorContexts = false;
 
 
 	/**
-	 * Set whether to detect handler beans in ancestor(祖先, 原种) ApplicationContexts.
+	 * Set whether to detect(获取) handler beans in ancestor(祖先, 原种) ApplicationContexts.
 	 * <p>Default is "false": Only handler beans in the current ApplicationContext
 	 * will be detected, i.e. only in the context that this HandlerMapping itself
 	 * is defined in (typically the current DispatcherServlet's context).
@@ -66,14 +67,17 @@ public abstract class AbstractDetectingUrlHandlerMapping extends AbstractUrlHand
 	 * @throws org.springframework.beans.BeansException if the handler couldn't be registered
 	 * @see #determineUrlsForHandler(String)
 	 */
+	// 注册所有在 ApplicationContext 中的 Handler
 	protected void detectHandlers() throws BeansException {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Looking for URL mappings in application context: " + getApplicationContext());
 		}
+		// 获取 ApplicationContext 中所有的 beanNames
 		String[] beanNames = (this.detectHandlersInAncestorContexts ?
 				BeanFactoryUtils.beanNamesForTypeIncludingAncestors(getApplicationContext(), Object.class) :
 				getApplicationContext().getBeanNamesForType(Object.class));
 
+		// 根据 beanName 获取所有的 urls, 并注册到 AbstractUrlHandlerMapping.handlerMap 中
 		// Take any bean name that we can determine URLs for.
 		for (String beanName : beanNames) {
 			String[] urls = determineUrlsForHandler(beanName);		// 通过  beanName 获取 url, 比如 BeanNameUrlHandlerMapping 是以 beanName 为 url <-- beanName 必需以 "/" 开头

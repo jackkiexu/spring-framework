@@ -33,8 +33,10 @@ import org.springframework.web.util.WebUtils;
  * @author Rossen Stoyanchev
  * @since 3.1
  */
+// 解析 @RequestMapping 中 param 中的匹配条件
 public final class ParamsRequestCondition extends AbstractRequestCondition<ParamsRequestCondition> {
 
+	// 参数解析器
 	private final Set<ParamExpression> expressions;
 
 
@@ -43,7 +45,7 @@ public final class ParamsRequestCondition extends AbstractRequestCondition<Param
 	 * @param params expressions with syntax defined in {@link RequestMapping#params()};
 	 * 	if 0, the condition will match to every request.
 	 */
-	public ParamsRequestCondition(String... params) {
+	public ParamsRequestCondition(String... params) { // 将 @RequestMapping 中的 params 进行解析的解析器
 		this(parseExpressions(params));
 	}
 
@@ -85,7 +87,7 @@ public final class ParamsRequestCondition extends AbstractRequestCondition<Param
 	 * from "this" and the "other" instance.
 	 */
 	@Override
-	public ParamsRequestCondition combine(ParamsRequestCondition other) {
+	public ParamsRequestCondition combine(ParamsRequestCondition other) { // 参数条件器进行组合
 		Set<ParamExpression> set = new LinkedHashSet<ParamExpression>(this.expressions);
 		set.addAll(other.expressions);
 		return new ParamsRequestCondition(set);
@@ -125,6 +127,7 @@ public final class ParamsRequestCondition extends AbstractRequestCondition<Param
 	/**
 	 * Parses and matches a single param expression to a request.
 	 */
+	// 解析 expression
 	static class ParamExpression extends AbstractNameValueExpression<String> {
 
 		ParamExpression(String expression) {

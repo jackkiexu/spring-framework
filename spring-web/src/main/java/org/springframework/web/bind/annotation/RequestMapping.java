@@ -310,6 +310,7 @@ public @interface RequestMapping {
 	 * @see org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder
 	 * @see org.springframework.web.servlet.handler.HandlerMethodMappingNamingStrategy
 	 */
+	// RequestMapping 的名称, 默认空
 	String name() default "";
 
 	/**
@@ -323,6 +324,7 @@ public @interface RequestMapping {
 	 * When used at the type level, all method-level mappings inherit
 	 * this primary mapping, narrowing it for a specific handler method.
 	 */
+	// 请求的 uri 路径, 它的别名就是 path
 	@AliasFor("path")
 	String[] value() default {};
 
@@ -350,6 +352,7 @@ public @interface RequestMapping {
 	 * gets checked before the handler method is even resolved).
 	 * <p>Supported for Servlet environments as well as Portlet 2.0 environments.
 	 */
+	// 请求的方法类别
 	RequestMethod[] method() default {};
 
 	/**
@@ -374,6 +377,7 @@ public @interface RequestMapping {
 	 * conditions uniquely identify the target handler. Different handlers may be
 	 * mapped onto the same portlet mode, as long as their parameter mappings differ.
 	 */
+	// 请求的方法参数, 只有请求中带有这个参数, 我才处理这个请求
 	String[] params() default {};
 
 	/**
@@ -399,6 +403,7 @@ public @interface RequestMapping {
 	 * and against PortletRequest properties in a Portlet 2.0 environment.
 	 * @see org.springframework.http.MediaType
 	 */
+	// 指定请求头里面的信息
 	String[] headers() default {};
 
 	/**
@@ -410,7 +415,7 @@ public @interface RequestMapping {
 	 * consumes = "text/plain"
 	 * consumes = {"text/plain", "application/*"}
 	 * </pre>
-	 * Expressions can be negated by using the "!" operator, as in "!text/plain", which matches
+	 * Expressions can be negated(否定) by using the "!" operator, as in "!text/plain", which matches
 	 * all requests with a {@code Content-Type} other than "text/plain".
 	 * <p><b>Supported at the type level as well as at the method level!</b>
 	 * When used at the type level, all method-level mappings override
@@ -418,10 +423,11 @@ public @interface RequestMapping {
 	 * @see org.springframework.http.MediaType
 	 * @see javax.servlet.http.HttpServletRequest#getContentType()
 	 */
+	// 指定 ContentType 的类型
 	String[] consumes() default {};
 
 	/**
-	 * The producible media types of the mapped request, narrowing the primary mapping.
+	 * The producible(可生产的) media types of the mapped request, narrowing the primary mapping.
 	 * <p>The format is a single media type or a sequence of media types,
 	 * with a request only mapped if the {@code Accept} matches one of these media types.
 	 * Examples:

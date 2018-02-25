@@ -35,13 +35,13 @@ import org.springframework.web.servlet.HandlerExecutionChain;
  * implementations. Provides infrastructure(基础) for mapping handlers to URLs and configurable
  * URL lookup. For information on the latter, see "alwaysUseFullPath" property.
  *
- * <p>Supports direct matches, e.g. a registered "/test" matches "/test", and
- * various Ant-style pattern matches, e.g. a registered "/t*" pattern matches
+ * <p>Supports direct matches, e.g. a registered "/test" matches "/test", and  <-- 直接匹配
+ * various Ant-style pattern matches, e.g. a registered "/t*" pattern matches  <-- 正则匹配
  * both "/test" and "/team", "/test/*" matches all paths in the "/test" directory,
  * "/test/**" matches all paths below "/test". For details, see the
  * {@link org.springframework.util.AntPathMatcher AntPathMatcher} javadoc.
  *
- * <p>Will search all path patterns to find the most exact match for the
+ * <p>Will search all path patterns to find the most exact match for the 	   <-- 查询所有的匹配路径, 找到一个最符合的
  * current request path. The most exact match is defined as the longest
  * path pattern that matches the current request path.
  *
@@ -54,11 +54,13 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 	// 处理根目录 "/" 的 handler
 	private Object rootHandler;
 
-	// 用尾部反斜杆进行匹配
+	// 是否用尾部反斜杆进行匹配
 	private boolean useTrailingSlashMatch = false;
 
+	// 在注册 Handler 到 handlerMap时, 若 Handler 是 bean Name, 是否需要将其初始化成真实的 Bean
 	private boolean lazyInitHandlers = false;
 
+	// 这里面存储了 uri <--> beanName 的映射关系
 	private final Map<String, Object> handlerMap = new LinkedHashMap<String, Object>();
 
 
@@ -118,17 +120,13 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 	protected Object getHandlerInternal(HttpServletRequest request) throws Exception {
 		// 从 Request 中得到 请求的 URL 路径
 		String lookupPath = getUrlPathHelper().getLookupPathForRequest(request);
-		// 根据路径寻找 Handler
-		/**
-		 *  将得到的 URL 路径与 Handler 进行匹配, 得到对应的 Handler, 如果没有对应的 Handler, 返回
-		 *  null, 这样默认的 Handler 会被使用
-		 */
+
+		// 将得到的 URL 路径与 Handler 进行匹配, 得到对应的 Handler, 如果没有对应的 Handler, 返回 null, 这样默认的 Handler 会被使用
 		// 从 handlerMap 查找路径对应的 beanName
 		Object handler = lookupHandler(lookupPath, request);
 		if (handler == null) {
 			// We need to care for the default handler directly, since we need to
 			// expose the PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE for it as well.
-			// 这里需要注意的是对默认 handler 的处理
 			Object rawHandler = null;
 			if ("/".equals(lookupPath)) {
 				// 如果请求的路径仅仅是 "/", 那么使用 RootHandler 进行处理
@@ -145,8 +143,9 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 					String handlerName = (String) rawHandler;
 					rawHandler = getApplicationContext().getBean(handlerName);
 				}
-				// 模板方法
+				// 模板方法 校验 hanlder 是否合法, 比如 DefaultAnnotationHandlerMapping 中校验类上面是否有 @RequestMapping 注解
 				validateHandler(rawHandler, request);
+				// 将 rawHandler HandlerInterceptor 包装到 chain 中 <- 其中涉及到 暴露 URI 模版变量 <-- 就是 www.baidu.com/{gropuId}/{userId}/{pageNo} <-- 中 groupId, userId, pageNo 的值, 其实就是 @PathVariable 这个注解解析时用到的值
 				handler = buildPathExposingHandler(rawHandler, lookupPath, lookupPath, null);
 			}
 		}
@@ -173,49 +172,49 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 	 * @see org.springframework.util.AntPathMatcher
 	 */
 	// lookupHandler  根据 URL 路径启动在 handlerMap 中对 handler 的检索, 并最终返回 handler对象
-
 	protected Object lookupHandler(String urlPath, HttpServletRequest request) throws Exception {
 		// 直接匹配情况的处理
 		// Direct match?
 		Object handler = this.handlerMap.get(urlPath);
 		if (handler != null) {
 			// Bean name or resolved handler?
-			if (handler instanceof String) {			// 若 handler 是 string 类型, 则将 handler 当作类名, 直接从 BeanFactory 中获取 Bean
+			if (handler instanceof String) {						 // 若 handler 是 string 类型, 则将 handler 当作类名, 直接从 BeanFactory 中获取 Bean
 				String handlerName = (String) handler;
 				handler = getApplicationContext().getBean(handlerName);
 			}
+			// 模板方法 校验 hanlder 是否合法, 比如 DefaultAnnotationHandlerMapping 中校验类上面是否有 @RequestMapping 注解
 			validateHandler(handler, request);
-			// 将 Handler 封装成了 HandlerExecutionChain
-			return buildPathExposingHandler(handler, urlPath, urlPath, null);
+			// 将 rawHandler HandlerInterceptor 包装到 chain 中 <- 其中涉及到 暴露 URI 模版变量 <-- 就是 www.baidu.com/{gropuId}/{userId}/{pageNo} <-- 中 groupId, userId, pageNo 的值, 其实就是 @PathVariable 这个注解解析时用到的值
+			return buildPathExposingHandler(handler, urlPath, urlPath, null);  // <-- 最后一个参数是 null, 则 URI 模版参数就没有了
 		}
 
 		// 通配符匹配的处理
 		// Pattern match?
 		List<String> matchingPatterns = new ArrayList<String>();
 		for (String registeredPattern : this.handlerMap.keySet()) {
-			if (getPathMatcher().match(registeredPattern, urlPath)) { // 通过 AntPathMatcher 来进行匹配
-				matchingPatterns.add(registeredPattern);
+			if (getPathMatcher().match(registeredPattern, urlPath)) { // 通过 AntPathMatcher 来进行匹配 <-- 正则匹配
+				matchingPatterns.add(registeredPattern);			  // 匹配成功, 加入 matchingPatterns <-- matchingPatterns 里面可能有多个值
 			}
-			else if (useTrailingSlashMatch()) { // 是否使用尾部反斜杆进行匹配, 若是的话, 则直接在尾部加上 "/" 再进行匹配
+			else if (useTrailingSlashMatch()) { 					  // 是否使用尾部反斜杆进行匹配, 若是的话, 则直接在尾部加上 "/" 再进行匹配
 				if (!registeredPattern.endsWith("/") && getPathMatcher().match(registeredPattern + "/", urlPath)) {
-					matchingPatterns.add(registeredPattern +"/");
+					matchingPatterns.add(registeredPattern +"/");     // 匹配成功, 加入 matchingPatterns <-- matchingPatterns 里面可能有多个值
 				}
 			}
 		}
 
-		String bestMatch = null; // 获取 AntPatternComparator, 主要是处理多个 urlPath 的排序
+		String bestMatch = null;							          // 获取 AntPatternComparator, 主要是处理多个 urlPath 的排序
 		Comparator<String> patternComparator = getPathMatcher().getPatternComparator(urlPath);
-		if (!matchingPatterns.isEmpty()) { // 通过 AntPatternComparator 进行排序, 获取排序的第一个值
+		if (!matchingPatterns.isEmpty()) { 							  // 通过 AntPatternComparator 进行排序, 获取排序的第一个值
 			Collections.sort(matchingPatterns, patternComparator);
 			if (logger.isDebugEnabled()) {
 				logger.debug("Matching patterns for request [" + urlPath + "] are " + matchingPatterns);
 			}
-			bestMatch = matchingPatterns.get(0);
+			bestMatch = matchingPatterns.get(0);					  // 获取匹配成功的第一个路径
 		}
-		if (bestMatch != null) { // 从 handlerMap 从获取 bestMatch 匹配的 handler
-			handler = this.handlerMap.get(bestMatch);
-			if (handler == null) { // 若获取不到, 但 bestMatch 又是以 "/" 结尾的, 则去除 "/", 再从 handlerMap 里面获取一次
-				if (bestMatch.endsWith("/")) {
+		if (bestMatch != null) {
+			handler = this.handlerMap.get(bestMatch);				  // 从 handlerMap 从获取 bestMatch 匹配的 handler
+			if (handler == null) {
+				if (bestMatch.endsWith("/")) {						  // 若获取不到, 但 bestMatch 又是以 "/" 结尾的, 则去除 "/", 再从 handlerMap 里面获取一次
 					handler = this.handlerMap.get(bestMatch.substring(0, bestMatch.length() - 1));
 				}
 				if (handler == null) {
@@ -223,19 +222,18 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 							"Could not find handler for best pattern match [" + bestMatch + "]");
 				}
 			}
-			// 若从 handlerMap 里面获取出的 handler 是 String, 则再从 ApplicationContext 里面获取对应的 Bean
+
 			// Bean name or resolved handler?
-			if (handler instanceof String) {
+			if (handler instanceof String) {						  // 若从 handlerMap 里面获取出的 handler 是 String, 则再从 ApplicationContext 里面获取对应的 Bean
 				String handlerName = (String) handler;
 				handler = getApplicationContext().getBean(handlerName);
 			}
-			validateHandler(handler, request);
+			validateHandler(handler, request);						  // 模板方法 校验 hanlder 是否合法, 比如 DefaultAnnotationHandlerMapping 中校验类上面是否有 @RequestMapping 注解
 			// 获取 正则表达式中 *, ? 所代表的真实字符串
 			String pathWithinMapping = getPathMatcher().extractPathWithinPattern(bestMatch, urlPath);
 
-			// 针对 多个 "best patterns" 的附加处理
 			// There might be multiple 'best patterns', let's make sure we have the correct URI template variables
-			// for all of them
+			// for all of them										  // 获取 URI 模版变量的值
 			Map<String, String> uriTemplateVariables = new LinkedHashMap<String, String>();
 			for (String matchingPattern : matchingPatterns) {
 				if (patternComparator.compare(bestMatch, matchingPattern) == 0) {
@@ -247,6 +245,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 			if (logger.isDebugEnabled()) {
 				logger.debug("URI Template variables for request [" + urlPath + "] are " + uriTemplateVariables);
 			}
+			// 将 rawHandler HandlerInterceptor 包装到 chain 中 <- 其中涉及到 暴露 URI 模版变量 <-- 就是 www.baidu.com/{gropuId}/{userId}/{pageNo} <-- 中 groupId, userId, pageNo 的值, 其实就是 @PathVariable 这个注解解析时用到的值
 			return buildPathExposingHandler(handler, bestMatch, pathWithinMapping, uriTemplateVariables);
 		}
 
@@ -281,7 +280,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 
 		HandlerExecutionChain chain = new HandlerExecutionChain(rawHandler);
 		chain.addInterceptor(new PathExposingHandlerInterceptor(bestMatchingPattern, pathWithinMapping));
-		if (!CollectionUtils.isEmpty(uriTemplateVariables)) {
+		if (!CollectionUtils.isEmpty(uriTemplateVariables)) {			// 若 URI 模版变量不为空, 则添加拦截器 UriTemplateVariablesHandlerInterceptor
 			chain.addInterceptor(new UriTemplateVariablesHandlerInterceptor(uriTemplateVariables));
 		}
 		return chain;
@@ -304,6 +303,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 	 * @param request the request to expose the path to
 	 * @see #PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE
 	 */
+	// 暴露 URI 模版变量 <-- 就是 www.baidu.com/{gropuId}/{userId}/{pageNo} <-- 中 groupId, userId, pageNo 的值
 	protected void exposeUriTemplateVariables(Map<String, String> uriTemplateVariables, HttpServletRequest request) {
 		request.setAttribute(URI_TEMPLATE_VARIABLES_ATTRIBUTE, uriTemplateVariables);
 	}
@@ -329,7 +329,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 	 * @throws BeansException if the handler couldn't be registered
 	 * @throws IllegalStateException if there is a conflicting handler registered
 	 */
-	// 将处理的 url 与 beanName 注册
+	// 将 urls 与 beanName 的映射关系注册到 handlerMap
 	protected void registerHandler(String[] urlPaths, String beanName) throws BeansException, IllegalStateException {
 		Assert.notNull(urlPaths, "URL path array must not be null");
 		for (String urlPath : urlPaths) {
@@ -352,16 +352,16 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 		Assert.notNull(handler, "Handler object must not be null");
 		Object resolvedHandler = handler;
 
-		// 如果直接用 bean 名称进行映射, 那就直接从容器中获取 handler
+		// 若 handler 是 String (BeanName), 是否需要将其初始化成 Bean
 		// Eagerly resolve handler if referencing singleton via name.
 		if (!this.lazyInitHandlers && handler instanceof String) {
 			String handlerName = (String) handler;
-			if (getApplicationContext().isSingleton(handlerName)) {
+			if (getApplicationContext().isSingleton(handlerName)) { // 从 ApplicationContext 拿出 Handler
 				resolvedHandler = getApplicationContext().getBean(handlerName);
 			}
 		}
 
-		// 是否已存在对应的 handler
+		// 是否已存在对应的 handler, 若存在, 且里面存储的 handler 与现在将注入进去的不同, 则抛出异常
 		Object mappedHandler = this.handlerMap.get(urlPath);
 		if (mappedHandler != null) {
 			if (mappedHandler != resolvedHandler) {
@@ -370,9 +370,8 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 						"]: There is already " + getHandlerDescription(mappedHandler) + " mapped.");
 			}
 		}
-		else {
+		else { // 不存在 handler
 			// 处理 URL 是 "/" 地映射, 把这个 "/" 映射地 controller 设置到 rootHandler 中
-			// 未存在
 			if (urlPath.equals("/")) {
 				// "/" --> 设置为 rootHandler
 				if (logger.isInfoEnabled()) {
@@ -380,7 +379,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 				}
 				setRootHandler(resolvedHandler);
 			}
-			// 处理 URL 是 "/*" 地映射, 把这个 "/*" 映射地 controller 设置到 rootHandler 中
+			// 处理 URL 是 "/*" 地映射, 把这个 "/*" 映射地 controller 设置到 defaultHandler 中
 			else if (urlPath.equals("/*")) {
 				// 对 "/*" 的匹配 设置默认的 handler
 				if (logger.isInfoEnabled()) {
@@ -427,6 +426,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 	 * {@link AbstractUrlHandlerMapping#PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE} attribute.
 	 * @see AbstractUrlHandlerMapping#exposePathWithinMapping
 	 */
+
 	private class PathExposingHandlerInterceptor extends HandlerInterceptorAdapter {
 
 		private final String bestMatchingPattern;
@@ -452,6 +452,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 	 * {@link AbstractUrlHandlerMapping#URI_TEMPLATE_VARIABLES_ATTRIBUTE} attribute.
 	 * @see AbstractUrlHandlerMapping#exposePathWithinMapping
 	 */
+	// 用于将 URI 中的信息暴露到 HttpServletRequest 的拦截器
 	private class UriTemplateVariablesHandlerInterceptor extends HandlerInterceptorAdapter {
 
 		private final Map<String, String> uriTemplateVariables;

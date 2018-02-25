@@ -54,17 +54,17 @@ public class HandlerMethod {
 
 	/** Logger that is available to subclasses */
 	protected final Log logger = LogFactory.getLog(getClass());
-
+	// 方法 Method 所属的 Bean 实例
 	private final Object bean;
-
+	// Bean 实例所属的 BeanFactory
 	private final BeanFactory beanFactory;
-
+	// 方法所属的 Bean 的类型 <-- 若遇到 CGLib 生成的类, 则自动获取原始类
 	private final Class<?> beanType;
-
+	// 将要激活的方法
 	private final Method method;
-
+	// 桥接方法 <-- 涉及范型时先调用桥接方法, 然后在桥接方法内强转真实方法的参数, 再执行方法
 	private final Method bridgedMethod;
-
+	// 方法的参数列表
 	private final MethodParameter[] parameters;
 
 	private HttpStatus responseStatus;

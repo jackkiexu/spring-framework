@@ -33,12 +33,13 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.util.UrlPathHelper;
 
 /**
- * A logical disjunction (' || ') request condition that matches a request
+ * A logical disjunction(分离, 分析) (' || ') request condition that matches a request
  * against a set of URL path patterns.
  *
  * @author Rossen Stoyanchev
  * @since 3.1
  */
+// 解析 @RequestMapping 中 value | pattern 的条件解析器 | 匹配器
 public final class PatternsRequestCondition extends AbstractRequestCondition<PatternsRequestCondition> {
 
 	private final Set<String> patterns;
@@ -59,7 +60,7 @@ public final class PatternsRequestCondition extends AbstractRequestCondition<Pat
 	 * Each pattern that is not empty and does not start with "/" is prepended with "/".
 	 * @param patterns 0 or more URL patterns; if 0 the condition will match to every request.
 	 */
-	public PatternsRequestCondition(String... patterns) {
+	public PatternsRequestCondition(String... patterns) { // 这里的 patterns 其实就是 @RequestMapping 的 path | value
 		this(asList(patterns), null, null, true, true, null);
 	}
 
@@ -128,7 +129,7 @@ public final class PatternsRequestCondition extends AbstractRequestCondition<Pat
 		}
 		Set<String> result = new LinkedHashSet<String>(patterns.size());
 		for (String pattern : patterns) {
-			if (StringUtils.hasLength(pattern) && !pattern.startsWith("/")) {
+			if (StringUtils.hasLength(pattern) && !pattern.startsWith("/")) {  // 若 pattern 不是以 "/" 开头, 则加上
 				pattern = "/" + pattern;
 			}
 			result.add(pattern);
@@ -159,9 +160,9 @@ public final class PatternsRequestCondition extends AbstractRequestCondition<Pat
 	 * <li>If only one instance has patterns, use them.
 	 * <li>If neither instance has patterns, use an empty String (i.e. "").
 	 * </ul>
-	 */
+	 */ // 联合 pattern
 	@Override
-	public PatternsRequestCondition combine(PatternsRequestCondition other) {
+	public PatternsRequestCondition combine(PatternsRequestCondition other) {		// combine 联合,组合 PatternsRequestCondition
 		Set<String> result = new LinkedHashSet<String>();
 		if (!this.patterns.isEmpty() && !other.patterns.isEmpty()) {
 			for (String pattern1 : this.patterns) {
@@ -200,14 +201,14 @@ public final class PatternsRequestCondition extends AbstractRequestCondition<Pat
 	 * or {@code null} if no patterns match.
 	 */
 	@Override
-	public PatternsRequestCondition getMatchingCondition(HttpServletRequest request) {
+	public PatternsRequestCondition getMatchingCondition(HttpServletRequest request) { // 从 HttpServletRequest 中获取 PatternsRequestCondition
 
 		if (this.patterns.isEmpty()) {
 			return this;
 		}
 
-		String lookupPath = this.pathHelper.getLookupPathForRequest(request);
-		List<String> matches = getMatchingPatterns(lookupPath);
+		String lookupPath = this.pathHelper.getLookupPathForRequest(request); // 获取请求的 uri
+		List<String> matches = getMatchingPatterns(lookupPath);				  // 解析出
 
 		return matches.isEmpty() ? null :
 			new PatternsRequestCondition(matches, this.pathHelper, this.pathMatcher, this.useSuffixPatternMatch,
@@ -223,10 +224,10 @@ public final class PatternsRequestCondition extends AbstractRequestCondition<Pat
 	 * @param lookupPath the lookup path to match to existing patterns
 	 * @return a collection of matching patterns sorted with the closest match at the top
 	 */
-	public List<String> getMatchingPatterns(String lookupPath) {
+	public List<String> getMatchingPatterns(String lookupPath) { // 根据 uri 获取 @RequestMapping 中 path 中与之匹配的 pattern
 		List<String> matches = new ArrayList<String>();
 		for (String pattern : this.patterns) {
-			String match = getMatchingPattern(pattern, lookupPath);
+			String match = getMatchingPattern(pattern, lookupPath); // 获取匹配 lookupPath 的 pattern
 			if (match != null) {
 				matches.add(match);
 			}

@@ -25,6 +25,7 @@ import org.springframework.util.CollectionUtils;
 
 /**
  * Implementation of the {@link org.springframework.web.servlet.HandlerMapping}
+ *              映射 从    URL  ->   处理请求的 Bean
  * interface to map from URLs to request handler beans. Supports both mapping to bean
  * instances and mapping to bean names; the latter is required for non-singleton handlers.
  *
@@ -37,6 +38,7 @@ import org.springframework.util.CollectionUtils;
  * /welcome.html=ticketController
  * /show.html=ticketController
  * }<br>
+ *     PATH <--> beanName
  * The syntax is {@code PATH=HANDLER_BEAN_NAME}.
  * If the path doesn't begin with a slash, one is prepended.
  *
@@ -60,6 +62,7 @@ import org.springframework.util.CollectionUtils;
  */
 public class SimpleUrlHandlerMapping extends AbstractUrlHandlerMapping {
 
+	// urlMap 中存储的是 uri <--> beanName
 	private final Map<String, Object> urlMap = new LinkedHashMap<String, Object>();
 
 

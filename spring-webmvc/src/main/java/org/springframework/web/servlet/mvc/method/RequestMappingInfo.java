@@ -50,25 +50,27 @@ import org.springframework.web.util.UrlPathHelper;
  * @author Rossen Stoyanchev
  * @since 3.1
  */
+// @RequestMapping 信息解析器, 实现 RequestCondition 实现从 HttpServletRequest 中获取 path, header, param, consumes, produces 等信息
 public final class RequestMappingInfo implements RequestCondition<RequestMappingInfo> {
 
+	// @RequestMapping 中的信息
 	private final String name;
-
+	// @RequestMapping 中 value|path 的解析器, 主要用于解析 HttpServletRequest 中的信息, 并进行匹配
 	private final PatternsRequestCondition patternsCondition;
-
+	// @RequestMapping 中 RequestMethod 的解析器, 主要用于解析 HttpServletRequest 中的信息, 并进行匹配
 	private final RequestMethodsRequestCondition methodsCondition;
-
+	// @RequestMapping 中 param 的解析器, 主要用于解析 HttpServletRequest 中的信息, 并进行匹配
 	private final ParamsRequestCondition paramsCondition;
-
+	// @RequestMapping 中 headers 的解析器, 主要用于解析 HttpServletRequest 中的信息, 并进行匹配
 	private final HeadersRequestCondition headersCondition;
-
+	// @RequestMapping 中 consumes 的解析器, 主要用于解析 HttpServletRequest 中的信息, 并进行匹配
 	private final ConsumesRequestCondition consumesCondition;
-
+	// @RequestMapping 中 produces 的解析器, 主要用于解析 HttpServletRequest 中的信息, 并进行匹配
 	private final ProducesRequestCondition producesCondition;
-
+	// RequestCondition 的 holder
 	private final RequestConditionHolder customConditionHolder;
 
-
+	// RequestMappingInfo 构造器
 	public RequestMappingInfo(String name, PatternsRequestCondition patterns, RequestMethodsRequestCondition methods,
 			ParamsRequestCondition params, HeadersRequestCondition headers, ConsumesRequestCondition consumes,
 			ProducesRequestCondition produces, RequestCondition<?> custom) {
@@ -170,15 +172,23 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 	 * <p>Example: combine type- and method-level request mappings.
 	 * @return a new request mapping info instance; never {@code null}
 	 */
+	// 组合另外一个 RequestMappingInfo, 生成一个 RequestMappingInfo
 	@Override
 	public RequestMappingInfo combine(RequestMappingInfo other) {
 		String name = combineNames(other);
+		// 组合 path|value
 		PatternsRequestCondition patterns = this.patternsCondition.combine(other.patternsCondition);
+		// 组合 HttpMethod
 		RequestMethodsRequestCondition methods = this.methodsCondition.combine(other.methodsCondition);
+		// 组合 params
 		ParamsRequestCondition params = this.paramsCondition.combine(other.paramsCondition);
+		// 组合 Http 请求头中的 header
 		HeadersRequestCondition headers = this.headersCondition.combine(other.headersCondition);
+		// 组合@RequestMapping 中可消费de consumes
 		ConsumesRequestCondition consumes = this.consumesCondition.combine(other.consumesCondition);
+		// 组合@RequestMapping 中可产出的 consumes
 		ProducesRequestCondition produces = this.producesCondition.combine(other.producesCondition);
+		// 组合 RequestCondition 的 Holder
 		RequestConditionHolder custom = this.customConditionHolder.combine(other.customConditionHolder);
 
 		return new RequestMappingInfo(name, patterns,
@@ -205,6 +215,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 	 * the current request, sorted with best matching patterns on top.
 	 * @return a new instance in case all conditions match; or {@code null} otherwise
 	 */
+	// 通过一个 HttpServletRequest 获取一个 RequestMappingInfo
 	@Override
 	public RequestMappingInfo getMatchingCondition(HttpServletRequest request) {
 		RequestMethodsRequestCondition methods = this.methodsCondition.getMatchingCondition(request);
@@ -342,6 +353,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 	}
 
 
+	// RequestMappingInfo 的构造器
 	/**
 	 * Defines a builder for creating a RequestMappingInfo.
 	 * @since 4.2
@@ -479,6 +491,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 			return this;
 		}
 
+		// 构造 RequestMappingInfo
 		@Override
 		public RequestMappingInfo build() {
 			ContentNegotiationManager manager = this.options.getContentNegotiationManager();
@@ -506,6 +519,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 	 * @since 4.2
 	 * @see Builder#options
 	 */
+	// RequestMappingInfo 构造器的配置器 <- 提供配置信息的作用
 	public static class BuilderConfiguration {
 
 		private UrlPathHelper urlPathHelper;

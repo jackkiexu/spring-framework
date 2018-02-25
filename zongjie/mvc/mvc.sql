@@ -13,6 +13,7 @@ SpringMVC 成员组件
 1. GenericConverter 与 Converter<S, T>, ConversionService, PropertyEditorRegistry, PropertyEditor, WebDataBinder, RequestResponseBodyAdviceChain 接口
   参考:
     http://www.logicbig.com/tutorials/spring-framework/spring-core/conversion-service/
+    java在运行时获取泛型类型 ?????
 
 2. HandlerMethodArgumentResolver 接口
   @PathVariable   -->  PathVariableMethodArgumentResolver
@@ -26,7 +27,14 @@ SpringMVC 成员组件
   @ResponseBody   --> RequestResponseBodyMethodProcessor
 
 2. HandlerMapping 接口
+  2.1 SimpleUrlHandlerMapping 在xml中配置好映射关系的 HandlerMapping
+  2.2 BeanNameUrlHandlerMapping 以 beanName 为映射 key 的 HandlerMapping <-- 继承 AbstractDetectingUrlHandlerMapping, 自动获取ApplicationContext中的所有类
+  2.3 RequestMappingHandlerMapping
 
 3. HandlerAdapter 接口
 
 4. ContentNegotiationStrategy 接口
+
+1. SpringMVC  组件概述
+2. SpringMVC  启动过程
+3. SpringMVC  一次请求过程

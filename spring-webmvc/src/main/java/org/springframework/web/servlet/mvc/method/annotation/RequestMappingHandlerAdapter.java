@@ -113,8 +113,8 @@ import org.springframework.web.util.WebUtils;
  * @see HandlerMethodArgumentResolver
  * @see HandlerMethodReturnValueHandler
  */
-public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
-		implements BeanFactoryAware, InitializingBean {
+public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter implements BeanFactoryAware, InitializingBean {
+
 	// 参数解析器 HandlerMethodArgumentResolver, 比如 RequestResponseBodyMethodProcessor
 	private List<HandlerMethodArgumentResolver> customArgumentResolvers;
 	// 组合模式的参数解析器

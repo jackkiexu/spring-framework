@@ -71,18 +71,18 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 
 	private int order = Integer.MAX_VALUE;  // default: same as non-Ordered
 
-	// 默认的工具类
+	// 默认请求处理器, 在找不到 Handler时返回的默认值
 	private Object defaultHandler;
 
 	// 获取 url 的工具类
 	private UrlPathHelper urlPathHelper = new UrlPathHelper();
 
-	// 路径匹配器
+	// 路径匹配器 <- 进行正则之类匹配的操作
 	private PathMatcher pathMatcher = new AntPathMatcher();
 
-	// Handler 处理拦截器
+	// Handler 处理拦截器 <- 最后还是会将拦截器放入 adaptedInterceptors 中
 	private final List<Object> interceptors = new ArrayList<Object>();
-
+	// Handler 处理拦截器, 这个与 interceptors不同, 在封装 Chain 时其实使用的是 adaptedInterceptors
 	private final List<HandlerInterceptor> adaptedInterceptors = new ArrayList<HandlerInterceptor>();
 
 	// 跨域资源共享（Cross-origin resource sharing）
@@ -366,13 +366,11 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 	// 获取处理链对象
 	@Override
 	public final HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception {
-		// getHandlerInternal(request) 方法为抽象方法, 供子类实现
-		// 获取到的 handler 对象一般为 bean/HandlerMathod
+		// 获取到的 handler 对象一般为 bean/HandlerMathod, 它是方法为抽象方法, 供子类实现
 		Object handler = getHandlerInternal(request);			// 正真调用的是 AbstractHandlerMethodMapping#getHandlerInternal()
-		// 使用默认 handler, 也就是 "/" 对应的 handler
+
 		// 上述找不到则使用默认的处理类, 没有设定则返回 null, 则会返回前台 404 错误
 		if (handler == null) {
-			// 如果没有对应的 request 的 handler 则使用默认的 handler
 			handler = getDefaultHandler();
 		}
 		// 如果也没有提供默认的 handler, 则无法继续处理返回 null
@@ -386,9 +384,9 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 			handler = getApplicationContext().getBean(handlerName);
 		}
 
-		// 创建处理链对象
+		// 创建处理链对象 <-- 其中就是封装 HandlerInterceptor 与 Handler
 		HandlerExecutionChain executionChain = getHandlerExecutionChain(handler, request);
-		// 针对 cros 跨域请求的处理, 此处就不分析了
+		// 针对 cros 跨域请求的处理
 		if (CorsUtils.isCorsRequest(request)) {
 			CorsConfiguration globalConfig = this.corsConfigSource.getCorsConfiguration(request);
 			CorsConfiguration handlerConfig = getCorsConfiguration(handler, request);
@@ -414,6 +412,7 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 	 * @return the corresponding handler instance, or {@code null} if none found
 	 * @throws Exception if there is an internal error
 	 */
+	// 获取 request 对应的 Handler <-- 这里的 Handler 有可能是 beanName, 有可能是 Bean, 有可能是 HanderMethod
 	protected abstract Object getHandlerInternal(HttpServletRequest request) throws Exception;
 
 	/**
@@ -444,10 +443,12 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 				(HandlerExecutionChain) handler : new HandlerExecutionChain(handler));
 		// 从 request 中获取 url
 		String lookupPath = this.urlPathHelper.getLookupPathForRequest(request);
+		// 组装 Chain 中的 HandlerInterceptor
 		for (HandlerInterceptor interceptor : this.adaptedInterceptors) {
 			if (interceptor instanceof MappedInterceptor) {
 				// 若是 MappedInterceptor, 则查看其是否匹配, 匹配的话, 才加入到 chain
 				MappedInterceptor mappedInterceptor = (MappedInterceptor) interceptor;
+				// 判断 MappedInterceptor 是否匹配 这个 lookupPath, 匹配的话则加入 chain
 				if (mappedInterceptor.matches(lookupPath, this.pathMatcher)) {
 					chain.addInterceptor(mappedInterceptor.getInterceptor());
 				}

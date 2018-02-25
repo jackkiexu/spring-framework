@@ -42,13 +42,13 @@ import org.springframework.web.servlet.ModelAndView;
  * @since 3.0
  */
 public final class MappedInterceptor implements HandlerInterceptor {
-
+	// 包含的路径
 	private final String[] includePatterns;
-
+	// exclude 的路径
 	private final String[] excludePatterns;
-
+	// SpringMVC handler 的拦截器
 	private final HandlerInterceptor interceptor;
-
+	// MappedInterceptor 的模式匹配器
 	private PathMatcher pathMatcher;
 
 
@@ -147,6 +147,7 @@ public final class MappedInterceptor implements HandlerInterceptor {
 	 * @param lookupPath the current request path
 	 * @param pathMatcher a path matcher for path pattern matching
 	 */
+	// 检测 MappedInterceptor 是否匹配这个 lookupPath
 	public boolean matches(String lookupPath, PathMatcher pathMatcher) {
 		PathMatcher pathMatcherToUse = (this.pathMatcher != null) ? this.pathMatcher : pathMatcher;
 		if (this.excludePatterns != null) {

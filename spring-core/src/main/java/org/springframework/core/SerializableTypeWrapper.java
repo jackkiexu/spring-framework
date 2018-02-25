@@ -149,16 +149,16 @@ abstract class SerializableTypeWrapper {
 		if (provider.getType() instanceof Serializable || provider.getType() == null) {
 			return provider.getType();
 		}
-		Type cached = cache.get(provider.getType());
+		Type cached = cache.get(provider.getType());   // 从缓存中获取数据
 		if (cached != null) {
 			return cached;
 		}
 		for (Class<?> type : SUPPORTED_SERIALIZABLE_TYPES) {
-			if (type.isAssignableFrom(provider.getType().getClass())) {
+			if (type.isAssignableFrom(provider.getType().getClass())) {   // 判断 Type 的类型
 				ClassLoader classLoader = provider.getClass().getClassLoader();
 				Class<?>[] interfaces = new Class<?>[] {type, SerializableTypeProxy.class, Serializable.class};
 				InvocationHandler handler = new TypeProxyInvocationHandler(provider);
-				cached = (Type) Proxy.newProxyInstance(classLoader, interfaces, handler);
+				cached = (Type) Proxy.newProxyInstance(classLoader, interfaces, handler);  // 生成动态代理
 				cache.put(provider.getType(), cached);
 				return cached;
 			}
@@ -263,7 +263,7 @@ abstract class SerializableTypeWrapper {
 
 	/**
 	 * {@link TypeProvider} for {@link Type}s obtained from a {@link Field}.
-	 */
+	 */ // Field 封装器
 	@SuppressWarnings("serial")
 	static class FieldTypeProvider implements TypeProvider {
 
@@ -274,8 +274,8 @@ abstract class SerializableTypeWrapper {
 		private transient Field field;
 
 		public FieldTypeProvider(Field field) {
-			this.fieldName = field.getName();
-			this.declaringClass = field.getDeclaringClass();
+			this.fieldName = field.getName(); // 类属性的名称
+			this.declaringClass = field.getDeclaringClass(); // 声明这个 field 的类
 			this.field = field;
 		}
 

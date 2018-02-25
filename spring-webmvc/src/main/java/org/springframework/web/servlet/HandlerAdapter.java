@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * <p>Interface that must be implemented for each handler type to handle a request.
  * This interface is used to allow the {@link DispatcherServlet} to be indefinitely
- * extensible. The {@code DispatcherServlet} accesses all installed handlers through
+ * extensible(可扩展). The {@code DispatcherServlet} accesses all installed handlers through
  * this interface, meaning that it does not contain code specific to any handler type.
  *
  * <p>Note that a handler can be of type {@code Object}. This is to enable
@@ -58,6 +58,14 @@ public interface HandlerAdapter {
 	 * @param handler handler object to check
 	 * @return whether or not this object can use the given handler
 	 */
+	/** HandlerAdapter 是否支持这个 handler <-- 通常是检查这个 handler 是否是某一类
+	 *  如
+	 *    SimpleServletHandlerAdapter      -->  javax.servlet.Servlet
+	 *    SimpleControllerHandlerAdapter   -->  org.springframework.web.servlet.mvc.Controller
+	 *    HttpRequestHandlerAdapter        -->  org.springframework.web.HttpRequestHandler
+	 *    RequestMappingHandlerAdapter     -->  handler instanceof HandlerMethod
+	 * PS: 整个 DispatcherServlet 的入口是 HandlerAdapter.handle, 但其中真正执行的可能是  Servlet, Controller, HttpRequestHandler, HandlerMethod; 这时就需要 HandlerAdapter 来进行适配操作
+	 */
 	boolean supports(Object handler);
 
 	/**
@@ -72,6 +80,7 @@ public interface HandlerAdapter {
 	 * @return ModelAndView object with the name of the view and the required
 	 * model data, or {@code null} if the request has been handled directly
 	 */
+	// 处理 HttpServletRequest 的入口方法
 	ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception;
 
 	/**
@@ -83,6 +92,7 @@ public interface HandlerAdapter {
 	 * @see javax.servlet.http.HttpServlet#getLastModified
 	 * @see org.springframework.web.servlet.mvc.LastModified#getLastModified
 	 */
+	// Http 请求中的lastModifiedTime, 默认 -1
 	long getLastModified(HttpServletRequest request, Object handler);
 
 }

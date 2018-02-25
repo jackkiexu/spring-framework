@@ -697,6 +697,11 @@ public class RequestResponseBodyMethodProcessorTests {
 		assertEquals("UTF-8", this.servletResponse.getCharacterEncoding());
 	}
 
+
+
+
+	//////////////////////////////////////////////////// 范型值的获取
+
 	@Test  // SPR-14520
 	public void resolveArgumentTypeVariableWithGenericInterface() throws Exception {
 		this.servletRequest.setContent("\"foo\"".getBytes("UTF-8"));
@@ -1049,6 +1054,7 @@ public class RequestResponseBodyMethodProcessorTests {
 	}
 
 
+	//////////////////////////////// 这里就是解决范型值的获取
 	interface MappingInterface<A> {
 
 		default A handle(@RequestBody A arg) {

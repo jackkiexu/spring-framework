@@ -136,7 +136,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 		Object arg = readWithMessageConverters(webRequest, parameter, parameter.getNestedGenericParameterType());
 		String name = Conventions.getVariableNameForParameter(parameter);		  // 获取参数的名字
 
-		WebDataBinder binder = binderFactory.createBinder(webRequest, arg, name);
+		WebDataBinder binder = binderFactory.createBinder(webRequest, arg, name); // arg 参数的值, name 参数的名字
 		if (arg != null) {
 			validateIfApplicable(binder, parameter);		// @Validated 进行参数的校验
 			if (binder.getBindingResult().hasErrors() && isBindExceptionRequired(binder, parameter)) { // 若有异常则直接暴出来

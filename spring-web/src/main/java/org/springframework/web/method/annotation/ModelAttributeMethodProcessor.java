@@ -79,7 +79,7 @@ public class ModelAttributeMethodProcessor implements HandlerMethodArgumentResol
 	 */
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
-		return (parameter.hasParameterAnnotation(ModelAttribute.class) ||
+		return (parameter.hasParameterAnnotation(ModelAttribute.class) || // 参数被 @ModelAttribute 修饰, 且不是简单类型
 				(this.annotationNotRequired && !BeanUtils.isSimpleProperty(parameter.getParameterType())));
 	}
 
@@ -96,9 +96,9 @@ public class ModelAttributeMethodProcessor implements HandlerMethodArgumentResol
 	public final Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
 			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
 
-		String name = ModelFactory.getNameForParameter(parameter);
+		String name = ModelFactory.getNameForParameter(parameter); // 获取 @ModelAttribute 中指定 name
 		Object attribute = (mavContainer.containsAttribute(name) ? mavContainer.getModel().get(name) :
-				createAttribute(name, parameter, binderFactory, webRequest));
+				createAttribute(name, parameter, binderFactory, webRequest)); // 从 ModelAndViewContainer.ModelMap 中获取数据值
 
 		if (!mavContainer.isBindingDisabled(name)) {
 			ModelAttribute ann = parameter.getParameterAnnotation(ModelAttribute.class);
@@ -190,7 +190,7 @@ public class ModelAttributeMethodProcessor implements HandlerMethodArgumentResol
 	 * a simple type.
 	 */
 	@Override
-	public boolean supportsReturnType(MethodParameter returnType) {
+	public boolean supportsReturnType(MethodParameter returnType) { // 返回值被 @ModelAttribute 修饰, 且不是简单类型
 		return (returnType.hasMethodAnnotation(ModelAttribute.class) ||
 				(this.annotationNotRequired && !BeanUtils.isSimpleProperty(returnType.getParameterType())));
 	}

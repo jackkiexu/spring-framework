@@ -34,6 +34,10 @@ import org.springframework.web.method.support.InvocableHandlerMethod;
  *
  * @author Rossen Stoyanchev
  * @since 3.1
+ *
+ * 参考资料
+ * 	http://blog.csdn.net/songzaiblog/article/details/49757253
+ *
  */
 public class InitBinderDataBinderFactory extends DefaultDataBinderFactory {
 

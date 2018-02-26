@@ -23,9 +23,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation that identifies methods which initialize the
+ * Annotation that identifies methods which initialize(初始化) the
  * {@link org.springframework.web.bind.WebDataBinder} which
- * will be used for populating command and form object arguments
+ * will be used for populating(构成) command and form object arguments
  * of annotated handler methods.
  *
  * <p>Such init-binder methods support all arguments that {@link RequestMapping}

@@ -48,9 +48,9 @@ import org.springframework.web.method.HandlerMethod;
 public class InvocableHandlerMethod extends HandlerMethod {
 
 	private WebDataBinderFactory dataBinderFactory;
-
+	// HandlerMethodArgumentResolver HandlerMethod 参数解析器
 	private HandlerMethodArgumentResolverComposite argumentResolvers = new HandlerMethodArgumentResolverComposite();
-
+	// 参数名解析器 -> 获取方法的真实参数名称
 	private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
 

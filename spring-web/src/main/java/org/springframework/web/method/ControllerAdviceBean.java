@@ -50,17 +50,17 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
  * @since 3.2
  */
 public class ControllerAdviceBean implements Ordered {
-
+	// 被 @ControllerAdvice 修饰的 Bean
 	private final Object bean;
-
+	// 工厂类
 	private final BeanFactory beanFactory;
-
+	// ControllerAdvice 的优先级
 	private final int order;
-
+	// 这个 @ControllerAdvice 只增强 basePackages 目录下面的类
 	private final Set<String> basePackages;
-
+	// 这个 @ControllerAdvice 只增强 assignableTypes 这些类别的类
 	private final List<Class<?>> assignableTypes;
-
+	// 这个 @ControllerAdvice 只增强 被这些注解修饰的类
 	private final List<Class<? extends Annotation>> annotations;
 
 
@@ -86,7 +86,7 @@ public class ControllerAdviceBean implements Ordered {
 		this.beanFactory = beanFactory;
 		Class<?> beanType;
 
-		if (bean instanceof String) {
+		if (bean instanceof String) { // 若是 String 的话, 直接从 ApplicationContext 获取对应的真实 Bean
 			String beanName = (String) bean;
 			Assert.hasText(beanName, "Bean name must not be null");
 			Assert.notNull(beanFactory, "BeanFactory must not be null");
@@ -94,8 +94,8 @@ public class ControllerAdviceBean implements Ordered {
 				throw new IllegalArgumentException("BeanFactory [" + beanFactory +
 						"] does not contain specified controller advice bean '" + beanName + "'");
 			}
-			beanType = this.beanFactory.getType(beanName);
-			this.order = initOrderFromBeanType(beanType);
+			beanType = this.beanFactory.getType(beanName); // 获取真实 Bean 的类型
+			this.order = initOrderFromBeanType(beanType);  // 获取对应优先级 <- 可能存在多个 @ControllerAdvice
 		}
 		else {
 			Assert.notNull(bean, "Bean must not be null");
@@ -103,13 +103,13 @@ public class ControllerAdviceBean implements Ordered {
 			this.order = initOrderFromBean(bean);
 		}
 
-		ControllerAdvice annotation =
+		ControllerAdvice annotation =						// 获取 @ControllerAdvice 注解的信息
 				AnnotatedElementUtils.findMergedAnnotation(beanType, ControllerAdvice.class);
 
 		if (annotation != null) {
-			this.basePackages = initBasePackages(annotation);
-			this.assignableTypes = Arrays.asList(annotation.assignableTypes());
-			this.annotations = Arrays.asList(annotation.annotations());
+			this.basePackages = initBasePackages(annotation); // 设置 basePackages <-- 这个 @ControllerAdvice 只修饰这个包下面的类
+			this.assignableTypes = Arrays.asList(annotation.assignableTypes()); // 设置 assignableTypes <-- 这个 @ControllerAdvice 只修饰 assignableTypes 这些类别的类
+			this.annotations = Arrays.asList(annotation.annotations());         // 设置 annotations <-- 这个 @ControllerAdvice 只修饰被这些 annotations 注解修饰的类
 		}
 		else {
 			this.basePackages = Collections.emptySet();
@@ -153,22 +153,22 @@ public class ControllerAdviceBean implements Ordered {
 	 * @see org.springframework.web.bind.annotation.ControllerAdvice
 	 * @since 4.0
 	 */
-	public boolean isApplicableToBeanType(Class<?> beanType) {
+	public boolean isApplicableToBeanType(Class<?> beanType) { // 可适用, 可运用, 检测 @ControllerAdvice 是否适配这个类
 		if (!hasSelectors()) {
 			return true;
 		}
 		else if (beanType != null) {
-			for (String basePackage : this.basePackages) {
+			for (String basePackage : this.basePackages) {		// 通过 @ControllerAdvice注解中的 basePackages 来进行过滤
 				if (beanType.getName().startsWith(basePackage)) {
 					return true;
 				}
 			}
-			for (Class<?> clazz : this.assignableTypes) {
+			for (Class<?> clazz : this.assignableTypes) {       // 通过 @ControllerAdvice注解中的 assignableTypes 来进行过滤
 				if (ClassUtils.isAssignable(clazz, beanType)) {
 					return true;
 				}
 			}
-			for (Class<? extends Annotation> annotationClass : this.annotations) {
+			for (Class<? extends Annotation> annotationClass : this.annotations) { // 通过 @ControllerAdvice注解中的 annotations 来进行过滤
 				if (AnnotationUtils.findAnnotation(beanType, annotationClass) != null) {
 					return true;
 				}
@@ -177,7 +177,7 @@ public class ControllerAdviceBean implements Ordered {
 		return false;
 	}
 
-	private boolean hasSelectors() {
+	private boolean hasSelectors() {	// 是否有过滤条件
 		return (!this.basePackages.isEmpty() || !this.assignableTypes.isEmpty() || !this.annotations.isEmpty());
 	}
 
@@ -209,12 +209,12 @@ public class ControllerAdviceBean implements Ordered {
 	 * Find the names of beans annotated with
 	 * {@linkplain ControllerAdvice @ControllerAdvice} in the given
 	 * ApplicationContext and wrap them as {@code ControllerAdviceBean} instances.
-	 */
+	 */ // 收集 ApplicationContext 中所有被 @ControllerAdvice 注解修饰的 Bean, 并封装成 ControllerAdviceBean
 	public static List<ControllerAdviceBean> findAnnotatedBeans(ApplicationContext applicationContext) {
 		List<ControllerAdviceBean> beans = new ArrayList<ControllerAdviceBean>();
 		for (String name : BeanFactoryUtils.beanNamesForTypeIncludingAncestors(applicationContext, Object.class)) {		// 获取容器中所有 类的名称
-			if (applicationContext.findAnnotationOnBean(name, ControllerAdvice.class) != null) {							// 查看 name 对应 Class 上面有没有修饰  注解 ControllerAdvice
-				beans.add(new ControllerAdviceBean(name, applicationContext));												// 若存在的话, 封装成 ControllerAdviceBean 对象
+			if (applicationContext.findAnnotationOnBean(name, ControllerAdvice.class) != null) {						// 查看 name 对应 Class 上面有没有修饰  注解 ControllerAdvice
+				beans.add(new ControllerAdviceBean(name, applicationContext));											// 若存在的话, 封装成 ControllerAdviceBean 对象
 			}
 		}
 		return beans;
@@ -230,13 +230,13 @@ public class ControllerAdviceBean implements Ordered {
 
 	private static Set<String> initBasePackages(ControllerAdvice annotation) {
 		Set<String> basePackages = new LinkedHashSet<String>();
-		for (String basePackage : annotation.basePackages()) {
+		for (String basePackage : annotation.basePackages()) {		// 获取 @ControllerAdvice 中的 basePackage 属性
 			if (StringUtils.hasText(basePackage)) {
 				basePackages.add(adaptBasePackage(basePackage));
 			}
 		}
-		for (Class<?> markerClass : annotation.basePackageClasses()) {
-			basePackages.add(adaptBasePackage(ClassUtils.getPackageName(markerClass)));
+		for (Class<?> markerClass : annotation.basePackageClasses()) { // 获取 basePackageClasses 中 class 所在的package
+			basePackages.add(adaptBasePackage(ClassUtils.getPackageName(markerClass))); // ClassUtils.getPackageName -> 获取类的包名
 		}
 		return basePackages;
 	}

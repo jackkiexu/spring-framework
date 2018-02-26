@@ -51,7 +51,7 @@ public class ModelAndViewContainer {
 	private boolean ignoreDefaultModelOnRedirect = false;
 
 	private Object view;
-
+	// 存储 ModelView 绑定的值
 	private final ModelMap defaultModel = new BindingAwareModelMap();
 
 	// redirect 类型的 model
@@ -134,7 +134,7 @@ public class ModelAndViewContainer {
 	 * a method argument) and {@code ignoreDefaultModelOnRedirect=false}.
 	 */
 	public ModelMap getModel() {
-		if (useDefaultModel()) {		// 判断是否使用默认视图
+		if (useDefaultModel()) {		// 判断是否使用默认视图模型
 			return this.defaultModel;
 		}
 		else {
@@ -250,7 +250,7 @@ public class ModelAndViewContainer {
 	 * A shortcut for {@code getModel().addAttribute(String, Object)}.
 	 */
 	public ModelAndViewContainer addAttribute(String name, Object value) {
-		getModel().addAttribute(name, value);
+		getModel().addAttribute(name, value); // 将 name <-> value 绑定到 Model 中
 		return this;
 	}
 

@@ -278,7 +278,7 @@ public class CachedIntrospectionResults {
 						Introspector.getBeanInfo(beanClass, Introspector.IGNORE_ALL_BEANINFO) :
 						Introspector.getBeanInfo(beanClass));
 			}
-			this.beanInfo = beanInfo;
+			this.beanInfo = beanInfo; // 通过 内省, 获取 beanClass 中的所有属性
 
 			if (logger.isTraceEnabled()) {
 				logger.trace("Caching PropertyDescriptors for class [" + beanClass.getName() + "]");

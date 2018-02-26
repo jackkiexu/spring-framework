@@ -201,7 +201,7 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
 			}
 		}
 		if (this.defaultEditors == null) {
-			createDefaultEditors();
+			createDefaultEditors(); // 创建默认的属性转换器
 		}
 		return this.defaultEditors.get(requiredType);
 	}
@@ -209,7 +209,7 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
 	/**
 	 * Actually register the default editors for this registry instance.
 	 */
-	private void createDefaultEditors() {
+	private void createDefaultEditors() {    // 下面就是将 String 转成指定格式的 数据转换器 PropertyEditorSupport
 		this.defaultEditors = new HashMap<Class<?>, PropertyEditor>(64);
 
 		// Simple editors, without parameterization capabilities.

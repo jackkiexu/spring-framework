@@ -222,7 +222,7 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
 	}
 
 	@Override
-	protected BeanPropertyHandler getLocalPropertyHandler(String propertyName) {
+	protected BeanPropertyHandler getLocalPropertyHandler(String propertyName) { // 通过 内省的信息 获取propertyName 对应的 PropertyDescriptor
 		PropertyDescriptor pd = getCachedIntrospectionResults().getPropertyDescriptor(propertyName);
 		if (pd != null) {
 			return new BeanPropertyHandler(pd);
@@ -324,7 +324,7 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
 		public void setValue(final Object object, Object valueToApply) throws Exception {
 			final Method writeMethod = (this.pd instanceof GenericTypeAwarePropertyDescriptor ?
 					((GenericTypeAwarePropertyDescriptor) this.pd).getWriteMethodForActualAccess() :
-					this.pd.getWriteMethod());
+					this.pd.getWriteMethod());   // 通过 PropertyDescriptor 获取属性的 write 方法
 			if (!Modifier.isPublic(writeMethod.getDeclaringClass().getModifiers()) && !writeMethod.isAccessible()) {
 				if (System.getSecurityManager() != null) {
 					AccessController.doPrivileged(new PrivilegedAction<Object>() {
@@ -355,7 +355,7 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
 				}
 			}
 			else {
-				writeMethod.invoke(getWrappedInstance(), value);
+				writeMethod.invoke(getWrappedInstance(), value); // 通过反射设置属性值
 			}
 		}
 	}

@@ -112,7 +112,7 @@ public class WebRequestDataBinder extends WebDataBinder {
 	 * @see javax.servlet.http.Part
 	 * @see #bind(org.springframework.beans.PropertyValues)
 	 */
-	public void bind(WebRequest request) {
+	public void bind(WebRequest request) { // 进行参数的绑定
 		MutablePropertyValues mpvs = new MutablePropertyValues(request.getParameterMap());
 		if (isMultipartRequest(request) && request instanceof NativeWebRequest) {
 			MultipartRequest multipartRequest = ((NativeWebRequest) request).getNativeRequest(MultipartRequest.class);
@@ -124,7 +124,7 @@ public class WebRequestDataBinder extends WebDataBinder {
 				new Servlet3MultipartHelper(isBindEmptyMultipartFiles()).bindParts(serlvetRequest, mpvs);
 			}
 		}
-		doBind(mpvs);
+		doBind(mpvs); // 进行参数的绑定
 	}
 
 	/**

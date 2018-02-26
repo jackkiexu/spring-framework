@@ -41,6 +41,7 @@ import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
@@ -53,6 +54,7 @@ import org.springframework.util.ReflectionUtils.MethodFilter;
 import org.springframework.web.accept.ContentNegotiationManager;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.support.DefaultDataBinderFactory;
 import org.springframework.web.bind.support.DefaultSessionAttributeStore;
@@ -510,9 +512,9 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
 	@Override
 	public void afterPropertiesSet() {
 		// Do this first, it may add ResponseBody advice beans
-		initControllerAdviceCache();
+		initControllerAdviceCache(); // 初始化 被 @ControllerAdvice 修饰的类 <-- 这是一个 Controller 增强器, 主要是通过 @ModelAttribute, @InitBinder 注解
 
-		if (this.argumentResolvers == null) {
+		if (this.argumentResolvers == null) { // 初始化 HandlerMethodArgumentResolver, 最后封装成 HandlerMethodArgumentResolverComposite <-- 组合模式
 			List<HandlerMethodArgumentResolver> resolvers = getDefaultArgumentResolvers();					// 初始化 HandlerMethodArgumentResolver <-- 参数解析器
 			this.argumentResolvers = new HandlerMethodArgumentResolverComposite().addResolvers(resolvers);	// Spring 里面 composite 模式 的提现
 		}
@@ -533,34 +535,34 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
 		if (logger.isInfoEnabled()) {
 			logger.info("Looking for @ControllerAdvice: " + getApplicationContext());
 		}
-
+        // 收集 ApplicationContext 中所有被 @ControllerAdvice 注解修饰的 Bean, 并封装成 ControllerAdviceBean
 		List<ControllerAdviceBean> beans = ControllerAdviceBean.findAnnotatedBeans(getApplicationContext());
-		AnnotationAwareOrderComparator.sort(beans);
+		AnnotationAwareOrderComparator.sort(beans); // 对 ControllerAdviceBean 进行排序
 
 		List<Object> requestResponseBodyAdviceBeans = new ArrayList<Object>();
 
-		for (ControllerAdviceBean bean : beans) {
+		for (ControllerAdviceBean bean : beans) { // 获取 Bean 上被 @ModelAttribute @RequestMapping 修饰的方法
 			Set<Method> attrMethods = MethodIntrospector.selectMethods(bean.getBeanType(), MODEL_ATTRIBUTE_METHODS);
 			if (!attrMethods.isEmpty()) {
-				this.modelAttributeAdviceCache.put(bean, attrMethods);
+				this.modelAttributeAdviceCache.put(bean, attrMethods); // 将被 @ModelAttribute @RequestMapping 修饰的方法 放入 modelAttributeAdviceCache
 				if (logger.isInfoEnabled()) {
 					logger.info("Detected @ModelAttribute methods in " + bean);
 				}
-			}
+			}   // 获取 Bean 上被 @InitBinder 注解的方法
 			Set<Method> binderMethods = MethodIntrospector.selectMethods(bean.getBeanType(), INIT_BINDER_METHODS);
 			if (!binderMethods.isEmpty()) {
-				this.initBinderAdviceCache.put(bean, binderMethods);
+				this.initBinderAdviceCache.put(bean, binderMethods); // 获取 Bean 上被 @InitBinder 注解的方法, 并放入 initBinderAdviceCache 中
 				if (logger.isInfoEnabled()) {
 					logger.info("Detected @InitBinder methods in " + bean);
 				}
 			}
-			if (RequestBodyAdvice.class.isAssignableFrom(bean.getBeanType())) {
+			if (RequestBodyAdvice.class.isAssignableFrom(bean.getBeanType())) { // 若是 RequestBodyAdvice 子类, 则加入 requestResponseBodyAdviceBeans
 				requestResponseBodyAdviceBeans.add(bean);
 				if (logger.isInfoEnabled()) {
 					logger.info("Detected RequestBodyAdvice bean in " + bean);
 				}
 			}
-			if (ResponseBodyAdvice.class.isAssignableFrom(bean.getBeanType())) {
+			if (ResponseBodyAdvice.class.isAssignableFrom(bean.getBeanType())) { // 若是 RequestBodyAdvice 子类, 则加入 requestResponseBodyAdviceBeans
 				requestResponseBodyAdviceBeans.add(bean);
 				if (logger.isInfoEnabled()) {
 					logger.info("Detected ResponseBodyAdvice bean in " + bean);
@@ -579,33 +581,57 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
 	 */
 	private List<HandlerMethodArgumentResolver> getDefaultArgumentResolvers() { // 获取默认的 HandlerMethodArgumentResolver
 		List<HandlerMethodArgumentResolver> resolvers = new ArrayList<HandlerMethodArgumentResolver>();
-
+		// 基于注解的参数解析 <-- 解析的数据来源主要是 HttpServletRequest | ModelAndViewContainer
 		// Annotation-based argument resolution
+		// 解析被注解 @RequestParam, @RequestPart 修饰的参数, 数据的获取通过 HttpServletRequest.getParameterValues
 		resolvers.add(new RequestParamMethodArgumentResolver(getBeanFactory(), false));
+		// 解析被注解 @RequestParam 修饰, 且类型是 Map 的参数, 数据的获取通过 HttpServletRequest.getParameterMap
 		resolvers.add(new RequestParamMapMethodArgumentResolver());
+		// 解析被注解 @PathVariable 修饰, 数据的获取通过 uriTemplateVars, 而 uriTemplateVars 却是通过 RequestMappingInfoHandlerMapping.handleMatch 生成, 其实就是 uri 中映射出的 key <-> value
 		resolvers.add(new PathVariableMethodArgumentResolver());
+		// 解析被注解 @PathVariable 修饰 且数据类型是 Map, 数据的获取通过 uriTemplateVars, 而 uriTemplateVars 却是通过 RequestMappingInfoHandlerMapping.handleMatch 生成, 其实就是 uri 中映射出的 key <-> value
 		resolvers.add(new PathVariableMapMethodArgumentResolver());
+		// 解析被注解 @MatrixVariable 修饰, 数据的获取通过 URI提取了;后存储的 uri template 变量值
 		resolvers.add(new MatrixVariableMethodArgumentResolver());
+		// 解析被注解 @MatrixVariable 修饰 且数据类型是 Map, 数据的获取通过 URI提取了;后存储的 uri template 变量值
 		resolvers.add(new MatrixVariableMapMethodArgumentResolver());
+		// 解析被注解 @ModelAttribute 修饰, 且类型是 Map 的参数, 数据的获取通过 ModelAndViewContainer 获取, 通过 DataBinder 进行绑定
 		resolvers.add(new ServletModelAttributeMethodProcessor(false));
+		// 解析被注解 @RequestBody 修饰的参数, 以及被@ResponseBody修饰的返回值, 数据的获取通过 HttpServletRequest 获取, 根据 MediaType通过HttpMessageConverter转换成对应的格式, 在处理返回值时 也是通过 MediaType 选择合适HttpMessageConverter, 进行转换格式, 并输出
 		resolvers.add(new RequestResponseBodyMethodProcessor(getMessageConverters(), this.requestResponseBodyAdvice));
+		// 解析被注解 @RequestPart 修饰, 数据的获取通过 HttpServletRequest.getParts()
 		resolvers.add(new RequestPartMethodArgumentResolver(getMessageConverters(), this.requestResponseBodyAdvice));
+		// 解析被注解 @RequestHeader 修饰, 数据的获取通过 HttpServletRequest.getHeaderValues()
 		resolvers.add(new RequestHeaderMethodArgumentResolver(getBeanFactory()));
+		// 解析被注解 @RequestHeader 修饰且参数类型是 Map, 数据的获取通过 HttpServletRequest.getHeaderValues()
 		resolvers.add(new RequestHeaderMapMethodArgumentResolver());
+		// 解析被注解 @CookieValue 修饰, 数据的获取通过 HttpServletRequest.getCookies()
 		resolvers.add(new ServletCookieValueMethodArgumentResolver(getBeanFactory()));
+		// 解析被注解 @Value 修饰, 数据在这里没有解析
 		resolvers.add(new ExpressionValueMethodArgumentResolver(getBeanFactory()));
+		// 解析被注解 @SessionAttribute 修饰, 数据的获取通过 HttpServletRequest.getAttribute(name, RequestAttributes.SCOPE_SESSION)
 		resolvers.add(new SessionAttributeMethodArgumentResolver());
+		// 解析被注解 @RequestAttribute 修饰, 数据的获取通过 HttpServletRequest.getAttribute(name, RequestAttributes.SCOPE_REQUEST)
 		resolvers.add(new RequestAttributeMethodArgumentResolver());
 
 		// Type-based argument resolution
+		// 解析固定类型参数(比如: ServletRequest, HttpSession, InputStream 等), 参数的数据获取还是通过 HttpServletRequest
 		resolvers.add(new ServletRequestMethodArgumentResolver());
+		// 解析固定类型参数(比如: ServletResponse, OutputStream等), 参数的数据获取还是通过 HttpServletResponse
 		resolvers.add(new ServletResponseMethodArgumentResolver());
+		// 解析固定类型参数(比如: HttpEntity, RequestEntity 等), 参数的数据获取还是通过 HttpServletRequest
 		resolvers.add(new HttpEntityMethodProcessor(getMessageConverters(), this.requestResponseBodyAdvice));
+		// 解析固定类型参数(比如: RedirectAttributes), 参数的数据获取还是通过 HttpServletResponse
 		resolvers.add(new RedirectAttributesMethodArgumentResolver());
+		// 解析固定类型参数(比如: Model等), 参数的数据获取通过 ModelAndViewContainer
 		resolvers.add(new ModelMethodProcessor());
+		// 解析固定类型参数(比如: Model等), 参数的数据获取通过 ModelAndViewContainer
 		resolvers.add(new MapMethodProcessor());
+		// 解析固定类型参数(比如: Errors), 参数的数据获取通过 ModelAndViewContainer
 		resolvers.add(new ErrorsMethodArgumentResolver());
+		// 解析固定类型参数(比如: SessionStatus), 参数的数据获取通过 ModelAndViewContainer
 		resolvers.add(new SessionStatusMethodArgumentResolver());
+		// 解析固定类型参数(比如: UriComponentsBuilder), 参数的数据获取通过 HttpServletRequest
 		resolvers.add(new UriComponentsBuilderMethodArgumentResolver());
 
 		// Custom arguments
@@ -661,25 +687,38 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
 		List<HandlerMethodReturnValueHandler> handlers = new ArrayList<HandlerMethodReturnValueHandler>();
 
 		// Single-purpose return value types
+		// 支持 ModelAndView 类型的 HandlerMethodReturnValueHandler, 最后将数据写入 ModelAndViewContainer
 		handlers.add(new ModelAndViewMethodReturnValueHandler());
+		// 支持 Map 类型的 HandlerMethodReturnValueHandler, 最后将数据写入 ModelAndViewContainer
 		handlers.add(new ModelMethodProcessor());
+		// 支持 View 类型的 HandlerMethodReturnValueHandler, 最后将数据写入 ModelAndViewContainer
 		handlers.add(new ViewMethodReturnValueHandler());
+		// 支持 ResponseEntity 类型的 HandlerMethodReturnValueHandler, 最后将数据写入 HttpServletResponse 的数据流中 OutputStream
 		handlers.add(new ResponseBodyEmitterReturnValueHandler(getMessageConverters()));
+		// 支持 ResponseEntity | StreamingResponseBody 类型的 HandlerMethodReturnValueHandler, 最后将数据写入 HttpServletResponse 的数据流中 OutputStream
 		handlers.add(new StreamingResponseBodyReturnValueHandler());
+		// 支持 HttpEntity | !RequestEntity 类型的 HandlerMethodReturnValueHandler, 最后将数据写入 HttpServletResponse 的数据流中 OutputStream
 		handlers.add(new HttpEntityMethodProcessor(getMessageConverters(),
 				this.contentNegotiationManager, this.requestResponseBodyAdvice));
+		// 支持 HttpHeaders 类型的 HandlerMethodReturnValueHandler, 最后将数据写入 HttpServletResponse 的数据头部
 		handlers.add(new HttpHeadersReturnValueHandler());
+		// 支持 Callable 类型的 HandlerMethodReturnValueHandler
 		handlers.add(new CallableMethodReturnValueHandler());
 		handlers.add(new DeferredResultMethodReturnValueHandler());
+		// 支持 WebAsyncTask 类型的 HandlerMethodReturnValueHandler
 		handlers.add(new AsyncTaskMethodReturnValueHandler(this.beanFactory));
 
 		// Annotation-based return value types
+		// 将数据加入 ModelAndViewContainer 的 HandlerMethodReturnValueHandler
 		handlers.add(new ModelAttributeMethodProcessor(false));
+		// 返回值被 ResponseBody 修饰的返回值, 并且根据 MediaType 通过 HttpMessageConverter 转化后进行写入数据流中
 		handlers.add(new RequestResponseBodyMethodProcessor(getMessageConverters(),
 				this.contentNegotiationManager, this.requestResponseBodyAdvice));
 
 		// Multi-purpose return value types
+		// 支持返回值为 CharSequence 类型, 设置 ModelAndViewContainer.setViewName
 		handlers.add(new ViewNameMethodReturnValueHandler());
+		// 支持返回值为 Map, 并将结果设置到 ModelAndViewContainer
 		handlers.add(new MapMethodProcessor());
 
 		// Custom return value types

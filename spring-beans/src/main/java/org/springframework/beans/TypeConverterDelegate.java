@@ -194,7 +194,7 @@ class TypeConverterDelegate {
 				}
 			}
 			if (editor == null) {
-				editor = findDefaultEditor(requiredType);
+				editor = findDefaultEditor(requiredType);  // 获取属性转换器
 			}
 			convertedValue = doConvertValue(oldValue, convertedValue, requiredType, editor);
 		}
@@ -373,7 +373,7 @@ class TypeConverterDelegate {
 		PropertyEditor editor = null;
 		if (requiredType != null) {
 			// No custom editor -> check BeanWrapperImpl's default editors.
-			editor = this.propertyEditorRegistry.getDefaultEditor(requiredType);
+			editor = this.propertyEditorRegistry.getDefaultEditor(requiredType); // 获取属性转换器 从 String 转换成特定类型
 			if (editor == null && String.class != requiredType) {
 				// No BeanWrapper default editor -> check standard JavaBean editor.
 				editor = BeanUtils.findEditorByConvention(requiredType);
@@ -392,7 +392,7 @@ class TypeConverterDelegate {
 	 * @param editor the PropertyEditor to use
 	 * @return the new value, possibly the result of type conversion
 	 * @throws IllegalArgumentException if type conversion failed
-	 */
+	 */ // oldValue 老数据, newValue 要适配的数据, requiredType 将要转换的数据类型, editor 进行属性转换的转换器
 	private Object doConvertValue(Object oldValue, Object newValue, Class<?> requiredType, PropertyEditor editor) {
 		Object convertedValue = newValue;
 
@@ -431,7 +431,7 @@ class TypeConverterDelegate {
 			convertedValue = StringUtils.arrayToCommaDelimitedString((String[]) convertedValue);
 		}
 
-		if (convertedValue instanceof String) {
+		if (convertedValue instanceof String) { // 若 convertedValue 是 String 类型
 			if (editor != null) {
 				// Use PropertyEditor's setAsText in case of a String value.
 				if (logger.isTraceEnabled()) {
@@ -454,10 +454,10 @@ class TypeConverterDelegate {
 	 * @param newTextValue the proposed text value
 	 * @param editor the PropertyEditor to use
 	 * @return the converted value
-	 */
+	 */ // oldValue 默认值, newTextValue 要设置的字符串值, editor 属性转换器
 	private Object doConvertTextValue(Object oldValue, String newTextValue, PropertyEditor editor) {
 		try {
-			editor.setValue(oldValue);
+			editor.setValue(oldValue);	 // 设置 editor 的默认值
 		}
 		catch (Exception ex) {
 			if (logger.isDebugEnabled()) {
@@ -465,8 +465,8 @@ class TypeConverterDelegate {
 			}
 			// Swallow and proceed.
 		}
-		editor.setAsText(newTextValue);					// 这里才是 进行 converter 的操作
-		return editor.getValue();
+		editor.setAsText(newTextValue);	// 这里才是 进行 converter 的操作
+		return editor.getValue();       // 返回转换后的结果
 	}
 
 	private Object convertToTypedArray(Object input, String propertyName, Class<?> componentType) {

@@ -482,12 +482,12 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 							}
 						}
 					}
-					valueToApply = convertForProperty(
-							tokens.canonicalName, oldValue, originalValue, ph.toTypeDescriptor());
+					valueToApply = convertForProperty( // 这里就是将 value 进行属性转换的过程
+							tokens.canonicalName, oldValue, originalValue, ph.toTypeDescriptor());  // 这里 ph(PropertyHandler)  <-- 其实就是指 name 对应的属性
 				}
 				pv.getOriginalPropertyValue().conversionNecessary = (valueToApply != originalValue);
 			}
-			ph.setValue(this.wrappedObject, valueToApply);
+			ph.setValue(this.wrappedObject, valueToApply); // 设置属性值
 		}
 		catch (TypeMismatchException ex) {
 			throw ex;
@@ -985,7 +985,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 			}
 		}
 		tokens.actualName = (actualName != null ? actualName : propertyName);
-		tokens.canonicalName = tokens.actualName;
+		tokens.canonicalName = tokens.actualName;  // 设置规范化 name
 		if (!keys.isEmpty()) {
 			tokens.canonicalName += PROPERTY_KEY_PREFIX +
 					StringUtils.collectionToDelimitedString(keys, PROPERTY_KEY_SUFFIX + PROPERTY_KEY_PREFIX) +

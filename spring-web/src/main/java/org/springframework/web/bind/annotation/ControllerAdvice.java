@@ -73,7 +73,7 @@ public @interface ControllerAdvice {
 	 * @see #basePackages()
 	 */
 	@AliasFor("basePackages")
-	String[] value() default {};
+	String[] value() default {}; // @ControllerAdvice 作用的范围 <-- 包
 
 	/**
 	 * Array of base packages.
@@ -87,7 +87,7 @@ public @interface ControllerAdvice {
 	 * @since 4.0
 	 */
 	@AliasFor("value")
-	String[] basePackages() default {};
+	String[] basePackages() default {};		// @ControllerAdvice 作用的范围
 
 	/**
 	 * Type-safe alternative to {@link #value()} for specifying the packages
@@ -97,7 +97,7 @@ public @interface ControllerAdvice {
 	 * that serves no purpose other than being referenced by this attribute.
 	 * @since 4.0
 	 */
-	Class<?>[] basePackageClasses() default {};
+	Class<?>[] basePackageClasses() default {}; // 这个 basePackageClasses 是上面 basePackages 的下面的类
 
 	/**
 	 * Array of classes.
@@ -105,7 +105,7 @@ public @interface ControllerAdvice {
 	 * will be assisted by the {@code @ControllerAdvice} annotated class.
 	 * @since 4.0
 	 */
-	Class<?>[] assignableTypes() default {};
+	Class<?>[] assignableTypes() default {};  // @ControllerAdvice 作用的 class 类别
 
 	/**
 	 * Array of annotations.
@@ -115,6 +115,6 @@ public @interface ControllerAdvice {
 	 * like {@link RestController @RestController}.
 	 * @since 4.0
 	 */
-	Class<? extends Annotation>[] annotations() default {};
+	Class<? extends Annotation>[] annotations() default {};  //// @ControllerAdvice 作用的 class 类别 <-- 这些 Class 需要被 这些注解修饰
 
 }

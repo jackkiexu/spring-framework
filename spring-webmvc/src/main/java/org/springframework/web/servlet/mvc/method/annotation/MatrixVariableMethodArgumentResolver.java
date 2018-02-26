@@ -41,6 +41,9 @@ import org.springframework.web.servlet.HandlerMapping;
  * @author Rossen Stoyanchev
  * @author Sam Brannen
  * @since 3.2
+ *
+ * 参考资料
+ * http://lucky16.iteye.com/blog/1901435
  */
 public class MatrixVariableMethodArgumentResolver extends AbstractNamedValueMethodArgumentResolver {
 

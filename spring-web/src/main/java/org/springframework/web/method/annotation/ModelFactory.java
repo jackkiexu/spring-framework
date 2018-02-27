@@ -104,8 +104,8 @@ public final class ModelFactory {
 	public void initModel(NativeWebRequest request, ModelAndViewContainer container,
 			HandlerMethod handlerMethod) throws Exception {
 
-		Map<String, ?> sessionAttributes = this.sessionAttributesHandler.retrieveAttributes(request);
-		container.mergeAttributes(sessionAttributes);
+		Map<String, ?> sessionAttributes = this.sessionAttributesHandler.retrieveAttributes(request);  // 获取 HttpServletRequest 中的特定属性
+		container.mergeAttributes(sessionAttributes);   // 合并属性到 ModelAndViewContainer 中
 		invokeModelAttributeMethods(request, container);
 
 		for (String name : findSessionAttributeArguments(handlerMethod)) {
@@ -136,13 +136,13 @@ public final class ModelFactory {
 				continue;
 			}
 
-			Object returnValue = modelMethod.invokeForRequest(request, container);
+			Object returnValue = modelMethod.invokeForRequest(request, container);  // 激活被 @InitBinder 修饰的方法
 			if (!modelMethod.isVoid()){
 				String returnValueName = getNameForReturnValue(returnValue, modelMethod.getReturnType());
-				if (!ann.binding()) {
+				if (!ann.binding()) {	// 判断是否需要绑定参数
 					container.setBindingDisabled(returnValueName);
 				}
-				if (!container.containsAttribute(returnValueName)) {
+				if (!container.containsAttribute(returnValueName)) {  // 若 ModelAndViewContainer 中若不含有 returnValueName, 则进行存储
 					container.addAttribute(returnValueName, returnValue);
 				}
 			}
@@ -267,7 +267,7 @@ public final class ModelFactory {
 	 * @return the derived name (never {@code null} or empty String)
 	 */
 	public static String getNameForReturnValue(Object returnValue, MethodParameter returnType) {
-		ModelAttribute ann = returnType.getMethodAnnotation(ModelAttribute.class);
+		ModelAttribute ann = returnType.getMethodAnnotation(ModelAttribute.class); // 获取 参数上的 @ModelAttribute 注解
 		if (ann != null && StringUtils.hasText(ann.value())) {
 			return ann.value();
 		}

@@ -761,32 +761,32 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
 		checkRequest(request);
 
 		// Execute invokeHandlerMethod in synchronized block if required.
-		if (this.synchronizeOnSession) {
+		if (this.synchronizeOnSession) { // 同步执行 请求, 这里的同步指基于 HttpSession 进行同步
 			HttpSession session = request.getSession(false);
 			if (session != null) {
-				Object mutex = WebUtils.getSessionMutex(session);
-				synchronized (mutex) {
+				Object mutex = WebUtils.getSessionMutex(session);	// 获取 HttpSession
+				synchronized (mutex) {								// 激活方法 HandlerMethod
 					mav = invokeHandlerMethod(request, response, handlerMethod);
 				}
 			}
-			else {
+			else {													// 不基于 HttpSession 的方式激活 HandlerMethod
 				// No HttpSession available -> no mutex necessary
 				mav = invokeHandlerMethod(request, response, handlerMethod);
 			}
 		}
-		else {
+		else {// 不基于 HttpSession 的方式激活 HandlerMethod
 			// 最终通过 invokeHandlerMethod() 方法创建 ModelAndView视图对象, 这里涉及到反射机制使用
 			// No synchronization on session demanded at all...
 			mav = invokeHandlerMethod(request, response, handlerMethod);
 		}
 
 		// 设置关于 cache 的头部信息
-		if (!response.containsHeader(HEADER_CACHE_CONTROL)) {
-			if (getSessionAttributesHandler(handlerMethod).hasSessionAttributes()) {
+		if (!response.containsHeader(HEADER_CACHE_CONTROL)) { // 若 Http 头部含有 Cache-Control
+			if (getSessionAttributesHandler(handlerMethod).hasSessionAttributes()) { // 设置 Http 中的 cache 设置
 				applyCacheSeconds(response, this.cacheSecondsForSessionAttributeHandlers);
 			}
 			else {
-				prepareResponse(response);
+				prepareResponse(response);					  // 设置 Http 中 Expires 等信息
 			}
 		}
 
@@ -834,21 +834,21 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
 	 */
 	protected ModelAndView invokeHandlerMethod(HttpServletRequest request,
 			HttpServletResponse response, HandlerMethod handlerMethod) throws Exception {
-
+		// 构建 ServletWebRequest <-- 主要由 HttpServletRequest, HttpServletResponse
 		ServletWebRequest webRequest = new ServletWebRequest(request, response);
 		try {
 			WebDataBinderFactory binderFactory = getDataBinderFactory(handlerMethod);
-			ModelFactory modelFactory = getModelFactory(handlerMethod, binderFactory);
+			ModelFactory modelFactory = getModelFactory(handlerMethod, binderFactory);   // binderFactory 中存储着被 @InitBinder, @ModelAttribute 修饰的方法 <- 最终包裹成 InvocableHandlerMethod
 
 			ServletInvocableHandlerMethod invocableMethod = createInvocableHandlerMethod(handlerMethod);
-			invocableMethod.setHandlerMethodArgumentResolvers(this.argumentResolvers);
-			invocableMethod.setHandlerMethodReturnValueHandlers(this.returnValueHandlers);
-			invocableMethod.setDataBinderFactory(binderFactory);
-			invocableMethod.setParameterNameDiscoverer(this.parameterNameDiscoverer);
+			invocableMethod.setHandlerMethodArgumentResolvers(this.argumentResolvers);		// 设置方法参数解析器 HandlerMethodArgumentValueResolver
+			invocableMethod.setHandlerMethodReturnValueHandlers(this.returnValueHandlers);  // 返回值处理器 HandlerMethodReturnValueHandler
+			invocableMethod.setDataBinderFactory(binderFactory);							// 设置 WebDataBinderFactory
+			invocableMethod.setParameterNameDiscoverer(this.parameterNameDiscoverer);		// 设置 参数名解析器
 
 			ModelAndViewContainer mavContainer = new ModelAndViewContainer();
-			mavContainer.addAllAttributes(RequestContextUtils.getInputFlashMap(request));
-			modelFactory.initModel(webRequest, mavContainer, invocableMethod);
+			mavContainer.addAllAttributes(RequestContextUtils.getInputFlashMap(request));   // 获取 HttpServletRequest 中存储的 FlashMap
+			modelFactory.initModel(webRequest, mavContainer, invocableMethod);				// 这里是激活 @InitBinder 方法, 并将返回值放入 ModelAndViewContainer
 			mavContainer.setIgnoreDefaultModelOnRedirect(this.ignoreDefaultModelOnRedirect);
 
 			AsyncWebRequest asyncWebRequest = WebAsyncUtils.createAsyncWebRequest(request, response);
@@ -870,7 +870,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
 				invocableMethod = invocableMethod.wrapConcurrentResult(result);
 			}
 
-			invocableMethod.invokeAndHandle(webRequest, mavContainer);
+			invocableMethod.invokeAndHandle(webRequest, mavContainer);		// 激活方法
 			if (asyncManager.isConcurrentHandlingStarted()) {
 				return null;
 			}
@@ -897,8 +897,8 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
 		Class<?> handlerType = handlerMethod.getBeanType();
 		Set<Method> methods = this.modelAttributeCache.get(handlerType);
 		if (methods == null) {
-			methods = MethodIntrospector.selectMethods(handlerType, MODEL_ATTRIBUTE_METHODS);
-			this.modelAttributeCache.put(handlerType, methods);
+			methods = MethodIntrospector.selectMethods(handlerType, MODEL_ATTRIBUTE_METHODS);   // 搜索被 @ModelAttribute 修饰的 Method
+			this.modelAttributeCache.put(handlerType, methods);			  //
 		}
 		List<InvocableHandlerMethod> attrMethods = new ArrayList<InvocableHandlerMethod>();
 		// Global methods first
@@ -926,11 +926,11 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
 	}
 
 	private WebDataBinderFactory getDataBinderFactory(HandlerMethod handlerMethod) throws Exception {
-		Class<?> handlerType = handlerMethod.getBeanType();
-		Set<Method> methods = this.initBinderCache.get(handlerType);
+		Class<?> handlerType = handlerMethod.getBeanType();				// 获取 HandlerMethod 所属的 Bean
+		Set<Method> methods = this.initBinderCache.get(handlerType);    // initBinderCache 中存储 被 @InitBinder 修饰的 Method
 		if (methods == null) {
-			methods = MethodIntrospector.selectMethods(handlerType, INIT_BINDER_METHODS);
-			this.initBinderCache.put(handlerType, methods);
+			methods = MethodIntrospector.selectMethods(handlerType, INIT_BINDER_METHODS); // 获取 handlerType 中被 @InitBinder 修饰的 Method
+			this.initBinderCache.put(handlerType, methods);             // 将 被 @InitBinder 修饰的 Method 放入 initBinderCache
 		}
 		List<InvocableHandlerMethod> initBinderMethods = new ArrayList<InvocableHandlerMethod>();
 		// Global methods first
@@ -944,11 +944,11 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
 		}
 		for (Method method : methods) {
 			Object bean = handlerMethod.getBean();
-			initBinderMethods.add(createInitBinderMethod(bean, method));
+			initBinderMethods.add(createInitBinderMethod(bean, method));  // 创建 InitBinderMethod <-- 就是被 @InitBinder 修饰
 		}
 		return createDataBinderFactory(initBinderMethods);
 	}
-
+	// 创建 被 @InitBinder 修饰的方法, 包裹成 InvocableHandlerMethod
 	private InvocableHandlerMethod createInitBinderMethod(Object bean, Method method) {
 		InvocableHandlerMethod binderMethod = new InvocableHandlerMethod(bean, method);
 		binderMethod.setHandlerMethodArgumentResolvers(this.initBinderArgumentResolvers);

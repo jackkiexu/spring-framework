@@ -93,7 +93,7 @@ public abstract class WebContentGenerator extends WebApplicationObjectSupport {
 	private boolean requireSession = false;
 
 	private CacheControl cacheControl;
-
+	// 设置 Http 头部的缓存时间
 	private int cacheSeconds = -1;
 
 	private String[] varyByRequestHeaders;
@@ -390,7 +390,7 @@ public abstract class WebContentGenerator extends WebApplicationObjectSupport {
 	 * @param response current HTTP response
 	 * @since 4.2
 	 */
-	protected final void prepareResponse(HttpServletResponse response) {
+	protected final void prepareResponse(HttpServletResponse response) { // 设置 Http 中 Expires
 		if (this.cacheControl != null) {
 			applyCacheControl(response, this.cacheControl);
 		}

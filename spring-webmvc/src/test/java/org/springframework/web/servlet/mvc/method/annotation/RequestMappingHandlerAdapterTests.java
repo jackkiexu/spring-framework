@@ -88,9 +88,9 @@ public class RequestMappingHandlerAdapterTests {
 		adapter.setApplicationContext(new StaticWebApplicationContext());
 		adapter.afterPropertiesSet();
 
-		RESOLVER_COUNT = adapter.getArgumentResolvers().size();
+		RESOLVER_COUNT = adapter.getArgumentResolvers().size();  // HandlerMethodArgumentResolver 的个数
 		INIT_BINDER_RESOLVER_COUNT = adapter.getInitBinderArgumentResolvers().size();
-		HANDLER_COUNT = adapter.getReturnValueHandlers().size();
+		HANDLER_COUNT = adapter.getReturnValueHandlers().size(); // HandlerMethodReturnValueHandler 的个数
 	}
 
 	@Before
@@ -105,7 +105,7 @@ public class RequestMappingHandlerAdapterTests {
 
 	@Test
 	public void cacheControlWithoutSessionAttributes() throws Exception {
-		HandlerMethod handlerMethod = handlerMethod(new SimpleController(), "handle");
+		HandlerMethod handlerMethod = handlerMethod(new SimpleController(), "handle");  // 封装 HandlerMethod
 		this.handlerAdapter.setCacheSeconds(100);
 		this.handlerAdapter.afterPropertiesSet();
 
@@ -273,7 +273,7 @@ public class RequestMappingHandlerAdapterTests {
 		testJsonp("<script>", false);
 		testJsonp("!foo!bar", false);
 	}
-
+	// 获取 handler 对应的 Method
 	private HandlerMethod handlerMethod(Object handler, String methodName, Class<?>... paramTypes) throws Exception {
 		Method method = handler.getClass().getDeclaredMethod(methodName, paramTypes);				// 获取对应的请求方法
 		return new InvocableHandlerMethod(handler, method);

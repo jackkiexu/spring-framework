@@ -50,7 +50,7 @@ public abstract class WebAsyncUtils {
 			asyncManager = (WebAsyncManager) asyncManagerAttr;
 		}
 		if (asyncManager == null) {
-			asyncManager = new WebAsyncManager();
+			asyncManager = new WebAsyncManager();  // 存储一下  WebAsyncManager
 			servletRequest.setAttribute(WEB_ASYNC_MANAGER_ATTRIBUTE, asyncManager);
 		}
 		return asyncManager;

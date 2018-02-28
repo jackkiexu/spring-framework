@@ -134,7 +134,7 @@ public abstract class AbstractHandlerExceptionResolver implements HandlerExcepti
 			}
 			// 此处一般是判断内部属性 preventResponseCaching 是否为 true, 是则设置响应包头 cache-control:no-store
 			prepareResponse(ex, response);
-			// 使用模板方法 doResolveException 方法供子类实现
+			// 使用模板方法 doResolveException 方法供子类实现, 其实就是针对特定异常的处理, 返回对应的 ModelAndView
 			ModelAndView result = doResolveException(request, response, handler, ex);
 			if (result != null) {
 				// 日志打印一发
@@ -163,6 +163,7 @@ public abstract class AbstractHandlerExceptionResolver implements HandlerExcepti
 	/**
 	 * 可以配置 mappedHandlers 和 mappedHandlerClasses 属性来特定匹配
 	 * 默认情况下两者都为空则直接返回 true, 表明对所有的 handler 都进行异常解析
+	 * 其实就是判断是否需要解析这个 handler 产生的异常
 	 */
 	protected boolean shouldApplyTo(HttpServletRequest request, Object handler) {
 		// 此处的 handler 一般为 bean 对象

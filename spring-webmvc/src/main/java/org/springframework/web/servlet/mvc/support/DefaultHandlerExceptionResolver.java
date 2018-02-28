@@ -77,6 +77,7 @@ import org.springframework.web.servlet.handler.AbstractHandlerExceptionResolver;
  * @see #handleMissingServletRequestPartException
  * @see #handleBindException
  */
+// 默认异常解析器, 解析常见的异常, 在 Http 头部设置对应的 Code, 最后返回对应的 ModelAndView
 public class DefaultHandlerExceptionResolver extends AbstractHandlerExceptionResolver {
 
 	/**
@@ -99,7 +100,7 @@ public class DefaultHandlerExceptionResolver extends AbstractHandlerExceptionRes
 		setOrder(Ordered.LOWEST_PRECEDENCE);
 	}
 
-
+	// 针对特定异常的处理, 返回特定的 ModelAndView
 	@Override
 	@SuppressWarnings("deprecation")
 	protected ModelAndView doResolveException(HttpServletRequest request, HttpServletResponse response,
@@ -216,7 +217,7 @@ public class DefaultHandlerExceptionResolver extends AbstractHandlerExceptionRes
 		String[] supportedMethods = ex.getSupportedMethods();
 		if (supportedMethods != null) {
 			response.setHeader("Allow", StringUtils.arrayToDelimitedString(supportedMethods, ", "));
-		}
+		}	// 设置 Http Method 不支持, 所以 405
 		response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, ex.getMessage());
 		return new ModelAndView();
 	}
@@ -238,7 +239,7 @@ public class DefaultHandlerExceptionResolver extends AbstractHandlerExceptionRes
 			HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
 
 		response.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
-		List<MediaType> mediaTypes = ex.getSupportedMediaTypes();
+		List<MediaType> mediaTypes = ex.getSupportedMediaTypes();   // 获取支持的 异常
 		if (!CollectionUtils.isEmpty(mediaTypes)) {
 			response.setHeader("Accept", MediaType.toString(mediaTypes));
 		}

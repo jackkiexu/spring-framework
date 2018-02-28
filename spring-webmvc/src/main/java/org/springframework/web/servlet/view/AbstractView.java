@@ -291,6 +291,7 @@ public abstract class AbstractView extends WebApplicationObjectSupport implement
 	 * Delegates to renderMergedOutputModel for the actual rendering.
 	 * @see #renderMergedOutputModel
 	 */
+	// 视图的渲染部分
 	@Override
 	public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		// 综合 model, 内部属性 staticAttributes 和 request 对象中的 ViewPathVARIABLES 都封装在同一个 Map 集合中
@@ -300,7 +301,7 @@ public abstract class AbstractView extends WebApplicationObjectSupport implement
 		}
 
 		Map<String, Object> mergedModel = createMergedOutputModel(model, request, response);
-		// 为 response 做准备, 默认是针对 download请求
+		// 为 response 做准备, 默认是针对 download请求, 比如在 Header 中设置一些属性
 		prepareResponse(request, response);
 		// 真实处理 render 操作,  供子类实现调用
 		renderMergedOutputModel(mergedModel, getRequestToExpose(request), response);
@@ -314,7 +315,7 @@ public abstract class AbstractView extends WebApplicationObjectSupport implement
 			HttpServletResponse response) {
 
 		@SuppressWarnings("unchecked")
-		Map<String, Object> pathVars = (this.exposePathVariables ?
+		Map<String, Object> pathVars = (this.exposePathVariables ?			// 是否暴露变量
 				(Map<String, Object>) request.getAttribute(View.PATH_VARIABLES) : null);
 
 		// Consolidate static and dynamic model attributes.
@@ -424,7 +425,7 @@ public abstract class AbstractView extends WebApplicationObjectSupport implement
 	 * This method is suitable for all resources reachable by {@link javax.servlet.RequestDispatcher}.
 	 * @param model Map of model objects to expose
 	 * @param request current HTTP request
-	 */
+	 */ // 将 Model 中的属性暴露给 HttpServletRequest
 	protected void exposeModelAsRequestAttributes(Map<String, Object> model, HttpServletRequest request) throws Exception {
 		for (Map.Entry<String, Object> entry : model.entrySet()) {
 			String modelName = entry.getKey();

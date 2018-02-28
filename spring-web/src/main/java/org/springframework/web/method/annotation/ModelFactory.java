@@ -193,7 +193,7 @@ public final class ModelFactory {
 	 * @throws Exception if creating BindingResult attributes fails
 	 */
 	public void updateModel(NativeWebRequest request, ModelAndViewContainer container) throws Exception { // 通过 sessionAttributesHandler 工具类将 HttpServletRequest 里面的属性值 设置到 ModelAndViewContainer.ModelMap 里面
-		ModelMap defaultModel = container.getDefaultModel();
+		ModelMap defaultModel = container.getDefaultModel(); // 获取 ModelAndViewContainer  中的 ModelMap
 		if (container.getSessionStatus().isComplete()){
 			this.sessionAttributesHandler.cleanupAttributes(request);
 		}

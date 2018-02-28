@@ -72,7 +72,7 @@ public class ViewResolverTests {
 		MutablePropertyValues pvs2 = new MutablePropertyValues();
 		pvs2.addPropertyValue(new PropertyValue("url", "/example2.jsp"));
 		wac.registerSingleton("example2", JstlView.class, pvs2);
-		BeanNameViewResolver vr = new BeanNameViewResolver();
+		BeanNameViewResolver vr = new BeanNameViewResolver();					// 测试 基于 BeanName 从 ApplicationContext 中获取 View 的 ViewResolver
 		vr.setApplicationContext(wac);
 		wac.refresh();
 

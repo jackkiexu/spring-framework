@@ -47,6 +47,8 @@ public interface HandlerExceptionResolver {
 	 * @return a corresponding {@code ModelAndView} to forward to, or {@code null}
 	 * for default processing
 	 */
+	// 通过解析异常查询配置以得到符合条件的 ModelAndView
+	// 通过解析异常查询配置以得到符合条件的 ModelAndView 对象
 	ModelAndView resolveException(
 			HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex);
 

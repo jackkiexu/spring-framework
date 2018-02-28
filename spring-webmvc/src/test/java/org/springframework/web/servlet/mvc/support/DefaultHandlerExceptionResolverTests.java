@@ -78,7 +78,7 @@ public class DefaultHandlerExceptionResolverTests {
 	}
 
 	@Test
-	public void handleHttpRequestMethodNotSupported() {
+	public void handleHttpRequestMethodNotSupported() {					// 这里是处理 HttpRequestMethodNotSupportedException 异常
 		HttpRequestMethodNotSupportedException ex =
 				new HttpRequestMethodNotSupportedException("GET", new String[]{"POST", "PUT"});
 		ModelAndView mav = exceptionResolver.resolveException(request, response, null, ex);

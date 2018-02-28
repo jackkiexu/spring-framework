@@ -66,6 +66,7 @@ public abstract class AbstractCachingViewResolver extends WebApplicationObjectSu
 	/** Fast access cache for Views, returning already cached instances without a global lock */
 	private final Map<Object, View> viewAccessCache = new ConcurrentHashMap<Object, View>(DEFAULT_CACHE_LIMIT);
 
+	// 一个 LRU Cache, 当存储的数据大于 cacheLimit 后, 就将进行删除
 	/** Map from view key to View instance, synchronized for View creation */
 	@SuppressWarnings("serial")
 	private final Map<Object, View> viewCreationCache =
@@ -145,26 +146,25 @@ public abstract class AbstractCachingViewResolver extends WebApplicationObjectSu
 		// 不采用缓存方案, 则每次都进行创建 view
 		if (!isCache()) {
 			// 不存在缓存的情况下直接创建视图s
-			return createView(viewName, locale); // 其实调用实在 UrlBasedViewResolver 中
+			return createView(viewName, locale); // 具体的创建在子类中进行, loadView <-- 一个模版方法
 		}
 		else {
-			// 直接从缓存中提取
 			// 此处为使用缓存情况下的 获取 View 对象
-			Object cacheKey = getCacheKey(viewName, locale);
-			View view = this.viewAccessCache.get(cacheKey);
+			Object cacheKey = getCacheKey(viewName, locale);         // 生成 缓存的 cacheName
+			View view = this.viewAccessCache.get(cacheKey);			 // 从 Map 中获取对应的 View
 			if (view == null) {
 				synchronized (this.viewCreationCache) {
-					view = this.viewCreationCache.get(cacheKey);
+					view = this.viewCreationCache.get(cacheKey);     // 若上面返回 null, 则尝试从 LRU 缓存中进行查找
 					if (view == null) {
 						// Ask the subclass to create the View object.
-						view = createView(viewName, locale);
+						view = createView(viewName, locale);		 // 若还是没有, 则直接铜鼓 模版方法 loadView 来进行创建 <-- loadView 一般交由子类来实现
 						if (view == null && this.cacheUnresolved) {
 							// 默认会返回一个 null 的 View 对象
-							view = UNRESOLVED_VIEW;
+							view = UNRESOLVED_VIEW;					 // 创建没成功, 返回默认值
 						}
 						if (view != null) {
-							this.viewAccessCache.put(cacheKey, view);
-							this.viewCreationCache.put(cacheKey, view);
+							this.viewAccessCache.put(cacheKey, view); // 放入 Map 中缓存
+							this.viewCreationCache.put(cacheKey, view); // 放入 LRU 中缓存
 							if (logger.isTraceEnabled()) {
 								logger.trace("Cached view [" + cacheKey + "]");
 							}

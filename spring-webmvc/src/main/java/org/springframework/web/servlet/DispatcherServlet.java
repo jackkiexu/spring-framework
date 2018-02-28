@@ -712,7 +712,7 @@ public class DispatcherServlet extends FrameworkServlet {
 				// Ignore, no HandlerExceptionResolver is fine too.
 			}
 		}
-
+		// 若在 ApplicationContext 中没有获取到 HandlerExceptionResolver, 则从配置文件中获取一些默认的 HandlerExceptionResolver
 		// Ensure we have at least some HandlerExceptionResolvers, by registering
 		// default HandlerExceptionResolvers if no other resolvers are found.
 		if (this.handlerExceptionResolvers == null) {
@@ -859,6 +859,7 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * @return the List of corresponding strategy objects
 	 */
 	@SuppressWarnings("unchecked")
+	// 通过 Properties 里面获取对应配置的工具类 <-- 这里就有点像 Dubbo 中的 Spi 机制
 	protected <T> List<T> getDefaultStrategies(ApplicationContext context, Class<T> strategyInterface) {
 		String key = strategyInterface.getName();
 		String value = defaultStrategies.getProperty(key);
@@ -1057,7 +1058,7 @@ public class DispatcherServlet extends FrameworkServlet {
 				// making them available for @ExceptionHandler methods and other scenarios.
 				dispatchException = new NestedServletException("Handler dispatch failed", err);
 			}
-			// 再次处理, 如果有异常出现, 则需要处理异常信息, 因为异常也可有对应的视图
+			// 再次处理, 如果有异常出现, 则需要处理异常信息, 因为异常也可有对应的视图  <-- 视图渲染, 异常处理部分
 			processDispatchResult(processedRequest, response, mappedHandler, mv, dispatchException);
 		}
 		catch (Exception ex) {
@@ -1324,7 +1325,7 @@ public class DispatcherServlet extends FrameworkServlet {
 
 		// Check registered HandlerExceptionResolvers...
 		ModelAndView exMv = null;
-		// 遍历异常类解析器集合, 解析成功则返回
+		// 遍历异常类解析器集合, 若其中有一个解析出了 ModeAndView, 则直接 Break
 		for (HandlerExceptionResolver handlerExceptionResolver : this.handlerExceptionResolvers) {
 			// 解析器解析异常, 查找是否有匹配的异常视图
 			exMv = handlerExceptionResolver.resolveException(request, response, handler, ex);

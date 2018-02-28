@@ -88,7 +88,7 @@ public class ModelAndViewResolverMethodReturnValueHandler implements HandlerMeth
 					mavContainer.addAllAttributes(mav.getModel());
 					mavContainer.setViewName(mav.getViewName());
 					if (!mav.isReference()) {
-						mavContainer.setView(mav.getView());
+						mavContainer.setView(mav.getView());  // 设置 View 的名称
 					}
 					return;
 				}

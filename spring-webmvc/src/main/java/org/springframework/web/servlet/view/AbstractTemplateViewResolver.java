@@ -104,9 +104,13 @@ public class AbstractTemplateViewResolver extends UrlBasedViewResolver {
 		AbstractTemplateView view = (AbstractTemplateView) super.buildView(viewName);
 		// 设置 AbstractTemplateView 的内部属性
 		view.setExposeRequestAttributes(this.exposeRequestAttributes);
+		// 设置 是否允许请求处理过程中覆写 request 对象的 attributes
 		view.setAllowRequestOverride(this.allowRequestOverride);
+		// 设置 是否暴露 session 对象的 attributes 属性给前端引擎
 		view.setExposeSessionAttributes(this.exposeSessionAttributes);
+		// 设置 是否允许 请求处理过程中覆写 session 对象的 attributes
 		view.setAllowSessionOverride(this.allowSessionOverride);
+		// 设置 是否使用暴露 springMacroRequestContext属性
 		view.setExposeSpringMacroHelpers(this.exposeSpringMacroHelpers);
 		return view;
 	}

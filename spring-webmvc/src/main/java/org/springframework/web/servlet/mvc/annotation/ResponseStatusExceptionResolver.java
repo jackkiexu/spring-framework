@@ -49,7 +49,7 @@ import org.springframework.web.servlet.handler.AbstractHandlerExceptionResolver;
  *
  * 参考资料
  * http://www.cnblogs.com/question-sky/p/7240628.html
- *
+ * 根据异常上面的 @ResponseStatus 中注解的 Http Code 与 reson 进行返回 ModeAndView
  */
 public class ResponseStatusExceptionResolver extends AbstractHandlerExceptionResolver implements MessageSourceAware {
 
@@ -65,7 +65,7 @@ public class ResponseStatusExceptionResolver extends AbstractHandlerExceptionRes
 	@Override
 	protected ModelAndView doResolveException(HttpServletRequest request, HttpServletResponse response,
 			Object handler, Exception ex) {
-		// 获取相应类上的注解  @ResponseStatus
+		// 获取异常类上面注解的 @ResponseStatus
 		ResponseStatus responseStatus = AnnotatedElementUtils.findMergedAnnotation(ex.getClass(), ResponseStatus.class);
 		if (responseStatus != null) {
 			try {
@@ -102,20 +102,20 @@ public class ResponseStatusExceptionResolver extends AbstractHandlerExceptionRes
 	// 读取 @ResponseStatus 注解信息, 返回异常内容给客户端
 	protected ModelAndView resolveResponseStatus(ResponseStatus responseStatus, HttpServletRequest request,
 			HttpServletResponse response, Object handler, Exception ex) throws Exception {
-		// 状态码
+		// 获取 @ResponseStatus 中设置的状态码
 		int statusCode = responseStatus.code().value();
-		// 异常原因描述
+		// 获取 @ResponseStatus 中设置的 reason
 		String reason = responseStatus.reason();
 		// 通过 response 对象直接返回错误信息给客户端
 		if (!StringUtils.hasLength(reason)) {
-			response.sendError(statusCode);
+			response.sendError(statusCode);	// 设置对应的 Http Code
 		}
 		else {
 			String resolvedReason = (this.messageSource != null ?
 					this.messageSource.getMessage(reason, null, reason, LocaleContextHolder.getLocale()) :
 					reason);
 			// 通过 response 对象直接返回错误信息给客户端
-			response.sendError(statusCode, resolvedReason);
+			response.sendError(statusCode, resolvedReason);  // 设置 Http Code, 与 错误的原因
 		}
 		return new ModelAndView();
 	}

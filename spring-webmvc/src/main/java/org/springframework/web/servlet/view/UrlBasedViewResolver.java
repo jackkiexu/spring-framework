@@ -100,7 +100,7 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
 	 */
 	public static final String FORWARD_URL_PREFIX = "forward:";
 
-
+	// 在子类中会这设置 View 对应的Class, 比如 FreeMarkerViewResolver 中的 FreeMarkerView
 	private Class<?> viewClass;
 	// 设置前缀
 	private String prefix = "";
@@ -452,18 +452,17 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
 	// 覆写父类方法, 即在创建 view 对象前做下跳转的请求检查
 	@Override
 	protected View createView(String viewName, Locale locale) throws Exception {
-		// 如果当前解析器不支持当前解析器如 viewName 为空等情况
 		// If this resolver is not supposed to handle the given view,
 		// return null to pass on to the next resolver in the chain.
-		// viewName 集合为 null, 或者对应的 viewName 在 viewNames 集合内则返回 true
+		// viewNames 集合为 null, 或者对应的 viewName 在 viewNames 集合内则返回 true
 		if (!canHandle(viewName, locale)) {
 			return null;
 		}
-		// 处理 前缀为 redirect:xx 的情况
+
 		// Check for special "redirect:" prefix.
 		// 检查 handlers 返回的值为 String 类型时是否包含 "redirect:" 前缀
 		// 此处处理的便是跳转请求, 比如 "redirect:/user/list"
-		if (viewName.startsWith(REDIRECT_URL_PREFIX)) {
+		if (viewName.startsWith(REDIRECT_URL_PREFIX)) {    // redirect:
 			String redirectUrl = viewName.substring(REDIRECT_URL_PREFIX.length());
 			RedirectView view = new RedirectView(redirectUrl, isRedirectContextRelative(), isRedirectHttp10Compatible());
 			view.setHosts(getRedirectHosts());
@@ -516,7 +515,7 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
 	protected View loadView(String viewName, Locale locale) throws Exception {
 		// 创建 view 对象
 		AbstractUrlBasedView view = buildView(viewName);
-		// 将 view 对象与 viewName 绑定注册至 springMVC 上下文
+		// 将 AbstractUrlBasedView 对象通过 ApplicationContext 中的 initializeBean 方法 <-- 初始化方法, 初始化前置方法, 初始化方法(接口 InitializingBean 中的方法, xml 中配置的 init-method 方法), 初始化后置方法
 		View result = applyLifecycleMethods(viewName, view);
 		return (view.checkResource(locale) ? result : null);
 	}
@@ -541,16 +540,14 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
 	 */
 	// 创建 view 对象主逻辑
 	protected AbstractUrlBasedView buildView(String viewName) throws Exception {
-		// 获取类似 FreemarkerView.class/GroovyView.class
-		AbstractUrlBasedView view = (AbstractUrlBasedView) BeanUtils.instantiateClass(getViewClass());
-		// 添加前缀以及后缀
+		// 获取类似 FreeMarkerViewResolver 中的 FreemarkerView.class; 或 GroovyMarkupViewResolver 的 GroovyView.class
+		AbstractUrlBasedView view = (AbstractUrlBasedView) BeanUtils.instantiateClass(getViewClass());  // 通过反射来进行生成类
 		// 设置 view 对应的资源路径, 此处便可知我们设置 prefix 和suffix的作用
 		view.setUrl(getPrefix() + viewName + getSuffix());
 
 		// 下面都是设置 与 UrlBasedViewResolver 的先关内部属性
 		String contentType = getContentType();
-		if (contentType != null) {
-			// 设置 ContentType
+		if (contentType != null) {  // 设置 ContentType
 			view.setContentType(contentType);
 		}
 

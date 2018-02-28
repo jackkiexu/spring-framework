@@ -51,7 +51,7 @@ public interface Ordered {
 	/**
 	 * Useful constant for the lowest precedence value.
 	 * @see java.lang.Integer#MAX_VALUE
-	 */
+	 */ // 优先级最低的值
 	int LOWEST_PRECEDENCE = Integer.MAX_VALUE;
 
 

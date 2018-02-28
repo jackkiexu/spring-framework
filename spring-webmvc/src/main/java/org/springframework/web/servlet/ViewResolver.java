@@ -33,6 +33,7 @@ import java.util.Locale;
  * @see org.springframework.web.servlet.view.ResourceBundleViewResolver
  * @see org.springframework.web.servlet.view.XmlViewResolver
  */
+// 视图解析器
 public interface ViewResolver {
 
 	/**

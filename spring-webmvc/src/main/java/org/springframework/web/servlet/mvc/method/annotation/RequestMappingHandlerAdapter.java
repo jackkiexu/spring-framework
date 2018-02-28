@@ -762,9 +762,9 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
 
 		// Execute invokeHandlerMethod in synchronized block if required.
 		if (this.synchronizeOnSession) { // 同步执行 请求, 这里的同步指基于 HttpSession 进行同步
-			HttpSession session = request.getSession(false);
+			HttpSession session = request.getSession(false);        // 获取 HttpServletRequest 对应的 HttpSession
 			if (session != null) {
-				Object mutex = WebUtils.getSessionMutex(session);	// 获取 HttpSession
+				Object mutex = WebUtils.getSessionMutex(session);	// 获取 HttpSession  <-- 请求的处理针对 mutex 进行同步
 				synchronized (mutex) {								// 激活方法 HandlerMethod
 					mav = invokeHandlerMethod(request, response, handlerMethod);
 				}
@@ -853,7 +853,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
 			////////////////////////// 下面是异步处理那部分
 			AsyncWebRequest asyncWebRequest = WebAsyncUtils.createAsyncWebRequest(request, response);
 			asyncWebRequest.setTimeout(this.asyncRequestTimeout);
-
+			////////////////////////// 下面是异步处理那部分
 			WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);
 			asyncManager.setTaskExecutor(this.taskExecutor);
 			asyncManager.setAsyncWebRequest(asyncWebRequest);

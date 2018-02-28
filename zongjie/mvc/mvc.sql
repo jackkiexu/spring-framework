@@ -35,6 +35,9 @@ SpringMVC 成员组件
 
 4. ContentNegotiationStrategy 接口
 
+5. 经典的 策略 + 模版 + 组合 这种模式设计
+  HandlerExceptionResolver 接口
+
 1. SpringMVC  组件概述
 2. SpringMVC  启动过程
 3. SpringMVC  一次请求过程

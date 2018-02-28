@@ -49,7 +49,7 @@ public class ModelAndViewContainer {
 
 	// 如果为 true, 则在处理器返回 redirect 视图时, 一定不是用 defaultModel
 	private boolean ignoreDefaultModelOnRedirect = false;
-
+	// 定义的 返回的 View 的名称
 	private Object view;
 	// 存储 ModelView 绑定的值
 	private final ModelMap defaultModel = new BindingAwareModelMap();

@@ -65,7 +65,7 @@ public class BeanNameViewResolver extends WebApplicationObjectSupport implements
 		return this.order;
 	}
 
-
+	// 从 ApplicationContext 中获取 viewName 对应的 Bean
 	@Override
 	public View resolveViewName(String viewName, Locale locale) throws BeansException {
 		// 获得 springMVC 上下文

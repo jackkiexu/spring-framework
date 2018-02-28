@@ -136,11 +136,11 @@ public class AnnotationMethodHandlerExceptionResolver extends AbstractHandlerExc
 	protected ModelAndView doResolveException(
 			HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
 
-		if (handler != null) {
+		if (handler != null) { // 获取对应的激活方法
 			Method handlerMethod = findBestExceptionHandlerMethod(handler, ex);
-			if (handlerMethod != null) {
+			if (handlerMethod != null) { // 封装对应的请求参数
 				ServletWebRequest webRequest = new ServletWebRequest(request, response);
-				try {
+				try {	//  resolve 方法对应的参数的真实数据
 					Object[] args = resolveHandlerArguments(handlerMethod, handler, webRequest, ex);
 					if (logger.isDebugEnabled()) {
 						logger.debug("Invoking request handler method: " + handlerMethod);
@@ -163,7 +163,7 @@ public class AnnotationMethodHandlerExceptionResolver extends AbstractHandlerExc
 	 * @return the best matching method; or {@code null} if none is found
 	 */
 	private Method findBestExceptionHandlerMethod(Object handler, final Exception thrownException) {
-		final Class<?> handlerType = ClassUtils.getUserClass(handler);
+		final Class<?> handlerType = ClassUtils.getUserClass(handler); // 获取真实的类 <-- 这里真实是针对 CGLIB 生成的类
 		final Class<? extends Throwable> thrownExceptionType = thrownException.getClass();
 		Method handlerMethod = null;
 
@@ -216,14 +216,14 @@ public class AnnotationMethodHandlerExceptionResolver extends AbstractHandlerExc
 	 * is annotated with {@code @ExceptionHandler}.
 	 * @param method the method
 	 * @return the handled exceptions
-	 */
+	 */// 返回被 @ExceptionHandler 注解的方法
 	@SuppressWarnings("unchecked")
 	protected List<Class<? extends Throwable>> getHandledExceptions(Method method) {
 		List<Class<? extends Throwable>> result = new ArrayList<Class<? extends Throwable>>();
 		ExceptionHandler exceptionHandler = AnnotationUtils.findAnnotation(method, ExceptionHandler.class);
 		if (exceptionHandler != null) {
 			if (!ObjectUtils.isEmpty(exceptionHandler.value())) {
-				result.addAll(Arrays.asList(exceptionHandler.value()));
+				result.addAll(Arrays.asList(exceptionHandler.value()));	// 获取 @ExceptionHandler 注解中指定的 异常的类型
 			}
 			else {
 				for (Class<?> param : method.getParameterTypes()) {
@@ -258,14 +258,14 @@ public class AnnotationMethodHandlerExceptionResolver extends AbstractHandlerExc
 	private Object[] resolveHandlerArguments(Method handlerMethod, Object handler,
 			NativeWebRequest webRequest, Exception thrownException) throws Exception {
 
-		Class<?>[] paramTypes = handlerMethod.getParameterTypes();
-		Object[] args = new Object[paramTypes.length];
-		Class<?> handlerType = handler.getClass();
+		Class<?>[] paramTypes = handlerMethod.getParameterTypes(); // 方法的参数的类型
+		Object[] args = new Object[paramTypes.length];			   // 存储方法值的数组
+		Class<?> handlerType = handler.getClass();				   // handlerMethod 所属于的 Class
 		for (int i = 0; i < args.length; i++) {
 			MethodParameter methodParam = new SynthesizingMethodParameter(handlerMethod, i);
 			GenericTypeResolver.resolveParameterType(methodParam, handlerType);
-			Class<?> paramType = methodParam.getParameterType();
-			Object argValue = resolveCommonArgument(methodParam, webRequest, thrownException);
+			Class<?> paramType = methodParam.getParameterType();	// 参数的类型
+			Object argValue = resolveCommonArgument(methodParam, webRequest, thrownException);  // 进行参数的解析, 其实主要还是通过 HttpServletRequest, HttpServletResponse 里面获取de
 			if (argValue != WebArgumentResolver.UNRESOLVED) {
 				args[i] = argValue;
 			}
@@ -299,7 +299,7 @@ public class AnnotationMethodHandlerExceptionResolver extends AbstractHandlerExc
 		}
 
 		// Resolution of standard parameter types...
-		Class<?> paramType = methodParameter.getParameterType();
+		Class<?> paramType = methodParameter.getParameterType(); // 获取方法的参数类型
 		Object value = resolveStandardArgument(paramType, webRequest, thrownException);
 		if (value != WebArgumentResolver.UNRESOLVED && !ClassUtils.isAssignableValue(paramType, value)) {
 			throw new IllegalStateException(
@@ -319,24 +319,24 @@ public class AnnotationMethodHandlerExceptionResolver extends AbstractHandlerExc
 	 * @param webRequest the request
 	 * @param thrownException the exception thrown
 	 * @return the argument value, or {@link WebArgumentResolver#UNRESOLVED}
-	 */
+	 */ // 解析方法的参数
 	protected Object resolveStandardArgument(Class<?> parameterType, NativeWebRequest webRequest,
 			Exception thrownException) throws Exception {
 
-		if (parameterType.isInstance(thrownException)) {
+		if (parameterType.isInstance(thrownException)) {				// 若是异常的类型, 则直接返回
 			return thrownException;
 		}
-		else if (WebRequest.class.isAssignableFrom(parameterType)) {
+		else if (WebRequest.class.isAssignableFrom(parameterType)) {	// 若是WebRequest的类型, 则直接返回
 			return webRequest;
 		}
 
 		HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
 		HttpServletResponse response = webRequest.getNativeResponse(HttpServletResponse.class);
 
-		if (ServletRequest.class.isAssignableFrom(parameterType)) {
+		if (ServletRequest.class.isAssignableFrom(parameterType)) {	    // 若是ServletRequest的类型, 则直接返回 HttpServletRequest
 			return request;
 		}
-		else if (ServletResponse.class.isAssignableFrom(parameterType)) {
+		else if (ServletResponse.class.isAssignableFrom(parameterType)) { // 下面也是通过 参数的类型从 NativeWebRequest 获取对应的数据
 			return response;
 		}
 		else if (HttpSession.class.isAssignableFrom(parameterType)) {
@@ -380,16 +380,16 @@ public class AnnotationMethodHandlerExceptionResolver extends AbstractHandlerExc
 	@SuppressWarnings("unchecked")
 	private ModelAndView getModelAndView(Method handlerMethod, Object returnValue, ServletWebRequest webRequest)
 			throws Exception {
-
+		// 从处理异常的方法上获取 @ResponseStatus 注解的信息
 		ResponseStatus responseStatus = AnnotatedElementUtils.findMergedAnnotation(handlerMethod, ResponseStatus.class);
 		if (responseStatus != null) {
-			HttpStatus statusCode = responseStatus.code();
-			String reason = responseStatus.reason();
+			HttpStatus statusCode = responseStatus.code();	// 获取 @ResponseStatus 中设置的 Http Code
+			String reason = responseStatus.reason();		// 获取 @ResponseStatus 中设置的 reason
 			if (!StringUtils.hasText(reason)) {
-				webRequest.getResponse().setStatus(statusCode.value());
+				webRequest.getResponse().setStatus(statusCode.value());  // 设置 Http Code
 			}
 			else {
-				webRequest.getResponse().sendError(statusCode.value(), reason);
+				webRequest.getResponse().sendError(statusCode.value(), reason); // 设置对应的 reason
 			}
 		}
 

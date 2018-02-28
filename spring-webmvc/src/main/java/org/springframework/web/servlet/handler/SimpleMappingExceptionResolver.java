@@ -41,20 +41,21 @@ import org.springframework.web.util.WebUtils;
  * @since 22.11.2003
  * @see org.springframework.web.servlet.DispatcherServlet
  */
+// 映射 异常 Class --> ViewName 的 异常处理器
 public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionResolver {
 
 	/** The default name of the exception attribute: "exception". */
 	public static final String DEFAULT_EXCEPTION_ATTRIBUTE = "exception";
 
-
+	// 配置 异常 Class <--> ViewName 映射关系的 Property 的文件
 	private Properties exceptionMappings;
-
+	// 忽略的异常的类型
 	private Class<?>[] excludedExceptions;
-
+	// Set the name of the default error view 设置默认的 错误页面
 	private String defaultErrorView;
-
+	// 默认的 Http 返回的状态值
 	private Integer defaultStatusCode;
-
+	// 这里配置的是 ViewName <--> Http Code 的映射关系
 	private Map<String, Integer> statusCodes = new HashMap<String, Integer>();
 
 	private String exceptionAttribute = DEFAULT_EXCEPTION_ATTRIBUTE;
@@ -176,7 +177,7 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 	protected ModelAndView doResolveException(HttpServletRequest request, HttpServletResponse response,
 			Object handler, Exception ex) {
 
-		// Expose ModelAndView for chosen error view.
+		// Expose ModelAndView for chosen error view. 根据异常获取对应的 ViewName, 一般是通过 Property 配置文件中配置的
 		String viewName = determineViewName(ex, request);
 		if (viewName != null) {
 			// 如果配置了 statusCodes 属性, 则对此异常的状态码进行设置

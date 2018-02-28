@@ -52,7 +52,7 @@ public class ViewMethodReturnValueHandler implements HandlerMethodReturnValueHan
 		if (returnValue == null) {
 			return;
 		}
-		else if (returnValue instanceof View){
+		else if (returnValue instanceof View){	// 若返回值是 View 类型, 则设置 ModelAndViewContainer 的 View
 			View view = (View) returnValue;
 			mavContainer.setView(view);
 			if (view instanceof SmartView) {

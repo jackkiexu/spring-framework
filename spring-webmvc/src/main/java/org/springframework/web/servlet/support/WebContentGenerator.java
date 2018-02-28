@@ -373,8 +373,8 @@ public abstract class WebContentGenerator extends WebApplicationObjectSupport {
 	 */
 	protected final void checkRequest(HttpServletRequest request) throws ServletException {
 		// Check whether we should support the request method.
-		String method = request.getMethod();
-		if (this.supportedMethods != null && !this.supportedMethods.contains(method)) {
+		String method = request.getMethod();   // 获取 Http 请求的类别 GET, POST, PUT, DELETE
+		if (this.supportedMethods != null && !this.supportedMethods.contains(method)) { // 查看这种 Http 请求类别是否支持
 			throw new HttpRequestMethodNotSupportedException(method, this.supportedMethods);
 		}
 

@@ -195,7 +195,7 @@ class TypeConverterDelegate {
 			}
 			if (editor == null) {
 				editor = findDefaultEditor(requiredType);  // 获取属性转换器
-			}
+			} // oldValue 老数据, newValue 要适配的数据, requiredType 将要转换的数据类型, editor 进行属性转换的转换器
 			convertedValue = doConvertValue(oldValue, convertedValue, requiredType, editor);
 		}
 
@@ -373,7 +373,7 @@ class TypeConverterDelegate {
 		PropertyEditor editor = null;
 		if (requiredType != null) {
 			// No custom editor -> check BeanWrapperImpl's default editors.
-			editor = this.propertyEditorRegistry.getDefaultEditor(requiredType); // 获取属性转换器 从 String 转换成特定类型
+			editor = this.propertyEditorRegistry.getDefaultEditor(requiredType); // 获取属性转换器 从 String 转换成特定类型requiredType
 			if (editor == null && String.class != requiredType) {
 				// No BeanWrapper default editor -> check standard JavaBean editor.
 				editor = BeanUtils.findEditorByConvention(requiredType);

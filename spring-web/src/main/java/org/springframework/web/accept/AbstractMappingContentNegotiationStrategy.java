@@ -66,7 +66,7 @@ public abstract class AbstractMappingContentNegotiationStrategy extends MappingM
 	 * an already extracted key.
 	 * @since 3.2.16
 	 */
-	public List<MediaType> resolveMediaTypeKey(NativeWebRequest webRequest, String key)
+	public List<MediaType> resolveMediaTypeKey(NativeWebRequest webRequest, String key) // 通过关键字 key 来获取对应的 MediaType
 			throws HttpMediaTypeNotAcceptableException {
 
 		if (StringUtils.hasText(key)) {

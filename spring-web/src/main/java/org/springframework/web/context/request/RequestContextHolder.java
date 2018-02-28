@@ -68,7 +68,7 @@ public abstract class RequestContextHolder  {
 	 * <i>not</i> exposing it as inheritable for child threads.
 	 * @param attributes the RequestAttributes to expose
 	 * @see #setRequestAttributes(RequestAttributes, boolean)
-	 */
+	 */ // 绑定 RequestAttributes 到 ThreadLocal 中
 	public static void setRequestAttributes(RequestAttributes attributes) {
 		setRequestAttributes(attributes, false);
 	}

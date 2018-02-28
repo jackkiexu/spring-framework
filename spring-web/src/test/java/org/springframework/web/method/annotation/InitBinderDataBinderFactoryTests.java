@@ -45,7 +45,7 @@ import static org.junit.Assert.*;
  * @author Rossen Stoyanchev
  */
 public class InitBinderDataBinderFactoryTests {
-
+	// WebBindingInitializer 配置器
 	private ConfigurableWebBindingInitializer bindingInitializer;
 
 	private HandlerMethodArgumentResolverComposite argumentResolvers;
@@ -61,8 +61,8 @@ public class InitBinderDataBinderFactoryTests {
 
 	@Test
 	public void createBinder() throws Exception {
-		WebDataBinderFactory factory = createBinderFactory("initBinder", WebDataBinder.class);
-		WebDataBinder dataBinder = factory.createBinder(webRequest, null, null);
+		WebDataBinderFactory factory = createBinderFactory("initBinder", WebDataBinder.class); // 创建 属性绑定器 工厂
+		WebDataBinder dataBinder = factory.createBinder(webRequest, null, null);	// 在这里面 激活了 @InitBinder 修饰的方法
 
 		assertNotNull(dataBinder.getDisallowedFields());
 		assertEquals("id", dataBinder.getDisallowedFields()[0]);
@@ -70,7 +70,7 @@ public class InitBinderDataBinderFactoryTests {
 
 	@Test
 	public void createBinderWithGlobalInitialization() throws Exception {
-		ConversionService conversionService = new DefaultFormattingConversionService();
+		ConversionService conversionService = new DefaultFormattingConversionService();    // 生成 ConverterRegister
 		bindingInitializer.setConversionService(conversionService);
 
 		WebDataBinderFactory factory = createBinderFactory("initBinder", WebDataBinder.class);
@@ -91,7 +91,7 @@ public class InitBinderDataBinderFactoryTests {
 	@Test
 	public void createBinderWithAttrNameNoMatch() throws Exception {
 		WebDataBinderFactory factory = createBinderFactory("initBinderWithAttributeName", WebDataBinder.class);
-		WebDataBinder dataBinder = factory.createBinder(webRequest, null, "invalidName");
+		WebDataBinder dataBinder = factory.createBinder(webRequest, null, "invalidName");  // 这里的 invalidName 与 @InitBinder注解中的 Value 不符合, 所以没有激活对应方法
 
 		assertNull(dataBinder.getDisallowedFields());
 	}
@@ -126,7 +126,7 @@ public class InitBinderDataBinderFactoryTests {
 			throws Exception {
 
 		Object handler = new InitBinderHandler();
-		Method method = handler.getClass().getMethod(methodName, parameterTypes);
+		Method method = handler.getClass().getMethod(methodName, parameterTypes);  // 获取 InitBinderHandler 中的方法
 
 		InvocableHandlerMethod handlerMethod = new InvocableHandlerMethod(handler, method);
 		handlerMethod.setHandlerMethodArgumentResolvers(argumentResolvers);

@@ -117,8 +117,8 @@ public class PathExtensionContentNegotiationStrategy extends AbstractMappingCont
 			logger.warn("An HttpServletRequest is required to determine the media type key");
 			return null;
 		}
-		String path = this.urlPathHelper.getLookupPathForRequest(request);				// 通过 request 来获取对应的 path
-		String extension = UriUtils.extractFileExtension(path);								// 获取 path 中的扩展
+		String path = this.urlPathHelper.getLookupPathForRequest(request);				// 通过 request 来获取对应的 uri
+		String extension = UriUtils.extractFileExtension(path);							// 获取 path 中的扩展, 比如 user.do 中的 do
 		return (StringUtils.hasText(extension) ? extension.toLowerCase(Locale.ENGLISH) : null);
 	}
 

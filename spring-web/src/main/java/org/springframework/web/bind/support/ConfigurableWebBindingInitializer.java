@@ -200,7 +200,7 @@ public class ConfigurableWebBindingInitializer implements WebBindingInitializer 
 		if (this.conversionService != null) {
 			binder.setConversionService(this.conversionService);
 		}
-		if (this.propertyEditorRegistrars != null) {
+		if (this.propertyEditorRegistrars != null) {		// 属性注册器
 			for (PropertyEditorRegistrar propertyEditorRegistrar : this.propertyEditorRegistrars) {
 				propertyEditorRegistrar.registerCustomEditors(binder);
 			}

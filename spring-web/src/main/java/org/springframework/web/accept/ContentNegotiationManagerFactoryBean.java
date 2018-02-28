@@ -249,13 +249,13 @@ public class ContentNegotiationManagerFactoryBean
 
 
 	@Override
-	public void afterPropertiesSet() {														// 在这个 afterPropertiesSet 里面进行了设置 ContentNegotiationManager
+	public void afterPropertiesSet() { // 在这个 afterPropertiesSet 里面进行了设置 ContentNegotiationManager 解析 MediaType 的策略, 由通过 URI 尾缀,  Http 请求头中 ACCEPT 标签
 		List<ContentNegotiationStrategy> strategies = new ArrayList<ContentNegotiationStrategy>();
 
 		if (this.favorPathExtension) {
 			PathExtensionContentNegotiationStrategy strategy;
 			if (this.servletContext != null && !isUseJafTurnedOff()) {
-				strategy = new ServletPathExtensionContentNegotiationStrategy(				// 默认加入的 strategy
+				strategy = new ServletPathExtensionContentNegotiationStrategy( // 默认加入的 strategy
 						this.servletContext, this.mediaTypes);
 			}
 			else {
@@ -268,18 +268,18 @@ public class ContentNegotiationManagerFactoryBean
 			strategies.add(strategy);
 		}
 
-		if (this.favorParameter) {
+		if (this.favorParameter) {	// 是否通过在 HttpServletRequest 中含有特定参数来决定请求 MediaType
 			ParameterContentNegotiationStrategy strategy =
 					new ParameterContentNegotiationStrategy(this.mediaTypes);
 			strategy.setParameterName(this.parameterName);
 			strategies.add(strategy);
 		}
 
-		if (!this.ignoreAcceptHeader) {
-			strategies.add(new HeaderContentNegotiationStrategy());					// 默认加入 的策略
+		if (!this.ignoreAcceptHeader) { // 解析 MediaType 是否忽略 Http 请求头中的信息
+			strategies.add(new HeaderContentNegotiationStrategy());					// 默认加入 的策略 <-- 通过 Http 请求头部中的 Accept 来决定 MediaType
 		}
 
-		if (this.defaultNegotiationStrategy != null) {
+		if (this.defaultNegotiationStrategy != null) {	// 是否加入默认 MediaType 解析策略
 			strategies.add(this.defaultNegotiationStrategy);
 		}
 

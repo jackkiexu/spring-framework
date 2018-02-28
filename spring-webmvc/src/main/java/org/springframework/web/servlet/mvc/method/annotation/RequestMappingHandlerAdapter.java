@@ -837,7 +837,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
 		// 构建 ServletWebRequest <-- 主要由 HttpServletRequest, HttpServletResponse
 		ServletWebRequest webRequest = new ServletWebRequest(request, response);
 		try {
-			WebDataBinderFactory binderFactory = getDataBinderFactory(handlerMethod);
+			WebDataBinderFactory binderFactory = getDataBinderFactory(handlerMethod);    // 构建 DataBinder 工厂
 			ModelFactory modelFactory = getModelFactory(handlerMethod, binderFactory);   // binderFactory 中存储着被 @InitBinder, @ModelAttribute 修饰的方法 <- 最终包裹成 InvocableHandlerMethod
 
 			ServletInvocableHandlerMethod invocableMethod = createInvocableHandlerMethod(handlerMethod);
@@ -850,7 +850,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
 			mavContainer.addAllAttributes(RequestContextUtils.getInputFlashMap(request));   // 获取 HttpServletRequest 中存储的 FlashMap
 			modelFactory.initModel(webRequest, mavContainer, invocableMethod);				// 这里是激活 @InitBinder 方法, 并将返回值放入 ModelAndViewContainer
 			mavContainer.setIgnoreDefaultModelOnRedirect(this.ignoreDefaultModelOnRedirect);
-
+			////////////////////////// 下面是异步处理那部分
 			AsyncWebRequest asyncWebRequest = WebAsyncUtils.createAsyncWebRequest(request, response);
 			asyncWebRequest.setTimeout(this.asyncRequestTimeout);
 
@@ -934,7 +934,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
 		}
 		List<InvocableHandlerMethod> initBinderMethods = new ArrayList<InvocableHandlerMethod>();
 		// Global methods first
-		for (Entry<ControllerAdviceBean, Set<Method>> entry : this.initBinderAdviceCache.entrySet()) {
+		for (Entry<ControllerAdviceBean, Set<Method>> entry : this.initBinderAdviceCache.entrySet()) { // 全局配置的, 被 @InitBinder修饰的方法
 			if (entry.getKey().isApplicableToBeanType(handlerType)) {
 				Object bean = entry.getKey().resolveBean();
 				for (Method method : entry.getValue()) {
@@ -973,12 +973,13 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
 
 	private ModelAndView getModelAndView(ModelAndViewContainer mavContainer,
 			ModelFactory modelFactory, NativeWebRequest webRequest) throws Exception {
-
+		// 通过 sessionAttributesHandler 工具类将 HttpServletRequest 里面的属性值 设置到 ModelAndViewContainer.ModelMap 里面
 		modelFactory.updateModel(webRequest, mavContainer);
 		if (mavContainer.isRequestHandled()) {
 			return null;
 		}
 		ModelMap model = mavContainer.getModel();
+		// 通过 viewName, ModelAndViewContainer.ModelMap, ModelAndViewContainer.getStatus 构成 ModelAndView 对象
 		ModelAndView mav = new ModelAndView(mavContainer.getViewName(), model, mavContainer.getStatus());
 		if (!mavContainer.isViewReference()) {
 			mav.setView((View) mavContainer.getView());

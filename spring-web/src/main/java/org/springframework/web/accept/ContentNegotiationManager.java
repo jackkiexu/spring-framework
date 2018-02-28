@@ -41,6 +41,7 @@ import org.springframework.web.context.request.NativeWebRequest;
  * @author Rossen Stoyanchev
  * @since 3.2
  */
+// 根据请求 uri 尾缀, 或 Header 中的信息, 来决定 MediaType
 public class ContentNegotiationManager implements ContentNegotiationStrategy, MediaTypeFileExtensionResolver {
 
 	private static final List<MediaType> MEDIA_TYPE_ALL = Collections.<MediaType>singletonList(MediaType.ALL);
@@ -116,7 +117,7 @@ public class ContentNegotiationManager implements ContentNegotiationStrategy, Me
 	public void addFileExtensionResolvers(MediaTypeFileExtensionResolver... resolvers) {
 		this.resolvers.addAll(Arrays.asList(resolvers));
 	}
-
+	// 通过 URI 后缀 或 Http 请求头中 ACCEPT 中的数据获取对应 MediaType
 	@Override
 	public List<MediaType> resolveMediaTypes(NativeWebRequest request) throws HttpMediaTypeNotAcceptableException {
 		for (ContentNegotiationStrategy strategy : this.strategies) {

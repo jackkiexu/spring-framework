@@ -88,7 +88,7 @@ public class DefaultFormattingConversionService extends FormattingConversionServ
 	public DefaultFormattingConversionService(StringValueResolver embeddedValueResolver, boolean registerDefaultFormatters) {
 		setEmbeddedValueResolver(embeddedValueResolver);
 		DefaultConversionService.addDefaultConverters(this);
-		if (registerDefaultFormatters) {
+		if (registerDefaultFormatters) {			// 是否注册默认的转换器 Converter
 			addDefaultFormatters(this);
 		}
 	}
@@ -100,7 +100,7 @@ public class DefaultFormattingConversionService extends FormattingConversionServ
 	 * depending on the presence of the corresponding API on the classpath.
 	 * @param formatterRegistry the service to register default formatters with
 	 */
-	public static void addDefaultFormatters(FormatterRegistry formatterRegistry) {
+	public static void addDefaultFormatters(FormatterRegistry formatterRegistry) {		// 注册默认的转换器 Converter
 		// Default handling of number values
 		formatterRegistry.addFormatterForFieldAnnotation(new NumberFormatAnnotationFormatterFactory());
 
@@ -113,7 +113,7 @@ public class DefaultFormattingConversionService extends FormattingConversionServ
 
 		// Default handling of date-time values
 		if (jsr310Present) {
-			// just handling JSR-310 specific date and time types
+			// just handling JSR-310 specific date and time types 注册日期格数转换器
 			new DateTimeFormatterRegistrar().registerFormatters(formatterRegistry);
 		}
 		if (jodaTimePresent) {
@@ -121,7 +121,7 @@ public class DefaultFormattingConversionService extends FormattingConversionServ
 			new JodaTimeFormatterRegistrar().registerFormatters(formatterRegistry);
 		}
 		else {
-			// regular DateFormat-based Date, Calendar, Long converters
+			// regular DateFormat-based Date, Calendar, Long converters 注册日期格数转换器
 			new DateFormatterRegistrar().registerFormatters(formatterRegistry);
 		}
 	}

@@ -84,19 +84,23 @@ import org.springframework.web.servlet.ViewResolver;
  * @see InternalResourceViewResolver
  * @see BeanNameViewResolver
  */
+
+/** 参考资料 https://www.ibm.com/developerworks/cn/java/j-lo-springview/
+ *  接口 ViewResolver 的实现类, 用于根据请求后缀名或请求的 header 中的 accept 字段查找试图
+ */
 public class ContentNegotiatingViewResolver extends WebApplicationObjectSupport
 		implements ViewResolver, Ordered, InitializingBean {
 
 	private int order = Ordered.HIGHEST_PRECEDENCE;
-
+	// 根据请求 uri 尾缀, 或 Header 中的信息, 来决定 MediaType
 	private ContentNegotiationManager contentNegotiationManager;
 
 	private final ContentNegotiationManagerFactoryBean cnmFactoryBean = new ContentNegotiationManagerFactoryBean();
 
 	private boolean useNotAcceptableStatusCode = false;
-
+	// 默认 视图
 	private List<View> defaultViews;
-
+	// 试图解析器
 	private List<ViewResolver> viewResolvers;
 
 
@@ -243,14 +247,14 @@ public class ContentNegotiatingViewResolver extends WebApplicationObjectSupport
 	protected List<MediaType> getMediaTypes(HttpServletRequest request) {
 		try {
 			ServletWebRequest webRequest = new ServletWebRequest(request);
-
+			// 获取 HttpServletRequest 对应的 MediaType
 			List<MediaType> acceptableMediaTypes = this.contentNegotiationManager.resolveMediaTypes(webRequest);
 			acceptableMediaTypes = (!acceptableMediaTypes.isEmpty() ? acceptableMediaTypes :
 					Collections.singletonList(MediaType.ALL));
 
-			List<MediaType> producibleMediaTypes = getProducibleMediaTypes(request);
+			List<MediaType> producibleMediaTypes = getProducibleMediaTypes(request); // 获取 @RequestMapping 注解中 produces 所指定的MediaType
 			Set<MediaType> compatibleMediaTypes = new LinkedHashSet<MediaType>();
-			for (MediaType acceptable : acceptableMediaTypes) {
+			for (MediaType acceptable : acceptableMediaTypes) {						 // 获取 Produces 与 Acceptable 相兼容的 MediaType
 				for (MediaType producible : producibleMediaTypes) {
 					if (acceptable.isCompatibleWith(producible)) {
 						compatibleMediaTypes.add(getMostSpecificMediaType(acceptable, producible));
@@ -258,7 +262,7 @@ public class ContentNegotiatingViewResolver extends WebApplicationObjectSupport
 				}
 			}
 			List<MediaType> selectedMediaTypes = new ArrayList<MediaType>(compatibleMediaTypes);
-			MediaType.sortBySpecificityAndQuality(selectedMediaTypes);
+			MediaType.sortBySpecificityAndQuality(selectedMediaTypes);  // 若存在多个 MediaType, 则进行排序, 获取其中最精准的 MediaType
 			if (logger.isDebugEnabled()) {
 				logger.debug("Requested media types are " + selectedMediaTypes + " based on Accept header types " +
 						"and producible media types " + producibleMediaTypes + ")");

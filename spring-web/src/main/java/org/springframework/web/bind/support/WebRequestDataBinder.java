@@ -67,7 +67,7 @@ import org.springframework.web.multipart.MultipartRequest;
  * @see #setAllowedFields
  * @see #setRequiredFields
  * @see #setFieldMarkerPrefix
- */
+ */ // 比 DataBinder 多出来的能力是: 将 HttpServletRequest 中的 key <-> value 对解析成 MutablePropertyValues, 运用到
 public class WebRequestDataBinder extends WebDataBinder {
 
 	private static final boolean servlet3Parts = ClassUtils.hasMethod(HttpServletRequest.class, "getParts");

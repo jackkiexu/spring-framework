@@ -1093,6 +1093,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 			LocaleContextHolder.setLocaleContext(localeContext, this.threadContextInheritable);
 		}
 		if (requestAttributes != null) {
+			// 将 RequestAttributes 保存到 ThreadLocal 中
 			RequestContextHolder.setRequestAttributes(requestAttributes, this.threadContextInheritable);
 		}
 		if (logger.isTraceEnabled()) {
@@ -1104,6 +1105,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 			LocaleContext prevLocaleContext, RequestAttributes previousAttributes) {
 
 		LocaleContextHolder.setLocaleContext(prevLocaleContext, this.threadContextInheritable);
+		// 将 RequestAttributes 保存到  ThreadLocal 中
 		RequestContextHolder.setRequestAttributes(previousAttributes, this.threadContextInheritable);
 		if (logger.isTraceEnabled()) {
 			logger.trace("Cleared thread-bound request context: " + request);

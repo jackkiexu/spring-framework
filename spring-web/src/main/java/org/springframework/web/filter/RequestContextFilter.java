@@ -109,6 +109,7 @@ public class RequestContextFilter extends OncePerRequestFilter {
 
 	private void initContextHolders(HttpServletRequest request, ServletRequestAttributes requestAttributes) {
 		LocaleContextHolder.setLocale(request.getLocale(), this.threadContextInheritable);
+		// 将 RequestAttributes 保存到 ThreadLocal 中
 		RequestContextHolder.setRequestAttributes(requestAttributes, this.threadContextInheritable);
 		if (logger.isDebugEnabled()) {
 			logger.debug("Bound request context to thread: " + request);

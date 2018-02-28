@@ -79,7 +79,7 @@ public class ContentNegotiatingViewResolverTests {
 		request.setAttribute(HandlerMapping.PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE, producibleTypes);
 		request.addHeader("Accept", "text/html,application/xml;q=0.9,application/xhtml+xml,*/*;q=0.8");
 		viewResolver.afterPropertiesSet();
-		List<MediaType> result = viewResolver.getMediaTypes(request);
+		List<MediaType> result = viewResolver.getMediaTypes(request);		// 通过 ContentNegotiatingViewResolver 解析 HttpServletRequest 来获取 acceptable, produces 都兼容的 MediaType
 		assertEquals("Invalid content type", new MediaType("application", "xhtml+xml"), result.get(0));
 	}
 

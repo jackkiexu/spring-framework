@@ -27,7 +27,7 @@ import org.springframework.web.context.request.NativeWebRequest;
  * @since 3.1
  */
 public class DefaultDataBinderFactory implements WebDataBinderFactory {
-
+	// WebDataBinder 的属性配置器
 	private final WebBindingInitializer initializer;
 
 
@@ -49,12 +49,12 @@ public class DefaultDataBinderFactory implements WebDataBinderFactory {
 	@Override
 	public final WebDataBinder createBinder(NativeWebRequest webRequest, Object target, String objectName)
 			throws Exception {
-		// 够着 WebDataBinder
+		// 构造 WebDataBinder
 		WebDataBinder dataBinder = createBinderInstance(target, objectName, webRequest);
-		if (this.initializer != null) {
+		if (this.initializer != null) { // WebBindingInitializer 进行初始化
 			this.initializer.initBinder(dataBinder, webRequest);
 		}
-		initBinder(dataBinder, webRequest);
+		initBinder(dataBinder, webRequest);		// 激活 @InitBinder 激活的方法
 		return dataBinder;
 	}
 

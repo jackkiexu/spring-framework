@@ -112,6 +112,19 @@ import org.springframework.util.StringUtils;
  * @see org.springframework.context.MessageSource
  * @see org.springframework.web.bind.ServletRequestDataBinder
  */
+
+/**
+ * 进行数据的绑定操作
+ * 场景:
+ * 在 xml 中配置
+ * <bean class="com.lami.Person">
+ * 	<property name="name" value="xjk"></property>
+ * 	<property name="age" value="032"></property>
+ * </bean>
+ *
+ * 首先程序会通过 CachedIntrospectionResults 拿到 com.lami.Person 的所有的信息
+ * 比如上面的 age, age 是 int 类型, 则会通过 String 转 int 的 PropertyEditor 进行数据的转换, 最后再赋值到 Person.age 上
+ */
 public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 
 	/** Default object name used for binding: "target" */
@@ -138,13 +151,13 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 		}
 	}
 
-
+	// 将被属性绑定的 目标对象
 	private final Object target;
-
+	// 将被属性绑定的 目标对象 的名称
 	private final String objectName;
-
+	// 绑定属性的结果
 	private AbstractPropertyBindingResult bindingResult;
-
+	// 属性转换器, 主要是通过 TypeConverterDelegate 中的 PropertyEditor 进行从 String 类型转换到特定类型
 	private SimpleTypeConverter typeConverter;
 
 	private boolean ignoreUnknownFields = true;
@@ -160,13 +173,13 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 	private String[] disallowedFields;
 
 	private String[] requiredFields;
-
+	// 属性转换控制器, 里面注册的都是 ConditionalGenericConverter <-- 将一个 source 转换成 一个或多个 对象
 	private ConversionService conversionService;
 
 	private MessageCodesResolver messageCodesResolver;
 
 	private BindingErrorProcessor bindingErrorProcessor = new DefaultBindingErrorProcessor();
-
+	// 属性值校验器
 	private final List<Validator> validators = new ArrayList<Validator>();
 
 

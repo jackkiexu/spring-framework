@@ -121,7 +121,7 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 
 		if (binderFactory != null) {
 			WebDataBinder binder = binderFactory.createBinder(webRequest, null, namedValueInfo.name);
-			try {
+			try {	// 通过 WebDataBinder 中的 Converter 将 arg 转换成 parameter.getParameterType() 对应的类型
 				arg = binder.convertIfNecessary(arg, parameter.getParameterType(), parameter); // 将 arg 转换成 parameter.getParameterType() 类型, 这里就需要 SimpleTypeConverter
 			}
 			catch (ConversionNotSupportedException ex) {

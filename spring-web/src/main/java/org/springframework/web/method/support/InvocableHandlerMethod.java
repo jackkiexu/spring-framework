@@ -44,7 +44,7 @@ import org.springframework.web.method.HandlerMethod;
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
  * @since 3.1
- */
+ */// 这个类可以理解为 可激活的 HandlerMethod, 一般是再 argument 通过 HandlerMethodArgumentResolver 解决后, 参数的 resolve 通常也需要 WebDataBinder 进行转换 绑定
 public class InvocableHandlerMethod extends HandlerMethod {
 
 	private WebDataBinderFactory dataBinderFactory;
@@ -64,7 +64,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
 	/**
 	 * Create an instance from a bean instance and a method.
 	 */
-	public InvocableHandlerMethod(Object bean, Method method) {
+	public InvocableHandlerMethod(Object bean, Method method) {	// 设置需要激活的方法 Method, 及对应的 Bean
 		super(bean, method);
 	}
 

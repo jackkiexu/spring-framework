@@ -201,7 +201,7 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
 			}
 		}
 		if (this.defaultEditors == null) {
-			createDefaultEditors(); // 创建默认的属性转换器
+			createDefaultEditors(); // 创建默认的属性转换器 <-- 这里注册转换器比较多
 		}
 		return this.defaultEditors.get(requiredType);
 	}

@@ -521,6 +521,7 @@ public abstract class FrameworkPortlet extends GenericPortletBean
 				PortletRequestAttributes.class == previousRequestAttributes.getClass() ||
 				ServletRequestAttributes.class == previousRequestAttributes.getClass()) {
 			requestAttributes = new PortletRequestAttributes(request, response);
+			// 将 Request, Response 封装为 RequestAttributes 对象, 并存储到 ThreadLocal 中
 			RequestContextHolder.setRequestAttributes(requestAttributes, this.threadContextInheritable);
 		}
 
@@ -563,6 +564,7 @@ public abstract class FrameworkPortlet extends GenericPortletBean
 			// Clear request attributes and reset thread-bound context.
 			LocaleContextHolder.setLocaleContext(previousLocaleContext, this.threadContextInheritable);
 			if (requestAttributes != null) {
+				// 将 RequestAttribute 保存 ThreadLocal 中
 				RequestContextHolder.setRequestAttributes(previousRequestAttributes, this.threadContextInheritable);
 				requestAttributes.requestCompleted();
 			}

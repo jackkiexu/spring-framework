@@ -107,7 +107,7 @@ public class DefaultConversionService extends GenericConversionService {
 		converterRegistry.addConverter(new ObjectToObjectConverter());
 		converterRegistry.addConverter(new IdToEntityConverter((ConversionService) converterRegistry));
 		converterRegistry.addConverter(new FallbackObjectToStringConverter());
-		if (javaUtilOptionalClassAvailable) {
+		if (javaUtilOptionalClassAvailable) {  // 若是 Java 8 注册  Object -> Optional的转换器
 			converterRegistry.addConverter(new ObjectToOptionalConverter((ConversionService) converterRegistry));
 		}
 	}
@@ -119,7 +119,7 @@ public class DefaultConversionService extends GenericConversionService {
 	 * @throws ClassCastException if the given ConverterRegistry could not be cast to a ConversionService
 	 * @since 4.2.3
 	 */
-	public static void addCollectionConverters(ConverterRegistry converterRegistry) {
+	public static void addCollectionConverters(ConverterRegistry converterRegistry) { // 注册 集合与对象直接的转换器
 		ConversionService conversionService = (ConversionService) converterRegistry;
 
 		converterRegistry.addConverter(new ArrayToCollectionConverter(conversionService));
@@ -149,7 +149,7 @@ public class DefaultConversionService extends GenericConversionService {
 
 	// internal helpers
 
-	private static void addScalarConverters(ConverterRegistry converterRegistry) {
+	private static void addScalarConverters(ConverterRegistry converterRegistry) { // 在 ConverterRegistry 中注册 默认的 Converters
 		converterRegistry.addConverterFactory(new NumberToNumberConverterFactory());
 
 		converterRegistry.addConverterFactory(new StringToNumberConverterFactory());

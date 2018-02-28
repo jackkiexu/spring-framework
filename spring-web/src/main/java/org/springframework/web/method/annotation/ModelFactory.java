@@ -192,13 +192,13 @@ public final class ModelFactory {
 	 * @param container contains the model to update
 	 * @throws Exception if creating BindingResult attributes fails
 	 */
-	public void updateModel(NativeWebRequest request, ModelAndViewContainer container) throws Exception {
+	public void updateModel(NativeWebRequest request, ModelAndViewContainer container) throws Exception { // 通过 sessionAttributesHandler 工具类将 HttpServletRequest 里面的属性值 设置到 ModelAndViewContainer.ModelMap 里面
 		ModelMap defaultModel = container.getDefaultModel();
 		if (container.getSessionStatus().isComplete()){
 			this.sessionAttributesHandler.cleanupAttributes(request);
 		}
 		else {
-			this.sessionAttributesHandler.storeAttributes(request, defaultModel);
+			this.sessionAttributesHandler.storeAttributes(request, defaultModel);  // 通过 sessionAttributesHandler 工具类将 HttpServletRequest 里面的属性值 设置到 ModelAndViewContainer.ModelMap 里面
 		}
 		if (!container.isRequestHandled() && container.getModel() == defaultModel) {
 			updateBindingResult(request, defaultModel);

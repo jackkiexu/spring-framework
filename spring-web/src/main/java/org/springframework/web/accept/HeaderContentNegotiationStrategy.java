@@ -36,7 +36,7 @@ import org.springframework.web.context.request.NativeWebRequest;
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
  * @since 3.2
- */
+ */ // 通过 Http 请求头中的 Accept 来获取对应的 MediaType
 public class HeaderContentNegotiationStrategy implements ContentNegotiationStrategy {
 
 	/**
@@ -47,14 +47,14 @@ public class HeaderContentNegotiationStrategy implements ContentNegotiationStrat
 	public List<MediaType> resolveMediaTypes(NativeWebRequest request)
 			throws HttpMediaTypeNotAcceptableException {
 
-		String[] headerValueArray = request.getHeaderValues(HttpHeaders.ACCEPT);  // 从 Request 中获取 accept 数据
+		String[] headerValueArray = request.getHeaderValues(HttpHeaders.ACCEPT);   // 从 Request 中获取 accept 数据
 		if (headerValueArray == null) {
 			return Collections.<MediaType>emptyList();
 		}
 
 		List<String> headerValues = Arrays.asList(headerValueArray);
 		try {
-			List<MediaType> mediaTypes = MediaType.parseMediaTypes(headerValues);			// 从 headerValues 中解析 MediaType
+			List<MediaType> mediaTypes = MediaType.parseMediaTypes(headerValues);  // 从 headerValues 中解析 MediaType
 			MediaType.sortBySpecificityAndQuality(mediaTypes);
 			return mediaTypes;
 		}

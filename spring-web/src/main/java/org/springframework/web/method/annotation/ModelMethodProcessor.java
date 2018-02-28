@@ -35,6 +35,8 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * @author Rossen Stoyanchev
  * @since 3.1
  */
+// 针对 Model及其子类的参数, 数据的获取一般通过 ModelAndViewContainer.getModel()
+// 针对 Model 及其子类的返回值处理器, 主要还是将 ModelAndView 中的 model 设置到 ModelAndViewContainer
 public class ModelMethodProcessor implements HandlerMethodArgumentResolver, HandlerMethodReturnValueHandler {
 
 	@Override

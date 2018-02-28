@@ -41,6 +41,7 @@ import org.springframework.web.servlet.View;
  * @author Rossen Stoyanchev
  * @since 3.1
  */
+// 针对 ModelAndView 及其子类的返回值处理器, 主要还是将 ModelAndView 中的 status, model 设置到 ModelAndViewContainer
 public class ModelAndViewMethodReturnValueHandler implements HandlerMethodReturnValueHandler {
 
 	private String[] redirectPatterns;

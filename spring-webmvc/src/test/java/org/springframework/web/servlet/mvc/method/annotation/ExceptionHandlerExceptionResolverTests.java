@@ -368,6 +368,7 @@ public class ExceptionHandlerExceptionResolverTests {
 
 		@ExceptionHandler(value = IOException.class)
 		public void handleException() {
+			System.out.println("dangdang");
 		}
 	}
 

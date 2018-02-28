@@ -58,6 +58,10 @@ import org.springframework.stereotype.Component;
  * @author Sam Brannen
  * @since 3.2
  */
+
+/**
+ * Controller 增强器, 其中一般含有 @ExceptionHandler(异常处理器), @ModelAttribute(Model属性集合), @InitBinder(DataBinder属性绑定器)
+ */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented

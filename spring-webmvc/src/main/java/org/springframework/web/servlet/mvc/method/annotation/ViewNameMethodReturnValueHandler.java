@@ -41,6 +41,7 @@ import org.springframework.web.servlet.RequestToViewNameTranslator;
  * @author Juergen Hoeller
  * @since 3.1
  */
+// 支持返回值为 CharSequence 类型, 设置 ModelAndViewContainer.setViewName
 public class ViewNameMethodReturnValueHandler implements HandlerMethodReturnValueHandler {
 
 	private String[] redirectPatterns;

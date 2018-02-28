@@ -42,6 +42,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
  * @author Rossen Stoyanchev
  * @since 3.1
  */
+// 针对 RedirectAttributes及其子类的参数
 public class RedirectAttributesMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
 	@Override

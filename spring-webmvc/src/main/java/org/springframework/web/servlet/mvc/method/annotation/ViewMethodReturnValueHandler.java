@@ -38,6 +38,7 @@ import org.springframework.web.servlet.View;
  * @author Rossen Stoyanchev
  * @since 3.1
  */
+// 针对 View 及其子类的返回值处理器, 主要还是将 View 设置到 ModelAndViewContainer
 public class ViewMethodReturnValueHandler implements HandlerMethodReturnValueHandler {
 
 	@Override

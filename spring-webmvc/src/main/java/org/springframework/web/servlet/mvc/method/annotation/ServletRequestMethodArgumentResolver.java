@@ -58,6 +58,7 @@ import org.springframework.web.servlet.support.RequestContextUtils;
  * @author Juergen Hoeller
  * @since 3.1
  */
+// 针对 一些基础类的参数解决, 参数的获取一般通过 HttpServletRequest
 public class ServletRequestMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
 	@Override

@@ -137,7 +137,7 @@ public class AnnotationMethodHandlerExceptionResolver extends AbstractHandlerExc
 			HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
 
 		if (handler != null) { // 获取对应的激活方法
-			Method handlerMethod = findBestExceptionHandlerMethod(handler, ex);
+			Method handlerMethod = findBestExceptionHandlerMethod(handler, ex);	// 获取处理这个异常的最符合的方法
 			if (handlerMethod != null) { // 封装对应的请求参数
 				ServletWebRequest webRequest = new ServletWebRequest(request, response);
 				try {	//  resolve 方法对应的参数的真实数据
@@ -166,34 +166,34 @@ public class AnnotationMethodHandlerExceptionResolver extends AbstractHandlerExc
 		final Class<?> handlerType = ClassUtils.getUserClass(handler); // 获取真实的类 <-- 这里真实是针对 CGLIB 生成的类
 		final Class<? extends Throwable> thrownExceptionType = thrownException.getClass();
 		Method handlerMethod = null;
-
+		// exceptionHandlerCache 中 key 是 异常处理类, value 又是一个 Map<异常的类型, 对应需要激活的方法 HandlerMethod>
 		Map<Class<? extends Throwable>, Method> handlers = this.exceptionHandlerCache.get(handlerType);
 		if (handlers != null) {
-			handlerMethod = handlers.get(thrownExceptionType);
+			handlerMethod = handlers.get(thrownExceptionType);	// 通过异常获取对应的 HandlerMethod
 			if (handlerMethod != null) {
 				return (handlerMethod == NO_METHOD_FOUND ? null : handlerMethod);
 			}
 		}
-		else {
+		else {	// 若 handlers == null, 则创建一个 Map<Class<? extends Throwable>, Method>
 			handlers = new ConcurrentHashMap<Class<? extends Throwable>, Method>(16);
 			this.exceptionHandlerCache.put(handlerType, handlers);
 		}
 
 		final Map<Class<? extends Throwable>, Method> matchedHandlers = new HashMap<Class<? extends Throwable>, Method>();
-
+		// 针对异常的解析的操作
 		ReflectionUtils.doWithMethods(handlerType, new ReflectionUtils.MethodCallback() {
 			@Override
 			public void doWith(Method method) {
-				method = ClassUtils.getMostSpecificMethod(method, handlerType);
-				List<Class<? extends Throwable>> handledExceptions = getHandledExceptions(method);
-				for (Class<? extends Throwable> handledException : handledExceptions) {
-					if (handledException.isAssignableFrom(thrownExceptionType)) {
+				method = ClassUtils.getMostSpecificMethod(method, handlerType);  // 获取真实的方法
+				List<Class<? extends Throwable>> handledExceptions = getHandledExceptions(method);  // 返回 method 上 @ExceptionHandler 注解中配置的异常的类型
+				for (Class<? extends Throwable> handledException : handledExceptions) { // handledExceptions 中存储的是 @ExceptionHandler 注解上标示的异常的类型
+					if (handledException.isAssignableFrom(thrownExceptionType)) {	// 判断传来的异常 thrownExceptionType是否是 handledException 的子类
 						if (!matchedHandlers.containsKey(handledException)) {
 							matchedHandlers.put(handledException, method);
 						}
 						else {
 							Method oldMappedMethod = matchedHandlers.get(handledException);
-							if (!oldMappedMethod.equals(method)) {
+							if (!oldMappedMethod.equals(method)) { // 若与老的 Method 不相等, 则直接报出异常
 								throw new IllegalStateException(
 										"Ambiguous exception handler mapped for " + handledException + "]: {" +
 												oldMappedMethod + ", " + method + "}.");
@@ -203,9 +203,9 @@ public class AnnotationMethodHandlerExceptionResolver extends AbstractHandlerExc
 				}
 			}
 		});
-
+		// 当遇到多个 method 时, 通过排序获取最贴近的 方法
 		handlerMethod = getBestMatchingMethod(matchedHandlers, thrownException);
-		handlers.put(thrownExceptionType, (handlerMethod == null ? NO_METHOD_FOUND : handlerMethod));
+		handlers.put(thrownExceptionType, (handlerMethod == null ? NO_METHOD_FOUND : handlerMethod)); // 设置到 handlers 中 <- handlers 已经在缓存中
 		return handlerMethod;
 	}
 
@@ -216,7 +216,7 @@ public class AnnotationMethodHandlerExceptionResolver extends AbstractHandlerExc
 	 * is annotated with {@code @ExceptionHandler}.
 	 * @param method the method
 	 * @return the handled exceptions
-	 */// 返回被 @ExceptionHandler 注解的方法
+	 */// 返回 注解 @ExceptionHandler 中的 异常类型
 	@SuppressWarnings("unchecked")
 	protected List<Class<? extends Throwable>> getHandledExceptions(Method method) {
 		List<Class<? extends Throwable>> result = new ArrayList<Class<? extends Throwable>>();
@@ -225,7 +225,7 @@ public class AnnotationMethodHandlerExceptionResolver extends AbstractHandlerExc
 			if (!ObjectUtils.isEmpty(exceptionHandler.value())) {
 				result.addAll(Arrays.asList(exceptionHandler.value()));	// 获取 @ExceptionHandler 注解中指定的 异常的类型
 			}
-			else {
+			else { // 若 @ExceptionHandler 中没有设置
 				for (Class<?> param : method.getParameterTypes()) {
 					if (Throwable.class.isAssignableFrom(param)) {
 						result.add((Class<? extends Throwable>) param);
@@ -240,7 +240,7 @@ public class AnnotationMethodHandlerExceptionResolver extends AbstractHandlerExc
 	 * Uses the {@link ExceptionDepthComparator} to find the best matching method.
 	 * @return the best matching method, or {@code null} if none found
 	 */
-	private Method getBestMatchingMethod(
+	private Method getBestMatchingMethod( // 当遇到多个 Throwable, 则选择最贴近的 resolveMethod
 			Map<Class<? extends Throwable>, Method> resolverMethods, Exception thrownException) {
 
 		if (resolverMethods.isEmpty()) {

@@ -72,8 +72,8 @@ public class ExceptionHandlerMethodResolver {
 	 */
 	public ExceptionHandlerMethodResolver(Class<?> handlerType) {
 		for (Method method : MethodIntrospector.selectMethods(handlerType, EXCEPTION_HANDLER_METHODS)) {
-			for (Class<? extends Throwable> exceptionType : detectExceptionMappings(method)) {
-				addExceptionMapping(exceptionType, method);
+			for (Class<? extends Throwable> exceptionType : detectExceptionMappings(method)) {		// 将这个 method 支持处理的 异常类型获取
+				addExceptionMapping(exceptionType, method);		// 将 异常类型 <--> method 放入 mappedMethods
 			}
 		}
 	}
@@ -86,8 +86,8 @@ public class ExceptionHandlerMethodResolver {
 	@SuppressWarnings("unchecked")
 	private List<Class<? extends Throwable>> detectExceptionMappings(Method method) {
 		List<Class<? extends Throwable>> result = new ArrayList<Class<? extends Throwable>>();
-		detectAnnotationExceptionMappings(method, result);
-		if (result.isEmpty()) {
+		detectAnnotationExceptionMappings(method, result);		// 将注解 @ExceptionHandler 中设置的异常的类型加入 result 中
+		if (result.isEmpty()) {									// 若 result 是空的, 则将 method 中参数是 Throwable 的也加入到 result 中
 			for (Class<?> paramType : method.getParameterTypes()) {
 				if (Throwable.class.isAssignableFrom(paramType)) {
 					result.add((Class<? extends Throwable>) paramType);

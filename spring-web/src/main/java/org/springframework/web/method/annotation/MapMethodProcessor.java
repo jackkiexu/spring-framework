@@ -36,6 +36,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * @author Rossen Stoyanchev
  * @since 3.1
  */
+// 支持返回值为 Map, 并将结果设置到 ModelAndViewContainer
 public class MapMethodProcessor implements HandlerMethodArgumentResolver, HandlerMethodReturnValueHandler {
 
 	@Override

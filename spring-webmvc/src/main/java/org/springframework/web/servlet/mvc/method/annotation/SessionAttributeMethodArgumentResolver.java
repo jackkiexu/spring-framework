@@ -32,6 +32,10 @@ import org.springframework.web.method.annotation.AbstractNamedValueMethodArgumen
  * @author Rossen Stoyanchev
  * @since 4.3
  */
+
+/**
+ * 针对 被 @SessionAttribute 修饰的参数起作用, 参数的获取一般通过 HttpServletRequest.getAttribute(name, RequestAttributes.SCOPE_SESSION)
+ */
 public class SessionAttributeMethodArgumentResolver extends AbstractNamedValueMethodArgumentResolver {
 
 	@Override

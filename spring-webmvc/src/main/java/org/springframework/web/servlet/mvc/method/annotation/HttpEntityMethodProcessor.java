@@ -57,6 +57,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * @author Brian Clozel
  * @since 3.1
  */
+// 针对 HttpEntity 及其子类的返回值处理器, 主要还是将 HttpEntity 中的信息写入到 远端
 public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodProcessor {
 
 	/**

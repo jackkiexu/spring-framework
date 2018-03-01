@@ -460,7 +460,7 @@ public abstract class WebUtils {
 	 * @param request current servlet request
 	 * @return whether the given request is an include request
 	 */
-	public static boolean isIncludeRequest(ServletRequest request) {
+	public static boolean isIncludeRequest(ServletRequest request) { // 判断是否是一个 IncludeRequest
 		return (request.getAttribute(INCLUDE_REQUEST_URI_ATTRIBUTE) != null);
 	}
 

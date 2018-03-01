@@ -29,6 +29,10 @@ import org.springframework.web.servlet.ModelAndView;
  * @author Juergen Hoeller
  * @since 05.12.2003
  */
+
+/** 接口适配器
+ *  参考资料: http://zz563143188.iteye.com/blog/1847029
+ */
 public abstract class HandlerInterceptorAdapter implements AsyncHandlerInterceptor {
 
 	/**

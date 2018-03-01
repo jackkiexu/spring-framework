@@ -62,7 +62,7 @@ public @interface ModelAttribute {
 	 * Alias for {@link #name}.
 	 */
 	@AliasFor("name")
-	String value() default "";
+	String value() default "";  // 放入 ModelFactory 中值的name
 
 	/**
 	 * The name of the model attribute to bind to.

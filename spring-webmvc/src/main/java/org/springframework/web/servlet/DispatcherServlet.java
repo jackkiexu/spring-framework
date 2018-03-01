@@ -296,49 +296,63 @@ public class DispatcherServlet extends FrameworkServlet {
 			throw new IllegalStateException("Could not load '" + DEFAULT_STRATEGIES_PATH + "': " + ex.getMessage());
 		}
 	}
-
+	// 是否 获取所有的 HandlerMapping
 	/** Detect all HandlerMappings or just expect "handlerMapping" bean? */
 	private boolean detectAllHandlerMappings = true;
 
+	// 是否 获取所有的HandlerAdapter
 	/** Detect all HandlerAdapters or just expect "handlerAdapter" bean? */
 	private boolean detectAllHandlerAdapters = true;
 
+	// 是否获取所有的异常处理器
 	/** Detect all HandlerExceptionResolvers or just expect "handlerExceptionResolver" bean? */
 	private boolean detectAllHandlerExceptionResolvers = true;
 
+	// 是否获取所有的视图处理器
 	/** Detect all ViewResolvers or just expect "viewResolver" bean? */
 	private boolean detectAllViewResolvers = true;
 
+	// 在处理请求时, 若没找到对应 handler, 则是否报出异常
 	/** Throw a NoHandlerFoundException if no Handler was found to process this request? **/
 	private boolean throwExceptionIfNoHandlerFound = false;
 
-	/** Perform cleanup of request attributes after include request? */
+	// 在处理了一个 includeRequest 后是否需要恢复原先 HttpServletRequest 中存储的信息, 见 restoreAttributesAfterInclude <-- 这里是恢复的过程
+	/** Perform cleanup(清除) of request attributes after include request? */
 	private boolean cleanupAfterInclude = true;
 
+	// 将 HttpServletRequest 解析成 MultipartHttpServletRequest 的类
 	/** MultipartResolver used by this servlet */
 	private MultipartResolver multipartResolver;
 
+	// 解决  国际化问题的类
 	/** LocaleResolver used by this servlet */
 	private LocaleResolver localeResolver;
 
+	// 解决 主题的类 <-- 这个用得比较少
 	/** ThemeResolver used by this servlet */
 	private ThemeResolver themeResolver;
 
+	// Handler 映射处理器类
 	/** List of HandlerMappings used by this servlet */
 	private List<HandlerMapping> handlerMappings;
 
+	// Handler 处理适配器, 适配不同的 Handler
 	/** List of HandlerAdapters used by this servlet */
 	private List<HandlerAdapter> handlerAdapters;
 
+	// 处理请求过程中的异常处理器
 	/** List of HandlerExceptionResolvers used by this servlet */
 	private List<HandlerExceptionResolver> handlerExceptionResolvers;
 
+	// 将 HttpServletRequest 转换成 viewName 的处理器
 	/** RequestToViewNameTranslator used by this servlet */
 	private RequestToViewNameTranslator viewNameTranslator;
 
+	// 将 FlashMap(key <-> value,value 1对多) 与 HttpServletRequest 进行同步等操作
 	/** FlashMapManager used by this servlet */
 	private FlashMapManager flashMapManager;
 
+	// 视图解析处理器
 	/** List of ViewResolvers used by this servlet */
 	private List<ViewResolver> viewResolvers;
 
@@ -466,7 +480,7 @@ public class DispatcherServlet extends FrameworkServlet {
 	}
 
 	/**
-	 * Set whether to perform cleanup of request attributes after an include request, that is,
+	 * Set whether to perform cleanup(清除) of request attributes after an include request, that is,
 	 * whether to reset the original state of all request attributes after the DispatcherServlet
 	 * has processed within an include request. Otherwise, just the DispatcherServlet's own
 	 * request attributes will be reset, but not model attributes for JSPs or special attributes
@@ -921,30 +935,30 @@ public class DispatcherServlet extends FrameworkServlet {
 		// Keep a snapshot of the request attributes in case of an include,
 		// to be able to restore the original attributes after the include.
 		Map<String, Object> attributesSnapshot = null;
-		if (WebUtils.isIncludeRequest(request)) {
+		if (WebUtils.isIncludeRequest(request)) {			                                 // 判断请求是否是一个 includeRequest, 若是的话, 则通过 attributesSnapshot 将 HttpServletRequest 里面的数据暂且存起来
 			attributesSnapshot = new HashMap<String, Object>();
-			Enumeration<?> attrNames = request.getAttributeNames();
+			Enumeration<?> attrNames = request.getAttributeNames();                          // 获取 HttpServletRequest 里面的属性
 			while (attrNames.hasMoreElements()) {
 				String attrName = (String) attrNames.nextElement();
 				if (this.cleanupAfterInclude || attrName.startsWith(DEFAULT_STRATEGIES_PREFIX)) {
-					attributesSnapshot.put(attrName, request.getAttribute(attrName));
+					attributesSnapshot.put(attrName, request.getAttribute(attrName));        // 将 HttpServletRequest 里面的信息, 存储到 attributesSnapshot 里面
 				}
 			}
 		}
 
 		// 对 HTTP 请求参数进行快照处理
 		// Make framework objects available to handlers and view objects.
-		request.setAttribute(WEB_APPLICATION_CONTEXT_ATTRIBUTE, getWebApplicationContext());
-		request.setAttribute(LOCALE_RESOLVER_ATTRIBUTE, this.localeResolver);
-		request.setAttribute(THEME_RESOLVER_ATTRIBUTE, this.themeResolver);
-		request.setAttribute(THEME_SOURCE_ATTRIBUTE, getThemeSource());
+		request.setAttribute(WEB_APPLICATION_CONTEXT_ATTRIBUTE, getWebApplicationContext());  // 设置 ApplicationContext
+		request.setAttribute(LOCALE_RESOLVER_ATTRIBUTE, this.localeResolver);				  // 设置国际化处理器
+		request.setAttribute(THEME_RESOLVER_ATTRIBUTE, this.themeResolver);					  // 设置主题处理器
+		request.setAttribute(THEME_SOURCE_ATTRIBUTE, getThemeSource());						  // 设置原来的 Theme
 
-		FlashMap inputFlashMap = this.flashMapManager.retrieveAndUpdate(request, response);
-		if (inputFlashMap != null) {
+		FlashMap inputFlashMap = this.flashMapManager.retrieveAndUpdate(request, response);   // 取回与 HttpServletRequest 相匹配的 FlashMap
+		if (inputFlashMap != null) {														  // 若 inputFlashMap != null, 则还是存储到 HttpServletRequest 中
 			request.setAttribute(INPUT_FLASH_MAP_ATTRIBUTE, Collections.unmodifiableMap(inputFlashMap));
 		}
-		request.setAttribute(OUTPUT_FLASH_MAP_ATTRIBUTE, new FlashMap());
-		request.setAttribute(FLASH_MAP_MANAGER_ATTRIBUTE, this.flashMapManager);
+		request.setAttribute(OUTPUT_FLASH_MAP_ATTRIBUTE, new FlashMap());					  // 构建一个 FlashMap 到 HttpServletRequest 中
+		request.setAttribute(FLASH_MAP_MANAGER_ATTRIBUTE, this.flashMapManager);			  // 设置 flashMapManager <- 将 FlashMap(key <-> value,value 1对多) 与 HttpServletRequest 进行同步等操作
 
 		try { // 这个 doDispatch 是分发请求的入口
 			doDispatch(request, response);
@@ -953,7 +967,7 @@ public class DispatcherServlet extends FrameworkServlet {
 			if (!WebAsyncUtils.getAsyncManager(request).isConcurrentHandlingStarted()) {
 				// Restore the original attribute snapshot, in case of an include.
 				if (attributesSnapshot != null) {
-					restoreAttributesAfterInclude(request, attributesSnapshot);
+					restoreAttributesAfterInclude(request, attributesSnapshot);              // 若是 include Request, 则恢复原先 HttpServletRequest 中的数据
 				}
 			}
 		}
@@ -1428,7 +1442,7 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * @throws Exception if view name translation failed
 	 */
 	protected String getDefaultViewName(HttpServletRequest request) throws Exception {
-		return this.viewNameTranslator.getViewName(request);
+		return this.viewNameTranslator.getViewName(request); // 通过 HttpServletRequest 获取一个 viewName
 	}
 
 	/**

@@ -65,7 +65,7 @@ public class FlashMapManagerTests {
 		flashMap.put("key", "value");
 		flashMap.setTargetRequestPath("/path");
 
-		this.flashMapManager.setFlashMaps(Arrays.asList(flashMap));
+		this.flashMapManager.setFlashMaps(Arrays.asList(flashMap)); // 将 FlashMap 存储到  TestFlashMapManager 中
 
 		this.request.setRequestURI("/path");
 		FlashMap inputFlashMap = this.flashMapManager.retrieveAndUpdate(this.request, this.response);

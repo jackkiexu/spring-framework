@@ -51,6 +51,7 @@ import javax.servlet.http.HttpServletRequest;
  * @see org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping
  * @see org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping
  */
+// Handler 映射处理器类
 public interface HandlerMapping {
 
 	/**

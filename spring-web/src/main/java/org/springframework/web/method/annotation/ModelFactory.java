@@ -104,30 +104,30 @@ public final class ModelFactory {
 	public void initModel(NativeWebRequest request, ModelAndViewContainer container,
 			HandlerMethod handlerMethod) throws Exception {
 
-		Map<String, ?> sessionAttributes = this.sessionAttributesHandler.retrieveAttributes(request);  // 获取 HttpServletRequest 中的特定属性
-		container.mergeAttributes(sessionAttributes);   // 合并属性到 ModelAndViewContainer 中
-		invokeModelAttributeMethods(request, container);
+		Map<String, ?> sessionAttributes = this.sessionAttributesHandler.retrieveAttributes(request);  // 获取 HttpServletRequest 中的 key <-> value
+		container.mergeAttributes(sessionAttributes);    // 合并属性到 ModelAndViewContainer 中
+		invokeModelAttributeMethods(request, container); // 激活 被 @ModelAttribute 修饰的方法, 并且将返回值放置于 ModelAndViewContainer 中
 
-		for (String name : findSessionAttributeArguments(handlerMethod)) {
+		for (String name : findSessionAttributeArguments(handlerMethod)) { // 获取要激活的方法中 被 @ModelAttribute 注释的参数
 			if (!container.containsAttribute(name)) {
-				Object value = this.sessionAttributesHandler.retrieveAttribute(request, name);
+				Object value = this.sessionAttributesHandler.retrieveAttribute(request, name); // 通过 HttpServletRequest.getAttribute(storeAttributeName, WebRequest.SCOPE_SESSION) 获取属性值
 				if (value == null) {
 					throw new HttpSessionRequiredException("Expected session attribute '" + name + "'", name);
 				}
-				container.addAttribute(name, value);
+				container.addAttribute(name, value);     // 将从 HandlerMethod 参数上获取到的 被@ModelAttribute注解修饰的参数, 从 HttpServletRequest获取对应的 Value, 放置 ModelAndViewContainer 中
 			}
 		}
 	}
 
 	/**
-	 * Invoke model attribute methods to populate the model.
+	 * Invoke model attribute methods to populate the model.        激活被 @ModelAttribute 注解的方法, 并且将返回值注入到 ModelAndViewContainer 中
 	 * Attributes are added only if not already present in the model.
 	 */
 	private void invokeModelAttributeMethods(NativeWebRequest request, ModelAndViewContainer container)
 			throws Exception {
 
 		while (!this.modelMethods.isEmpty()) {
-			InvocableHandlerMethod modelMethod = getNextModelMethod(container).getHandlerMethod();
+			InvocableHandlerMethod modelMethod = getNextModelMethod(container).getHandlerMethod();   // 获取 ModelAndViewContainer 中被 @ModelAttribute 修饰的代码
 			ModelAttribute ann = modelMethod.getMethodAnnotation(ModelAttribute.class);
 			if (container.containsAttribute(ann.name())) {
 				if (!ann.binding()) {
@@ -135,10 +135,10 @@ public final class ModelFactory {
 				}
 				continue;
 			}
-
+			// 激活被 @ModelAttribute 注解修饰的方法
 			Object returnValue = modelMethod.invokeForRequest(request, container);  // 激活被 @InitBinder 修饰的方法
 			if (!modelMethod.isVoid()){
-				String returnValueName = getNameForReturnValue(returnValue, modelMethod.getReturnType());
+				String returnValueName = getNameForReturnValue(returnValue, modelMethod.getReturnType());  // 获取返回值对应的 name
 				if (!ann.binding()) {	// 判断是否需要绑定参数
 					container.setBindingDisabled(returnValueName);
 				}
@@ -148,7 +148,7 @@ public final class ModelFactory {
 			}
 		}
 	}
-
+	// 获取 ModelFactory 中被 @ModelAttribute 注解修饰的方法
 	private ModelMethod getNextModelMethod(ModelAndViewContainer container) {
 		for (ModelMethod modelMethod : this.modelMethods) {
 			if (modelMethod.checkDependencies(container)) {
@@ -265,7 +265,7 @@ public final class ModelFactory {
 	 * @param returnValue the value returned from a method invocation
 	 * @param returnType a descriptor for the return type of the method
 	 * @return the derived name (never {@code null} or empty String)
-	 */
+	 */ // 获取返回值对应的 name
 	public static String getNameForReturnValue(Object returnValue, MethodParameter returnType) {
 		ModelAttribute ann = returnType.getMethodAnnotation(ModelAttribute.class); // 获取 参数上的 @ModelAttribute 注解
 		if (ann != null && StringUtils.hasText(ann.value())) {

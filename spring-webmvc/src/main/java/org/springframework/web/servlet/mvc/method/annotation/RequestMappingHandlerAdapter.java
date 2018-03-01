@@ -837,8 +837,8 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
 		// 构建 ServletWebRequest <-- 主要由 HttpServletRequest, HttpServletResponse
 		ServletWebRequest webRequest = new ServletWebRequest(request, response);
 		try {
-			WebDataBinderFactory binderFactory = getDataBinderFactory(handlerMethod);    // 构建 DataBinder 工厂
-			ModelFactory modelFactory = getModelFactory(handlerMethod, binderFactory);   // binderFactory 中存储着被 @InitBinder, @ModelAttribute 修饰的方法 <- 最终包裹成 InvocableHandlerMethod
+			WebDataBinderFactory binderFactory = getDataBinderFactory(handlerMethod);       // 构建 DataBinder 工厂
+			ModelFactory modelFactory = getModelFactory(handlerMethod, binderFactory);      // binderFactory 中存储着被 @InitBinder, @ModelAttribute 修饰的方法 <- 最终包裹成 InvocableHandlerMethod
 
 			ServletInvocableHandlerMethod invocableMethod = createInvocableHandlerMethod(handlerMethod);
 			invocableMethod.setHandlerMethodArgumentResolvers(this.argumentResolvers);		// 设置方法参数解析器 HandlerMethodArgumentValueResolver
@@ -848,7 +848,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
 
 			ModelAndViewContainer mavContainer = new ModelAndViewContainer();
 			mavContainer.addAllAttributes(RequestContextUtils.getInputFlashMap(request));   // 获取 HttpServletRequest 中存储的 FlashMap
-			modelFactory.initModel(webRequest, mavContainer, invocableMethod);				// 这里是激活 @InitBinder 方法, 并将返回值放入 ModelAndViewContainer
+			modelFactory.initModel(webRequest, mavContainer, invocableMethod);				// 这里是激活 @ModelAttribute, @InitBinder 方法, 并将返回值放入 ModelAndViewContainer
 			mavContainer.setIgnoreDefaultModelOnRedirect(this.ignoreDefaultModelOnRedirect);
 			////////////////////////// 下面是异步处理那部分
 			AsyncWebRequest asyncWebRequest = WebAsyncUtils.createAsyncWebRequest(request, response);

@@ -45,6 +45,7 @@ import javax.servlet.http.HttpServletResponse;
  * @see org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter
  * @see org.springframework.web.servlet.handler.SimpleServletHandlerAdapter
  */
+// Handler 处理适配器, 适配不同的 Handler
 public interface HandlerAdapter {
 
 	/**

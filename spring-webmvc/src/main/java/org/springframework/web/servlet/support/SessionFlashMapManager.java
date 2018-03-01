@@ -41,7 +41,7 @@ public class SessionFlashMapManager extends AbstractFlashMapManager {
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	protected List<FlashMap> retrieveFlashMaps(HttpServletRequest request) {
+	protected List<FlashMap> retrieveFlashMaps(HttpServletRequest request) { // 尝试从 HttpSession 中获取 List<FlashMap>
 		HttpSession session = request.getSession(false);
 		return (session != null ? (List<FlashMap>) session.getAttribute(FLASH_MAPS_SESSION_ATTRIBUTE) : null);
 	}

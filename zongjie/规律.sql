@@ -66,6 +66,7 @@
 0. PathMatchingResourcePatternResolver
 1. ReflectionUtils
 2. AnnotationUtils
+3. AnnotationAwareOrderComparator
 
 ------------------------------------ Spring IOC ----------------------------------------------------
 1. 什么是 Spring IOC
@@ -123,7 +124,6 @@
   解析配置文件(properties 文件)
 
 6. <mvc: annotation-driven />
-
 
 
 参考资料:

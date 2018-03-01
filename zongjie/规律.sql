@@ -65,8 +65,14 @@
 ------------------------------------ Spring 提供出来的技术 --------------------------------------------
 0. PathMatchingResourcePatternResolver
 1. ReflectionUtils
-2. AnnotationUtils
+2. AnnotationUtils:
 3. AnnotationAwareOrderComparator
+4. ResolvableType: 获取范型值
+5. MethodIntrospector: 通过 MethodFilter 选择合适的方法
+6. CachedIntrospectionResults: 通过 内省 获取 Bean 里面的所有属性
+7. LruCache: 通过 LinkedHashMap 实现 LRU cache
+8. AnnotatedElementUtils: 对 class, method 中注解的处理
+9. OrderUtils: 针对 Ordered 的操作
 
 ------------------------------------ Spring IOC ----------------------------------------------------
 1. 什么是 Spring IOC
@@ -141,6 +147,10 @@ Spring 5 源码分析
 
 Spring 开涛
   http://jinnianshilongnian.iteye.com/blog/1492424
+
+SpringMVC 源码解析:
+  http://www.cnblogs.com/fangjian0423/tag/springmvc/
+  http://www.cnblogs.com/question-sky/tag/SpringMVC/
 
 Spring 开闭原则
   http://jinnianshilongnian.iteye.com/blog/1489787

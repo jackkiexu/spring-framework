@@ -39,5 +39,24 @@ SpringMVC 成员组件
   HandlerExceptionResolver 接口
 
 1. SpringMVC  组件概述
+   1.0 Converter
+   1.0 PropertyEditor
+   1.0 DataBinder
+   1.0 ParameterNameDiscoverer
+   1.0 ContentNegotiationStrategy
+   1.1 DispatcherServlet
+   1.2 Controller
+   1.0 @ControllerAdvice
+   1.3 HandlerMapping
+   1.4 HandlerAdapter
+   1.5 HttpMessageConverter
+   1.6 HandlerMethodArgumentResolver
+   1.7 HandlerMethodReturnValueHandler
+   1.8 HandlerExceptionResolver
+   1.9 ViewResolver
 2. SpringMVC  启动过程
 3. SpringMVC  一次请求过程
+
+参考资料:
+  http://www.cnblogs.com/fangjian0423/tag/springmvc/
+  http://www.cnblogs.com/question-sky/tag/SpringMVC/

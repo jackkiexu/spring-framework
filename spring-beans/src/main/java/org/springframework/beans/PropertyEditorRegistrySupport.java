@@ -110,7 +110,7 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
 		}
 	}
 
-
+	// 属性转换管理器, 主要管理 Converter
 	private ConversionService conversionService;
 
 	private boolean defaultEditorsActive = false;

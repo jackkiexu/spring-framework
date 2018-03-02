@@ -39,8 +39,8 @@ SpringMVC 成员组件
   HandlerExceptionResolver 接口
 
 1. SpringMVC  组件概述
-   1.0 Converter
    1.0 PropertyEditor
+   1.0 Converter
    1.0 DataBinder
    1.0 ParameterNameDiscoverer
    1.0 ContentNegotiationStrategy
@@ -59,5 +59,7 @@ SpringMVC 成员组件
 3. SpringMVC  一次请求过程
 
 参考资料:
-  http://www.cnblogs.com/fangjian0423/tag/springmvc/
-  http://www.cnblogs.com/question-sky/tag/SpringMVC/
+  中文文档: http://spring.cndocs.ml/mvc.html#mvc-introduction
+  英文文档: https://docs.spring.io/spring/docs/4.3.x/spring-framework-reference/html/mvc.html#mvc-introduction
+  springmvc 源码: http://www.cnblogs.com/fangjian0423/tag/springmvc/
+  SpringMVC 源码分析: http://www.cnblogs.com/question-sky/tag/SpringMVC/

@@ -3135,7 +3135,7 @@ public class DefaultListableBeanFactoryTests {
 
 		@Override
 		@SuppressWarnings("unchecked")
-		public Object convertIfNecessary(Object value, Class requiredType) {
+		public Object convertIfNecessary(Object value, Class requiredType) { // 转成 float 或 Integer 类型的数据
 			if (value instanceof String && Float.class.isAssignableFrom(requiredType)) {
 				try {
 					return new Float(this.numberFormat.parse((String) value).floatValue());

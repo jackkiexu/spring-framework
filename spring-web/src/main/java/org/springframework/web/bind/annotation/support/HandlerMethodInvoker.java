@@ -139,7 +139,7 @@ public class HandlerMethodInvoker {
 		this.messageConverters = messageConverters;
 	}
 
-
+	// 激活方法
 	public final Object invokeHandlerMethod(Method handlerMethod, Object handler,
 			NativeWebRequest webRequest, ExtendedModelMap implicitModel) throws Exception {
 
@@ -152,7 +152,7 @@ public class HandlerMethodInvoker {
 					implicitModel.addAttribute(attrName, attrValue);
 				}
 			}
-			for (Method attributeMethod : this.methodResolver.getModelAttributeMethods()) {
+			for (Method attributeMethod : this.methodResolver.getModelAttributeMethods()) {  // 获取 被 @ModelAttribute 注解修饰的方法
 				Method attributeMethodToInvoke = BridgeMethodResolver.findBridgedMethod(attributeMethod);
 				Object[] args = resolveHandlerArguments(attributeMethodToInvoke, handler, webRequest, implicitModel);
 				if (debug) {
@@ -171,7 +171,7 @@ public class HandlerMethodInvoker {
 				if (!implicitModel.containsAttribute(attrName)) {
 					implicitModel.addAttribute(attrName, attrValue);
 				}
-			}
+			}	// 解决参数
 			Object[] args = resolveHandlerArguments(handlerMethodToInvoke, handler, webRequest, implicitModel);
 			if (debug) {
 				logger.debug("Invoking request handler method: " + handlerMethodToInvoke);

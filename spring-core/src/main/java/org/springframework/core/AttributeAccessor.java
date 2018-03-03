@@ -23,7 +23,8 @@ package org.springframework.core;
  * @author Rob Harrop
  * @since 2.0
  */
-public interface AttributeAccessor {
+// AttributeAccessor定义了访问属性访问器
+public interface AttributeAccessor {  //  属性访问, 设置接口, 对应的实现类 -> AttributeAccessorSupport
 
 	/**
 	 * Set the attribute defined by {@code name} to the supplied	{@code value}.

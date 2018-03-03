@@ -33,6 +33,7 @@ import org.springframework.util.Assert;
  * @since 2.0
  */
 @SuppressWarnings("serial")
+// 使用 HashMap 来管理属性
 public abstract class AttributeAccessorSupport implements AttributeAccessor, Serializable {
 
 	/** Map with String keys and Object values */

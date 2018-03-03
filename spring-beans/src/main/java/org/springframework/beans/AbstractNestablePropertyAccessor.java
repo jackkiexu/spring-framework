@@ -119,7 +119,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 	 */
 	protected AbstractNestablePropertyAccessor(boolean registerDefaultEditors) {
 		if (registerDefaultEditors) {
-			registerDefaultEditors();
+			registerDefaultEditors();		// 是否注册默认的 PropertyEditor
 		}
 		this.typeConverterDelegate = new TypeConverterDelegate(this);
 	}
@@ -834,17 +834,17 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 	}
 
 	/**
-	 * Recursively navigate to return a property accessor for the nested property path.
+	 * Recursively(递归) navigate(导航) to return a property accessor for the nested(嵌入) property path.
 	 * @param propertyPath property path, which may be nested
 	 * @return a property accessor for the target bean
 	 */
 	@SuppressWarnings("unchecked")  // avoid nested generic
 	protected AbstractNestablePropertyAccessor getPropertyAccessorForPropertyPath(String propertyPath) {
 		int pos = PropertyAccessorUtils.getFirstNestedPropertySeparatorIndex(propertyPath);	// 获取第一个嵌套 property 的位置
-		// Handle nested properties recursively.
-		if (pos > -1) {
-			String nestedProperty = propertyPath.substring(0, pos);
-			String nestedPath = propertyPath.substring(pos + 1);
+		// Handle nested properties recursively. 递归
+		if (pos > -1) {																		// 若 pos > -1, 则说明是嵌套属性,
+			String nestedProperty = propertyPath.substring(0, pos);							// 获取嵌套属性的前缀
+			String nestedPath = propertyPath.substring(pos + 1);							// 获取嵌套属性的 分割符号 . 或 [
 			AbstractNestablePropertyAccessor nestedPa = getNestedPropertyAccessor(nestedProperty);
 			return nestedPa.getPropertyAccessorForPropertyPath(nestedPath);
 		}
@@ -854,7 +854,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 	}
 
 	/**
-	 * Retrieve a Property accessor for the given nested property.
+	 * Retrieve(获取) a Property accessor for the given nested property.
 	 * Create a new one if not found in the cache.
 	 * <p>Note: Caching nested PropertyAccessors is necessary now,
 	 * to keep registered custom editors for nested properties.
@@ -1060,7 +1060,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 
 	protected static class PropertyTokenHolder {
 
-		public String canonicalName;
+		public String canonicalName; // 实际的属性名称
 
 		public String actualName;
 

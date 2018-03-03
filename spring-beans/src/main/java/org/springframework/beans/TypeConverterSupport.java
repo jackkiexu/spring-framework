@@ -30,6 +30,7 @@ import org.springframework.core.convert.ConverterNotFoundException;
  * @since 3.2
  * @see SimpleTypeConverter
  */
+// 属性转换器的抽象类, 对于正真的工作交给 TypeConverterDelegate
 public abstract class TypeConverterSupport extends PropertyEditorRegistrySupport implements TypeConverter {
 
 	TypeConverterDelegate typeConverterDelegate;

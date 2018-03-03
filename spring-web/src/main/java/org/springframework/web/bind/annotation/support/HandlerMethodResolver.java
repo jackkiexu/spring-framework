@@ -52,19 +52,19 @@ import org.springframework.web.bind.annotation.SessionAttributes;
  */
 @Deprecated
 public class HandlerMethodResolver {
-
+	// 所有的 HandlerMethods
 	private final Set<Method> handlerMethods = new LinkedHashSet<Method>();
-
+	// 所有被 @InitBinder 注解修饰的方法
 	private final Set<Method> initBinderMethods = new LinkedHashSet<Method>();
-
+	// 所有被 @MdelAttribute 注解修饰的方法
 	private final Set<Method> modelAttributeMethods = new LinkedHashSet<Method>();
-
+	// 类级别的 @RequestMapping 注解信息
 	private RequestMapping typeLevelMapping;
-
+	// 是否在 类上注解了 @SessionAttributes
 	private boolean sessionAttributesFound;
-
+	// @SessionAttributes 中的 name
 	private final Set<String> sessionAttributeNames = new HashSet<String>();
-
+	// @SessionAttributes 中的 type
 	private final Set<Class<?>> sessionAttributeTypes = new HashSet<Class<?>>();
 
 	private final Set<String> actualSessionAttributeNames =
@@ -85,28 +85,28 @@ public class HandlerMethodResolver {
 		handlerTypes.addAll(Arrays.asList(handlerType.getInterfaces()));
 		for (Class<?> currentHandlerType : handlerTypes) {
 			final Class<?> targetClass = (specificHandlerType != null ? specificHandlerType : currentHandlerType);
-			ReflectionUtils.doWithMethods(currentHandlerType, new ReflectionUtils.MethodCallback() {
+			ReflectionUtils.doWithMethods(currentHandlerType, new ReflectionUtils.MethodCallback() { // 通过 MethodCallback 进行处理 方法
 				@Override
 				public void doWith(Method method) {
 					Method specificMethod = ClassUtils.getMostSpecificMethod(method, targetClass);
-					Method bridgedMethod = BridgeMethodResolver.findBridgedMethod(specificMethod);
-					if (isHandlerMethod(specificMethod) &&
+					Method bridgedMethod = BridgeMethodResolver.findBridgedMethod(specificMethod);  // 获取真实的方法
+					if (isHandlerMethod(specificMethod) &&											// 是否被 @RequestMapping 注解修饰的方法
 							(bridgedMethod == specificMethod || !isHandlerMethod(bridgedMethod))) {
 						handlerMethods.add(specificMethod);
 					}
-					else if (isInitBinderMethod(specificMethod) &&
+					else if (isInitBinderMethod(specificMethod) &&									// 是否被 @InitBinder 修饰的方法
 							(bridgedMethod == specificMethod || !isInitBinderMethod(bridgedMethod))) {
 						initBinderMethods.add(specificMethod);
 					}
-					else if (isModelAttributeMethod(specificMethod) &&
+					else if (isModelAttributeMethod(specificMethod) &&								// 是否被 @ModelAttribute 修饰的方法
 							(bridgedMethod == specificMethod || !isModelAttributeMethod(bridgedMethod))) {
 						modelAttributeMethods.add(specificMethod);
 					}
 				}
 			}, ReflectionUtils.USER_DECLARED_METHODS);
 		}
-		this.typeLevelMapping = AnnotationUtils.findAnnotation(handlerType, RequestMapping.class);
-		SessionAttributes sessionAttributes = AnnotationUtils.findAnnotation(handlerType, SessionAttributes.class);
+		this.typeLevelMapping = AnnotationUtils.findAnnotation(handlerType, RequestMapping.class);  // 获取类级别的 @RequestMapping 注解信息
+		SessionAttributes sessionAttributes = AnnotationUtils.findAnnotation(handlerType, SessionAttributes.class); // 获取类级别的 @SessionAttributes 注解信息
 		this.sessionAttributesFound = (sessionAttributes != null);
 		if (this.sessionAttributesFound) {
 			this.sessionAttributeNames.addAll(Arrays.asList(sessionAttributes.names()));

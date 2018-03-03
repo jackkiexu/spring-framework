@@ -26,6 +26,7 @@ import org.springframework.util.ObjectUtils;
  * @author Juergen Hoeller
  * @since 2.5
  */
+// BeanMetadata 原数据的接口, 里面定义 name, value, 已经原始数据 source
 public class BeanMetadataAttribute implements BeanMetadataElement {
 
 	private final String name;

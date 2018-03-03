@@ -33,12 +33,12 @@ import org.springframework.core.MethodParameter;
  * @see SimpleTypeConverter
  * @see BeanWrapperImpl
  */
-public interface TypeConverter {
+public interface TypeConverter {  // 类型转换接口
 
 	/**
-	 * Convert the value to the required type (if necessary from a String).
-	 * <p>Conversions from String to any type will typically use the {@code setAsText}
-	 * method of the PropertyEditor class, or a Spring Converter in a ConversionService.
+	 * Convert the value to the required type (if necessary from a String).    将 数据转换成指定的类型
+	 * <p>Conversions from String to any type will typically use the {@code setAsText} 通常通过 PropertyEditor 将 String 类型的数据 --> 转换成一定类型
+	 * method of the PropertyEditor class, or a Spring Converter in a ConversionService. 或通过 Converter 进行转换 <-- 支持的转换类型更多
 	 * @param value the value to convert
 	 * @param requiredType the type we must convert to
 	 * (or {@code null} if not known, for example in case of a collection element)
@@ -67,7 +67,7 @@ public interface TypeConverter {
 	 * @see org.springframework.core.convert.ConversionService
 	 * @see org.springframework.core.convert.converter.Converter
 	 */
-	<T> T convertIfNecessary(Object value, Class<T> requiredType, MethodParameter methodParam)
+	<T> T convertIfNecessary(Object value, Class<T> requiredType, MethodParameter methodParam)  // 大体功能同上
 			throws TypeMismatchException;
 
 	/**

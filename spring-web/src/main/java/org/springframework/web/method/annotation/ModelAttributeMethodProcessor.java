@@ -106,7 +106,7 @@ public class ModelAttributeMethodProcessor implements HandlerMethodArgumentResol
 				mavContainer.setBindingDisabled(name);
 			}
 		}
-
+		// 此处进行参数的绑定操作
 		WebDataBinder binder = binderFactory.createBinder(webRequest, attribute, name);
 		if (binder.getTarget() != null) {
 			if (!mavContainer.isBindingDisabled(name)) {
@@ -157,7 +157,7 @@ public class ModelAttributeMethodProcessor implements HandlerMethodArgumentResol
 	 * and custom annotations whose name starts with "Valid".
 	 * @param binder the DataBinder to be used
 	 * @param methodParam the method parameter
-	 */
+	 */ // 进行参数的校验
 	protected void validateIfApplicable(WebDataBinder binder, MethodParameter methodParam) {
 		Annotation[] annotations = methodParam.getParameterAnnotations();
 		for (Annotation ann : annotations) {

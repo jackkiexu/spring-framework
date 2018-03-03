@@ -30,28 +30,28 @@ import org.springframework.core.convert.TypeDescriptor;
  * @see BeanWrapper
  * @see PropertyAccessorFactory#forBeanPropertyAccess
  * @see PropertyAccessorFactory#forDirectFieldAccess
- */
+ */ // 属性访问器
 public interface PropertyAccessor {
 
 	/**
 	 * Path separator for nested properties.
 	 * Follows normal Java conventions: getFoo().getBar() would be "foo.bar".
 	 */
-	String NESTED_PROPERTY_SEPARATOR = ".";
-	char NESTED_PROPERTY_SEPARATOR_CHAR = '.';
+	String NESTED_PROPERTY_SEPARATOR = "."; 	// 嵌入式属性的分割符号
+	char NESTED_PROPERTY_SEPARATOR_CHAR = '.';  // 嵌入式属性的分割符号
 
 	/**
 	 * Marker that indicates the start of a property key for an
 	 * indexed or mapped property like "person.addresses[0]".
 	 */
-	String PROPERTY_KEY_PREFIX = "[";
+	String PROPERTY_KEY_PREFIX = "[";			// 属性前缀符号
 	char PROPERTY_KEY_PREFIX_CHAR = '[';
 
 	/**
 	 * Marker that indicates the end of a property key for an
 	 * indexed or mapped property like "person.addresses[0]".
 	 */
-	String PROPERTY_KEY_SUFFIX = "]";
+	String PROPERTY_KEY_SUFFIX = "]";			// 属性后缀符号
 	char PROPERTY_KEY_SUFFIX_CHAR = ']';
 
 
@@ -62,7 +62,7 @@ public interface PropertyAccessor {
 	 * (may be a nested path and/or an indexed/mapped property)
 	 * @return whether the property is readable
 	 */
-	boolean isReadableProperty(String propertyName);
+	boolean isReadableProperty(String propertyName);  // 是否式 可读 类的属性
 
 	/**
 	 * Determine whether the specified property is writable.
@@ -71,7 +71,7 @@ public interface PropertyAccessor {
 	 * (may be a nested path and/or an indexed/mapped property)
 	 * @return whether the property is writable
 	 */
-	boolean isWritableProperty(String propertyName);
+	boolean isWritableProperty(String propertyName);  // 是否式 可写 类的属性
 
 	/**
 	 * Determine the property type for the specified property,
@@ -86,7 +86,7 @@ public interface PropertyAccessor {
 	 * @throws PropertyAccessException if the property was valid but the
 	 * accessor method failed
 	 */
-	Class<?> getPropertyType(String propertyName) throws BeansException;
+	Class<?> getPropertyType(String propertyName) throws BeansException; // 通过属性的名称获取其真实的类型
 
 	/**
 	 * Return a type descriptor for the specified property:
@@ -98,7 +98,7 @@ public interface PropertyAccessor {
 	 * @throws InvalidPropertyException if there is no such property or
 	 * if the property isn't readable
 	 */
-	TypeDescriptor getPropertyTypeDescriptor(String propertyName) throws BeansException;
+	TypeDescriptor getPropertyTypeDescriptor(String propertyName) throws BeansException; // 通过属性名称获取对应的 TypeDescriptor
 
 	/**
 	 * Get the current value of the specified property.
@@ -110,7 +110,7 @@ public interface PropertyAccessor {
 	 * @throws PropertyAccessException if the property was valid but the
 	 * accessor method failed
 	 */
-	Object getPropertyValue(String propertyName) throws BeansException;
+	Object getPropertyValue(String propertyName) throws BeansException;  // 通过属性名获取真实的 Value
 
 	/**
 	 * Set the specified value as current property value.
@@ -122,7 +122,7 @@ public interface PropertyAccessor {
 	 * @throws PropertyAccessException if the property was valid but the
 	 * accessor method failed or a type mismatch occurred
 	 */
-	void setPropertyValue(String propertyName, Object value) throws BeansException;
+	void setPropertyValue(String propertyName, Object value) throws BeansException; // 针对属性名 设置对应的Value
 
 	/**
 	 * Set the specified value as current property value.
@@ -132,7 +132,7 @@ public interface PropertyAccessor {
 	 * @throws PropertyAccessException if the property was valid but the
 	 * accessor method failed or a type mismatch occurred
 	 */
-	void setPropertyValue(PropertyValue pv) throws BeansException;
+	void setPropertyValue(PropertyValue pv) throws BeansException;  // 设置 属性 key <--> value
 
 	/**
 	 * Perform a batch update from a Map.
@@ -148,7 +148,7 @@ public interface PropertyAccessor {
 	 * all individual PropertyAccessExceptions. All other properties will have been
 	 * successfully updated.
 	 */
-	void setPropertyValues(Map<?, ?> map) throws BeansException;
+	void setPropertyValues(Map<?, ?> map) throws BeansException;  // 设置属性 key <--> value
 
 	/**
 	 * The preferred way to perform a batch update.
@@ -169,7 +169,7 @@ public interface PropertyAccessor {
 	 * successfully updated.
 	 * @see #setPropertyValues(PropertyValues, boolean, boolean)
 	 */
-	void setPropertyValues(PropertyValues pvs) throws BeansException;
+	void setPropertyValues(PropertyValues pvs) throws BeansException;  // 设置属性 key <--> value
 
 	/**
 	 * Perform a batch update with more control over behavior.

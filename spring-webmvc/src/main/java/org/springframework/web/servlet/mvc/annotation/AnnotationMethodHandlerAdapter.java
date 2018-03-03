@@ -427,12 +427,12 @@ public class AnnotationMethodHandlerAdapter extends WebContentGenerator
 
 		return invokeHandlerMethod(request, response, handler);
 	}
-
+	// 对 HandlerMethod 方法的激活
 	protected ModelAndView invokeHandlerMethod(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
 
 		ServletHandlerMethodResolver methodResolver = getMethodResolver(handler);
-		Method handlerMethod = methodResolver.resolveHandlerMethod(request);
+		Method handlerMethod = methodResolver.resolveHandlerMethod(request);		// 获取真实的方法
 		ServletHandlerMethodInvoker methodInvoker = new ServletHandlerMethodInvoker(methodResolver);
 		ServletWebRequest webRequest = new ServletWebRequest(request, response);
 		ExtendedModelMap implicitModel = new BindingAwareModelMap();
@@ -528,29 +528,29 @@ public class AnnotationMethodHandlerAdapter extends WebContentGenerator
 		private final Map<Method, RequestMappingInfo> mappings = new HashMap<Method, RequestMappingInfo>();
 
 		private ServletHandlerMethodResolver(Class<?> handlerType) {
-			init(handlerType);
+			init(handlerType); // 通过 HandlerMethodResolver 进行解析 handlerType, 主要是 @RequestMapping, @InitBinder, @ModelAttribute
 		}
 
 		@Override
 		protected boolean isHandlerMethod(Method method) {
 			if (this.mappings.containsKey(method)) {
 				return true;
-			}
+			}														// 从方法上获取 @RequestMapping
 			RequestMapping mapping = AnnotationUtils.findAnnotation(method, RequestMapping.class);
 			if (mapping != null) {
-				String[] patterns = mapping.value();
+				String[] patterns = mapping.value();				// 获取 @RequestMapping 上的 value|path
 				RequestMethod[] methods = new RequestMethod[0];
 				String[] params = new String[0];
-				String[] headers = new String[0];
+				String[] headers = new String[0];					// 获取 @RequestMapping 上的 RequestMethod
 				if (!hasTypeLevelMapping() || !Arrays.equals(mapping.method(), getTypeLevelMapping().method())) {
 					methods = mapping.method();
-				}
+				}													// 获取 @RequestMapping 中的 params <-- 只有参数中包含指定 params 的才进行处理
 				if (!hasTypeLevelMapping() || !Arrays.equals(mapping.params(), getTypeLevelMapping().params())) {
 					params = mapping.params();
-				}
+				}													// 获取 @RequestMapping 上的 header
 				if (!hasTypeLevelMapping() || !Arrays.equals(mapping.headers(), getTypeLevelMapping().headers())) {
 					headers = mapping.headers();
-				}
+				}													// 构建 RequestMappingInfo
 				RequestMappingInfo mappingInfo = new RequestMappingInfo(patterns, methods, params, headers);
 				this.mappings.put(method, mappingInfo);
 				return true;
@@ -558,19 +558,19 @@ public class AnnotationMethodHandlerAdapter extends WebContentGenerator
 			return false;
 		}
 
-		public Method resolveHandlerMethod(HttpServletRequest request) throws ServletException {
-			String lookupPath = urlPathHelper.getLookupPathForRequest(request);
-			Comparator<String> pathComparator = pathMatcher.getPatternComparator(lookupPath);
+		public Method resolveHandlerMethod(HttpServletRequest request) throws ServletException {    // 获取 HttpServletRequest 对应的 Method
+			String lookupPath = urlPathHelper.getLookupPathForRequest(request);						// 通过 urlPathHelper 从 HttpServletRequest 获取 uri
+			Comparator<String> pathComparator = pathMatcher.getPatternComparator(lookupPath);		// 获取 AntPatternComparator
 			Map<RequestSpecificMappingInfo, Method> targetHandlerMethods = new LinkedHashMap<RequestSpecificMappingInfo, Method>();
 			Set<String> allowedMethods = new LinkedHashSet<String>(7);
 			String resolvedMethodName = null;
-			for (Method handlerMethod : getHandlerMethods()) {
+			for (Method handlerMethod : getHandlerMethods()) {										// 通过 handlerMethod 获取 RequestMappingInfo
 				RequestSpecificMappingInfo mappingInfo = new RequestSpecificMappingInfo(this.mappings.get(handlerMethod));
 				boolean match = false;
-				if (mappingInfo.hasPatterns()) {
+				if (mappingInfo.hasPatterns()) {	// @RequestMapping 是否配置 path | value (value 就是 pattern)
 					for (String pattern : mappingInfo.getPatterns()) {
 						if (!hasTypeLevelMapping() && !pattern.startsWith("/")) {
-							pattern = "/" + pattern;
+							pattern = "/" + pattern;	// 在 pattern 前拼接 "/"
 						}
 						String combinedPattern = getCombinedPattern(pattern, lookupPath, request);
 						if (combinedPattern != null) {

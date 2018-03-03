@@ -27,6 +27,7 @@ import org.springframework.core.AttributeAccessorSupport;
  * @since 2.5
  */
 @SuppressWarnings("serial")
+// 继承 AttributeAccessorSupport(具有设置属性的功能), 实现 BeanMetadataElement 接口 具有元数据
 public class BeanMetadataAttributeAccessor extends AttributeAccessorSupport implements BeanMetadataElement {
 
 	private Object source;
@@ -50,7 +51,7 @@ public class BeanMetadataAttributeAccessor extends AttributeAccessorSupport impl
 	 * Add the given BeanMetadataAttribute to this accessor's set of attributes.
 	 * @param attribute the BeanMetadataAttribute object to register
 	 */
-	public void addMetadataAttribute(BeanMetadataAttribute attribute) {
+	public void addMetadataAttribute(BeanMetadataAttribute attribute) {  // 将属性 key 设置为 BeanMetadataAttribute.getName, value 是 BeanMetadataAttribute
 		super.setAttribute(attribute.getName(), attribute);
 	}
 

@@ -32,6 +32,7 @@ import java.util.Map;
  * @see #getPropertyValue
  * @see #setPropertyValue
  */
+// 继承属性转换器, 实现属性访问器
 public abstract class AbstractPropertyAccessor extends TypeConverterSupport implements ConfigurablePropertyAccessor {
 
 	private boolean extractOldValueForEditor = false;
@@ -123,7 +124,7 @@ public abstract class AbstractPropertyAccessor extends TypeConverterSupport impl
 	}
 
 
-	// Redefined with public visibility.
+	// Redefined with public visibility. 模版方法
 	@Override
 	public Class<?> getPropertyType(String propertyPath) {
 		return null;
@@ -136,7 +137,7 @@ public abstract class AbstractPropertyAccessor extends TypeConverterSupport impl
 	 * @throws InvalidPropertyException if there is no such property or
 	 * if the property isn't readable
 	 * @throws PropertyAccessException if the property was valid but the
-	 * accessor method failed
+	 * accessor method failed  模版方法
 	 */
 	@Override
 	public abstract Object getPropertyValue(String propertyName) throws BeansException;
@@ -148,7 +149,7 @@ public abstract class AbstractPropertyAccessor extends TypeConverterSupport impl
 	 * @throws InvalidPropertyException if there is no such property or
 	 * if the property isn't writable
 	 * @throws PropertyAccessException if the property was valid but the
-	 * accessor method failed or a type mismatch occurred
+	 * accessor method failed or a type mismatch occurred  模版方法
 	 */
 	@Override
 	public abstract void setPropertyValue(String propertyName, Object value) throws BeansException;

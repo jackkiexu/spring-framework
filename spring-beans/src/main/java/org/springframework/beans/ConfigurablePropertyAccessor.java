@@ -30,6 +30,7 @@ import org.springframework.core.convert.ConversionService;
  * @since 2.0
  * @see BeanWrapper
  */
+// 这个接口继承 PropertyAccessor 属性访问器, PropertyEditorRegistry 属性编辑注册器, 属性类型转换器
 public interface ConfigurablePropertyAccessor extends PropertyAccessor, PropertyEditorRegistry, TypeConverter {
 
 	/**

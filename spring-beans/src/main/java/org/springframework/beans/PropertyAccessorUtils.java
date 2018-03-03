@@ -42,7 +42,7 @@ public abstract class PropertyAccessorUtils {
 	 * @param propertyPath the property path to check
 	 * @return whether the path indicates an indexed or nested property
 	 */
-	public static boolean isNestedOrIndexedProperty(String propertyPath) {
+	public static boolean isNestedOrIndexedProperty(String propertyPath) { // 判断是否是嵌套属性 <-- 若 propertyPath 中出现 "." | "[" <-- 则说明是嵌套属性
 		if (propertyPath == null) {
 			return false;
 		}
@@ -62,7 +62,7 @@ public abstract class PropertyAccessorUtils {
 	 * @param propertyPath the property path to check
 	 * @return the index of the nested property separator, or -1 if none
 	 */
-	public static int getFirstNestedPropertySeparatorIndex(String propertyPath) {
+	public static int getFirstNestedPropertySeparatorIndex(String propertyPath) { // 获取第一个分割符 . 的位置
 		return getNestedPropertySeparatorIndex(propertyPath, false);
 	}
 
@@ -72,7 +72,7 @@ public abstract class PropertyAccessorUtils {
 	 * @param propertyPath the property path to check
 	 * @return the index of the nested property separator, or -1 if none
 	 */
-	public static int getLastNestedPropertySeparatorIndex(String propertyPath) {
+	public static int getLastNestedPropertySeparatorIndex(String propertyPath) { // 获取最后一个 分割符 . 的位置
 		return getNestedPropertySeparatorIndex(propertyPath, true);
 	}
 
@@ -83,29 +83,29 @@ public abstract class PropertyAccessorUtils {
 	 * @param last whether to return the last separator rather than the first
 	 * @return the index of the nested property separator, or -1 if none
 	 */
-	private static int getNestedPropertySeparatorIndex(String propertyPath, boolean last) {
+	private static int getNestedPropertySeparatorIndex(String propertyPath, boolean last) {  // 获取 第一个|最后一个嵌入属性分割的位置
 		boolean inKey = false;
-		int length = propertyPath.length();
+		int length = propertyPath.length();			// 属性的长度
 		int i = (last ? length - 1 : 0);
-		while (last ? i >= 0 : i < length) {
-			switch (propertyPath.charAt(i)) {
-				case PropertyAccessor.PROPERTY_KEY_PREFIX_CHAR:
-				case PropertyAccessor.PROPERTY_KEY_SUFFIX_CHAR:
+		while (last ? i >= 0 : i < length) {		// 从最前面|后面开始遍历 propertyPath
+			switch (propertyPath.charAt(i)) {		// 判断 i 位置的属性是否有值
+				case PropertyAccessor.PROPERTY_KEY_PREFIX_CHAR: // "["
+				case PropertyAccessor.PROPERTY_KEY_SUFFIX_CHAR: // "]"
 					inKey = !inKey;
 					break;
-				case PropertyAccessor.NESTED_PROPERTY_SEPARATOR_CHAR:
-					if (!inKey) {
+				case PropertyAccessor.NESTED_PROPERTY_SEPARATOR_CHAR: // 若分割符号 ., 则 返回对应的 i 位置
+					if (!inKey) {                   // 是否嵌套在 [ 或 ] 中
 						return i;
 					}
 			}
-			if (last) {
+			if (last) { // 若是从后开始的话, 则 i--
 				i--;
 			}
-			else {
+			else {		// 若是从前开始的话, 则 i++
 				i++;
 			}
 		}
-		return -1;
+		return -1;		// 若返回 -1 : 表示没有找到
 	}
 
 	/**

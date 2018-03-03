@@ -17,8 +17,10 @@
       与 UriComponentsBuilder 相似, 只不过是通过 HttpServletRequest 上获取对应 URI 的信息
 
 3. 以 Support 为尾缀命名的类
+  3.1 PropertyEditorRegistrySupport: 属性编辑注册器的支持
 
 4. 以 Registry 为尾缀命名的类
+  4.1 PropertyEditorRegistry: 属性编辑器对应的注册器
 
 5. 以 Config 为尾缀命名的类
 
@@ -68,11 +70,12 @@
 2. AnnotationUtils:
 3. AnnotationAwareOrderComparator
 4. ResolvableType: 获取范型值
-5. MethodIntrospector: 通过 MethodFilter 选择合适的方法
+5. MethodIntrospector: 通过 MethodFilter 选择合适的方法  或通过 ReflectionUtils.doWithMethods
 6. CachedIntrospectionResults: 通过 内省 获取 Bean 里面的所有属性
 7. LruCache: 通过 LinkedHashMap 实现 LRU cache
 8. AnnotatedElementUtils: 对 class, method 中注解的处理
 9. OrderUtils: 针对 Ordered 的操作
+10. Proxy.isProxyClass 是否是动态代理类
 
 ------------------------------------ Spring IOC ----------------------------------------------------
 1. 什么是 Spring IOC

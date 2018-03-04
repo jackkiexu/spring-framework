@@ -165,7 +165,7 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 				bw.registerCustomEditor(Resource.class, new ResourceEditor(resourceLoader, getEnvironment()));
 				// 默认为空, 留给子类覆盖
 				initBeanWrapper(bw);
-				// 将 bean 与属性关联
+				// 通过 BeanWrapper 将 getServletConfig() 中的属性配置到 DispatcherServlet
 				bw.setPropertyValues(pvs, true);
 			}
 			catch (BeansException ex) {

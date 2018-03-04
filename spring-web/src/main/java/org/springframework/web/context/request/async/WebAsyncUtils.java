@@ -43,7 +43,7 @@ public abstract class WebAsyncUtils {
 	 * Obtain the {@link WebAsyncManager} for the current request, or if not
 	 * found, create and associate it with the request.
 	 */
-	public static WebAsyncManager getAsyncManager(ServletRequest servletRequest) {
+	public static WebAsyncManager getAsyncManager(ServletRequest servletRequest) { // 在 Request 中存储 WebAsyncManager
 		WebAsyncManager asyncManager = null;
 		Object asyncManagerAttr = servletRequest.getAttribute(WEB_ASYNC_MANAGER_ATTRIBUTE);
 		if (asyncManagerAttr instanceof WebAsyncManager) {

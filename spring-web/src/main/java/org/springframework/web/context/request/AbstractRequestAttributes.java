@@ -44,7 +44,7 @@ public abstract class AbstractRequestAttributes implements RequestAttributes {
 	 * session attributes that have been accessed during request processing.
 	 */
 	public void requestCompleted() {
-		executeRequestDestructionCallbacks();
+		executeRequestDestructionCallbacks(); // 执行请求结束前的一些回调函数
 		updateAccessedSessionAttributes();
 		this.requestActive = false;
 	}

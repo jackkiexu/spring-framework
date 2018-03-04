@@ -173,7 +173,7 @@ public class HandlerExecutionChain {
 				try {
 					interceptor.afterCompletion(request, response, this.handler, ex);
 				}
-				catch (Throwable ex2) {
+				catch (Throwable ex2) { // 若在这里有异常, 则直接打印一下
 					logger.error("HandlerInterceptor.afterCompletion threw exception", ex2);
 				}
 			}

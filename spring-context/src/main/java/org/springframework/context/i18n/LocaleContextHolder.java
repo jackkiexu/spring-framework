@@ -109,7 +109,7 @@ public abstract class LocaleContextHolder {
 	 * Return the LocaleContext associated with the current thread, if any.
 	 * @return the current LocaleContext, or {@code null} if none
 	 */
-	public static LocaleContext getLocaleContext() {
+	public static LocaleContext getLocaleContext() {  // 从 ThreadLocal 中获取 本地化相关的数据
 		LocaleContext localeContext = localeContextHolder.get();
 		if (localeContext == null) {
 			localeContext = inheritableLocaleContextHolder.get();

@@ -55,7 +55,7 @@ import org.springframework.web.util.UrlPathHelper;
  * @see org.springframework.web.filter.OncePerRequestFilter#shouldNotFilterAsyncDispatch
  * @see org.springframework.web.filter.OncePerRequestFilter#isAsyncDispatch
  */
-public final class WebAsyncManager {
+public final class WebAsyncManager { //Spring 异常请求处理器
 
 	private static final Object RESULT_NONE = new Object();
 

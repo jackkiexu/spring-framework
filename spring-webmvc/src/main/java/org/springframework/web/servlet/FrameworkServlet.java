@@ -533,11 +533,10 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	 * @see #setContextConfigLocation
 	 */
 	protected WebApplicationContext initWebApplicationContext() {
-		// 这里调用 WebApplicationContextUtils 静态类来得到根上下文, 这个根上下文是保存在 ServletContext 中的
-		// 使用这个根上下文作为当前 MVC 上下文的双亲上下文
-		// 一般来说 spring 初始化时间比 spring mvc 要早, 所有 rootContext 一般都存在
-		WebApplicationContext rootContext =
-				WebApplicationContextUtils.getWebApplicationContext(getServletContext());
+		// 这里调用 WebApplicationContextUtils 静态类来得到根 ApplicationContext, 这个根上下文是保存在 ServletContext 中的
+		// 使用这个根上下文作为当前 MVC 上下文的双亲ApplicationContext
+		// 一般来说 spring 初始化时间比 spring mvc 要早, 所有 rootApplicationContext 一般都存在
+		WebApplicationContext rootContext = WebApplicationContextUtils.getWebApplicationContext(getServletContext());
 		WebApplicationContext wac = null;
 		// 先检查 spring 是否已经注入了 WebApplicationContext, 其中的刷新操作类似于 'ContextLoader'#initWebApplicationContext' 初次调用此处为空
 		if (this.webApplicationContext != null) {
@@ -992,7 +991,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	}
 
 	/**
-	 * Process this request, publishing an event regardless of the outcome.
+	 * Process this request, publishing an event regardless(不管) of the outcome(结果).
 	 * <p>The actual event handling is performed by the abstract
 	 * {@link #doService} template method.
 	 */
@@ -1001,20 +1000,23 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		// 记录当前时间, 用于计算 web 请求的处理时间
 		long startTime = System.currentTimeMillis();
 		Throwable failureCause = null;
-
+		//  ThreadLocal 中获取 本地化相关的数据 <-- 这是先前请求的
 		LocaleContext previousLocaleContext = LocaleContextHolder.getLocaleContext();
+		//  构建本次请求 HttpServletRequest 的 LocaleContext, 主要还是从 Session | Cookie 中获取对应的属性
 		LocaleContext localeContext = buildLocaleContext(request);
-
+		// 从 ThreadLocal 中获取 RequestAttributes <-- 存储请求的信息, 主要还是 HttpServletRequest 中的一些信息
 		RequestAttributes previousAttributes = RequestContextHolder.getRequestAttributes();
+		// 基于 Request, Response 构建 ServletRequestAttributes
 		ServletRequestAttributes requestAttributes = buildRequestAttributes(request, response, previousAttributes);
-
+		// 在 Request 中存储 web 异常处理器
 		WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);
+		// 在异常处理器中绑定拦截器
 		asyncManager.registerCallableInterceptor(FrameworkServlet.class.getName(), new RequestBindingInterceptor());
-
+		// 将 localeContext, requestAttributes 绑定到 ThreadLocal 中
 		initContextHolders(request, localeContext, requestAttributes);
 
 		try {
-			doService(request, response);
+			doService(request, response);  // 交给 子类来处理请求
 		}
 		catch (ServletException ex) {
 			failureCause = ex;
@@ -1030,6 +1032,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		}
 
 		finally {
+			// 恢复请求前设置在 ThreadLocal 中设置的数据
 			resetContextHolders(request, previousLocaleContext, previousAttributes);
 			if (requestAttributes != null) {
 				requestAttributes.requestCompleted();
@@ -1048,7 +1051,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 					}
 				}
 			}
-
+			// 在 Spring 容器中发布 ServletRequestHandledEvent 事件
 			publishRequestHandledEvent(request, response, startTime, failureCause);
 		}
 	}

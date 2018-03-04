@@ -29,7 +29,7 @@ import java.util.Locale;
  * @see LocaleContextHolder#getLocale()
  * @see TimeZoneAwareLocaleContext
  */
-public interface LocaleContext {
+public interface LocaleContext { // 国际化存储在 ThreadLocal 里面
 
 	/**
 	 * Return the current Locale, which can be fixed or determined dynamically,

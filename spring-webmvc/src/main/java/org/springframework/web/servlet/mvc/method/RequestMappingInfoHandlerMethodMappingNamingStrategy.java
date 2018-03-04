@@ -40,7 +40,7 @@ public class RequestMappingInfoHandlerMethodMappingNamingStrategy
 
 
 	@Override
-	public String getName(HandlerMethod handlerMethod, RequestMappingInfo mapping) {
+	public String getName(HandlerMethod handlerMethod, RequestMappingInfo mapping) { // BeanName 的大写字母 # 方法名
 		if (mapping.getName() != null) {           // 获取 @RequestMapping 中的 value
 			return mapping.getName();
 		}

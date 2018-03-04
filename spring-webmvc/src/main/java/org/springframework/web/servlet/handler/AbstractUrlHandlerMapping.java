@@ -122,7 +122,6 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 		String lookupPath = getUrlPathHelper().getLookupPathForRequest(request);
 
 		// 将得到的 URL 路径与 Handler 进行匹配, 得到对应的 Handler, 如果没有对应的 Handler, 返回 null, 这样默认的 Handler 会被使用
-		// 从 handlerMap 查找路径对应的 beanName
 		Object handler = lookupHandler(lookupPath, request);
 		if (handler == null) {
 			// We need to care for the default handler directly, since we need to

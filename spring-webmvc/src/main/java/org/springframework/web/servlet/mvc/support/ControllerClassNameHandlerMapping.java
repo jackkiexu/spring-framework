@@ -57,6 +57,7 @@ import org.springframework.util.StringUtils;
  * @see org.springframework.web.servlet.mvc.multiaction.MultiActionController
  * @deprecated as of 4.3, in favor of annotation-driven handler methods
  */
+// 基于 className 生成 uri 的 HandlerMapping
 @Deprecated
 public class ControllerClassNameHandlerMapping extends AbstractControllerUrlHandlerMapping {
 
@@ -128,15 +129,15 @@ public class ControllerClassNameHandlerMapping extends AbstractControllerUrlHand
 	}
 
 	/**
-	 * Generate the actual URL paths for the given controller class.
+	 * Generate the actual URL paths for the given controller class. 通过 controller class 生成 URI 路径
 	 * <p>Subclasses may choose to customize the paths that are generated
 	 * by overriding this method.
 	 * @param beanClass the controller bean class to generate a mapping for
 	 * @return the URL path mappings for the given controller
 	 */
 	protected String[] generatePathMappings(Class<?> beanClass) {
-		StringBuilder pathMapping = buildPathPrefix(beanClass);
-		String className = ClassUtils.getShortName(beanClass);
+		StringBuilder pathMapping = buildPathPrefix(beanClass); // 生成 uri
+		String className = ClassUtils.getShortName(beanClass);  // 获取 beanClass 对应的 className
 		String path = (className.endsWith(CONTROLLER_SUFFIX) ?
 				className.substring(0, className.lastIndexOf(CONTROLLER_SUFFIX)) : className);
 		if (path.length() > 0) {
@@ -144,7 +145,7 @@ public class ControllerClassNameHandlerMapping extends AbstractControllerUrlHand
 				pathMapping.append(path.substring(0, 1).toLowerCase()).append(path.substring(1));
 			}
 			else {
-				pathMapping.append(path.toLowerCase());
+				pathMapping.append(path.toLowerCase()); // 在 pathMapping 后面
 			}
 		}
 		if (isMultiActionControllerType(beanClass)) {
@@ -160,7 +161,7 @@ public class ControllerClassNameHandlerMapping extends AbstractControllerUrlHand
 	 * @param beanClass the controller bean class to generate a mapping for
 	 * @return the path prefix, potentially including subpackage names as path elements
 	 */
-	private StringBuilder buildPathPrefix(Class<?> beanClass) {
+	private StringBuilder buildPathPrefix(Class<?> beanClass) { // 通过 beanClass 生成 path <-- 这里主要是加入 pathPrefix 与 包名称
 		StringBuilder pathMapping = new StringBuilder();
 		if (this.pathPrefix != null) {
 			pathMapping.append(this.pathPrefix);
@@ -169,9 +170,9 @@ public class ControllerClassNameHandlerMapping extends AbstractControllerUrlHand
 		else {
 			pathMapping.append("/");
 		}
-		if (this.basePackage != null) {
+		if (this.basePackage != null) { // 在 path 中加入
 			String packageName = ClassUtils.getPackageName(beanClass);
-			if (packageName.startsWith(this.basePackage)) {
+			if (packageName.startsWith(this.basePackage)) { // 若 packageName 以 basePackage 开头, 则在 uri 中加入 包路径
 				String subPackage = packageName.substring(this.basePackage.length()).replace('.', '/');
 				pathMapping.append(this.caseSensitive ? subPackage : subPackage.toLowerCase());
 				pathMapping.append("/");

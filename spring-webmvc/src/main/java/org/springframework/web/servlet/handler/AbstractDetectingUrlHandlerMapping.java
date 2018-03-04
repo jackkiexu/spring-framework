@@ -30,6 +30,7 @@ import org.springframework.util.ObjectUtils;
  * @since 2.5
  * @see #determineUrlsForHandler
  */
+// 增加自动 URI 获取功能的 HandlerMapping
 public abstract class AbstractDetectingUrlHandlerMapping extends AbstractUrlHandlerMapping {
 
 	// 是否在父类 ApplicationContext 中递归获取 Handlers

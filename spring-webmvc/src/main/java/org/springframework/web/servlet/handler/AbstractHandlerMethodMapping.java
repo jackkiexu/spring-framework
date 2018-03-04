@@ -318,7 +318,6 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	 */
 	@Override
 	protected HandlerMethod getHandlerInternal(HttpServletRequest request) throws Exception {
-		// 截取用于匹配的 url 有效路径
 		// 获取访问的路径, 一般类似于 request.getServletPath() 返回不含 contextPath 的访问路径
 		String lookupPath = getUrlPathHelper().getLookupPathForRequest(request);
 		if (logger.isDebugEnabled()) {
@@ -362,7 +361,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 		if (directPathMatches != null) { // 从多个 RequestMappingInfo, HttpServletRequest 获取 匹配的 RequestMappingInfo 与 HandlerMethod
 			addMatchingMappings(directPathMatches, matches, request);
 		}
-		if (matches.isEmpty()) {
+		if (matches.isEmpty()) {  // 若通过 addMatchingMappings 还没找到匹配的数据, 则进行通篇匹配查找(PS: 这里的匹配指 RequestCondition 进行条件匹配)
 			// No choice but to go through all mappings...
 			addMatchingMappings(this.mappingRegistry.getMappings().keySet(), matches, request);
 		}
@@ -493,19 +492,19 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	 * <p>Package-private for testing purposes.
 	 */
 	class MappingRegistry {
-
+		// RequestMappingInfo <--> MappingRegistration 的映射关系
 		private final Map<T, MappingRegistration<T>> registry = new HashMap<T, MappingRegistration<T>>();
-
+		// RequestMappingInfo <--> HandlerMethod 的映射关系
 		private final Map<T, HandlerMethod> mappingLookup = new LinkedHashMap<T, HandlerMethod>();
-
+		// uri <--> HandlerMethod 的映射关系
 		private final MultiValueMap<String, T> urlLookup = new LinkedMultiValueMap<String, T>();
-
+		// name <--> HandlerMethod 的映射关系
 		private final Map<String, List<HandlerMethod>> nameLookup =
 				new ConcurrentHashMap<String, List<HandlerMethod>>();
 
 		private final Map<HandlerMethod, CorsConfiguration> corsLookup =
 				new ConcurrentHashMap<HandlerMethod, CorsConfiguration>();
-
+		// 读写锁, 在多线程环境中对共享资源(映射关系), 读写权限的控制
 		private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
 		/**
@@ -554,7 +553,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 		}
 
 		public void register(T mapping, Object handler, Method method) {
-			this.readWriteLock.writeLock().lock();      	       // 获取读锁
+			this.readWriteLock.writeLock().lock();      	       // 获取写锁
 			try {											       // 封装 HandlerMethod <-- 其中有 Method, Bean, 以及对应的 MethodParameter
 				HandlerMethod handlerMethod = createHandlerMethod(handler, method);
 				assertUniqueMethodMapping(handlerMethod, mapping); // 断言 mapping 没有注册过
@@ -564,7 +563,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 				}
 				this.mappingLookup.put(mapping, handlerMethod);    // 将 RequestMethodInfo 与 HandlerMethod 放入 mappingLookup 中
 
-				List<String> directUrls = getDirectUrls(mapping);  // 获取 @RequestMapping 中 value | path 中的信息 <-- 并且不能含有 *|?
+				List<String> directUrls = getDirectUrls(mapping);  // 获取 @RequestMapping 中 value | path 中的信息 <-- 并且不能含有 *|? (PS: 一个 RequestMapping 具有多个 path|value)
 				for (String url : directUrls) {
 					this.urlLookup.add(url, mapping);			   // 将 @RequestMapping 中的 value|path 注册到 urlLookup 中
 				}

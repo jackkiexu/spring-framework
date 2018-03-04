@@ -39,6 +39,7 @@ import org.springframework.util.StringUtils;
  * @see org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping
  * @deprecated as of 4.3, in favor of annotation-driven handler methods
  */
+// 通过 BeanName 构成 uri 的 HandlerMapping
 @Deprecated
 public class ControllerBeanNameHandlerMapping extends AbstractControllerUrlHandlerMapping {
 

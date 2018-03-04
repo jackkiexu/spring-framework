@@ -40,7 +40,7 @@ import org.springframework.web.servlet.ModelAndView;
 public class SimpleControllerHandlerAdapter implements HandlerAdapter {
 
 	@Override
-	public boolean supports(Object handler) { // 某个适配器是否适用于当前的 Handler 的逻辑就在下面s
+	public boolean supports(Object handler) {
 		// 判断将要调用的 handler 是不是 Controller
 		return (handler instanceof Controller);
 	}

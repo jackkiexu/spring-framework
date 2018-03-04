@@ -42,13 +42,13 @@ public class HttpRequestHandlerAdapter implements HandlerAdapter {
 
 	@Override
 	public boolean supports(Object handler) {
+		// 判断将要调用的 handler 是不是 HttpRequestHandler
 		return (handler instanceof HttpRequestHandler);
 	}
 
 	@Override
-	public ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Object handler)
-			throws Exception {
-
+	public ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+		// 调用 HttpRequestHandler 接口类的接口方法 handleRequest() 方法直接响应给前端
 		((HttpRequestHandler) handler).handleRequest(request, response);
 		return null;
 	}

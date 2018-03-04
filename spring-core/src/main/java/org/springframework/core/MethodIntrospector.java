@@ -113,7 +113,7 @@ public abstract class MethodIntrospector {
 	 * @throws IllegalStateException if the given method is not invocable on the given
 	 * target type (typically due to a proxy mismatch)
 	 */
-	public static Method selectInvocableMethod(Method method, Class<?> targetType) {
+	public static Method selectInvocableMethod(Method method, Class<?> targetType) { // 因为这里有可能 targetType 是代理类, 所以这里是获取targetType的真实方法
 		if (method.getDeclaringClass().isAssignableFrom(targetType)) {
 			return method;
 		}

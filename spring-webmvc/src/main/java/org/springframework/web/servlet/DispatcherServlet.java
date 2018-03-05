@@ -1044,7 +1044,7 @@ public class DispatcherServlet extends FrameworkServlet {
 					if (logger.isDebugEnabled()) {
 						logger.debug("Last-Modified value for [" + getRequestUri(request) + "] is: " + lastModified);
 					}
-					// 对未修改的资源 get 请求, 直接返回 304 状态码
+					// 请求是否在缓存期内, 直接返回 304 状态码
 					if (new ServletWebRequest(request, response).checkNotModified(lastModified) && isGet) {
 						return;
 					}

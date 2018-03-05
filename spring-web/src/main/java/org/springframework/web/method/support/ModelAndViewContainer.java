@@ -234,7 +234,7 @@ public class ModelAndViewContainer {
 	 * argument of type {@code ServletResponse} or {@code OutputStream}).
 	 * <p>The default value is {@code false}.
 	 */
-	public void setRequestHandled(boolean requestHandled) {
+	public void setRequestHandled(boolean requestHandled) { // 若请求被处理过了, 则 视图解析就不需要了
 		this.requestHandled = requestHandled;
 	}
 

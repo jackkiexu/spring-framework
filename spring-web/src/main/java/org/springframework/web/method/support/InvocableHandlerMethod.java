@@ -44,7 +44,11 @@ import org.springframework.web.method.HandlerMethod;
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
  * @since 3.1
- */// 这个类可以理解为 可激活的 HandlerMethod, 一般是再 argument 通过 HandlerMethodArgumentResolver 解决后, 参数的 resolve 通常也需要 WebDataBinder 进行转换 绑定
+ */
+/** 这个类可以理解为 可激活的 HandlerMethod, 一般是再 argument 通过 HandlerMethodArgumentResolver 解决后, 参数的 resolve 通常也需要 WebDataBinder 进行转换 绑定
+ *  通过 HttpServletRequest 中的数据, 解析方法的参数
+ *  通过 反射进行激活方法
+ */
 public class InvocableHandlerMethod extends HandlerMethod {
 
 	private WebDataBinderFactory dataBinderFactory;

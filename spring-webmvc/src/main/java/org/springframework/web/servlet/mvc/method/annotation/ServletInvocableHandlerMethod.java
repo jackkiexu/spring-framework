@@ -91,6 +91,7 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 	 * @param mavContainer the ModelAndViewContainer for this request
 	 * @param providedArgs "given" arguments matched by type (not resolved)
 	 */
+	// 激活方法, 并且通过 HandlerMethodReturnValueHandler 来处理一下返回值
 	public void invokeAndHandle(ServletWebRequest webRequest, ModelAndViewContainer mavContainer,
 			Object... providedArgs) throws Exception {
 
@@ -99,12 +100,12 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 
 		if (returnValue == null) { // Response.status != null -> 则说明请求已经结束
 			if (isRequestNotModified(webRequest) || getResponseStatus() != null || mavContainer.isRequestHandled()) {
-				mavContainer.setRequestHandled(true);
+				mavContainer.setRequestHandled(true); // 标志请求被处理过了, 则 视图解析就不需要了
 				return;
 			}
 		}
 		else if (StringUtils.hasText(getResponseStatusReason())) {
-			mavContainer.setRequestHandled(true);
+			mavContainer.setRequestHandled(true); // 标志请求被处理过了, 则 视图解析就不需要了
 			return;
 		}
 

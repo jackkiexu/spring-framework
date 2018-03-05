@@ -231,7 +231,7 @@ public class ServletWebRequest extends ServletRequestAttributes implements Nativ
 		boolean validated = validateIfNoneMatch(etag);
 
 		if (!validated) {
-			validateIfModifiedSince(lastModifiedTimestamp);
+			validateIfModifiedSince(lastModifiedTimestamp);	// 校验缓存是否失效
 		}
 
 		// Update response
@@ -324,7 +324,7 @@ public class ServletWebRequest extends ServletRequestAttributes implements Nativ
 		return "\"" + etag + "\"";
 	}
 
-	private boolean validateIfModifiedSince(long lastModifiedTimestamp) {
+	private boolean validateIfModifiedSince(long lastModifiedTimestamp) { // 校验 Http 缓存是否失效
 		if (lastModifiedTimestamp < 0) {
 			return false;
 		}

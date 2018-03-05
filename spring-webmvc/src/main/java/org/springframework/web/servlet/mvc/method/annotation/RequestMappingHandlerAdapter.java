@@ -840,7 +840,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
 			WebDataBinderFactory binderFactory = getDataBinderFactory(handlerMethod);       // 构建 DataBinder 工厂
 			ModelFactory modelFactory = getModelFactory(handlerMethod, binderFactory);      // binderFactory 中存储着被 @InitBinder, @ModelAttribute 修饰的方法 <- 最终包裹成 InvocableHandlerMethod
 
-			ServletInvocableHandlerMethod invocableMethod = createInvocableHandlerMethod(handlerMethod);
+			ServletInvocableHandlerMethod invocableMethod = createInvocableHandlerMethod(handlerMethod); // 构建一个 ServletInvocableHandlerMethod
 			invocableMethod.setHandlerMethodArgumentResolvers(this.argumentResolvers);		// 设置方法参数解析器 HandlerMethodArgumentValueResolver
 			invocableMethod.setHandlerMethodReturnValueHandlers(this.returnValueHandlers);  // 返回值处理器 HandlerMethodReturnValueHandler
 			invocableMethod.setDataBinderFactory(binderFactory);							// 设置 WebDataBinderFactory
@@ -870,15 +870,15 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
 				invocableMethod = invocableMethod.wrapConcurrentResult(result);
 			}
 
-			invocableMethod.invokeAndHandle(webRequest, mavContainer);		// 激活方法
+			invocableMethod.invokeAndHandle(webRequest, mavContainer);		// 将 HttpServletRequest 转换成方法的参数, 激活方法, 最后 通过 HandlerMethodReturnValueHandler 来处理返回值
 			if (asyncManager.isConcurrentHandlingStarted()) {
 				return null;
 			}
 
-			return getModelAndView(mavContainer, modelFactory, webRequest);
+			return getModelAndView(mavContainer, modelFactory, webRequest); // 生成 ModelAndView
 		}
 		finally {
-			webRequest.requestCompleted();
+			webRequest.requestCompleted(); // 标志请求已经结束, 进行一些生命周期回调函数的激活
 		}
 	}
 
@@ -888,7 +888,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
 	 * @return the corresponding {@link ServletInvocableHandlerMethod} (or custom subclass thereof)
 	 * @since 4.2
 	 */
-	protected ServletInvocableHandlerMethod createInvocableHandlerMethod(HandlerMethod handlerMethod) {
+	protected ServletInvocableHandlerMethod createInvocableHandlerMethod(HandlerMethod handlerMethod) {  // 构建一个 ServletInvocableHandlerMethod
 		return new ServletInvocableHandlerMethod(handlerMethod);
 	}
 
@@ -938,7 +938,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
 			if (entry.getKey().isApplicableToBeanType(handlerType)) {
 				Object bean = entry.getKey().resolveBean();
 				for (Method method : entry.getValue()) {
-					initBinderMethods.add(createInitBinderMethod(bean, method));
+					initBinderMethods.add(createInitBinderMethod(bean, method)); // 创建被 @InitBinder 可执行的 HandlerMethod
 				}
 			}
 		}
@@ -948,7 +948,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
 		}
 		return createDataBinderFactory(initBinderMethods);
 	}
-	// 创建 被 @InitBinder 修饰的方法, 包裹成 InvocableHandlerMethod
+	// 创建 被 @InitBinder 修饰的方法, 包裹成 InvocableHandlerMethod (可激活的 HandlerMethod)
 	private InvocableHandlerMethod createInitBinderMethod(Object bean, Method method) {
 		InvocableHandlerMethod binderMethod = new InvocableHandlerMethod(bean, method);
 		binderMethod.setHandlerMethodArgumentResolvers(this.initBinderArgumentResolvers);
@@ -971,11 +971,12 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
 		return new ServletRequestDataBinderFactory(binderMethods, getWebBindingInitializer());
 	}
 
+	// 构建视图返回对象
 	private ModelAndView getModelAndView(ModelAndViewContainer mavContainer,
 			ModelFactory modelFactory, NativeWebRequest webRequest) throws Exception {
 		// 通过 sessionAttributesHandler 工具类将 HttpServletRequest 里面的属性值 设置到 ModelAndViewContainer.ModelMap 里面
 		modelFactory.updateModel(webRequest, mavContainer);
-		if (mavContainer.isRequestHandled()) {
+		if (mavContainer.isRequestHandled()) { // 是否请求被处理过了, 是的话 视图解析就不需要了
 			return null;
 		}
 		ModelMap model = mavContainer.getModel();
@@ -984,7 +985,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
 		if (!mavContainer.isViewReference()) {
 			mav.setView((View) mavContainer.getView());
 		}
-		if (model instanceof RedirectAttributes) {
+		if (model instanceof RedirectAttributes) {	// 若是重新定向的请求, 则将这次请求的 RedirectAttributes.flashAttributes 放入 FlashMap 中
 			Map<String, ?> flashAttributes = ((RedirectAttributes) model).getFlashAttributes();
 			HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
 			RequestContextUtils.getOutputFlashMap(request).putAll(flashAttributes);

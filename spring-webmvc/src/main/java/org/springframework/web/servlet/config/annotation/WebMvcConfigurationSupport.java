@@ -712,7 +712,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 		if (this.messageConverters == null) {
 			this.messageConverters = new ArrayList<HttpMessageConverter<?>>();
 			configureMessageConverters(this.messageConverters);
-			if (this.messageConverters.isEmpty()) {
+			if (this.messageConverters.isEmpty()) { // 若 没有配置 HttpMessageConverter, 则加载默认的一下转换器
 				addDefaultHttpMessageConverters(this.messageConverters);
 			}
 			extendMessageConverters(this.messageConverters);
@@ -749,7 +749,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 	 * Subclasses can call this method from {@link #configureMessageConverters(List)}.
 	 * @param messageConverters the list to add the default message converters to
 	 */
-	protected final void addDefaultHttpMessageConverters(List<HttpMessageConverter<?>> messageConverters) {
+	protected final void addDefaultHttpMessageConverters(List<HttpMessageConverter<?>> messageConverters) { // 加载默认的 HttpMessageConverter
 		StringHttpMessageConverter stringConverter = new StringHttpMessageConverter();
 		stringConverter.setWriteAcceptCharset(false);
 

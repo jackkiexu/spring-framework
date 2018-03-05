@@ -129,12 +129,13 @@ public class InvocableHandlerMethod extends HandlerMethod {
 	public Object invokeForRequest(NativeWebRequest request, ModelAndViewContainer mavContainer,
 			Object... providedArgs) throws Exception {
 		// 下面 getMethodArgumentValues 获取参数有两种情况, 一种是直接通过 providedArgs 与请求类型进行匹配, 另外一种是通过 argumentResolver 进行获取
-		Object[] args = getMethodArgumentValues(request, mavContainer, providedArgs);				// 这里就是通过默认的 HandlerMethodArgumentResolver 来解释对应参数
+		Object[] args = getMethodArgumentValues(request, mavContainer, providedArgs);
 		if (logger.isTraceEnabled()) {
 			logger.trace("Invoking '" + ClassUtils.getQualifiedMethodName(getMethod(), getBeanType()) +
 					"' with arguments " + Arrays.toString(args));
 		}
-		Object returnValue = doInvoke(args);						// 通过解析得到的参数 + 反射 -> invoke 方法
+		// 通过解析得到的参数 + 反射 -> invoke 方法
+		Object returnValue = doInvoke(args);
 		if (logger.isTraceEnabled()) {
 			logger.trace("Method [" + ClassUtils.getQualifiedMethodName(getMethod(), getBeanType()) +
 					"] returned [" + returnValue + "]");
@@ -147,20 +148,21 @@ public class InvocableHandlerMethod extends HandlerMethod {
 	 */
 	private Object[] getMethodArgumentValues(NativeWebRequest request, ModelAndViewContainer mavContainer,
 			Object... providedArgs) throws Exception {
-
-		MethodParameter[] parameters = getMethodParameters();			// 这里的 getMethodParameters 其实是在构造 MethodParameters 时创建的
+		// 这里的 getMethodParameters 其实是在构造 MethodParameters 时创建的
+		MethodParameter[] parameters = getMethodParameters();
 		Object[] args = new Object[parameters.length];
-		for (int i = 0; i < parameters.length; i++) {					// 从这里开始对参数进行一个一个解析 <- 主要是通过 HandlerMethodArgumentResolver
+		// 从这里开始对参数进行一个一个解析 <- 主要是通过 HandlerMethodArgumentResolver
+		for (int i = 0; i < parameters.length; i++) {
 			MethodParameter parameter = parameters[i];
-			parameter.initParameterNameDiscovery(this.parameterNameDiscoverer);	    // 设置参数名解析器 ParameterNameDiscoverer (默认通过 ASM)
-			args[i] = resolveProvidedArgument(parameter, providedArgs);			    // 这一步是校验参数providedArgs 里面的类型是否满足 parameter 里面的类型
-			if (args[i] != null) {
-				continue;
-			}
-			if (this.argumentResolvers.supportsParameter(parameter)) {				// 判断是否 argumentResolvers 里面含有对应的 解释器
-				try {
-					args[i] = this.argumentResolvers.resolveArgument(				// 解析 Controller 里面 对应的参数内容
-							parameter, mavContainer, request, this.dataBinderFactory);
+			// 设置参数名解析器 ParameterNameDiscoverer (默认通过 ASM)
+			parameter.initParameterNameDiscovery(this.parameterNameDiscoverer);
+			// 这一步是尝试 判断 参数 providedArgs 里面的类型是否满足 parameter
+			args[i] = resolveProvidedArgument(parameter, providedArgs);
+			if (args[i] != null) continue;
+			// 判断是否 argumentResolvers 里面含有对应的 解释器
+			if (this.argumentResolvers.supportsParameter(parameter)) {
+				try { // 通过 argumentResolvers 解析 HandlerMethod 里面 对应的参数内容
+					args[i] = this.argumentResolvers.resolveArgument(parameter, mavContainer, request, this.dataBinderFactory);
 					continue;
 				}
 				catch (Exception ex) {

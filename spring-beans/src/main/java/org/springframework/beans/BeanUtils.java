@@ -499,7 +499,7 @@ public abstract class BeanUtils {
 	 * @see org.springframework.beans.factory.support.RootBeanDefinition#DEPENDENCY_CHECK_SIMPLE
 	 * @see org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#checkDependencies
 	 */
-	public static boolean isSimpleProperty(Class<?> clazz) {
+	public static boolean isSimpleProperty(Class<?> clazz) { // 检测 clazz 是否是简单类型
 		Assert.notNull(clazz, "Class must not be null");
 		return isSimpleValueType(clazz) || (clazz.isArray() && isSimpleValueType(clazz.getComponentType()));
 	}

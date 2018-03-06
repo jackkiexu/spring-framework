@@ -40,17 +40,20 @@ public class RequestAttributeMethodArgumentResolver extends AbstractNamedValueMe
 
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
+		// 支持 被 @RequestAttribute 修饰的参数
 		return parameter.hasParameterAnnotation(RequestAttribute.class);
 	}
 
 	@Override
 	protected NamedValueInfo createNamedValueInfo(MethodParameter parameter) {
+		// 创建基于 @RequestAttribute 的 NameValueInfo
 		RequestAttribute ann = parameter.getParameterAnnotation(RequestAttribute.class);
 		return new NamedValueInfo(ann.name(), ann.required(), ValueConstants.DEFAULT_NONE);
 	}
 
 	@Override
 	protected Object resolveName(String name, MethodParameter parameter, NativeWebRequest request){
+		// 从 HttpServletRequest 中获取 request级别 name 对应的数据
 		return request.getAttribute(name, RequestAttributes.SCOPE_REQUEST);
 	}
 

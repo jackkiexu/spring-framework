@@ -26,11 +26,11 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.context.request.NativeWebRequest;
 
 /**
- * Resolves method arguments annotated with {@code @RequestHeader} except for
+ * Resolves method arguments annotated with {@code @RequestHeader} except for   被 @RequestHeader 注解修饰
  * {@link Map} arguments. See {@link RequestHeaderMapMethodArgumentResolver} for
  * details on {@link Map} arguments annotated with {@code @RequestHeader}.
  *
- * <p>An {@code @RequestHeader} is a named value resolved from a request header.
+ * <p>An {@code @RequestHeader} is a named value resolved from a request header.  从 Http Header 获取数据
  * It has a required flag and a default value to fall back on when the request
  * header does not exist.
  *
@@ -61,12 +61,14 @@ public class RequestHeaderMethodArgumentResolver extends AbstractNamedValueMetho
 
 	@Override
 	protected NamedValueInfo createNamedValueInfo(MethodParameter parameter) {
+		// 创建基于 @RequestHeader 的 NamedValueInfo 对象
 		RequestHeader annotation = parameter.getParameterAnnotation(RequestHeader.class);
 		return new RequestHeaderNamedValueInfo(annotation);
 	}
 
 	@Override
 	protected Object resolveName(String name, MethodParameter parameter, NativeWebRequest request) throws Exception {
+		// 获取 Http Header 里面的数据
 		String[] headerValues = request.getHeaderValues(name);
 		if (headerValues != null) {
 			return (headerValues.length == 1 ? headerValues[0] : headerValues);

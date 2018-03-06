@@ -36,19 +36,19 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 /**
- * Abstract base class for resolving method arguments from a named value.
- * Request parameters, request headers, and path variables are examples of named
+ * Abstract base class for resolving method arguments from a named value.  <-- 为解决基于 name 的参数解决
+ * Request parameters, request headers, and path variables are examples of named <-- 数据的获取一般通过 HttpServletRequest, Http Headers, URI template variables
  * values. Each may have a name, a required flag, and a default value.
  *
- * <p>Subclasses define how to do the following:
+ * <p>Subclasses define how to do the following:  子类做的事情
  * <ul>
- * <li>Obtain named value information for a method parameter
+ * <li>Obtain named value information for a method parameter // 从 Method Parameter 中获取 NameValueinfo 对象
  * <li>Resolve names into argument values
- * <li>Handle missing argument values when argument values are required
+ * <li>Handle missing argument values when argument values are required 处理这种情况 -> 若值是必需的, 但value又没有获取
  * <li>Optionally handle a resolved value
  * </ul>
  *
- * <p>A default value string can contain ${...} placeholders and Spring Expression
+ * <p>A default value string can contain ${...} placeholders(占位符) and Spring Expression
  * Language #{...} expressions. For this to work a
  * {@link ConfigurableBeanFactory} must be supplied to the class constructor.
  *
@@ -66,6 +66,7 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 
 	private final BeanExpressionContext expressionContext;
 
+	// 存放 MethodParameter <--> NameValueInfo 的缓存
 	private final Map<MethodParameter, NamedValueInfo> namedValueInfoCache =
 			new ConcurrentHashMap<MethodParameter, NamedValueInfo>(256);
 
@@ -99,6 +100,7 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 			throw new IllegalArgumentException(
 					"Specified name must not resolve to null: [" + namedValueInfo.name + "]");
 		}
+		// 下面的数据大体通过 HttpServletRequest, Http Headers, URI template variables(URI 模版变量) 获取
 		// @PathVariable     --> 通过前期对 uri 解析后得到的 decodedUriVariables 获得
 		// @RequestParam     --> 通过 HttpServletRequest.getParameterValues(name) 获取
 		// @RequestAttribute --> 通过 HttpServletRequest.getAttribute(name) 获取   <-- 这里的 scope 是 request
@@ -107,15 +109,15 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 		// @SessionAttribute --> 通过 HttpServletRequest.getAttribute(name) 获取 <-- 这里的 scope 是 session
 		Object arg = resolveName(resolvedName.toString(), nestedParameter, webRequest);		// 通过 上面的 resolvedName  <-- 模版方法
 		if (arg == null) {
-			if (namedValueInfo.defaultValue != null) {					// 若 arg == null, 则使用 defaultValue
+			if (namedValueInfo.defaultValue != null) {					// 若 arg == null, 则使用 defaultValue, 这里默认值可能也是通过占位符 ${...} 来进行查找
 				arg = resolveStringValue(namedValueInfo.defaultValue);
 			}
-			else if (namedValueInfo.required && !nestedParameter.isOptional()) {	// 若 arg == null && defaultValue == null 则通过 handleMissingValue 来进行处理, 一般是报异常
+			else if (namedValueInfo.required && !nestedParameter.isOptional()) {	// 若 arg == null && defaultValue == null && 非 optional 类型的参数 则通过 handleMissingValue 来进行处理, 一般是报异常
 				handleMissingValue(namedValueInfo.name, nestedParameter, webRequest);
 			}
-			arg = handleNullValue(namedValueInfo.name, arg, nestedParameter.getNestedParameterType());
+			arg = handleNullValue(namedValueInfo.name, arg, nestedParameter.getNestedParameterType());  // 对 null 值的处理 一般还是报yichang
 		}
-		else if ("".equals(arg) && namedValueInfo.defaultValue != null) {
+		else if ("".equals(arg) && namedValueInfo.defaultValue != null) { // 若得到的数据是 "", 则还是使用默认值
 			arg = resolveStringValue(namedValueInfo.defaultValue);		// 这里的默认值有可能也是 ${} 修饰的, 所以也需要通过 BeanExpressionResolver 来进行解析
 		}
 
@@ -159,6 +161,7 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 	 * @param parameter the method parameter
 	 * @return the named value information
 	 */
+	// 模版方法, 留给子类创建 NamedValueInfo
 	protected abstract NamedValueInfo createNamedValueInfo(MethodParameter parameter);
 
 	/**

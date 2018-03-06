@@ -69,7 +69,7 @@ public class ServletModelAttributeMethodProcessor extends ModelAttributeMethodPr
 	protected final Object createAttribute(String attributeName, MethodParameter methodParam,
 			WebDataBinderFactory binderFactory, NativeWebRequest request) throws Exception {
 
-		String value = getRequestValueForAttribute(attributeName, request);
+		String value = getRequestValueForAttribute(attributeName, request); // 通过 URI 模版 获取对应的数据
 		if (value != null) {
 			Object attribute = createAttributeFromRequestValue(
 					value, attributeName, methodParam, binderFactory, request);
@@ -90,6 +90,7 @@ public class ServletModelAttributeMethodProcessor extends ModelAttributeMethodPr
 	 * @param request the current request
 	 * @return the request value to try to convert, or {@code null} if none
 	 */
+	// 通过 URI 模版变量获取对应参数值
 	protected String getRequestValueForAttribute(String attributeName, NativeWebRequest request) {
 		Map<String, String> variables = getUriTemplateVariables(request);
 		String variableValue = variables.get(attributeName);
@@ -103,6 +104,7 @@ public class ServletModelAttributeMethodProcessor extends ModelAttributeMethodPr
 		return null;
 	}
 
+	// 获取 URI 模版变量
 	@SuppressWarnings("unchecked")
 	protected final Map<String, String> getUriTemplateVariables(NativeWebRequest request) {
 		Map<String, String> variables = (Map<String, String>) request.getAttribute(
@@ -133,7 +135,8 @@ public class ServletModelAttributeMethodProcessor extends ModelAttributeMethodPr
 		if (conversionService != null) {
 			TypeDescriptor source = TypeDescriptor.valueOf(String.class);
 			TypeDescriptor target = new TypeDescriptor(methodParam);
-			if (conversionService.canConvert(source, target)) {
+			if (conversionService.canConvert(source, target)) { // 若支持转换
+				// 则通过 DataBinder 中的 conversionService 进行转换
 				return binder.convertIfNecessary(sourceValue, methodParam.getParameterType(), methodParam);
 			}
 		}

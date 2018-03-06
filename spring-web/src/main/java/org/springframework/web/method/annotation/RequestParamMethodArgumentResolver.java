@@ -46,9 +46,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.WebUtils;
 
 /**
- * Resolves method arguments annotated with @{@link RequestParam}, arguments of
- * type {@link MultipartFile} in conjunction with Spring's {@link MultipartResolver}
- * abstraction, and arguments of type {@code javax.servlet.http.Part} in conjunction
+ * Resolves method arguments annotated with @{@link RequestParam}, arguments of   被 @RequestParam 注解修饰的
+ * type {@link MultipartFile} in conjunction with Spring's {@link MultipartResolver} 通过 MultipartResolver 解决 MultipartFile类型
+ * abstraction, and arguments of type {@code javax.servlet.http.Part} in conjunction  Servlet 3.0 的 javax.servlet.http.Part
  * with Servlet 3.0 multipart requests. This resolver can also be created in default
  * resolution mode in which simple types (int, long, etc.) not annotated with
  * {@link RequestParam @RequestParam} are also treated as request parameters with
@@ -120,6 +120,11 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethod
 	 * even if not with @{@link RequestParam}.
 	 * </ul>
 	 */
+	/** 被 @RequestParam 注解修饰, 但类型不是 Map, 或类型是 Map, 并且 @RequestParam 中指定 name
+	 *  被 @RequestPart 注解修饰, 则直接返回 false
+	 *  若是 MultipartFile| Part 类型, 则直接返回 true
+	 *  若是基础类型, 则返回 true
+	 */
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {		// 支持简单类型的注解 @RequestParam
 		if (parameter.hasParameterAnnotation(RequestParam.class)) {		// 检测参数上面是否含有 RequestParam 注解
@@ -150,6 +155,7 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethod
 
 	@Override
 	protected NamedValueInfo createNamedValueInfo(MethodParameter parameter) {
+		// 创建基于 @RequestParam 的 NamedValueInfo
 		RequestParam ann = parameter.getParameterAnnotation(RequestParam.class);
 		return (ann != null ? new RequestParamNamedValueInfo(ann) : new RequestParamNamedValueInfo());
 	}
@@ -187,7 +193,7 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethod
 
 	@Override
 	protected void handleMissingValue(String name, MethodParameter parameter, NativeWebRequest request)
-			throws Exception {
+			throws Exception {  //上层没有找到值, 则通过这里处理
 
 		HttpServletRequest servletRequest = request.getNativeRequest(HttpServletRequest.class);
 		if (MultipartResolutionDelegate.isMultipartArgument(parameter)) {				// 参数是 Multipart, 但 Request 不是 MultipartRequest, 则直接报错

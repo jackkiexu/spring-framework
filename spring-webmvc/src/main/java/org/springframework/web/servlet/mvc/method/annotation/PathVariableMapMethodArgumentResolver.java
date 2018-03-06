@@ -32,7 +32,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.HandlerMapping;
 
 /**
- * Resolves {@link Map} method arguments annotated with an @{@link PathVariable}
+ * Resolves {@link Map} method arguments annotated with an @{@link PathVariable}  解决 Map类型 && 被 @PathVariable 修饰 && @PathVariable.value ＝= null
  * where the annotation does not specify a path variable name. The created
  * {@link Map} contains all URI template name/value pairs.
  *
@@ -43,7 +43,7 @@ import org.springframework.web.servlet.HandlerMapping;
 public class PathVariableMapMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
 	@Override
-	public boolean supportsParameter(MethodParameter parameter) {
+	public boolean supportsParameter(MethodParameter parameter) { // 解决 Map类型 && 被 @PathVariable 修饰 && @PathVariable.value ＝= null
 		PathVariable ann = parameter.getParameterAnnotation(PathVariable.class);
 		return (ann != null && (Map.class.isAssignableFrom(parameter.getParameterType()))
 				&& !StringUtils.hasText(ann.value()));
@@ -57,11 +57,11 @@ public class PathVariableMapMethodArgumentResolver implements HandlerMethodArgum
 			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
 
 		@SuppressWarnings("unchecked")
-		Map<String, String> uriTemplateVars =
+		Map<String, String> uriTemplateVars = // 从 HttpServletRequest 中所有的 URI 模版变量 (PS: URI 模版变量的获取是通过 RequestMappingInfoHandlerMapping.handleMatch 获取)
 				(Map<String, String>) webRequest.getAttribute(
 						HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, RequestAttributes.SCOPE_REQUEST);
 
-		if (!CollectionUtils.isEmpty(uriTemplateVars)) {
+		if (!CollectionUtils.isEmpty(uriTemplateVars)) { // 并且把所有 uri 模版变量返回
 			return new LinkedHashMap<String, String>(uriTemplateVars);
 		}
 		else {

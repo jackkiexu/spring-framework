@@ -43,6 +43,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * @author Rossen Stoyanchev
  * @since 3.1
  */
+// 解决被 @RequestHeader 注解修饰, 并且类型是 Map 的参数, HandlerMethodArgumentResolver会将 Http header 中的所有 name <--> value 都放入其中
 public class RequestHeaderMapMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
 	@Override
@@ -54,20 +55,26 @@ public class RequestHeaderMapMethodArgumentResolver implements HandlerMethodArgu
 	@Override
 	public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
 			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
-
+		// 获取参数的类型
 		Class<?> paramType = parameter.getParameterType();
+		// 若参数类型是 MultiValueMap
 		if (MultiValueMap.class.isAssignableFrom(paramType)) {
 			MultiValueMap<String, String> result;
+			// 若参数类型是 HttpHeaders, 则直接构造一个 HttpHeaders
 			if (HttpHeaders.class.isAssignableFrom(paramType)) {
 				result = new HttpHeaders();
 			}
-			else {
+			else { // 构造 LinkedMultiValueMap
 				result = new LinkedMultiValueMap<String, String>();
 			}
+			// 遍历 所有 Header 中的 names
 			for (Iterator<String> iterator = webRequest.getHeaderNames(); iterator.hasNext();) {
+				// 获取 headerName
 				String headerName = iterator.next();
+				// 获取 headerName 对应的 value
 				String[] headerValues = webRequest.getHeaderValues(headerName);
 				if (headerValues != null) {
+					// 将 headerName <--> headerValue 加入 result
 					for (String headerValue : headerValues) {
 						result.add(headerName, headerValue);
 					}
@@ -76,6 +83,7 @@ public class RequestHeaderMapMethodArgumentResolver implements HandlerMethodArgu
 			return result;
 		}
 		else {
+			// 遍历 headerNames 并将 headerName <--> headerValue 加入 result
 			Map<String, String> result = new LinkedHashMap<String, String>();
 			for (Iterator<String> iterator = webRequest.getHeaderNames(); iterator.hasNext();) {
 				String headerName = iterator.next();

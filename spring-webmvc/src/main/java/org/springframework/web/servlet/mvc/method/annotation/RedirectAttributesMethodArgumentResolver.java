@@ -42,11 +42,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
  * @author Rossen Stoyanchev
  * @since 3.1
  */
-// 针对 RedirectAttributes及其子类的参数
+// 针对 RedirectAttributes及其子类的参数 的参数解决器, 主要还是基于 NativeWebRequest && DataBinder
 public class RedirectAttributesMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
 	@Override
-	public boolean supportsParameter(MethodParameter parameter) {
+	public boolean supportsParameter(MethodParameter parameter) { // 判断参数是否是 RedirectAttributes 类型
 		return RedirectAttributes.class.isAssignableFrom(parameter.getParameterType());
 	}
 
@@ -55,13 +55,14 @@ public class RedirectAttributesMethodArgumentResolver implements HandlerMethodAr
 			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
 
 		ModelMap redirectAttributes;
-		if(binderFactory != null) {
+		if(binderFactory != null) { // 通过 dataBinder 构建 RedirectAttributesModelMap
 			DataBinder dataBinder = binderFactory.createBinder(webRequest, null, null);
 			redirectAttributes  = new RedirectAttributesModelMap(dataBinder);
 		}
 		else {
 			redirectAttributes  = new RedirectAttributesModelMap();
 		}
+		// 将 redirectAttributes 设置到 ModelAndViewContainer 中
 		mavContainer.setRedirectModel(redirectAttributes);
 		return redirectAttributes;
 	}

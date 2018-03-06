@@ -52,6 +52,10 @@ public class MatrixVariableMethodArgumentResolver extends AbstractNamedValueMeth
 	}
 
 
+	/** 参数若没被 @MatrixVariable 修饰, 则直接返回 false
+	 *  参数是 Map 类型, 并且 @MatrixVariable.name != null 返回true
+	 *  默认返回 true
+	 */
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
 		if (!parameter.hasParameterAnnotation(MatrixVariable.class)) {
@@ -66,6 +70,7 @@ public class MatrixVariableMethodArgumentResolver extends AbstractNamedValueMeth
 
 	@Override
 	protected NamedValueInfo createNamedValueInfo(MethodParameter parameter) {
+		// 构建基于 @MatrixVariable 的 NamedValueInfo
 		MatrixVariable annotation = parameter.getParameterAnnotation(MatrixVariable.class);
 		return new MatrixVariableNamedValueInfo(annotation);
 	}
@@ -73,15 +78,17 @@ public class MatrixVariableMethodArgumentResolver extends AbstractNamedValueMeth
 	@Override
 	@SuppressWarnings("unchecked")
 	protected Object resolveName(String name, MethodParameter parameter, NativeWebRequest request) throws Exception {
+		// 从 HttpServletRequest 中获取去除 ; 的 URI Template Variables
 		Map<String, MultiValueMap<String, String>> pathParameters = (Map<String, MultiValueMap<String, String>>)
 				request.getAttribute(HandlerMapping.MATRIX_VARIABLES_ATTRIBUTE, RequestAttributes.SCOPE_REQUEST);
 		if (CollectionUtils.isEmpty(pathParameters)) {
 			return null;
 		}
-
+		// 获取 @MatrixVariable.pathVar
 		String pathVar = parameter.getParameterAnnotation(MatrixVariable.class).pathVar();
 		List<String> paramValues = null;
 
+		// 若 pathVar 不是默认值, 则直接通过 pathParameters 来进行获取
 		if (!pathVar.equals(ValueConstants.DEFAULT_NONE)) {
 			if (pathParameters.containsKey(pathVar)) {
 				paramValues = pathParameters.get(pathVar).get(name);
@@ -91,7 +98,7 @@ public class MatrixVariableMethodArgumentResolver extends AbstractNamedValueMeth
 			boolean found = false;
 			paramValues = new ArrayList<String>();
 			for (MultiValueMap<String, String> params : pathParameters.values()) {
-				if (params.containsKey(name)) {
+				if (params.containsKey(name)) { // 若 pathParameters 含有数据, 则加入paramValues中
 					if (found) {
 						String paramType = parameter.getNestedParameterType().getName();
 						throw new ServletRequestBindingException(

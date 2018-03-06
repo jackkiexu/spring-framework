@@ -44,10 +44,10 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 /**
- * Resolves {@link HttpEntity} and {@link RequestEntity} method argument values
- * and also handles {@link HttpEntity} and {@link ResponseEntity} return values.
+ * Resolves {@link HttpEntity} and {@link RequestEntity} method argument values   解决 HttpEntity|RequestEntity类型的参数
+ * and also handles {@link HttpEntity} and {@link ResponseEntity} return values.  解决 HttpEntity|ResponseEntity类型的返回值
  *
- * <p>An {@link HttpEntity} return type has a specific purpose. Therefore this
+ * <p>An {@link HttpEntity} return type has a specific purpose. Therefore(因此|所以) this
  * handler should be configured ahead of handlers that support any return
  * value type annotated with {@code @ModelAttribute} or {@code @ResponseBody}
  * to ensure they don't take over.
@@ -105,12 +105,14 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
 
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
+		// 支持 HttpEntity|RequestEntity类型的参数
 		return (HttpEntity.class == parameter.getParameterType() ||
 				RequestEntity.class == parameter.getParameterType());
 	}
 
 	@Override
 	public boolean supportsReturnType(MethodParameter returnType) {
+		// 支持 HttpEntity 类型 且不是 RequestEntity 类型的返回值
 		return (HttpEntity.class.isAssignableFrom(returnType.getParameterType()) &&
 				!RequestEntity.class.isAssignableFrom(returnType.getParameterType()));
 	}
@@ -119,16 +121,18 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
 	public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
 			NativeWebRequest webRequest, WebDataBinderFactory binderFactory)
 			throws IOException, HttpMediaTypeNotSupportedException {
-
+		// 构建 ServletServerHttpRequest
 		ServletServerHttpRequest inputMessage = createInputMessage(webRequest);
+		// 获取参数的类型
 		Type paramType = getHttpEntityType(parameter);
 		if (paramType == null) {
 			throw new IllegalArgumentException("HttpEntity parameter '" + parameter.getParameterName() +
 					"' in method " + parameter.getMethod() + " is not parameterized");
 		}
-
+		// 通过 HttpMessageConverter 进行数据的转换
 		Object body = readWithMessageConverters(webRequest, parameter, paramType);
 		if (RequestEntity.class == parameter.getParameterType()) {
+			// 构建返回值 RequestEntity
 			return new RequestEntity<Object>(body, inputMessage.getHeaders(),
 					inputMessage.getMethod(), inputMessage.getURI());
 		}
@@ -136,7 +140,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
 			return new HttpEntity<Object>(body, inputMessage.getHeaders());
 		}
 	}
-
+	// 获取参数的类型
 	private Type getHttpEntityType(MethodParameter parameter) {
 		Assert.isAssignable(HttpEntity.class, parameter.getParameterType());
 		Type parameterType = parameter.getGenericParameterType();

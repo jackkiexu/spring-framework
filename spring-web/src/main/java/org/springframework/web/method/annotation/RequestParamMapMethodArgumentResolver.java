@@ -45,14 +45,16 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * @since 3.1
  * @see RequestParamMethodArgumentResolver
  */
+// 从 HttpServletRequest 里面获取所有请求参数, 最后封装成 LinkedHashMap|LinkedMultiValueMap 的参数解析器
 public class RequestParamMapMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
+		// 获取参数上面的 @RequestParam
 		RequestParam requestParam = parameter.getParameterAnnotation(RequestParam.class);
 		if (requestParam != null) {
 			if (Map.class.isAssignableFrom(parameter.getParameterType())) {
-				return !StringUtils.hasText(requestParam.name());
+				return !StringUtils.hasText(requestParam.name()); // 若参数是 Map 类型, 且 @RequestParam 中没有指定 name, 则返回 true
 			}
 		}
 		return false;
@@ -61,13 +63,13 @@ public class RequestParamMapMethodArgumentResolver implements HandlerMethodArgum
 	@Override
 	public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
 			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
-
+		// 获取参数的类型
 		Class<?> paramType = parameter.getParameterType();
-
+		// 获取 HttpServletRequest 的 parameterMap
 		Map<String, String[]> parameterMap = webRequest.getParameterMap();
-		if (MultiValueMap.class.isAssignableFrom(paramType)) {
+		if (MultiValueMap.class.isAssignableFrom(paramType)) { // 若参数类型是 MultiValueMap
 			MultiValueMap<String, String> result = new LinkedMultiValueMap<String, String>(parameterMap.size());
-			for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
+			for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) { // 将 parameterMap 中的数据装载到 MultiValueMap 中
 				for (String value : entry.getValue()) {
 					result.add(entry.getKey(), value);
 				}
@@ -75,7 +77,7 @@ public class RequestParamMapMethodArgumentResolver implements HandlerMethodArgum
 			return result;
 		}
 		else {
-			Map<String, String> result = new LinkedHashMap<String, String>(parameterMap.size());
+			Map<String, String> result = new LinkedHashMap<String, String>(parameterMap.size()); // 将 parameterMap 所有数据都装载到 result 里面
 			for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
 				if (entry.getValue().length > 0) {
 					result.put(entry.getKey(), entry.getValue()[0]);

@@ -40,9 +40,9 @@ import org.springframework.web.servlet.View;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
- * Resolves method arguments annotated with an @{@link PathVariable}.
+ * Resolves method arguments annotated with an @{@link PathVariable}.  被 @PathVariable 修饰的参数
  *
- * <p>An @{@link PathVariable} is a named value that gets resolved from a URI template variable.
+ * <p>An @{@link PathVariable} is a named value that gets resolved from a URI template variable. 从 URI 模版变量中获取对应的数据 (URI 模版变量 在 HandlerMapping 里面进行解决)
  * It is always required and does not have a default value to fall back on. See the base class
  * {@link org.springframework.web.method.annotation.AbstractNamedValueMethodArgumentResolver}
  * for more information on how named values are processed.
@@ -67,6 +67,9 @@ public class PathVariableMethodArgumentResolver extends AbstractNamedValueMethod
 	private static final TypeDescriptor STRING_TYPE_DESCRIPTOR = TypeDescriptor.valueOf(String.class);
 
 
+	/** 参数不被 @PathVariable 注解修饰, 则返回false
+	 *  参数类型是 Map, @PathVariable.value != null
+	 */
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {							// 参数被 @PathVariable 所注解,其次若参数是 Map 类型, 必须指定 @PathVariable 的值
 		if (!parameter.hasParameterAnnotation(PathVariable.class)) {
@@ -81,6 +84,7 @@ public class PathVariableMethodArgumentResolver extends AbstractNamedValueMethod
 
 	@Override
 	protected NamedValueInfo createNamedValueInfo(MethodParameter parameter) {
+		// 基于 @PathVariable 构建 NamedValueInfo
 		PathVariable annotation = parameter.getParameterAnnotation(PathVariable.class);
 		return new PathVariableNamedValueInfo(annotation);
 	}
@@ -88,6 +92,7 @@ public class PathVariableMethodArgumentResolver extends AbstractNamedValueMethod
 	@Override
 	@SuppressWarnings("unchecked")
 	protected Object resolveName(String name, MethodParameter parameter, NativeWebRequest request) throws Exception {
+		// 通过 URI template variables 来解决变量
 		Map<String, String> uriTemplateVars = (Map<String, String>) request.getAttribute(
 				HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, RequestAttributes.SCOPE_REQUEST);
 		return (uriTemplateVars != null ? uriTemplateVars.get(name) : null);
@@ -98,6 +103,7 @@ public class PathVariableMethodArgumentResolver extends AbstractNamedValueMethod
 		throw new MissingPathVariableException(name, parameter);
 	}
 
+	// 将 解决好的数据放入 HttpServletRequest 中
 	@Override
 	@SuppressWarnings("unchecked")
 	protected void handleResolvedValue(Object arg, String name, MethodParameter parameter,

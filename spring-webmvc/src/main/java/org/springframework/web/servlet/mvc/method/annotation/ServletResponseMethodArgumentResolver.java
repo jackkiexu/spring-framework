@@ -43,6 +43,9 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 // 针对 一些基础类的参数解决, 参数的获取一般通过 HttpServletResponse
 public class ServletResponseMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
+	/**
+	 * 支持 ServletResponse | OutputStream | Writer 类型
+	 */
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
 		Class<?> paramType = parameter.getParameterType();
@@ -62,12 +65,13 @@ public class ServletResponseMethodArgumentResolver implements HandlerMethodArgum
 			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {			// 这里的解决参数, 其实就是获取 ServletHttpResponse
 
 		if (mavContainer != null) {
-			mavContainer.setRequestHandled(true);
+			mavContainer.setRequestHandled(true);  // 标志 请求被处理过了, 视图解析就不需要了
 		}
-
+		// 获取 HttpServletResponse
 		HttpServletResponse response = webRequest.getNativeResponse(HttpServletResponse.class);
+		// 获取参数的类型
 		Class<?> paramType = parameter.getParameterType();
-
+		// 若参数是 ServletResponse(这个类在 Servlet 中) 类型, 则直接通过 NativeWebRequest 来进行获取
 		if (ServletResponse.class.isAssignableFrom(paramType)) {
 			Object nativeResponse = webRequest.getNativeResponse(paramType);
 			if (nativeResponse == null) {
@@ -76,9 +80,11 @@ public class ServletResponseMethodArgumentResolver implements HandlerMethodArgum
 			}
 			return nativeResponse;
 		}
+		// 若参数类型是 OutputStream, 则直接通过 HttpServletResponse 获取输出数据流
 		else if (OutputStream.class.isAssignableFrom(paramType)) {
 			return response.getOutputStream();
 		}
+		// 若参数类型是 Writer, 则直接通过 HttpServletResponse 获取 Writer
 		else if (Writer.class.isAssignableFrom(paramType)) {
 			return response.getWriter();
 		}

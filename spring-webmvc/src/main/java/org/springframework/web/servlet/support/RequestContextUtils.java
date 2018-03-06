@@ -50,7 +50,7 @@ import org.springframework.web.servlet.ThemeResolver;
  * @see RequestContext
  * @see org.springframework.web.servlet.DispatcherServlet
  */
-public abstract class RequestContextUtils {
+public abstract class RequestContextUtils { // 这个类主要还是对 Request 里面数据的操作
 
 	/**
 	 * The name of the bean to use to look up in an implementation of
@@ -93,7 +93,7 @@ public abstract class RequestContextUtils {
 	 * {@link #findWebApplicationContext(HttpServletRequest, ServletContext)}
 	 */
 	@Deprecated
-	public static WebApplicationContext getWebApplicationContext(
+	public static WebApplicationContext getWebApplicationContext(  // 通过 ServletRequest | ServletContext 获取 父子 WebApplicationContext
 			ServletRequest request, ServletContext servletContext) throws IllegalStateException {
 
 		WebApplicationContext webApplicationContext = (WebApplicationContext) request.getAttribute(
@@ -123,7 +123,7 @@ public abstract class RequestContextUtils {
 	 * @see WebApplicationContextUtils#getWebApplicationContext(ServletContext)
 	 * @see ContextLoader#getCurrentWebApplicationContext()
 	 */
-	public static WebApplicationContext findWebApplicationContext(
+	public static WebApplicationContext findWebApplicationContext( // 通过 ServletRequest | ServletContext 获取 父子 WebApplicationContext
 			HttpServletRequest request, ServletContext servletContext) {
 
 		WebApplicationContext webApplicationContext = (WebApplicationContext) request.getAttribute(

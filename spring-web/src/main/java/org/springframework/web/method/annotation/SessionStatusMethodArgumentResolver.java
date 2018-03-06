@@ -30,10 +30,11 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * @author Rossen Stoyanchev
  * @since 3.1
  */
+// 直接通过 ModelAndViewContainer 获取 SessionStatus 的参数解析器
 public class SessionStatusMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
 	@Override
-	public boolean supportsParameter(MethodParameter parameter) {
+	public boolean supportsParameter(MethodParameter parameter) { // 解决参数类型是 SessionStatus
 		return SessionStatus.class == parameter.getParameterType();
 	}
 
@@ -41,7 +42,7 @@ public class SessionStatusMethodArgumentResolver implements HandlerMethodArgumen
 	public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
 			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
 
-		return mavContainer.getSessionStatus();
+		return mavContainer.getSessionStatus(); // 从 ModelAndViewContainer 中获取 SessionStatus
 	}
 
 }

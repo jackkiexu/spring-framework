@@ -104,7 +104,7 @@ public abstract class Conventions {
 	 * @param parameter the method or constructor parameter to generate a variable name for
 	 * @return the generated variable name
 	 */
-	public static String getVariableNameForParameter(MethodParameter parameter) {
+	public static String getVariableNameForParameter(MethodParameter parameter) { // 获取参数的名称
 		Assert.notNull(parameter, "MethodParameter must not be null");
 		Class<?> valueClass;
 		boolean pluralize = false;

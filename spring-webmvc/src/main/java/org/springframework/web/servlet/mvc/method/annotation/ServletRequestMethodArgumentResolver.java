@@ -58,12 +58,24 @@ import org.springframework.web.servlet.support.RequestContextUtils;
  * @author Juergen Hoeller
  * @since 3.1
  */
-// 针对 一些基础类的参数解决, 参数的获取一般通过 HttpServletRequest
+// 针对 一些基础类的参数解决, 参数的获取一般通过 HttpServletRequest|LocaleResolver
 public class ServletRequestMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
 		Class<?> paramType = parameter.getParameterType();
+		/** 解决下面这些类型的参数
+		 *  1. WebRequest
+		 *  2. ServletRequest
+		 *  3. MultipartRequest
+		 *  4. Principal
+		 *  5. InputStream
+		 *  6. Reader
+		 *  7. HttpMethod
+		 *  8. Locale
+		 *  9. TimeZone
+		 *  10. ZoneId
+		 */
 		return (WebRequest.class.isAssignableFrom(paramType) ||
 				ServletRequest.class.isAssignableFrom(paramType) ||
 				MultipartRequest.class.isAssignableFrom(paramType) ||
@@ -80,8 +92,9 @@ public class ServletRequestMethodArgumentResolver implements HandlerMethodArgume
 	@Override
 	public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
 			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {		// 这里其实就是从 webRequest 里面获取 Support 的那几种类型的数据
-
+		// 获取参数的类型
 		Class<?> paramType = parameter.getParameterType();
+		// 若参数类型是 WebRequest, 则直接返回 NativeWebRequest
 		if (WebRequest.class.isAssignableFrom(paramType)) {
 			if (!paramType.isInstance(webRequest)) {
 				throw new IllegalStateException(
@@ -89,8 +102,9 @@ public class ServletRequestMethodArgumentResolver implements HandlerMethodArgume
 			}
 			return webRequest;
 		}
-
+		// 从 NativeWebRequest 中获取 HttpServletRequest
 		HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
+		// 若 参数是 ServletRequest | MultipartRequest, 则直接从 NativeWebRequest 中获取
 		if (ServletRequest.class.isAssignableFrom(paramType) || MultipartRequest.class.isAssignableFrom(paramType)) {
 			Object nativeRequest = webRequest.getNativeRequest(paramType);
 			if (nativeRequest == null) {
@@ -99,6 +113,7 @@ public class ServletRequestMethodArgumentResolver implements HandlerMethodArgume
 			}
 			return nativeRequest;
 		}
+		// 若参数是 HttpSession, 则直接通过 HttpServletRequest 来进行获取
 		else if (HttpSession.class.isAssignableFrom(paramType)) {
 			HttpSession session = request.getSession();
 			if (session != null && !paramType.isInstance(session)) {
@@ -107,6 +122,7 @@ public class ServletRequestMethodArgumentResolver implements HandlerMethodArgume
 			}
 			return session;
 		}
+		// 若请求参数是 InputStream, 则直接通过 HttpServletRequest 获取
 		else if (InputStream.class.isAssignableFrom(paramType)) {
 			InputStream inputStream = request.getInputStream();
 			if (inputStream != null && !paramType.isInstance(inputStream)) {
@@ -115,6 +131,7 @@ public class ServletRequestMethodArgumentResolver implements HandlerMethodArgume
 			}
 			return inputStream;
 		}
+		// 若请求参数是 Reader, 则直接通过 HttpServletRequest 获取
 		else if (Reader.class.isAssignableFrom(paramType)) {
 			Reader reader = request.getReader();
 			if (reader != null && !paramType.isInstance(reader)) {
@@ -123,6 +140,7 @@ public class ServletRequestMethodArgumentResolver implements HandlerMethodArgume
 			}
 			return reader;
 		}
+		// 若请求参数是 Reader, 则直接通过 HttpServletRequest 获取
 		else if (Principal.class.isAssignableFrom(paramType)) {
 			Principal userPrincipal = request.getUserPrincipal();
 			if (userPrincipal != null && !paramType.isInstance(userPrincipal)) {
@@ -131,16 +149,20 @@ public class ServletRequestMethodArgumentResolver implements HandlerMethodArgume
 			}
 			return userPrincipal;
 		}
+		// 若请求参数是 HttpMethod, 则直接通过 HttpServletRequest 获取
 		else if (HttpMethod.class == paramType) {
 			return HttpMethod.resolve(request.getMethod());
 		}
+		// 若请求参数是 Locale, 则直接通过 LocaleResolver 获取
 		else if (Locale.class == paramType) {
 			return RequestContextUtils.getLocale(request);
 		}
+		// 若请求参数是 TimeZone, 则直接通过 LocaleResolver 获取
 		else if (TimeZone.class == paramType) {
 			TimeZone timeZone = RequestContextUtils.getTimeZone(request);
 			return (timeZone != null ? timeZone : TimeZone.getDefault());
 		}
+		// 若请求参数是 ZoneId, 则直接通过 LocaleResolver 获取
 		else if ("java.time.ZoneId".equals(paramType.getName())) {
 			return ZoneIdResolver.resolveZoneId(request);
 		}

@@ -50,12 +50,15 @@ public class ServletCookieValueMethodArgumentResolver extends AbstractCookieValu
 
 	@Override
 	protected Object resolveName(String cookieName, MethodParameter parameter, NativeWebRequest webRequest) throws Exception {
+		// 获取 HttpServletRequest
 		HttpServletRequest servletRequest = webRequest.getNativeRequest(HttpServletRequest.class);
+		// 获取 Http 请求中的Cookie
 		Cookie cookieValue = WebUtils.getCookie(servletRequest, cookieName);
+		// 若参数是 Cookie 类型, 则直接返回 cookieValue
 		if (Cookie.class.isAssignableFrom(parameter.getNestedParameterType())) {
 			return cookieValue;
 		}
-		else if (cookieValue != null) {
+		else if (cookieValue != null) { // URLDecode 一下 cookie 的值
 			return this.urlPathHelper.decodeRequestString(servletRequest, cookieValue.getValue());
 		}
 		else {

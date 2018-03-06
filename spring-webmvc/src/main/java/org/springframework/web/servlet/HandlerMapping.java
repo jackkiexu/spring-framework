@@ -100,7 +100,7 @@ public interface HandlerMapping {
 	 * HandlerMapping implementations and may also not be present depending on
 	 * whether the HandlerMapping is configured to keep matrix variable content
 	 * in the request URI.
-	 */ // 提取了 ; 后存储的 uri template 变量值
+	 */ // 提取了 ; 后存储的 uri template 变量值 (一对多)
 	String MATRIX_VARIABLES_ATTRIBUTE = HandlerMapping.class.getName() + ".matrixVariables";
 
 	/**

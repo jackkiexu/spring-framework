@@ -48,9 +48,10 @@ public class MatrixVariableMapMethodArgumentResolver implements HandlerMethodArg
 
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
+		// 获取参数上的 @MatrixVariable
 		MatrixVariable matrixVariable = parameter.getParameterAnnotation(MatrixVariable.class);
 		if (matrixVariable != null) {
-			if (Map.class.isAssignableFrom(parameter.getParameterType())) {
+			if (Map.class.isAssignableFrom(parameter.getParameterType())) { // 参数是 Map 类型, 且 MatrixVariable.name == null
 				return !StringUtils.hasText(matrixVariable.name());
 			}
 		}
@@ -61,6 +62,7 @@ public class MatrixVariableMapMethodArgumentResolver implements HandlerMethodArg
 	public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
 			NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
 
+		// 从 HttpServletRequest 中获取 URI 模版变量 <-- 并且是去除 ;
 		@SuppressWarnings("unchecked")
 		Map<String, MultiValueMap<String, String>> matrixVariables =
 				(Map<String, MultiValueMap<String, String>>) request.getAttribute(
@@ -71,16 +73,18 @@ public class MatrixVariableMapMethodArgumentResolver implements HandlerMethodArg
 		}
 
 		MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
+		// 获取 MatrixVariable.pathVar
 		String pathVariable = parameter.getParameterAnnotation(MatrixVariable.class).pathVar();
 
-		if (!pathVariable.equals(ValueConstants.DEFAULT_NONE)) {
+		if (!pathVariable.equals(ValueConstants.DEFAULT_NONE)) {  // 若设置了 pathVar
+			// 从 matrixVariables 中获取 pathVariable 对应的数据
 			MultiValueMap<String, String> mapForPathVariable = matrixVariables.get(pathVariable);
 			if (mapForPathVariable == null) {
 				return Collections.emptyMap();
 			}
 			map.putAll(mapForPathVariable);
 		}
-		else {
+		else { // 若没有指定 pathVar, 则直接返回所有 matrixVariables 的值
 			for (MultiValueMap<String, String> vars : matrixVariables.values()) {
 				for (String name : vars.keySet()) {
 					for (String value : vars.get(name)) {
@@ -93,6 +97,7 @@ public class MatrixVariableMapMethodArgumentResolver implements HandlerMethodArg
 		return (isSingleValueMap(parameter) ? map.toSingleValueMap() : map);
 	}
 
+	// 判断是否是单纯 key <--> value
 	private boolean isSingleValueMap(MethodParameter parameter) {
 		if (!MultiValueMap.class.isAssignableFrom(parameter.getParameterType())) {
 			ResolvableType[] genericTypes = ResolvableType.forMethodParameter(parameter).getGenerics();

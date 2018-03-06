@@ -39,18 +39,20 @@ import org.springframework.web.method.annotation.AbstractNamedValueMethodArgumen
 public class SessionAttributeMethodArgumentResolver extends AbstractNamedValueMethodArgumentResolver {
 
 	@Override
-	public boolean supportsParameter(MethodParameter parameter) {
+	public boolean supportsParameter(MethodParameter parameter) { // 参数被 @SessionAttribute 注解修饰
 		return parameter.hasParameterAnnotation(SessionAttribute.class);
 	}
 
 	@Override
 	protected NamedValueInfo createNamedValueInfo(MethodParameter parameter) {
+		// 创建 @SessionAttribute 对应的 NamedValueInfo
 		SessionAttribute ann = parameter.getParameterAnnotation(SessionAttribute.class);
 		return new NamedValueInfo(ann.name(), ann.required(), ValueConstants.DEFAULT_NONE);
 	}
 
 	@Override
 	protected Object resolveName(String name, MethodParameter parameter, NativeWebRequest request){
+		// 从 HttpServletRequest 中获取对应 name 的值, 作用域是 Session 范围
 		return request.getAttribute(name, RequestAttributes.SCOPE_SESSION);
 	}
 

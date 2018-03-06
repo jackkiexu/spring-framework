@@ -46,6 +46,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * @author Rossen Stoyanchev
  * @since 3.1
  */
+// 适配 通过 WebArgumentResolver 来进行解析参数的 HandlerMethodArgumentResolver  <-- 激活不用了
 public abstract class AbstractWebArgumentResolverAdapter implements HandlerMethodArgumentResolver {
 
 	private final Log logger = LogFactory.getLog(getClass());

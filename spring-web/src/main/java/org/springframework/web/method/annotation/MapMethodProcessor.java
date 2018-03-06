@@ -41,19 +41,19 @@ public class MapMethodProcessor implements HandlerMethodArgumentResolver, Handle
 
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
-		return Map.class.isAssignableFrom(parameter.getParameterType());
+		return Map.class.isAssignableFrom(parameter.getParameterType());  // 参数是 Map 类型
 	}
 
 	@Override
 	public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
 			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
 
-		return mavContainer.getModel();
+		return mavContainer.getModel(); // 直接从 ModelAndViewContainer 获取 Model
 	}
 
 	@Override
 	public boolean supportsReturnType(MethodParameter returnType) {
-		return Map.class.isAssignableFrom(returnType.getParameterType());
+		return Map.class.isAssignableFrom(returnType.getParameterType()); // 返回值是 Map 类型
 	}
 
 	@Override
@@ -64,7 +64,7 @@ public class MapMethodProcessor implements HandlerMethodArgumentResolver, Handle
 		if (returnValue == null) {
 			return;
 		}
-		else if (returnValue instanceof Map){
+		else if (returnValue instanceof Map){ // 将 Map 加入到 ModelAndViewContainer 中
 			mavContainer.addAllAttributes((Map) returnValue);
 		}
 		else {

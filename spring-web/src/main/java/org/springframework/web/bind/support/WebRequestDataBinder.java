@@ -112,14 +112,18 @@ public class WebRequestDataBinder extends WebDataBinder {
 	 * @see javax.servlet.http.Part
 	 * @see #bind(org.springframework.beans.PropertyValues)
 	 */
+	// 将 HttpServletRequest 中的参数绑定到 DataBinder 的target上
 	public void bind(WebRequest request) { // 进行参数的绑定
+		// 依据 HttpServletRequest.getParameterMap 构建 MutablePropertyValues
 		MutablePropertyValues mpvs = new MutablePropertyValues(request.getParameterMap());
+		// 若是 Multipart 类型的数据, 则通过这里进行绑定
 		if (isMultipartRequest(request) && request instanceof NativeWebRequest) {
 			MultipartRequest multipartRequest = ((NativeWebRequest) request).getNativeRequest(MultipartRequest.class);
 			if (multipartRequest != null) {
 				bindMultipart(multipartRequest.getMultiFileMap(), mpvs);
 			}
 			else if (servlet3Parts) {
+				// 绑定 Part
 				HttpServletRequest serlvetRequest = ((NativeWebRequest) request).getNativeRequest(HttpServletRequest.class);
 				new Servlet3MultipartHelper(isBindEmptyMultipartFiles()).bindParts(serlvetRequest, mpvs);
 			}

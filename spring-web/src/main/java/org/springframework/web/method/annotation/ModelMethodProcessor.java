@@ -27,32 +27,31 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 /**
  * Resolves {@link Model} arguments and handles {@link Model} return values.
  *
- * <p>A {@link Model} return type has a set purpose. Therefore this handler
+ * <p>A {@link Model} return type has a set purpose. Therefore(因此|所以) this handler
  * should be configured ahead of handlers that support any return value type
- * annotated with {@code @ModelAttribute} or {@code @ResponseBody} to ensure
+ * annotated with {@code @ModelAttribute} or {@code @ResponseBody} to ensure 放在解析 @ModelAttribute @ResponseBody 之前
  * they don't take over.
  *
  * @author Rossen Stoyanchev
  * @since 3.1
  */
-// 针对 Model及其子类的参数, 数据的获取一般通过 ModelAndViewContainer.getModel()
-// 针对 Model 及其子类的返回值处理器, 主要还是将 ModelAndView 中的 model 设置到 ModelAndViewContainer
+// HandlerMethodArgumentResolver: 针对 Model及其子类的参数, 数据的获取一般通过 ModelAndViewContainer.getModel()
+// HandlerMethodReturnValueHandler: 针对 Model 及其子类的返回值处理器, 主要还是将 ModelAndView 中的 model 设置到 ModelAndViewContainer
 public class ModelMethodProcessor implements HandlerMethodArgumentResolver, HandlerMethodReturnValueHandler {
 
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
-		return Model.class.isAssignableFrom(parameter.getParameterType());
+		return Model.class.isAssignableFrom(parameter.getParameterType());  //  参数类型是 Model
 	}
 
 	@Override
 	public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
 			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
-
-		return mavContainer.getModel();
+		return mavContainer.getModel(); // 直接通过 ModelAndViewContainer 获取
 	}
 
 	@Override
-	public boolean supportsReturnType(MethodParameter returnType) {
+	public boolean supportsReturnType(MethodParameter returnType) { // 参数类型是 Model
 		return Model.class.isAssignableFrom(returnType.getParameterType());
 	}
 
@@ -60,10 +59,10 @@ public class ModelMethodProcessor implements HandlerMethodArgumentResolver, Hand
 	public void handleReturnValue(Object returnValue, MethodParameter returnType,
 			ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
 
-		if (returnValue == null) {
+		if (returnValue == null) { // 若返回值是 null, 则直接返回
 			return;
 		}
-		else if (returnValue instanceof Model) {
+		else if (returnValue instanceof Model) { // 若返回值是 Model, 则将 Model 中的属性全部设置到 ModelAndViewContainer 中
 			mavContainer.addAllAttributes(((Model) returnValue).asMap());
 		}
 		else {

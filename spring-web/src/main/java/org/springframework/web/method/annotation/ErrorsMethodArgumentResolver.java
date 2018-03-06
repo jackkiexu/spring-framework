@@ -43,18 +43,18 @@ public class ErrorsMethodArgumentResolver implements HandlerMethodArgumentResolv
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
 		Class<?> paramType = parameter.getParameterType();
-		return Errors.class.isAssignableFrom(paramType);
+		return Errors.class.isAssignableFrom(paramType);  // 参数是 Errors 类型
 	}
 
 	@Override
 	public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
 			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
 
-		ModelMap model = mavContainer.getModel();
+		ModelMap model = mavContainer.getModel(); // 从 ModelAndViewContainer 中获取 ModelMap
 		if (model.size() > 0) {
 			int lastIndex = model.size()-1;
 			String lastKey = new ArrayList<String>(model.keySet()).get(lastIndex);
-			if (lastKey.startsWith(BindingResult.MODEL_KEY_PREFIX)) {
+			if (lastKey.startsWith(BindingResult.MODEL_KEY_PREFIX)) { // 从 ModelMap.keySet 获取 key不以 BindingResult 开头的 value
 				return model.get(lastKey);
 			}
 		}

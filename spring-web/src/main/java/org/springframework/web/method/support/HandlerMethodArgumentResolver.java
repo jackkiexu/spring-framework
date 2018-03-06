@@ -40,12 +40,13 @@ public interface HandlerMethodArgumentResolver {
 	 * @return {@code true} if this resolver supports the supplied parameter;
 	 * {@code false} otherwise
 	 */
-	boolean supportsParameter(MethodParameter parameter);					// 判断 这个 HandlerMethodArgumentResolver 是否支持 resolver 这个参数
+	// 判断 HandlerMethodArgumentResolver 是否支持 MethodParameter(PS: 一般都是通过 参数上面的注解|参数的类型)
+	boolean supportsParameter(MethodParameter parameter);
 
 	/**
 	 * Resolves a method parameter into an argument value from a given request.
-	 * A {@link ModelAndViewContainer} provides access to the model for the
-	 * request. A {@link WebDataBinderFactory} provides a way to create
+	 * A {@link ModelAndViewContainer} provides access to the model for the     ModelAndViewContainer -> 提供访问 model 的入口
+	 * request. A {@link WebDataBinderFactory} provides a way to create         WebDataBinderFactory -> 提供创建 DataBinder 的入口
 	 * a {@link WebDataBinder} instance when needed for data binding and
 	 * type conversion purposes.
 	 * @param parameter the method parameter to resolve. This parameter must

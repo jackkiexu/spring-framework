@@ -51,11 +51,13 @@ public class ExpressionValueMethodArgumentResolver extends AbstractNamedValueMet
 
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
+		// 参数被 @Value 修饰
 		return parameter.hasParameterAnnotation(Value.class);
 	}
 
 	@Override
 	protected NamedValueInfo createNamedValueInfo(MethodParameter parameter) {
+		// 构建基于 @Value 的 NamedValueInfo
 		Value annotation = parameter.getParameterAnnotation(Value.class);
 		return new ExpressionValueNamedValueInfo(annotation);
 	}

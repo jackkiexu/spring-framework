@@ -293,6 +293,7 @@ public class WebDataBinder extends DataBinder {
 	 * @see org.springframework.web.multipart.MultipartFile
 	 * @see #setBindEmptyMultipartFiles
 	 */
+	// 绑定 MultipartFile 数据放到 MutablePropertyValues 中
 	protected void bindMultipart(Map<String, List<MultipartFile>> multipartFiles, MutablePropertyValues mpvs) {
 		for (Map.Entry<String, List<MultipartFile>> entry : multipartFiles.entrySet()) {
 			String key = entry.getKey();

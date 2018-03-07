@@ -43,12 +43,12 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver;
 
 /**
- * Resolves method arguments annotated with {@code @RequestBody} and handles return
- * values from methods annotated with {@code @ResponseBody} by reading and writing
+ * Resolves method arguments annotated with {@code @RequestBody} and handles return  // 解决被 @RequestBody 修饰的参数
+ * values from methods annotated with {@code @ResponseBody} by reading and writing   // 解决被 @ResponseBody 修饰的返回值
  * to the body of the request or response with an {@link HttpMessageConverter}.
  *
- * <p>An {@code @RequestBody} method argument is also validated if it is annotated
- * with {@code @javax.validation.Valid}. In case of validation failure,
+ * <p>An {@code @RequestBody} method argument is also validated if it is annotated   // 若参数被 Valid 注解修饰, 则将会被校验器进行校验
+ * with {@code @javax.validation.Valid}. In case of validation failure,				 // 若校验失败, 则异常 MethodArgumentNotValidException 抛出来
  * {@link MethodArgumentNotValidException} is raised and results in an HTTP 400
  * response status code if {@link DefaultHandlerExceptionResolver} is configured.
  *
@@ -69,6 +69,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 	 * {@code @RequestBody}. For handling {@code @ResponseBody} consider also
 	 * providing a {@code ContentNegotiationManager}.
 	 */
+	// 基于 HttpMessageConverter 的构造函数
 	public RequestResponseBodyMethodProcessor(List<HttpMessageConverter<?>> converters) {
 		super(converters);
 	}
@@ -79,6 +80,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 	 * {@code @ResponseBody} without {@code Request~} or
 	 * {@code ResponseBodyAdvice}.
 	 */
+	// 基于 HttpMessageConverter 与 ContentNegotiationManager(PS: 作用 -> 根据请求 uri 尾缀, 或 Header 中的信息, 来决定 MediaType)
 	public RequestResponseBodyMethodProcessor(List<HttpMessageConverter<?>> converters,
 			ContentNegotiationManager manager) {
 
@@ -91,6 +93,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 	 * {@code ContentNegotiationManager}.
 	 * @since 4.2
 	 */
+	// 根据 HttpMessageConverter 与 requestResponseBodyAdvice(request|response 增强器)
 	public RequestResponseBodyMethodProcessor(List<HttpMessageConverter<?>> converters,
 			List<Object> requestResponseBodyAdvice) {
 
@@ -101,6 +104,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 	 * Complete constructor for resolving {@code @RequestBody} and handling
 	 * {@code @ResponseBody}.
 	 */
+	// 根据 HttpMessageConverter, ContentNegotiationManager(PS: 作用 -> 根据请求 uri 尾缀, 或 Header 中的信息, 来决定 MediaType), requestResponseBodyAdvice(读数据|写数据的增强器) 的构造函数
 	public RequestResponseBodyMethodProcessor(List<HttpMessageConverter<?>> converters,
 			ContentNegotiationManager manager, List<Object> requestResponseBodyAdvice) {
 
@@ -109,7 +113,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 
 
 	@Override
-	public boolean supportsParameter(MethodParameter parameter) {	// 若参数被 @RequestBody 注释则支持
+	public boolean supportsParameter(MethodParameter parameter) {	// 若参数被 @RequestBody 注释则支持, 则对参数进行解析
 		return parameter.hasParameterAnnotation(RequestBody.class);
 	}
 
@@ -134,11 +138,13 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 		parameter = parameter.nestedIfOptional();	// 获取嵌套参数 <- 有可能参数是用 Optional
 		// 通过 HttpMessageConverter 来将数据转换成合适的类型
 		Object arg = readWithMessageConverters(webRequest, parameter, parameter.getNestedGenericParameterType());
-		String name = Conventions.getVariableNameForParameter(parameter);		  // 获取参数的名字
-
-		WebDataBinder binder = binderFactory.createBinder(webRequest, arg, name); // arg 参数的值, name 参数的名字
+		// 获取参数的名字
+		String name = Conventions.getVariableNameForParameter(parameter);
+		// 进行参数的绑定操作
+		WebDataBinder binder = binderFactory.createBinder(webRequest, arg, name);
 		if (arg != null) {
-			validateIfApplicable(binder, parameter);		// @Validated 进行参数的校验
+			// @Validated 进行参数的校验
+			validateIfApplicable(binder, parameter);
 			if (binder.getBindingResult().hasErrors() && isBindExceptionRequired(binder, parameter)) { // 若有异常则直接暴出来
 				throw new MethodArgumentNotValidException(parameter, binder.getBindingResult());
 			}
@@ -151,15 +157,15 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 	@Override
 	protected <T> Object readWithMessageConverters(NativeWebRequest webRequest, MethodParameter parameter,
 			Type paramType) throws IOException, HttpMediaTypeNotSupportedException, HttpMessageNotReadableException {
-
-		HttpServletRequest servletRequest = webRequest.getNativeRequest(HttpServletRequest.class);	// 从 NativeWebRequest 中获取  HttpServletRequest
-		ServletServerHttpRequest inputMessage = new ServletServerHttpRequest(servletRequest);       // 封装 ServletServerHttpRequest
-		// 通过 InputMessage 中读取参数的内容, 其中 paramType 是参数的类型
+		// 从 NativeWebRequest 中获取  HttpServletRequest
+		HttpServletRequest servletRequest = webRequest.getNativeRequest(HttpServletRequest.class);
+		// 封装 ServletServerHttpRequest
+		ServletServerHttpRequest inputMessage = new ServletServerHttpRequest(servletRequest);
+		// 通过 InputMessage 中读取参数的内容, 并且 通过 HttpMessageConverter 来将数据转换成 paramType 类型的参数
 		Object arg = readWithMessageConverters(inputMessage, parameter, paramType);
 		if (arg == null) {
-			if (checkRequired(parameter)) {
-				throw new HttpMessageNotReadableException("Required request body is missing: " +
-						parameter.getMethod().toGenericString());
+			if (checkRequired(parameter)) { // 检测参数是否是必需的
+				throw new HttpMessageNotReadableException("Required request body is missing: " + parameter.getMethod().toGenericString());
 			}
 		}
 		return arg; // 返回参数值
@@ -169,15 +175,18 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 		return (parameter.getParameterAnnotation(RequestBody.class).required() && !parameter.isOptional());
 	}
 
+	// 处理返回值
 	@Override
 	public void handleReturnValue(Object returnValue, MethodParameter returnType,
 			ModelAndViewContainer mavContainer, NativeWebRequest webRequest)
 			throws IOException, HttpMediaTypeNotAcceptableException, HttpMessageNotWritableException {
 
 		mavContainer.setRequestHandled(true); // 标志请求被处理过了, 则 视图解析就不需要了
+		// 创建 ServletServerHttpRequest
 		ServletServerHttpRequest inputMessage = createInputMessage(webRequest);
+		// 创建 ServletServerHttpResponse
 		ServletServerHttpResponse outputMessage = createOutputMessage(webRequest);
-
+		// 将数据转换成指定的格式, 写到远端
 		// Try even with null return value. ResponseBodyAdvice could get involved.
 		writeWithMessageConverters(returnValue, returnType, inputMessage, outputMessage);
 	}

@@ -83,9 +83,9 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 		RAW_URL_PATH_HELPER.setUrlDecode(false);
 	}
 
-
+	// 根据 Header | URI 中的信息获取请求的 MediaType
 	private final ContentNegotiationManager contentNegotiationManager;
-
+	// 根据 URI 的扩展名 来获取对应的 MediaType
 	private final PathExtensionContentNegotiationStrategy pathStrategy;
 
 	private final Set<String> safeExtensions = new HashSet<String>();
@@ -196,7 +196,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 				}
 			}
 		}
-		if (compatibleMediaTypes.isEmpty()) {
+		if (compatibleMediaTypes.isEmpty()) { // 未出现两者都兼容的 MediaType, 则直接抛出异常
 			if (outputValue != null) {
 				throw new HttpMediaTypeNotAcceptableException(producibleMediaTypes);
 			}
@@ -207,7 +207,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 		MediaType.sortBySpecificityAndQuality(mediaTypes);	// 将所有的 MediaType 进行排序
 
 		MediaType selectedMediaType = null;
-		for (MediaType mediaType : mediaTypes) {		// 筛选出其中一个 mediaType
+		for (MediaType mediaType : mediaTypes) {			// 筛选出其中一个 mediaType
 			if (mediaType.isConcrete()) {
 				selectedMediaType = mediaType;
 				break;
@@ -223,35 +223,29 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 			for (HttpMessageConverter<?> messageConverter : this.messageConverters) {	// 下面进行选择 converter 时, 加入 MediaType 作为考虑
 				// 下面分类 HttpMessageConverter 进行分开处理 <-- 先是支持 Type 的 HttpMessageConverter
 				if (messageConverter instanceof GenericHttpMessageConverter) {
-					if (((GenericHttpMessageConverter) messageConverter).canWrite(
-							declaredType, valueType, selectedMediaType)) { // 通过 Advice beforeBodyWrite 处理一下
-						outputValue = (T) getAdvice().beforeBodyWrite(outputValue, returnType, selectedMediaType,
-								(Class<? extends HttpMessageConverter<?>>) messageConverter.getClass(),
-								inputMessage, outputMessage);
+					if (((GenericHttpMessageConverter) messageConverter).canWrite(declaredType, valueType, selectedMediaType)) {
+						// 通过强制增强器 Advice beforeBodyWrite 处理一下
+						outputValue = (T) getAdvice().beforeBodyWrite(outputValue, returnType, selectedMediaType, (Class<? extends HttpMessageConverter<?>>) messageConverter.getClass(), inputMessage, outputMessage);
 						if (outputValue != null) {
+							// 对 Http 请求中的 header 进行一些处理
 							addContentDispositionHeader(inputMessage, outputMessage);
-							((GenericHttpMessageConverter) messageConverter).write(	// HttpMessageConverter 进行处理
-									outputValue, declaredType, selectedMediaType, outputMessage);
-							if (logger.isDebugEnabled()) {
-								logger.debug("Written [" + outputValue + "] as \"" + selectedMediaType +
-										"\" using [" + messageConverter + "]");
-							}
+							// HttpMessageConverter 进行处理, 将数据写入 outputStream, 并且写到远端
+							((GenericHttpMessageConverter) messageConverter).write(outputValue, declaredType, selectedMediaType, outputMessage);
+							logger.debug("Written [" + outputValue + "] as \"" + selectedMediaType + "\" using [" + messageConverter + "]");
 						}
 						return;
 					}
 				}
 				// 普通 HttpMessageConverter 处理
 				else if (messageConverter.canWrite(valueType, selectedMediaType)) {
-					outputValue = (T) getAdvice().beforeBodyWrite(outputValue, returnType, selectedMediaType,
-							(Class<? extends HttpMessageConverter<?>>) messageConverter.getClass(),
-							inputMessage, outputMessage);
+					// 通过强制增强器 Advice beforeBodyWrite 处理一下
+					outputValue = (T) getAdvice().beforeBodyWrite(outputValue, returnType, selectedMediaType, (Class<? extends HttpMessageConverter<?>>) messageConverter.getClass(), inputMessage, outputMessage);
 					if (outputValue != null) {
+						// 对 Http 请求中的 header 进行一些处理
 						addContentDispositionHeader(inputMessage, outputMessage);
+						// HttpMessageConverter 进行处理, 将数据写入 outputStream, 并且写到远端
 						((HttpMessageConverter) messageConverter).write(outputValue, selectedMediaType, outputMessage);
-						if (logger.isDebugEnabled()) {
-							logger.debug("Written [" + outputValue + "] as \"" + selectedMediaType +
-									"\" using [" + messageConverter + "]");
-						}
+						logger.debug("Written [" + outputValue + "] as \"" + selectedMediaType + "\" using [" + messageConverter + "]");
 					}
 					return;
 				}
@@ -385,6 +379,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 		pathParams = DECODING_URL_PATH_HELPER.decodeRequestString(servletRequest, pathParams);
 		String extInPathParams = StringUtils.getFilenameExtension(pathParams);
 
+		// 不是安全的扩展机制
 		if (!safeExtension(servletRequest, ext) || !safeExtension(servletRequest, extInPathParams)) {
 			headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline;filename=f.txt");
 		}
@@ -396,7 +391,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 			return true;
 		}
 		extension = extension.toLowerCase(Locale.ENGLISH);
-		if (this.safeExtensions.contains(extension)) {
+		if (this.safeExtensions.contains(extension)) {  // 是否是 safe 类型的扩展
 			return true;
 		}
 		String pattern = (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);

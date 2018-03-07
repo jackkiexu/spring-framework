@@ -98,7 +98,7 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 		Object returnValue = invokeForRequest(webRequest, mavContainer, providedArgs);		//  处理请求, 通过 argumentResolver 获取参数
 		setResponseStatus(webRequest);														// 这里是设置 http 的 response code 的
 
-		if (returnValue == null) { // Response.status != null -> 则说明请求已经结束
+		if (returnValue == null) { // Response.status != null || ModelAndViewContainer.isRequestHandled == true -> 则说明请求已经结束
 			if (isRequestNotModified(webRequest) || getResponseStatus() != null || mavContainer.isRequestHandled()) {
 				mavContainer.setRequestHandled(true); // 标志请求被处理过了, 则 视图解析就不需要了
 				return;

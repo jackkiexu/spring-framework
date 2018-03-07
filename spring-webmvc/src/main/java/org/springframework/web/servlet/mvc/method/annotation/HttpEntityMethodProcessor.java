@@ -57,7 +57,8 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * @author Brian Clozel
  * @since 3.1
  */
-// 针对 HttpEntity 及其子类的返回值处理器, 主要还是将 HttpEntity 中的信息写入到 远端
+// 针对 HttpEntity|RequestEntity 类型的参数进行参数解决, 将 HttpServletRequest  里面的数据转换成 HttpEntity|RequestEntity   <-- HandlerMethodArgumentResolver
+// 针对 HttpEntity 及其子类的返回值处理器, 主要还是将 Http 请求头中的数据写到远端 中的信息写入到 远端
 public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodProcessor {
 
 	/**
@@ -132,11 +133,11 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
 		// 通过 HttpMessageConverter 进行数据的转换
 		Object body = readWithMessageConverters(webRequest, parameter, paramType);
 		if (RequestEntity.class == parameter.getParameterType()) {
-			// 构建返回值 RequestEntity
+			// 若参数值是 RequestEntity 类型, 构建返回值 RequestEntity
 			return new RequestEntity<Object>(body, inputMessage.getHeaders(),
 					inputMessage.getMethod(), inputMessage.getURI());
 		}
-		else {
+		else { // 构建返回值 HttpEntity
 			return new HttpEntity<Object>(body, inputMessage.getHeaders());
 		}
 	}
@@ -160,23 +161,26 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
 		}
 	}
 
+	// 返回值处理器
 	@Override
 	public void handleReturnValue(Object returnValue, MethodParameter returnType,
 			ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
-
+		// 这里设置 requestHandled = true
 		mavContainer.setRequestHandled(true);
 		if (returnValue == null) {
 			return;
 		}
-
+		// 构建 ServletServerHttpRequest 与 ServletServerHttpResponse
 		ServletServerHttpRequest inputMessage = createInputMessage(webRequest);
 		ServletServerHttpResponse outputMessage = createOutputMessage(webRequest);
 
 		Assert.isInstanceOf(HttpEntity.class, returnValue);
 		HttpEntity<?> responseEntity = (HttpEntity<?>) returnValue;
-
+		// 获取 Http 请求的 headers
 		HttpHeaders outputHeaders = outputMessage.getHeaders();
+		// 获取 response 中 headeers
 		HttpHeaders entityHeaders = responseEntity.getHeaders();
+
 		if (outputHeaders.containsKey(HttpHeaders.VARY) && entityHeaders.containsKey(HttpHeaders.VARY)) {
 			List<String> values = getVaryRequestHeadersToAdd(outputHeaders, entityHeaders);
 			if (!values.isEmpty()) {
@@ -185,7 +189,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
 		}
 		if (!entityHeaders.isEmpty()) {
 			for (Map.Entry<String, List<String>> entry : entityHeaders.entrySet()) {
-				if (!outputHeaders.containsKey(entry.getKey())) {
+				if (!outputHeaders.containsKey(entry.getKey())) {  // 若 outputHeaders 中没有含有 inputHeaders 中的 key, 则直接设置进去
 					outputHeaders.put(entry.getKey(), entry.getValue());
 				}
 			}
@@ -193,7 +197,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
 
 		if (responseEntity instanceof ResponseEntity) {
 			int returnStatus = ((ResponseEntity<?>) responseEntity).getStatusCodeValue();
-			outputMessage.getServletResponse().setStatus(returnStatus);
+			outputMessage.getServletResponse().setStatus(returnStatus);  // 设置返回 http 的 code
 			if (returnStatus == 200) {
 				if (isResourceNotModified(inputMessage, outputMessage)) {					// 判断资源是否修改过
 					// Ensure headers are flushed, no body should be written.
@@ -204,9 +208,10 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
 			}
 		}
 
+		// 将 responseEntity.getBody() 中的数据转变成 returnType 写入到远端的 client 端
 		// Try even with null body. ResponseBodyAdvice could get involved.
 		writeWithMessageConverters(responseEntity.getBody(), returnType, inputMessage, outputMessage);
-
+		// 将数据流刷到远端
 		// Ensure headers are flushed even if no body was written.
 		outputMessage.flush();
 	}
@@ -232,6 +237,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
 		return result;
 	}
 
+	// 判断资源是否修改
 	private boolean isResourceNotModified(ServletServerHttpRequest inputMessage, ServletServerHttpResponse outputMessage) {
 		ServletWebRequest servletWebRequest =
 				new ServletWebRequest(inputMessage.getServletRequest(), outputMessage.getServletResponse());
@@ -246,6 +252,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
 		return servletWebRequest.checkNotModified(etag, lastModifiedTimestamp);
 	}
 
+	// 获取返回值的类型
 	@Override
 	protected Class<?> getReturnValueType(Object returnValue, MethodParameter returnType) {
 		if (returnValue != null) {

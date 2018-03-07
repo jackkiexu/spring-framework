@@ -394,7 +394,7 @@ public class ExceptionHandlerExceptionResolver extends AbstractHandlerMethodExce
 			return null;
 		}
 
-		if (mavContainer.isRequestHandled()) {
+		if (mavContainer.isRequestHandled()) { // mavContainer.isRequestHandled() == true 表示请求已经被处理了
 			return new ModelAndView();
 		}
 		else {

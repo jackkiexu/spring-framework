@@ -205,7 +205,7 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethod
 			}
 		}
 		else {
-			throw new MissingServletRequestParameterException(name,
+			throw new MissingServletRequestParameterException(name,                    // 直接报出 MissingServletRequestParameterException, 最终 Response 里面的 status = 400
 					parameter.getNestedParameterType().getSimpleName());
 		}
 	}

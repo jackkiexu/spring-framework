@@ -68,23 +68,27 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 // 通过 HttpMessageConverter 消息转化器获取真实的请求参数
 public abstract class AbstractMessageConverterMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
+	// 支持的 Http 请求的方法
 	private static final Set<HttpMethod> SUPPORTED_METHODS = EnumSet.of(HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH);
 
 	private static final Object NO_VALUE = new Object();
 
 
 	protected final Log logger = LogFactory.getLog(getClass());
-	// 消息转化器的类型
+	// 解决 HandlerMethod 中的 argument 时使用到的 HttpMessageConverters
 	protected final List<HttpMessageConverter<?>> messageConverters;
-	// 支持的 MediaType
+	// 支持的 MediaType  <-- 通过这里的 MediaType 来筛选对应的 HttpMessageConverter
 	protected final List<MediaType> allSupportedMediaTypes;
 	// Request/Response 的 Advice <- 这里的 Advice 其实就是 AOP 中 Advice 的概念
+	// RequestAdvice 在从 request 中读取数据之前|后
+	// ResponseAdvice 在 将数据写入 Response 之后
 	private final RequestResponseBodyAdviceChain advice;
 
 
 	/**
 	 * Basic constructor with converters only.
 	 */
+	// 基于 HttpMessageConverter 的构造函数
 	public AbstractMessageConverterMethodArgumentResolver(List<HttpMessageConverter<?>> converters) {
 		this(converters, null);
 	}
@@ -107,7 +111,7 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 	 * Return the media types supported by all provided message converters sorted
 	 * by specificity via {@link MediaType#sortBySpecificity(List)}.
 	 */
-	// 获取所有支持的消息转化器
+	// 获取所有 HttpMessageConverter 所支持的 MediaType
 	private static List<MediaType> getAllSupportedMediaTypes(List<HttpMessageConverter<?>> messageConverters) {
 		Set<MediaType> allSupportedMediaTypes = new LinkedHashSet<MediaType>();
 		for (HttpMessageConverter<?> messageConverter : messageConverters) {
@@ -124,7 +128,7 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 	 * {@link RequestBodyAdvice} where each instance may be wrapped as a
 	 * {@link org.springframework.web.method.ControllerAdviceBean ControllerAdviceBean}.
 	 */
-	// 获取
+	// 获取 Request 读取数据的增强器 | 写入数据的增强器
 	protected RequestResponseBodyAdviceChain getAdvice() {
 		return this.advice;
 	}
@@ -154,7 +158,7 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 	 * @param <T> the expected type of the argument value to be created
 	 * @param inputMessage the HTTP input message representing the current request
 	 * @param parameter the method parameter descriptor (may be {@code null})
-	 * @param targetType the target type, not necessarily the same as the method
+	 * @param targetType the target type, not necessarily the same as the method  <-- 参数的类型
 	 * parameter type, e.g. for {@code HttpEntity<String>}.
 	 * @return the created method argument value
 	 * @throws IOException if the reading from the request fails
@@ -167,83 +171,74 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 		MediaType contentType;
 		boolean noContentType = false;
 		try {
-			contentType = inputMessage.getHeaders().getContentType(); // 获取 Http 的 contentType
+			contentType = inputMessage.getHeaders().getContentType(); 		// 获取 Http 请求头中的 contentType
+		} catch (InvalidMediaTypeException ex) {
+			throw new HttpMediaTypeNotSupportedException(ex.getMessage());  // 获取失败则报 HttpMediaTypeNotSupportedException, 根据 DefaultHandlerExceptionResolver, 则报出 Http.status = 415
 		}
-		catch (InvalidMediaTypeException ex) {
-			throw new HttpMediaTypeNotSupportedException(ex.getMessage());
-		}
-		if (contentType == null) {									  // 若 contentType == null, 则设置默认值
+		if (contentType == null) {									  		// 若 contentType == null, 则设置默认值, application/octet-stream
 			noContentType = true;
 			contentType = MediaType.APPLICATION_OCTET_STREAM;
 		}
-
 		Class<?> contextClass = (parameter != null ? parameter.getContainingClass() : null);				// 获取 方法的声明类
 		Class<T> targetClass = (targetType instanceof Class ? (Class<T>) targetType : null);				// 获取请求参数的类型
-		if (targetClass == null) {
-			ResolvableType resolvableType = (parameter != null ?
-					ResolvableType.forMethodParameter(parameter) : ResolvableType.forType(targetType));
+		if (targetClass == null) {																			// 若 targetClass 是 null, 则通过工具类 ResolvableType 进行解析
+			ResolvableType resolvableType = (parameter != null ? ResolvableType.forMethodParameter(parameter) : ResolvableType.forType(targetType));
 			targetClass = (Class<T>) resolvableType.resolve();												// 获取参数的类型
 		}
-
-		HttpMethod httpMethod = ((HttpRequest) inputMessage).getMethod();									// 获取请求的类型 HttpMethod
+		HttpMethod httpMethod = ((HttpRequest) inputMessage).getMethod();									// 获取请求的类型 HttpMethod (GET, POST, INPUT, DELETE 等)
 		Object body = NO_VALUE;
 
 		try {
 			inputMessage = new EmptyBodyCheckingHttpInputMessage(inputMessage);
-
 			for (HttpMessageConverter<?> converter : this.messageConverters) {								// 循环遍历 HttpMessageConverter, 找出支持的 HttpMessageConverter
 				Class<HttpMessageConverter<?>> converterType = (Class<HttpMessageConverter<?>>) converter.getClass();
 				// 下面分成两类 HttpMessageConverter 分别处理
 				if (converter instanceof GenericHttpMessageConverter) {
 					GenericHttpMessageConverter<?> genericConverter = (GenericHttpMessageConverter<?>) converter;
+					// 判断 GenericHttpMessageConverter 是否支持 targetType + contextClass + contextType 这些类型
 					if (genericConverter.canRead(targetType, contextClass, contentType)) {
-						if (logger.isDebugEnabled()) {
-							logger.debug("Read [" + targetType + "] as \"" + contentType + "\" with [" + converter + "]");
-						}
+						logger.info("Read [" + targetType + "] as \"" + contentType + "\" with [" + converter + "]");
 						if (inputMessage.getBody() != null) { // 若处理后有 request 值
-							// 在通过 Converter 处理前 过一下 Request 的 Advice <-- 其实就是个切面
+							// 在通过 GenericHttpMessageConverter 处理前 过一下 Request 的 Advice <-- 其实就是个切面
 							inputMessage = getAdvice().beforeBodyRead(inputMessage, parameter, targetType, converterType);
-							// 通过 GenericConverter 来处理请求的数据
+							// 通过 GenericHttpMessageConverter 来处理请求的数据
 							body = genericConverter.read(targetType, contextClass, inputMessage);
-							// 在 GenericConverter 处理后在通过 Request 的 Advice 来做处理 <-- 其实就是个切面
+							// 在 GenericHttpMessageConverter 处理后在通过 Request 的 Advice 来做处理 <-- 其实就是个切面
 							body = getAdvice().afterBodyRead(body, inputMessage, parameter, targetType, converterType);
 						}
-						else { // 若处理后没有值, 则通过Advice的handleEmptyBody方法来处理
+						else { // 若处理后没有值, 则通过 Advice 的 handleEmptyBody 方法来处理
 							body = getAdvice().handleEmptyBody(null, inputMessage, parameter, targetType, converterType);
 						}
 						break;
 					}
 				}
 				else if (targetClass != null) {
+					// 判断 HttpMessageConverter 是否支持 这种类型的数据
 					if (converter.canRead(targetClass, contentType)) {
-						if (logger.isDebugEnabled()) {
-							logger.debug("Read [" + targetType + "] as \"" + contentType + "\" with [" + converter + "]");
-						}
+						logger.info("Read [" + targetType + "] as \"" + contentType + "\" with [" + converter + "]");
 						if (inputMessage.getBody() != null) { // 若处理后有 request 值
-							// 在通过 Converter 处理前 过一下 Request 的 Advice <-- 其实就是个切面
+							// 在通过 HttpMessageConverter 处理前 过一下 Request 的 Advice <-- 其实就是个切面
 							inputMessage = getAdvice().beforeBodyRead(inputMessage, parameter, targetType, converterType);
-							// 通过 GenericConverter 来处理请求的数据
+							// 通过 HttpMessageConverter 来处理请求的数据
 							body = ((HttpMessageConverter<T>) converter).read(targetClass, inputMessage);
-							// 在 GenericConverter 处理后在通过 Request 的 Advice 来做处理 <-- 其实就是个切面
+							// 在 HttpMessageConverter 处理后在通过 Request 的 Advice 来做处理 <-- 其实就是个切面
 							body = getAdvice().afterBodyRead(body, inputMessage, parameter, targetType, converterType);
 						}
-						else {	// 若处理后没有值, 则通过Advice的handleEmptyBody方法来处理																// 若 Http 请求的 body 是 空, 则直接通过 Request/ResponseAdvice 来进行处理
+						else { // 若 Http 请求的 body 是 空, 则直接通过 Request/ResponseAdvice 来进行处理
 							body = getAdvice().handleEmptyBody(null, inputMessage, parameter, targetType, converterType);
 						}
 						break;
 					}
 				}
 			}
-		}
-		catch (IOException ex) {
+		} catch (IOException ex) {
 			throw new HttpMessageNotReadableException("I/O error while reading input message", ex);
 		}
 
-		if (body == NO_VALUE) {
-			if (httpMethod == null || !SUPPORTED_METHODS.contains(httpMethod) ||
-					(noContentType && inputMessage.getBody() == null)) {
+		if (body == NO_VALUE) {  // 若 body 里面没有数据, 则
+			if (httpMethod == null || !SUPPORTED_METHODS.contains(httpMethod) || (noContentType && inputMessage.getBody() == null)) {
 				return null;
-			}
+			} // 不满足以上条件, 则报出异常
 			throw new HttpMediaTypeNotSupportedException(contentType, this.allSupportedMediaTypes);
 		}
 
@@ -273,9 +268,9 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 	protected void validateIfApplicable(WebDataBinder binder, MethodParameter parameter) { // 校验是否可适用
 		Annotation[] annotations = parameter.getParameterAnnotations();
 		for (Annotation ann : annotations) {
-			Validated validatedAnn = AnnotationUtils.getAnnotation(ann, Validated.class);
-			if (validatedAnn != null || ann.annotationType().getSimpleName().startsWith("Valid")) {
-				Object hints = (validatedAnn != null ? validatedAnn.value() : AnnotationUtils.getValue(ann));
+			Validated validatedAnn = AnnotationUtils.getAnnotation(ann, Validated.class);   // 获取 ann 上的注解
+			if (validatedAnn != null || ann.annotationType().getSimpleName().startsWith("Valid")) { // 若 ann 上获取了注解了 @Validated, 或注解是以 Valid 开头
+				Object hints = (validatedAnn != null ? validatedAnn.value() : AnnotationUtils.getValue(ann));  // 获取 注解.value
 				Object[] validationHints = (hints instanceof Object[] ? (Object[]) hints : new Object[] {hints});
 				binder.validate(validationHints);		// 对数据进行校验
 				break;
@@ -290,6 +285,7 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 	 * @return {@code true} if the next method argument is not of type {@link Errors}
 	 * @since 4.1.5
 	 */
+	// 是否 抛出绑定数据错误的异常
 	protected boolean isBindExceptionRequired(WebDataBinder binder, MethodParameter parameter) {
 		int i = parameter.getParameterIndex();
 		Class<?>[] paramTypes = parameter.getMethod().getParameterTypes();
@@ -304,6 +300,7 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 	 * @return the adapted argument, or the original resolved argument as-is
 	 * @since 4.3.5
 	 */
+	// 针对 Optional 类型的参数的处理
 	protected Object adaptArgumentIfNecessary(Object arg, MethodParameter parameter) {
 		return (parameter.isOptional() ? OptionalResolver.resolveValue(arg) : arg);
 	}

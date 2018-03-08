@@ -140,8 +140,8 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 		Object arg = readWithMessageConverters(webRequest, parameter, parameter.getNestedGenericParameterType());
 		// 获取参数的名字
 		String name = Conventions.getVariableNameForParameter(parameter);
-		// 进行参数的绑定操作
-		WebDataBinder binder = binderFactory.createBinder(webRequest, arg, name);
+		// 构建 WebDataBinder
+		WebDataBinder binder = binderFactory.createBinder(webRequest, arg, name);  // 参数中的第二个值 arg 其实就是 DataBinder 的 target
 		if (arg != null) {
 			// @Validated 进行参数的校验
 			validateIfApplicable(binder, parameter);

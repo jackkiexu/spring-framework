@@ -149,6 +149,7 @@ public class ContentNegotiationManager implements ContentNegotiationStrategy, Me
 	 * useJaf} property is set to "true", the list of extensions may
 	 * increase as file extensions are resolved via JAF and cached.
 	 */
+	// 获取 MediaTypeFileExtensionResolver, 所能支持的 MediaType
 	@Override
 	public List<String> getAllFileExtensions() {
 		Set<String> result = new LinkedHashSet<String>();

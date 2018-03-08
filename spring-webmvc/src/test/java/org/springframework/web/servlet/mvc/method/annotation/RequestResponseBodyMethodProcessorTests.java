@@ -54,6 +54,7 @@ import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConve
 import org.springframework.mock.web.test.MockHttpServletRequest;
 import org.springframework.mock.web.test.MockHttpServletResponse;
 import org.springframework.util.MultiValueMap;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.accept.ContentNegotiationManagerFactoryBean;
 import org.springframework.web.bind.WebDataBinder;
@@ -743,7 +744,7 @@ public class RequestResponseBodyMethodProcessorTests {
 
 
 	String handle(
-			@RequestBody List<SimpleBean> list,
+			@RequestBody @Validated List<SimpleBean> list,
 			@RequestBody SimpleBean simpleBean,
 			@RequestBody MultiValueMap<String, String> multiValueMap,
 			@RequestBody String string) {
@@ -793,6 +794,7 @@ public class RequestResponseBodyMethodProcessorTests {
 	}
 
 
+	@Validated
 	@SuppressWarnings({ "serial" })
 	private static class SimpleBean implements Identifiable {
 

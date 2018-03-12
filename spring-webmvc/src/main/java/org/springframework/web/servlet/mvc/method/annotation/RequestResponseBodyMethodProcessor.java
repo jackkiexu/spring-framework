@@ -132,31 +132,29 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 	 * converter to read the content with.
 	 */
 	@Override
-	public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
-			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
-
-		parameter = parameter.nestedIfOptional();	// 获取嵌套参数 <- 有可能参数是用 Optional
+	public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+		// 获取嵌套参数 <- 有可能参数是用 Optional
+		parameter = parameter.nestedIfOptional();
 		// 通过 HttpMessageConverter 来将数据转换成合适的类型
 		Object arg = readWithMessageConverters(webRequest, parameter, parameter.getNestedGenericParameterType());
 		// 获取参数的名字
 		String name = Conventions.getVariableNameForParameter(parameter);
-		// 构建 WebDataBinder
-		WebDataBinder binder = binderFactory.createBinder(webRequest, arg, name);  // 参数中的第二个值 arg 其实就是 DataBinder 的 target
+		// 构建 WebDataBinder, 参数中的第二个值 arg 其实就是 DataBinder 的 target
+		WebDataBinder binder = binderFactory.createBinder(webRequest, arg, name);
 		if (arg != null) {
 			// @Validated 进行参数的校验
 			validateIfApplicable(binder, parameter);
-			if (binder.getBindingResult().hasErrors() && isBindExceptionRequired(binder, parameter)) { // 若有异常则直接暴出来
-				throw new MethodArgumentNotValidException(parameter, binder.getBindingResult());
-			}
+			// 若有异常则直接暴出来
+			if (binder.getBindingResult().hasErrors() && isBindExceptionRequired(binder, parameter)) throw new MethodArgumentNotValidException(parameter, binder.getBindingResult());
 		}
+		// 将绑定的结果保存在 ModelAndViewContainer 中
 		mavContainer.addAttribute(BindingResult.MODEL_KEY_PREFIX + name, binder.getBindingResult());
-		// 对 Optional 的处理
+		// 对 Optional类型的参数的处理
 		return adaptArgumentIfNecessary(arg, parameter);
 	}
 
 	@Override
-	protected <T> Object readWithMessageConverters(NativeWebRequest webRequest, MethodParameter parameter,
-			Type paramType) throws IOException, HttpMediaTypeNotSupportedException, HttpMessageNotReadableException {
+	protected <T> Object readWithMessageConverters(NativeWebRequest webRequest, MethodParameter parameter, Type paramType) throws IOException, HttpMediaTypeNotSupportedException, HttpMessageNotReadableException {
 		// 从 NativeWebRequest 中获取  HttpServletRequest
 		HttpServletRequest servletRequest = webRequest.getNativeRequest(HttpServletRequest.class);
 		// 封装 ServletServerHttpRequest
@@ -164,9 +162,8 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 		// 通过 InputMessage 中读取参数的内容, 并且 通过 HttpMessageConverter 来将数据转换成 paramType 类型的参数
 		Object arg = readWithMessageConverters(inputMessage, parameter, paramType);
 		if (arg == null) {
-			if (checkRequired(parameter)) { // 检测参数是否是必需的
-				throw new HttpMessageNotReadableException("Required request body is missing: " + parameter.getMethod().toGenericString());
-			}
+			// 检测参数是否是必需的
+			if (checkRequired(parameter)) throw new HttpMessageNotReadableException("Required request body is missing: " + parameter.getMethod().toGenericString());
 		}
 		return arg; // 返回参数值
 	}

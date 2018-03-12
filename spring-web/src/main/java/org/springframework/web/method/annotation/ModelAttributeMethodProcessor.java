@@ -93,19 +93,15 @@ public class ModelAttributeMethodProcessor implements HandlerMethodArgumentResol
 	 * @throws Exception if WebDataBinder initialization fails.
 	 */
 	@Override
-	public final Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
-			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+	public final Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
 		// 获取 @ModelAttribute 中指定 name
 		String name = ModelFactory.getNameForParameter(parameter);
 		// 从 ModelAndViewContainer.ModelMap 中获取数据值 | 通过构造函数创建一个
-		Object attribute = (mavContainer.containsAttribute(name) ? mavContainer.getModel().get(name) :
-				createAttribute(name, parameter, binderFactory, webRequest));
+		Object attribute = (mavContainer.containsAttribute(name) ? mavContainer.getModel().get(name) : createAttribute(name, parameter, binderFactory, webRequest));
 		// 检测 name 是否可以进行绑定
 		if (!mavContainer.isBindingDisabled(name)) {
 			ModelAttribute ann = parameter.getParameterAnnotation(ModelAttribute.class);
-			if (ann != null && !ann.binding()) {
-				mavContainer.setBindingDisabled(name);
-			}
+			if (ann != null && !ann.binding()) mavContainer.setBindingDisabled(name);
 		}
 		// 此处进行参数的绑定操作 (PS: 下面的 attribute 就是 DataBinder 的 target)
 		WebDataBinder binder = binderFactory.createBinder(webRequest, attribute, name);
@@ -113,10 +109,10 @@ public class ModelAttributeMethodProcessor implements HandlerMethodArgumentResol
 			if (!mavContainer.isBindingDisabled(name)) {  // 若可以进行参数的绑定
 				bindRequestParameters(binder, webRequest); // 进行参数的绑定
 			}
-			validateIfApplicable(binder, parameter);  // applicable: 合适 <-- 这里是进行参数的检查
-			if (binder.getBindingResult().hasErrors() && isBindExceptionRequired(binder, parameter)) { // 检查在校验的过程中是否出错
-				throw new BindException(binder.getBindingResult());
-			}
+			// applicable: 合适 <-- 这里是进行参数的检查
+			validateIfApplicable(binder, parameter);
+			// 检查在校验的过程中是否出错
+			if (binder.getBindingResult().hasErrors() && isBindExceptionRequired(binder, parameter)) throw new BindException(binder.getBindingResult());
 		}
 		// 将 resolved 后的 Model 放入 ModelAndViewContainer 中
 		// Add resolved attribute and BindingResult at the end of the model

@@ -170,27 +170,33 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 
 		MediaType contentType;
 		boolean noContentType = false;
-		try {
-			contentType = inputMessage.getHeaders().getContentType(); 		// 获取 Http 请求头中的 contentType
+		try { // 获取 Http 请求头中的 contentType
+			contentType = inputMessage.getHeaders().getContentType();
 		} catch (InvalidMediaTypeException ex) {
-			throw new HttpMediaTypeNotSupportedException(ex.getMessage());  // 获取失败则报 HttpMediaTypeNotSupportedException, 根据 DefaultHandlerExceptionResolver, 则报出 Http.status = 415
+			// 获取失败则报 HttpMediaTypeNotSupportedException, 根据 DefaultHandlerExceptionResolver, 则报出 Http.status = 415
+			throw new HttpMediaTypeNotSupportedException(ex.getMessage());
 		}
-		if (contentType == null) {									  		// 若 contentType == null, 则设置默认值, application/octet-stream
+		// 若 contentType == null, 则设置默认值, application/octet-stream
+		if (contentType == null) {
 			noContentType = true;
 			contentType = MediaType.APPLICATION_OCTET_STREAM;
 		}
-		Class<?> contextClass = (parameter != null ? parameter.getContainingClass() : null);				// 获取 方法的声明类
-		Class<T> targetClass = (targetType instanceof Class ? (Class<T>) targetType : null);				// 获取请求参数的类型
-		if (targetClass == null) {																			// 若 targetClass 是 null, 则通过工具类 ResolvableType 进行解析
+		// 获取 方法的声明类
+		Class<?> contextClass = (parameter != null ? parameter.getContainingClass() : null);
+		// 获取请求参数的类型
+		Class<T> targetClass = (targetType instanceof Class ? (Class<T>) targetType : null);
+		if (targetClass == null) {	 // 若 targetClass 是 null, 则通过工具类 ResolvableType 进行解析
 			ResolvableType resolvableType = (parameter != null ? ResolvableType.forMethodParameter(parameter) : ResolvableType.forType(targetType));
 			targetClass = (Class<T>) resolvableType.resolve();												// 获取参数的类型
 		}
-		HttpMethod httpMethod = ((HttpRequest) inputMessage).getMethod();									// 获取请求的类型 HttpMethod (GET, POST, INPUT, DELETE 等)
+		// 获取请求的类型 HttpMethod (GET, POST, INPUT, DELETE 等)
+		HttpMethod httpMethod = ((HttpRequest) inputMessage).getMethod();
 		Object body = NO_VALUE;
 
 		try {
 			inputMessage = new EmptyBodyCheckingHttpInputMessage(inputMessage);
-			for (HttpMessageConverter<?> converter : this.messageConverters) {								// 循环遍历 HttpMessageConverter, 找出支持的 HttpMessageConverter
+			// 循环遍历 HttpMessageConverter, 找出支持的 HttpMessageConverter
+			for (HttpMessageConverter<?> converter : this.messageConverters) {
 				Class<HttpMessageConverter<?>> converterType = (Class<HttpMessageConverter<?>>) converter.getClass();
 				// 下面分成两类 HttpMessageConverter 分别处理
 				if (converter instanceof GenericHttpMessageConverter) {
@@ -234,14 +240,11 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 		} catch (IOException ex) {
 			throw new HttpMessageNotReadableException("I/O error while reading input message", ex);
 		}
-
 		if (body == NO_VALUE) {  // 若 body 里面没有数据, 则
-			if (httpMethod == null || !SUPPORTED_METHODS.contains(httpMethod) || (noContentType && inputMessage.getBody() == null)) {
-				return null;
-			} // 不满足以上条件, 则报出异常
+			if (httpMethod == null || !SUPPORTED_METHODS.contains(httpMethod) || (noContentType && inputMessage.getBody() == null)) return null;
+			// 不满足以上条件, 则报出异常
 			throw new HttpMediaTypeNotSupportedException(contentType, this.allSupportedMediaTypes);
 		}
-
 		return body;
 	}
 

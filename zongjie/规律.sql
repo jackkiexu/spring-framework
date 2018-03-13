@@ -29,7 +29,8 @@
 7. 以 Holder 为尾缀命名的类
 
 8. 适配器模式, 含有 Adapter 关键字
-    RequestMappingHandlerAdapter
+    正真的适配器: RequestMappingHandlerAdapter
+    接口适配器:  CallableProcessingInterceptorAdapter
 
 9. 解释器模式, 含有 Parser 关键字
 

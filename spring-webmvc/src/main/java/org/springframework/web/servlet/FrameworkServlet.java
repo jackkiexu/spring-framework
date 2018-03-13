@@ -1180,6 +1180,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	 * CallableProcessingInterceptor implementation that initializes and resets
 	 * FrameworkServlet's context holders, i.e. LocaleContextHolder and RequestContextHolder.
 	 */
+	// 异步处理的拦截器, 在处理前 + 处理后拦截
 	private class RequestBindingInterceptor extends CallableProcessingInterceptorAdapter {
 
 		@Override

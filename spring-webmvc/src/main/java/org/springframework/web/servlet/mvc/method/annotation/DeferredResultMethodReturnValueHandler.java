@@ -41,7 +41,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * @author Rossen Stoyanchev
  * @since 3.2
  */
-@SuppressWarnings("deprecation")
+@SuppressWarnings("deprecation") // deferred 延期
 public class DeferredResultMethodReturnValueHandler implements AsyncHandlerMethodReturnValueHandler {
 
 	private final Map<Class<?>, DeferredResultAdapter> adapterMap;

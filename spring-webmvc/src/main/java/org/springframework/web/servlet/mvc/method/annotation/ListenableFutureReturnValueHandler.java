@@ -34,7 +34,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * @deprecated as of 4.3 {@link DeferredResultMethodReturnValueHandler} supports
  * ListenableFuture return values via an adapter mechanism.
  */
-@Deprecated
+@Deprecated  // 已经废弃
 public class ListenableFutureReturnValueHandler implements AsyncHandlerMethodReturnValueHandler {
 
 	@Override
@@ -43,7 +43,7 @@ public class ListenableFutureReturnValueHandler implements AsyncHandlerMethodRet
 	}
 
 	@Override
-	public boolean isAsyncReturnValue(Object returnValue, MethodParameter returnType) {
+	public boolean isAsyncReturnValue(Object returnValue, MethodParameter returnType) {  // 支持 ListenableFuture
 		return (returnValue != null && returnValue instanceof ListenableFuture);
 	}
 

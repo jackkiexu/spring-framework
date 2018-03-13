@@ -33,6 +33,7 @@ import org.springframework.web.context.request.NativeWebRequest;
  * @author Rossen Stoyanchev
  * @since 3.1
  */
+// 组合模式的 HandlerMethodReturnValueHandler
 public class HandlerMethodReturnValueHandlerComposite implements AsyncHandlerMethodReturnValueHandler {
 
 	protected final Log logger = LogFactory.getLog(getClass());

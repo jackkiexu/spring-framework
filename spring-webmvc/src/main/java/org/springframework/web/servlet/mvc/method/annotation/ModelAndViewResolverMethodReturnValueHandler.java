@@ -51,6 +51,7 @@ import org.springframework.web.servlet.mvc.annotation.ModelAndViewResolver;
  * @author Rossen Stoyanchev
  * @since 3.1
  */
+// 一般都不用
 public class ModelAndViewResolverMethodReturnValueHandler implements HandlerMethodReturnValueHandler {
 
 	private final List<ModelAndViewResolver> mavResolvers;
@@ -70,7 +71,7 @@ public class ModelAndViewResolverMethodReturnValueHandler implements HandlerMeth
 	 * Always returns {@code true}. See class-level note.
 	 */
 	@Override
-	public boolean supportsReturnType(MethodParameter returnType) {
+	public boolean supportsReturnType(MethodParameter returnType) {  // 默认返回 true
 		return true;
 	}
 
@@ -78,7 +79,7 @@ public class ModelAndViewResolverMethodReturnValueHandler implements HandlerMeth
 	public void handleReturnValue(Object returnValue, MethodParameter returnType,
 			ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
 
-		if (this.mavResolvers != null) {
+		if (this.mavResolvers != null) {  // 将 ModelAndViewResolver 获取的 ModeAndView 设置到 ModelAndViewContainer 中
 			for (ModelAndViewResolver mavResolver : this.mavResolvers) {
 				Class<?> handlerType = returnType.getContainingClass();
 				Method method = returnType.getMethod();

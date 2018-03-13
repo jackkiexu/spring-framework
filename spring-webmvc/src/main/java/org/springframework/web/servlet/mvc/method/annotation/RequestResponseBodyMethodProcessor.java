@@ -174,10 +174,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 
 	// 处理返回值
 	@Override
-	public void handleReturnValue(Object returnValue, MethodParameter returnType,
-			ModelAndViewContainer mavContainer, NativeWebRequest webRequest)
-			throws IOException, HttpMediaTypeNotAcceptableException, HttpMessageNotWritableException {
-
+	public void handleReturnValue(Object returnValue, MethodParameter returnType, ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws IOException, HttpMediaTypeNotAcceptableException, HttpMessageNotWritableException {
 		mavContainer.setRequestHandled(true); // 标志请求被处理过了, 则 视图解析就不需要了
 		// 创建 ServletServerHttpRequest
 		ServletServerHttpRequest inputMessage = createInputMessage(webRequest);

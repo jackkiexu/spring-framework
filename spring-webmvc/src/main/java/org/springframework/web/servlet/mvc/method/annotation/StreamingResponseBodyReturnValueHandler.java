@@ -41,6 +41,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * @author Rossen Stoyanchev
  * @since 4.2
  */
+// 支持 StreamingResponseBody 类型的返回值,
 public class StreamingResponseBodyReturnValueHandler implements HandlerMethodReturnValueHandler {
 
 	@Override
@@ -73,7 +74,7 @@ public class StreamingResponseBodyReturnValueHandler implements HandlerMethodRet
 			outputMessage.getHeaders().putAll(responseEntity.getHeaders());
 			returnValue = responseEntity.getBody();
 			if (returnValue == null) {
-				mavContainer.setRequestHandled(true);
+				mavContainer.setRequestHandled(true);  // 标示请求结束
 				outputMessage.flush();
 				return;
 			}
@@ -86,6 +87,7 @@ public class StreamingResponseBodyReturnValueHandler implements HandlerMethodRet
 		StreamingResponseBody streamingBody = (StreamingResponseBody) returnValue;
 
 		Callable<Void> callable = new StreamingResponseBodyTask(outputMessage.getBody(), streamingBody);
+		// 通过 Spring 的异步处理器 SimpleAsyncTaskExecutor 执行 StreamingResponseBody 将数据流写到远端
 		WebAsyncUtils.getAsyncManager(webRequest).startCallableProcessing(callable, mavContainer);
 	}
 

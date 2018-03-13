@@ -35,7 +35,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 public class HttpHeadersReturnValueHandler implements HandlerMethodReturnValueHandler {
 
 	@Override
-	public boolean supportsReturnType(MethodParameter returnType) {
+	public boolean supportsReturnType(MethodParameter returnType) { // 支持返回值是 HttpHeaders 类型的
 		return HttpHeaders.class.isAssignableFrom(returnType.getParameterType());
 	}
 
@@ -52,7 +52,7 @@ public class HttpHeadersReturnValueHandler implements HandlerMethodReturnValueHa
 		if (!headers.isEmpty()) {
 			HttpServletResponse servletResponse = webRequest.getNativeResponse(HttpServletResponse.class);
 			ServletServerHttpResponse outputMessage = new ServletServerHttpResponse(servletResponse);
-			outputMessage.getHeaders().putAll(headers);
+			outputMessage.getHeaders().putAll(headers);  // 将 HttpHeaders 中的数据设置到 Response 中
 			outputMessage.getBody(); // flush headers
 		}
 	}

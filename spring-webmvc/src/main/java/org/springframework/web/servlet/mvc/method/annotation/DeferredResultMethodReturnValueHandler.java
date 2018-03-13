@@ -80,8 +80,8 @@ public class DeferredResultMethodReturnValueHandler implements AsyncHandlerMetho
 
 
 	@Override
-	public boolean supportsReturnType(MethodParameter returnType) {
-		return (getAdapterFor(returnType.getParameterType()) != null);
+	public boolean supportsReturnType(MethodParameter returnType) {  // DeferredResult, ListenableFuture, CompletionStage 的处理器
+		return (getAdapterFor(returnType.getParameterType()) != null); // 查出适配器就可以的
 	}
 
 	@Override
@@ -98,7 +98,7 @@ public class DeferredResultMethodReturnValueHandler implements AsyncHandlerMetho
 			return;
 		}
 
-		DeferredResultAdapter adapter = getAdapterFor(returnValue.getClass());
+		DeferredResultAdapter adapter = getAdapterFor(returnValue.getClass());  // 获取适配器
 		if (adapter == null) {
 			throw new IllegalStateException(
 					"Could not find DeferredResultAdapter for return value type: " + returnValue.getClass());

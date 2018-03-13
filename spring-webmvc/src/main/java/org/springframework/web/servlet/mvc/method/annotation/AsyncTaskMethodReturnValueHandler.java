@@ -61,6 +61,7 @@ public class AsyncTaskMethodReturnValueHandler implements AsyncHandlerMethodRetu
 
 		WebAsyncTask<?> webAsyncTask = (WebAsyncTask<?>) returnValue;
 		webAsyncTask.setBeanFactory(this.beanFactory);
+		// 通过 SimpleAsyncTaskExecutor 处理 WebAsyncTask
 		WebAsyncUtils.getAsyncManager(webRequest).startCallableProcessing(webAsyncTask, mavContainer);
 	}
 

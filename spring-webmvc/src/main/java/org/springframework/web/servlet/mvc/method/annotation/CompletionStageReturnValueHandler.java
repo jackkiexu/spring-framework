@@ -37,7 +37,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * @deprecated as of 4.3 {@link DeferredResultMethodReturnValueHandler} supports
  * CompletionStage return values via an adapter mechanism.
  */
-@Deprecated
+@Deprecated  // 已经废弃
 @UsesJava8
 public class CompletionStageReturnValueHandler implements AsyncHandlerMethodReturnValueHandler {
 

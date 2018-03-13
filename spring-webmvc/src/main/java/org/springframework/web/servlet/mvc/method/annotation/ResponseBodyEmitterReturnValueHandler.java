@@ -52,7 +52,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * @author Rossen Stoyanchev
  * @since 4.2
  */
-@SuppressWarnings("deprecation")
+@SuppressWarnings("deprecation")  // 异步处理 返回值是 ResponseBodyEmitter 的返回值处理器
 public class ResponseBodyEmitterReturnValueHandler implements AsyncHandlerMethodReturnValueHandler {
 
 	private static final Log logger = LogFactory.getLog(ResponseBodyEmitterReturnValueHandler.class);
@@ -138,7 +138,7 @@ public class ResponseBodyEmitterReturnValueHandler implements AsyncHandlerMethod
 			response.setStatus(responseEntity.getStatusCodeValue());
 			outputMessage.getHeaders().putAll(responseEntity.getHeaders());
 			returnValue = responseEntity.getBody();
-			if (returnValue == null) {
+			if (returnValue == null) {   // body == null, 直接 return
 				mavContainer.setRequestHandled(true);
 				outputMessage.flush();
 				return;
@@ -153,7 +153,7 @@ public class ResponseBodyEmitterReturnValueHandler implements AsyncHandlerMethod
 			throw new IllegalStateException(
 					"Could not find ResponseBodyEmitterAdapter for return value type: " + returnValue.getClass());
 		}
-		ResponseBodyEmitter emitter = adapter.adaptToEmitter(returnValue, outputMessage);
+		ResponseBodyEmitter emitter = adapter.adaptToEmitter(returnValue, outputMessage);  // Emitter 发射器
 		emitter.extendResponse(outputMessage);
 
 		// Commit the response and wrap to ignore further header changes

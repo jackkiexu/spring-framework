@@ -28,7 +28,7 @@ import org.springframework.util.Assert;
  * A controller method return value type for asynchronous request processing
  * where one or more objects are written to the response.
  *
- * <p>While {@link org.springframework.web.context.request.async.DeferredResult}
+ * <p>While {@link org.springframework.web.context.request.async.DeferredResult}  Deferred 延期
  * is used to produce a single result, a {@code ResponseBodyEmitter} can be used
  * to send multiple objects where each object is written with a compatible
  * {@link org.springframework.http.converter.HttpMessageConverter}.
@@ -58,7 +58,7 @@ import org.springframework.util.Assert;
  * @author Juergen Hoeller
  * @since 4.2
  */
-public class ResponseBodyEmitter {
+public class ResponseBodyEmitter {  // Emitter 发射器
 
 	private final Long timeout;
 
@@ -105,13 +105,13 @@ public class ResponseBodyEmitter {
 	synchronized void initialize(Handler handler) throws IOException {
 		this.handler = handler;
 
-		for (DataWithMediaType sendAttempt : this.earlySendAttempts) {
+		for (DataWithMediaType sendAttempt : this.earlySendAttempts) {  // 提早发送尝试
 			sendInternal(sendAttempt.getData(), sendAttempt.getMediaType());
 		}
 		this.earlySendAttempts.clear();
 
 		if (this.complete) {
-			if (this.failure != null) {
+			if (this.failure != null) { // 处理错误
 				this.handler.completeWithError(this.failure);
 			}
 			else {
@@ -119,8 +119,8 @@ public class ResponseBodyEmitter {
 			}
 		}
 		else {
-			this.handler.onTimeout(this.timeoutCallback);
-			this.handler.onCompletion(this.completionCallback);
+			this.handler.onTimeout(this.timeoutCallback);  		// 超时回调处理
+			this.handler.onCompletion(this.completionCallback); // 处理完成后回调处理
 		}
 	}
 
@@ -247,9 +247,9 @@ public class ResponseBodyEmitter {
 	 */
 	public static class DataWithMediaType {
 
-		private final Object data;
+		private final Object data;  // 数据
 
-		private final MediaType mediaType;
+		private final MediaType mediaType;  // 数据的类型
 
 		public DataWithMediaType(Object data, MediaType mediaType) {
 			this.data = data;

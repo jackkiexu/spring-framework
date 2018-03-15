@@ -356,7 +356,7 @@ public final class WebAsyncManager { //Spring 异步处理类, 请求处理器
 	/**
 	 * Start concurrent request processing and initialize the given
 	 * {@link DeferredResult} with a {@link DeferredResultHandler} that saves
-	 * the result and dispatches the request to resume processing of that
+	 * the result and dispatches the request to resume(重新开始, 继续) processing of that
 	 * result. The {@code AsyncWebRequest} is also updated with a completion
 	 * handler that expires the {@code DeferredResult} and a timeout handler
 	 * assuming the {@code DeferredResult} has a default timeout result.
@@ -373,19 +373,19 @@ public final class WebAsyncManager { //Spring 异步处理类, 请求处理器
 		Assert.notNull(deferredResult, "DeferredResult must not be null");
 		Assert.state(this.asyncWebRequest != null, "AsyncWebRequest must not be null");
 
-		Long timeout = deferredResult.getTimeoutValue();
+		Long timeout = deferredResult.getTimeoutValue();        // 获取超时时间
 		if (timeout != null) {
 			this.asyncWebRequest.setTimeout(timeout);
 		}
 
 		List<DeferredResultProcessingInterceptor> interceptors = new ArrayList<DeferredResultProcessingInterceptor>();
-		interceptors.add(deferredResult.getInterceptor());
+		interceptors.add(deferredResult.getInterceptor());		// 设置 DeferredResult 中的拦截器
 		interceptors.addAll(this.deferredResultInterceptors.values());
-		interceptors.add(timeoutDeferredResultInterceptor);
+		interceptors.add(timeoutDeferredResultInterceptor);		// 设置超时拦截器
 
 		final DeferredResultInterceptorChain interceptorChain = new DeferredResultInterceptorChain(interceptors);
 
-		this.asyncWebRequest.addTimeoutHandler(new Runnable() {
+		this.asyncWebRequest.addTimeoutHandler(new Runnable() {	// 添加超时处理机制
 			@Override
 			public void run() {
 				try {
@@ -397,7 +397,7 @@ public final class WebAsyncManager { //Spring 异步处理类, 请求处理器
 			}
 		});
 
-		this.asyncWebRequest.addCompletionHandler(new Runnable() {
+		this.asyncWebRequest.addCompletionHandler(new Runnable() {  // 添加请求完成的回调机制
 			@Override
 			public void run() {
 				interceptorChain.triggerAfterCompletion(asyncWebRequest, deferredResult);
@@ -409,7 +409,7 @@ public final class WebAsyncManager { //Spring 异步处理类, 请求处理器
 
 		try {
 			interceptorChain.applyPreProcess(this.asyncWebRequest, deferredResult);
-			deferredResult.setResultHandler(new DeferredResultHandler() {
+			deferredResult.setResultHandler(new DeferredResultHandler() {		// 设置有返回值的对应 Handler
 				@Override
 				public void handleResult(Object result) {
 					result = interceptorChain.applyPostProcess(asyncWebRequest, deferredResult, result);

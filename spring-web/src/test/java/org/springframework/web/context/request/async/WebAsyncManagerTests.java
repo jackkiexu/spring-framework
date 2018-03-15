@@ -46,8 +46,8 @@ public class WebAsyncManagerTests {
 	@Before
 	public void setup() {
 		this.servletRequest = new MockHttpServletRequest();
-		this.asyncManager = WebAsyncUtils.getAsyncManager(servletRequest);
-		this.asyncManager.setTaskExecutor(new SyncTaskExecutor());
+		this.asyncManager = WebAsyncUtils.getAsyncManager(servletRequest);  // 创建 WebAsyncManager
+		this.asyncManager.setTaskExecutor(new SyncTaskExecutor());			// 设置任务的执行器
 		this.asyncWebRequest = mock(AsyncWebRequest.class);
 		this.asyncManager.setAsyncWebRequest(this.asyncWebRequest);
 		verify(this.asyncWebRequest).addCompletionHandler((Runnable) notNull());
@@ -256,7 +256,7 @@ public class WebAsyncManagerTests {
 	}
 
 	@Test
-	public void startDeferredResultProcessing() throws Exception {
+	public void startDeferredResultProcessing() throws Exception {   // deferred 延期
 		DeferredResult<String> deferredResult = new DeferredResult<>(1000L);
 		String concurrentResult = "abc";
 

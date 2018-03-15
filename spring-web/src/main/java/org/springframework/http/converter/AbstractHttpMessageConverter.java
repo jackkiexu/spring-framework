@@ -295,7 +295,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
 	 * @param clazz the class to test for support
 	 * @return {@code true} if supported; {@code false} otherwise
 	 */
-	protected abstract boolean supports(Class<?> clazz);
+	protected abstract boolean supports(Class<?> clazz);  // 是否支持这种类型
 
 	/**
 	 * Abstract template method that reads the actual object. Invoked from {@link #read}.
@@ -315,7 +315,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
 	 * @throws IOException in case of I/O errors
 	 * @throws HttpMessageNotWritableException in case of conversion errors
 	 */
-	protected abstract void writeInternal(T t, HttpOutputMessage outputMessage)
+	protected abstract void writeInternal(T t, HttpOutputMessage outputMessage)   // 模版方法
 			throws IOException, HttpMessageNotWritableException;
 
 }

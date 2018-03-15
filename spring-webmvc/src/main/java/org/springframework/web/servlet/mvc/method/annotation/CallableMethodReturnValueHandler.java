@@ -30,6 +30,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * @author Rossen Stoyanchev
  * @since 3.2
  */
+// 支持返回值是 Callable 类型, 并通过 WebAsyncManager 中的 SimpleAsyncTaskExecutor 来进行处理
 public class CallableMethodReturnValueHandler implements AsyncHandlerMethodReturnValueHandler {
 
 	@Override

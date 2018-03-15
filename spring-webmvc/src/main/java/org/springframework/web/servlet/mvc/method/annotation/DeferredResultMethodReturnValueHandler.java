@@ -42,6 +42,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * @since 3.2
  */
 @SuppressWarnings("deprecation") // deferred 延期
+// 这个类适配 DeferredResult, ListenableFuture, CompletionStage 类型的返回值, 最后通过 WebAsyncManager 来完成任务的调用
 public class DeferredResultMethodReturnValueHandler implements AsyncHandlerMethodReturnValueHandler {
 
 	private final Map<Class<?>, DeferredResultAdapter> adapterMap;

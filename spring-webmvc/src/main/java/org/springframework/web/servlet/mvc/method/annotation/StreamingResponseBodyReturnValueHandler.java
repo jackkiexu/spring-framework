@@ -41,7 +41,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * @author Rossen Stoyanchev
  * @since 4.2
  */
-// 支持 StreamingResponseBody 类型的返回值,
+// 支持 StreamingResponseBody 类型的返回值, 最后将请求包装成 Callable, 通过 Spring 的异步处理器 SimpleAsyncTaskExecutor 执行 StreamingResponseBody 将数据流写到远端
 public class StreamingResponseBodyReturnValueHandler implements HandlerMethodReturnValueHandler {
 
 	@Override

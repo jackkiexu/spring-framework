@@ -45,11 +45,11 @@ public class StandardServletAsyncWebRequest extends ServletWebRequest implements
 	private Long timeout;
 
 	private AsyncContext asyncContext;
-
+	// 请求处理结束的标示
 	private AtomicBoolean asyncCompleted = new AtomicBoolean(false);
-
+	// 超时处理的 handlers
 	private final List<Runnable> timeoutHandlers = new ArrayList<Runnable>();
-
+	// 请求处理完成的 handlers
 	private final List<Runnable> completionHandlers = new ArrayList<Runnable>();
 
 
@@ -107,18 +107,18 @@ public class StandardServletAsyncWebRequest extends ServletWebRequest implements
 				"filter declarations in web.xml.");
 		Assert.state(!isAsyncComplete(), "Async processing has already completed");
 
-		if (isAsyncStarted()) {
+		if (isAsyncStarted()) {		// 若异步处理已经开始, 则直接返回
 			return;
 		}
 		this.asyncContext = getRequest().startAsync(getRequest(), getResponse());
-		this.asyncContext.addListener(this);
+		this.asyncContext.addListener(this);		// 在 AyncContext 中加入监听器
 		if (this.timeout != null) {
-			this.asyncContext.setTimeout(this.timeout);
+			this.asyncContext.setTimeout(this.timeout);  // 设置超时时间
 		}
 	}
 
 	@Override
-	public void dispatch() {
+	public void dispatch() {	// 分派任务, 进行处理
 		Assert.notNull(this.asyncContext, "Cannot dispatch without an AsyncContext");
 		this.asyncContext.dispatch();
 	}
@@ -138,14 +138,14 @@ public class StandardServletAsyncWebRequest extends ServletWebRequest implements
 	}
 
 	@Override
-	public void onTimeout(AsyncEvent event) throws IOException {
+	public void onTimeout(AsyncEvent event) throws IOException {  // 超时的话, 直接触发超时处理
 		for (Runnable handler : this.timeoutHandlers) {
 			handler.run();
 		}
 	}
 
 	@Override
-	public void onComplete(AsyncEvent event) throws IOException {
+	public void onComplete(AsyncEvent event) throws IOException {	// 完成处理后, 触发相应的 completionHandlers
 		for (Runnable handler : this.completionHandlers) {
 			handler.run();
 		}

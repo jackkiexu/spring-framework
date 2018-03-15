@@ -52,7 +52,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * @author Rossen Stoyanchev
  * @since 4.2
  */
-@SuppressWarnings("deprecation")  // 异步处理 返回值是 ResponseBodyEmitter 的返回值处理器
+@SuppressWarnings("deprecation")  // 支持的返回值类型是 ResponseEntity, ResponseBodyEmitter 类型的处理器
 public class ResponseBodyEmitterReturnValueHandler implements AsyncHandlerMethodReturnValueHandler {
 
 	private static final Log logger = LogFactory.getLog(ResponseBodyEmitterReturnValueHandler.class);
@@ -67,7 +67,7 @@ public class ResponseBodyEmitterReturnValueHandler implements AsyncHandlerMethod
 		Assert.notEmpty(messageConverters, "HttpMessageConverter List must not be empty");
 		this.messageConverters = messageConverters;
 		this.adapterMap = new HashMap<Class<?>, ResponseBodyEmitterAdapter>(4);
-		this.adapterMap.put(ResponseBodyEmitter.class, new SimpleResponseBodyEmitterAdapter());
+		this.adapterMap.put(ResponseBodyEmitter.class, new SimpleResponseBodyEmitterAdapter());  // 构建对应的适配器
 	}
 
 
@@ -83,7 +83,7 @@ public class ResponseBodyEmitterReturnValueHandler implements AsyncHandlerMethod
 		return this.adapterMap;
 	}
 
-	private ResponseBodyEmitterAdapter getAdapterFor(Class<?> type) {
+	private ResponseBodyEmitterAdapter getAdapterFor(Class<?> type) {  // 获取 type 对应的适配器
 		if (type != null) {
 			for (Class<?> adapteeType : getAdapterMap().keySet()) {
 				if (adapteeType.isAssignableFrom(type)) {
@@ -96,7 +96,7 @@ public class ResponseBodyEmitterReturnValueHandler implements AsyncHandlerMethod
 
 
 	@Override
-	public boolean supportsReturnType(MethodParameter returnType) {
+	public boolean supportsReturnType(MethodParameter returnType) { // 支持的返回值类型是 ResponseEntity, ResponseBodyEmitter 类型的处理器
 		Class<?> bodyType;
 		if (ResponseEntity.class.isAssignableFrom(returnType.getParameterType())) {
 			bodyType = ResolvableType.forMethodParameter(returnType).getGeneric(0).resolve();
@@ -108,7 +108,7 @@ public class ResponseBodyEmitterReturnValueHandler implements AsyncHandlerMethod
 	}
 
 	@Override
-	public boolean isAsyncReturnValue(Object returnValue, MethodParameter returnType) {
+	public boolean isAsyncReturnValue(Object returnValue, MethodParameter returnType) {  // 是否是异步返回值
 		if (returnValue != null) {
 			Object adaptFrom = returnValue;
 			if (returnValue instanceof ResponseEntity) {

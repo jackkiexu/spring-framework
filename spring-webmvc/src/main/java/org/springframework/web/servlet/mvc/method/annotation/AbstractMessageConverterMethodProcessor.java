@@ -165,31 +165,25 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 	 * by the {@code Accept} header on the request cannot be met by the message converters
 	 */
 	@SuppressWarnings("unchecked")
-	protected <T> void writeWithMessageConverters(T value, MethodParameter returnType,
-			ServletServerHttpRequest inputMessage, ServletServerHttpResponse outputMessage)
-			throws IOException, HttpMediaTypeNotAcceptableException, HttpMessageNotWritableException {
-
+	protected <T> void writeWithMessageConverters(T value, MethodParameter returnType, ServletServerHttpRequest inputMessage, ServletServerHttpResponse outputMessage) throws IOException, HttpMediaTypeNotAcceptableException, HttpMessageNotWritableException {
 		Object outputValue;							// 返回值内容
 		Class<?> valueType;							// 返回值类型
 		Type declaredType;
-
 		if (value instanceof CharSequence) {		// 若 value 是 Char
 			outputValue = value.toString();			// 设置 outputValue
 			valueType = String.class;				// 设置 返回值的类型
 			declaredType = String.class;
-		}
-		else {
+		} else {
 			outputValue = value;					// 设置返回值
 			valueType = getReturnValueType(outputValue, returnType); // 获取 返回值的类型
 			declaredType = getGenericType(returnType); // 返回值类型
 		}
-
 		HttpServletRequest request = inputMessage.getServletRequest();
-		// 获取 request 对应的 MediaType, 其中涉及 ContentNegotiationManager
+		// 获取 request 对应的 MediaType(PS: ContentNegotiationManager 进行获取 Request 所能支持的 MediaType)
 		List<MediaType> requestedMediaTypes = getAcceptableMediaTypes(request);
 		// 返回 HttpMessageConverter 所支持的 MediaType
 		List<MediaType> producibleMediaTypes = getProducibleMediaTypes(request, valueType, declaredType);
-		// 若返回值有数据, 但 producibleMediaType 是空
+		// 若 producibleMediaType 是空 且 返回值有数据, 直接抛出异常
 		if (outputValue != null && producibleMediaTypes.isEmpty()) throw new IllegalArgumentException("No converter found for return value of type: " + valueType);
 
 		Set<MediaType> compatibleMediaTypes = new LinkedHashSet<MediaType>();
@@ -207,15 +201,13 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 		List<MediaType> mediaTypes = new ArrayList<MediaType>(compatibleMediaTypes);
 		// 将所有的 MediaType 进行排序
 		MediaType.sortBySpecificityAndQuality(mediaTypes);
-
 		MediaType selectedMediaType = null;
 		// 筛选出其中一个 mediaType
 		for (MediaType mediaType : mediaTypes) {
 			if (mediaType.isConcrete()) {
 				selectedMediaType = mediaType;
 				break;
-			}
-			else if (mediaType.equals(MediaType.ALL) || mediaType.equals(MEDIA_TYPE_APPLICATION)) {
+			} else if (mediaType.equals(MediaType.ALL) || mediaType.equals(MEDIA_TYPE_APPLICATION)) {
 				selectedMediaType = MediaType.APPLICATION_OCTET_STREAM; // 设置 application/octet-stream
 				break;
 			}

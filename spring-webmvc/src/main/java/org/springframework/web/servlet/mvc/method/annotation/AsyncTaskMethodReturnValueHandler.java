@@ -30,6 +30,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * @author Rossen Stoyanchev
  * @since 3.2
  */
+// 支持返回值是 WebAsyncTask 类型, 并通过 WebAsyncManager 中的 SimpleAsyncTaskExecutor 来进行处理
 public class AsyncTaskMethodReturnValueHandler implements AsyncHandlerMethodReturnValueHandler {
 
 	private final BeanFactory beanFactory;
@@ -47,7 +48,7 @@ public class AsyncTaskMethodReturnValueHandler implements AsyncHandlerMethodRetu
 
 	@Override
 	public boolean isAsyncReturnValue(Object returnValue, MethodParameter returnType) {
-		return (returnValue != null && returnValue instanceof WebAsyncTask);
+		return (returnValue != null && returnValue instanceof WebAsyncTask);  // 支持返回值是 WebAsyncTask 类型, 并通过 WebAsyncManager 中的 SimpleAsyncTaskExecutor 来进行处理
 	}
 
 	@Override

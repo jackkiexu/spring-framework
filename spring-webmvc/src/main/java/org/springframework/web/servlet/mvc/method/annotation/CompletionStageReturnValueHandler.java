@@ -39,6 +39,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  */
 @Deprecated  // 已经废弃
 @UsesJava8
+// 支持返回值是 CompletionStage 类型, 并通过 WebAsyncManager 中的 SimpleAsyncTaskExecutor 来进行处理
 public class CompletionStageReturnValueHandler implements AsyncHandlerMethodReturnValueHandler {
 
 	@Override

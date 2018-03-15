@@ -35,6 +35,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * ListenableFuture return values via an adapter mechanism.
  */
 @Deprecated  // 已经废弃
+// 支持返回值是 ListenableFuture 类型, 并通过 WebAsyncManager 中的 SimpleAsyncTaskExecutor 来进行处理
 public class ListenableFutureReturnValueHandler implements AsyncHandlerMethodReturnValueHandler {
 
 	@Override

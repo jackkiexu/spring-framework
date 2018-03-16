@@ -48,7 +48,7 @@ import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.util.StreamUtils;
 
 /**
- * An {@code HttpMessageConverter} that can read XML collections using JAXB2.
+ * An {@code HttpMessageConverter} that can read XML collections using JAXB2.  <-- 解析 xml
  *
  * <p>This converter can read {@linkplain Collection collections} that contain classes
  * annotated with {@link XmlRootElement} and {@link XmlType}. Note that this converter

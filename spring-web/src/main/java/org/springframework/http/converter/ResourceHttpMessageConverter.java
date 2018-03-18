@@ -42,6 +42,7 @@ import org.springframework.util.StreamUtils;
  * @author Kazuki Shimizu
  * @since 3.0.2
  */
+// 支持数据类型是 Resource 的数据, 从 HttpBody 中读取数据流转换成 InputStreamResource|ByteArrayResource, 或从 Resource 中读取数据流, 输出到远端
 public class ResourceHttpMessageConverter extends AbstractHttpMessageConverter<Resource> {
 
 	private static final boolean jafPresent = ClassUtils.isPresent(

@@ -48,6 +48,7 @@ import org.springframework.util.Assert;
  * @author Rossen Stoyanchev
  * @since 3.2
  */
+// 支持 MediaType是 text/plain 类型, 从 InputMessage 读取数据转换成字符串, 通过 ConversionService 将字符串转换成自定类型的 Object; 或将 Obj 转换成 String, 最后 将 String 转换成数据流
 public class ObjectToStringHttpMessageConverter extends AbstractHttpMessageConverter<Object> {
 
 	private final ConversionService conversionService;
@@ -106,12 +107,15 @@ public class ObjectToStringHttpMessageConverter extends AbstractHttpMessageConve
 
 	@Override
 	protected Object readInternal(Class<?> clazz, HttpInputMessage inputMessage) throws IOException {
+		// 从 InputMessage 读取数据转换成字符串
 		String value = this.stringHttpMessageConverter.readInternal(String.class, inputMessage);
+		// 通过 ConversionService 将字符串转换成自定类型的 Object
 		return this.conversionService.convert(value, clazz);
 	}
 
 	@Override
 	protected void writeInternal(Object obj, HttpOutputMessage outputMessage) throws IOException {
+		// 将 Obj 转换成 String, 最后 将 String 转换成数据流
 		String value = this.conversionService.convert(obj, String.class);
 		this.stringHttpMessageConverter.writeInternal(value, outputMessage);
 	}

@@ -38,8 +38,9 @@ import org.springframework.util.StreamUtils;
  * @author Juergen Hoeller
  * @since 3.0
  */
+// 支持数据是 String 类型的, 从 InputMessage 中读取指定格式的 str, 或 将数据编码成指定的格式输出到 OutputMessage
 public class StringHttpMessageConverter extends AbstractHttpMessageConverter<String> {
-
+	// 数据的默认字符串
 	public static final Charset DEFAULT_CHARSET = Charset.forName("ISO-8859-1");
 
 
@@ -82,11 +83,11 @@ public class StringHttpMessageConverter extends AbstractHttpMessageConverter<Str
 	@Override
 	protected String readInternal(Class<? extends String> clazz, HttpInputMessage inputMessage) throws IOException {
 		Charset charset = getContentTypeCharset(inputMessage.getHeaders().getContentType());  // 读取数据的编码格式
-		return StreamUtils.copyToString(inputMessage.getBody(), charset);					  // 将数据流中的数据转化成指定格式
+		return StreamUtils.copyToString(inputMessage.getBody(), charset);					  // 将数据流 inputMessage.getBody() 中的数据转换成指定格式的字符串
 	}
 
 	@Override
-	protected Long getContentLength(String str, MediaType contentType) {
+	protected Long getContentLength(String str, MediaType contentType) {  // 获取数据的长度
 		Charset charset = getContentTypeCharset(contentType);
 		try {
 			return (long) str.getBytes(charset.name()).length;
@@ -100,7 +101,7 @@ public class StringHttpMessageConverter extends AbstractHttpMessageConverter<Str
 	@Override
 	protected void writeInternal(String str, HttpOutputMessage outputMessage) throws IOException {
 		if (this.writeAcceptCharset) {
-			outputMessage.getHeaders().setAcceptCharset(getAcceptedCharsets());  // 设置可接受的字符编码集
+			outputMessage.getHeaders().setAcceptCharset(getAcceptedCharsets());  // 在 Http 请求头设置可接受的字符编码集
 		}
 		Charset charset = getContentTypeCharset(outputMessage.getHeaders().getContentType());
 		StreamUtils.copy(str, charset, outputMessage.getBody());				// 将 str 中的内容 copy 到 数据流中
@@ -113,7 +114,7 @@ public class StringHttpMessageConverter extends AbstractHttpMessageConverter<Str
 	 * Can be overridden in subclasses.
 	 * @return the list of accepted charsets
 	 */
-	protected List<Charset> getAcceptedCharsets() {
+	protected List<Charset> getAcceptedCharsets() {  // 获取支持的编码格式
 		if (this.availableCharsets == null) {
 			this.availableCharsets = new ArrayList<Charset>(
 					Charset.availableCharsets().values());

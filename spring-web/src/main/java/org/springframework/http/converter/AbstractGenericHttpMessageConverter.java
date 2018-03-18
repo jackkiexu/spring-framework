@@ -32,6 +32,7 @@ import org.springframework.http.StreamingHttpOutputMessage;
  * @author Juergen Hoeller
  * @since 4.2
  */
+// 支持从 Json 与 Object 之间进行数据转换的 HttpMessageConverter (PS: 主要通过 JackSon 或 Gson)
 public abstract class AbstractGenericHttpMessageConverter<T> extends AbstractHttpMessageConverter<T>
 		implements GenericHttpMessageConverter<T> {
 

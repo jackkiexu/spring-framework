@@ -62,8 +62,8 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 
 
 	/**
-	 * Set the mappings between exception class names and error view names.
-	 * The exception class name can be a substring, with no wildcard support at present.
+	 * Set the mappings between exception class names and error view names.     设置 异常 className <--> errorName 之间的映射关系
+	 * The exception class name can be a substring, with no wildcard(通配符号) support at present.
 	 * A value of "ServletException" would match {@code javax.servlet.ServletException}
 	 * and subclasses, for example.
 	 * <p><b>NB:</b> Consider carefully how
@@ -80,7 +80,7 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 	}
 
 	/**
-	 * Set one or more exceptions to be excluded from the exception mappings.
+	 * Set one or more exceptions to be excluded from the exception mappings.  排除的 异常
 	 * Excluded exceptions are checked first and if one of them equals the actual
 	 * exception, the exception will remain unresolved.
 	 * @param excludedExceptions one or more excluded exception types
@@ -91,7 +91,7 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 
 	/**
 	 * Set the name of the default error view.
-	 * This view will be returned if no specific mapping was found.
+	 * This view will be returned if no specific mapping was found.  设置默认的 errorViewName
 	 * <p>Default is none.
 	 */
 	public void setDefaultErrorView(String defaultErrorView) {
@@ -99,7 +99,7 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 	}
 
 	/**
-	 * Set the HTTP status code that this exception resolver will apply for a given
+	 * Set the HTTP status code that this exception resolver will apply for a given  设置 Http status Code 为给定的 errorViewName
 	 * resolved error view. Keys are view names; values are status codes.
 	 * <p>Note that this error code will only get applied in case of a top-level request.
 	 * It will not be set for an include request, since the HTTP status cannot be modified
@@ -111,7 +111,7 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 		for (Enumeration<?> enumeration = statusCodes.propertyNames(); enumeration.hasMoreElements();) {
 			String viewName = (String) enumeration.nextElement();
 			Integer statusCode = Integer.valueOf(statusCodes.getProperty(viewName));
-			this.statusCodes.put(viewName, statusCode);
+			this.statusCodes.put(viewName, statusCode);		// 设置 errorViewName 与 HttpStatus 之间的关系
 		}
 	}
 
@@ -183,12 +183,12 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 			// 如果配置了 statusCodes 属性, 则对此异常的状态码进行设置
 			// Apply HTTP status code for error views, if specified.
 			// Only apply it if we're processing a top-level request.
-			Integer statusCode = determineStatusCode(request, viewName);
+			Integer statusCode = determineStatusCode(request, viewName);  // 根据 viewName 从映射表里面获取指定的 statusCode
 			if (statusCode != null) {
-				applyStatusCodeIfPossible(request, response, statusCode);
+				applyStatusCodeIfPossible(request, response, statusCode); // 设置到 response 中
 			}
 			// 创建 ModelAndView 对象
-			return getModelAndView(viewName, ex, request);
+			return getModelAndView(viewName, ex, request);                // 根据 viewName, Exception 创建对应的 ModelAndView
 		}
 		else {
 			return null;
@@ -217,7 +217,7 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 		// Check for specific exception mappings.
 		// 从 exceptionMapping 集合内根据 exception 获取到相应的 viewName
 		if (this.exceptionMappings != null) {
-			viewName = findMatchingViewName(this.exceptionMappings, ex);
+			viewName = findMatchingViewName(this.exceptionMappings, ex);  // 通过 exceptingMapping 获取指定异常 ex 所对应的 errorViewName
 		}
 		// 当 exceptionMapping 集合内不存在指定的 exception 但是默认视图指定则直接返回默认视图
 		// Return default error view else, if defined.
@@ -238,7 +238,7 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 	 * @return the view name, or {@code null} if none found
 	 * @see #setExceptionMappings
 	 */
-	protected String findMatchingViewName(Properties exceptionMappings, Exception ex) {
+	protected String findMatchingViewName(Properties exceptionMappings, Exception ex) {  // 从异常映射表中获取 异常 Exception 指定的 errorViewName
 		String viewName = null;
 		String dominantMapping = null;
 		int deepest = Integer.MAX_VALUE;

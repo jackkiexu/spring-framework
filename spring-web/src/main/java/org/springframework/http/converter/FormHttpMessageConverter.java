@@ -54,7 +54,7 @@ import org.springframework.util.StringUtils;
  * {@link MultiValueMap MultiValueMap&lt;String, Object&gt;}.
  *
  * <p>When writing multipart data, this converter uses other
- * {@link HttpMessageConverter HttpMessageConverters} to write the respective
+ * {@link HttpMessageConverter HttpMessageConverters} to write the respective (各自)
  * MIME parts. By default, basic converters are registered (for {@code Strings}
  * and {@code Resources}). These can be overridden through the
  * {@link #setPartConverters partConverters} property.
@@ -86,6 +86,7 @@ import org.springframework.util.StringUtils;
  * @since 3.0
  * @see MultiValueMap
  */
+// 支持 MultiValueMap 类型, 并且 MediaType 类型是 "multipart/form-data", 从 InputStream 里面读取数据, 并通过&符号分割, 最后转换成 MultiValueMap, 或 将 MultiValueMap转换成 & 符号连接的字符串, 最后转换成字节流, 输出到远端
 public class FormHttpMessageConverter implements HttpMessageConverter<MultiValueMap<String, ?>> {
 
 	public static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
@@ -104,11 +105,11 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 		this.supportedMediaTypes.add(MediaType.APPLICATION_FORM_URLENCODED);
 		this.supportedMediaTypes.add(MediaType.MULTIPART_FORM_DATA);
 
-		this.partConverters.add(new ByteArrayHttpMessageConverter());	// 字节数组
+		this.partConverters.add(new ByteArrayHttpMessageConverter());	// 支持 字节数组 格式的 HttpMessageConverter
 		StringHttpMessageConverter stringHttpMessageConverter = new StringHttpMessageConverter();
 		stringHttpMessageConverter.setWriteAcceptCharset(false);
-		this.partConverters.add(stringHttpMessageConverter);			// String 形式的 HttpMessageConverter
-		this.partConverters.add(new ResourceHttpMessageConverter());	// Resource 形式的 HttpMessageConverter
+		this.partConverters.add(stringHttpMessageConverter);			// 支持 String 格式的 HttpMessageConverter
+		this.partConverters.add(new ResourceHttpMessageConverter());	// 支持 Resource 格式的 HttpMessageConverter
 
 		applyDefaultCharset();
 	}
@@ -162,7 +163,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 	/**
 	 * Apply the configured charset as a default to registered part converters.
 	 */
-	private void applyDefaultCharset() {
+	private void applyDefaultCharset() {  // 给 HttpMeesgaeConverter 设置支持的 字符串格式
 		for (HttpMessageConverter<?> candidate : this.partConverters) {
 			if (candidate instanceof AbstractHttpMessageConverter) {
 				AbstractHttpMessageConverter<?> converter = (AbstractHttpMessageConverter<?>) candidate;
@@ -188,7 +189,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 
 
 	@Override
-	public boolean canRead(Class<?> clazz, MediaType mediaType) {
+	public boolean canRead(Class<?> clazz, MediaType mediaType) {  // 支持 MultiValueMap 类型, 并且 MediaType 类型是 "multipart/form-data"
 		if (!MultiValueMap.class.isAssignableFrom(clazz)) {
 			return false;
 		}

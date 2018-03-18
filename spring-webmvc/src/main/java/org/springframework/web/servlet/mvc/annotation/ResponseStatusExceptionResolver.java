@@ -37,7 +37,7 @@ import org.springframework.web.servlet.handler.AbstractHandlerExceptionResolver;
  * {@link org.springframework.web.servlet.DispatcherServlet DispatcherServlet}
  * and the MVC Java config and the MVC namespace.
  *
- * <p>As of 4.2 this resolver also looks recursively for {@code @ResponseStatus}
+ * <p>As of 4.2 this resolver also looks recursively(递归查找) for {@code @ResponseStatus}
  * present on cause exceptions, and as of 4.2.2 this resolver supports
  * attribute overrides for {@code @ResponseStatus} in custom composed annotations.
  *

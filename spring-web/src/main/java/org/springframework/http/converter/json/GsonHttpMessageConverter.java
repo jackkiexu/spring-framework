@@ -54,6 +54,7 @@ import org.springframework.util.Assert;
  * @see #setGson
  * @see #setSupportedMediaTypes
  */
+// 支持 application/*++json 格式的数据, 并通过 Gson, 将字符串转换成对应的数据
 public class GsonHttpMessageConverter extends AbstractGenericHttpMessageConverter<Object> {
 
 	public static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");

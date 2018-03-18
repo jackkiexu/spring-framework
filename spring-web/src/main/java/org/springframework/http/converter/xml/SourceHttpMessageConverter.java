@@ -64,6 +64,7 @@ import org.springframework.util.StreamUtils;
  * @author Rossen Stoyanchev
  * @since 3.0
  */
+// 支持 DOMSource, SAXSource, StAXSource, StreamSource, Source 类型的消息转换器, 在读取的时候, 从 HttpBody 里面读取对应的数据流转换成对应对应, 输出时通过 TransformerFactory 转换成指定格式输出
 public class SourceHttpMessageConverter<T extends Source> extends AbstractHttpMessageConverter<T> {
 
 	private static final Set<Class<?>> SUPPORTED_CLASSES = new HashSet<Class<?>>(5);

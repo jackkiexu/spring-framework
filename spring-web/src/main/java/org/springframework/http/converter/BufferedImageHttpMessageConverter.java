@@ -65,6 +65,7 @@ import org.springframework.util.StringUtils;
  * @author Arjen Poutsma
  * @since 3.0
  */
+// 支持 BufferedImgae 的 HttpMessageConverter, 通过 ImageReader 将 HttpBody 里面的数据转换成 BufferedImage, 或ImageWriter 将ImageReader 转换成字节流输出到 OutputMessage
 public class BufferedImageHttpMessageConverter implements HttpMessageConverter<BufferedImage> {
 
 	private final List<MediaType> readableMediaTypes = new ArrayList<MediaType>();

@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author Juergen Hoeller
  * @since 22.11.2003
  */
+// 针对 通过 path 获取 handler 或 执行handler时出现异常的处理类
 public interface HandlerExceptionResolver {
 
 	/**
@@ -49,7 +50,6 @@ public interface HandlerExceptionResolver {
 	 */
 	// 通过解析异常查询配置以得到符合条件的 ModelAndView
 	// 通过解析异常查询配置以得到符合条件的 ModelAndView 对象
-	ModelAndView resolveException(
-			HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex);
+	ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex);
 
 }

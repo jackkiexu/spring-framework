@@ -31,6 +31,7 @@ import org.springframework.web.servlet.ModelAndView;
  * @author Rossen Stoyanchev
  * @since 3.1
  */
+// 组合模式的 HandlerExceptionResolver
 public class HandlerExceptionResolverComposite implements HandlerExceptionResolver, Ordered {
 
 	private List<HandlerExceptionResolver> resolvers;

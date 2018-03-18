@@ -64,6 +64,7 @@ import org.springframework.util.ClassUtils;
  * @since 3.0
  * @see MarshallingHttpMessageConverter
  */
+// 支持解析 xml 格式(PS: 使用JAXB2 )的, HttpMessageConverter
 public class Jaxb2RootElementHttpMessageConverter extends AbstractJaxb2HttpMessageConverter<Object> {
 
 	private boolean supportDtd = false;

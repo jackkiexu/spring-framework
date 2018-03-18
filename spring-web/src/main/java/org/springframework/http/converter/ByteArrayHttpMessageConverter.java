@@ -35,6 +35,7 @@ import org.springframework.util.StreamUtils;
  * @author Juergen Hoeller
  * @since 3.0
  */
+// 支持格式是 byte 类型, 从 InputMessage 中读取指定长度的字节流, 或将 OutputMessage 转换成字节流
 public class ByteArrayHttpMessageConverter extends AbstractHttpMessageConverter<byte[]> { // 读写都是字节流的 HttpMessageConverter
 
 	/**

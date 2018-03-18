@@ -59,8 +59,8 @@ import org.springframework.util.StreamUtils;
  * @since 3.2
  */
 @SuppressWarnings("rawtypes")
-public class Jaxb2CollectionHttpMessageConverter<T extends Collection>
-		extends AbstractJaxb2HttpMessageConverter<T> implements GenericHttpMessageConverter<T> {
+// 支持解析 xml 格式(PS: 使用JAXB2 )的, HttpMessageConverter
+public class Jaxb2CollectionHttpMessageConverter<T extends Collection> extends AbstractJaxb2HttpMessageConverter<T> implements GenericHttpMessageConverter<T> {
 
 	private final XMLInputFactory inputFactory = createXmlInputFactory();
 

@@ -54,7 +54,7 @@ import org.springframework.web.servlet.handler.AbstractHandlerExceptionResolver;
 /**
  * Default implementation of the {@link org.springframework.web.servlet.HandlerExceptionResolver
  * HandlerExceptionResolver} interface that resolves standard Spring exceptions and translates
- * them to corresponding HTTP status codes.
+ * them to corresponding HTTP status codes.  Spring 中的异常到 Http status code 之间映射
  *
  * <p>This exception resolver is enabled by default in the common Spring
  * {@link org.springframework.web.servlet.DispatcherServlet}.
@@ -107,9 +107,9 @@ public class DefaultHandlerExceptionResolver extends AbstractHandlerExceptionRes
 			Object handler, Exception ex) {
 
 		try {
+			// 通过 HttpServletRequest 从 HandlerMapping 中未能获取对应的 HandlerMethod 时就会触发这个异常(设置 404 HttpServletResponse.SC_NOT_FOUND)
 			if (ex instanceof org.springframework.web.servlet.mvc.multiaction.NoSuchRequestHandlingMethodException) {
-				return handleNoSuchRequestHandlingMethod((org.springframework.web.servlet.mvc.multiaction.NoSuchRequestHandlingMethodException) ex,
-						request, response, handler);
+				return handleNoSuchRequestHandlingMethod((org.springframework.web.servlet.mvc.multiaction.NoSuchRequestHandlingMethodException) ex, request, response, handler);
 			}
 			else if (ex instanceof HttpRequestMethodNotSupportedException) {
 				return handleHttpRequestMethodNotSupported((HttpRequestMethodNotSupportedException) ex, request,
@@ -177,7 +177,7 @@ public class DefaultHandlerExceptionResolver extends AbstractHandlerExceptionRes
 	/**
 	 * Handle the case where no request handler method was found.
 	 * <p>The default implementation logs a warning, sends an HTTP 404 error, and returns
-	 * an empty {@code ModelAndView}. Alternatively, a fallback view could be chosen,
+	 * an empty {@code ModelAndView}. Alternatively, a fallback(备用的) view could be chosen,
 	 * or the NoSuchRequestHandlingMethodException could be rethrown as-is.
 	 * @param ex the NoSuchRequestHandlingMethodException to be handled
 	 * @param request current HTTP request

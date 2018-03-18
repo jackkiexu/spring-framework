@@ -53,18 +53,18 @@ public class AllEncompassingFormHttpMessageConverter extends FormHttpMessageConv
 	public AllEncompassingFormHttpMessageConverter() {
 		addPartConverter(new SourceHttpMessageConverter<Source>());
 
-		if (jaxb2Present && !jackson2XmlPresent) {
+		if (jaxb2Present && !jackson2XmlPresent) {  // 支持读取 xml 格式数据的 HttpMessageConverter
 			addPartConverter(new Jaxb2RootElementHttpMessageConverter());
 		}
 
-		if (jackson2Present) {
+		if (jackson2Present) {  // 支持 Json 格式字符串 的 HttpMessageConverter
 			addPartConverter(new MappingJackson2HttpMessageConverter());
 		}
-		else if (gsonPresent) {
+		else if (gsonPresent) {  // 支持 Json 格式字符串 的 HttpMessageConverter
 			addPartConverter(new GsonHttpMessageConverter());
 		}
 
-		if (jackson2XmlPresent) {
+		if (jackson2XmlPresent) {  // 支持 Json/Xml 转换成 Object 的 HttpMessageConverter
 			addPartConverter(new MappingJackson2XmlHttpMessageConverter());
 		}
 	}

@@ -47,7 +47,7 @@ public abstract class AbstractHandlerExceptionResolver implements HandlerExcepti
 
 	/** Logger available to subclasses */
 	protected final Log logger = LogFactory.getLog(getClass());
-
+	// 异常处理类的 优先级
 	private int order = Ordered.LOWEST_PRECEDENCE;
 
 	private Set<?> mappedHandlers;
@@ -86,7 +86,7 @@ public abstract class AbstractHandlerExceptionResolver implements HandlerExcepti
 	 * specified types; the specified types may be interfaces or superclasses of handlers as well.
 	 * <p>If no handlers or handler classes are set, the exception mappings and the default error
 	 * view will apply to all handlers. This means that a specified default error view will be used
-	 * as a fallback for all exceptions; any further HandlerExceptionResolvers in the chain will be
+	 * as a fallback(备用) for all exceptions; any further HandlerExceptionResolvers in the chain will be
 	 * ignored in this case.
 	 */
 	public void setMappedHandlerClasses(Class<?>... mappedHandlerClasses) {
@@ -113,7 +113,7 @@ public abstract class AbstractHandlerExceptionResolver implements HandlerExcepti
 	 * <p>Default is {@code false}. Switch this to {@code true} in order to
 	 * automatically generate HTTP response headers that suppress response caching.
 	 */
-	public void setPreventResponseCaching(boolean preventResponseCaching) {
+	public void setPreventResponseCaching(boolean preventResponseCaching) {  // 是否阻止 Response Cache
 		this.preventResponseCaching = preventResponseCaching;
 	}
 
@@ -248,7 +248,6 @@ public abstract class AbstractHandlerExceptionResolver implements HandlerExcepti
 	 * @param ex the exception that got thrown during handler execution
 	 * @return a corresponding {@code ModelAndView} to forward to, or {@code null} for default processing
 	 */
-	protected abstract ModelAndView doResolveException(HttpServletRequest request,
-			HttpServletResponse response, Object handler, Exception ex);
+	protected abstract ModelAndView doResolveException(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex);
 
 }

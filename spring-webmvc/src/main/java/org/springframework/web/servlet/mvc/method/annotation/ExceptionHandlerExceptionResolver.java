@@ -74,25 +74,24 @@ import org.springframework.web.servlet.support.RequestContextUtils;
  */
 public class ExceptionHandlerExceptionResolver extends AbstractHandlerMethodExceptionResolver
 		implements ApplicationContextAware, InitializingBean {
-
+	// HandlerMethod 参数解析器
 	private List<HandlerMethodArgumentResolver> customArgumentResolvers;
-
+	// 组合模式的 HandlerMethod 参数解析器
 	private HandlerMethodArgumentResolverComposite argumentResolvers;
-
+	// HandlerMethod 返回值处理器
 	private List<HandlerMethodReturnValueHandler> customReturnValueHandlers;
-
+	// 组合模式的 HandlerMethod 返回值处理器
 	private HandlerMethodReturnValueHandlerComposite returnValueHandlers;
-
+	// Http 消息转换器
 	private List<HttpMessageConverter<?>> messageConverters;
-
+	// MediaType 解决器(PS: 根据请求 uri 尾缀, 或 Header 中的信息, 来决定 MediaType)
 	private ContentNegotiationManager contentNegotiationManager = new ContentNegotiationManager();
-
+	// 对 Response 进行增强的 Advice
 	private final List<Object> responseBodyAdvice = new ArrayList<Object>();
 
 	private ApplicationContext applicationContext;
 
-	private final Map<Class<?>, ExceptionHandlerMethodResolver> exceptionHandlerCache =
-			new ConcurrentHashMap<Class<?>, ExceptionHandlerMethodResolver>(64);
+	private final Map<Class<?>, ExceptionHandlerMethodResolver> exceptionHandlerCache = new ConcurrentHashMap<Class<?>, ExceptionHandlerMethodResolver>(64);
 	// 被 @ControllerAdvice 注解修饰的的处理类, 再被包装成 ExceptionHandlerMethodResolver
 	private final Map<ControllerAdviceBean, ExceptionHandlerMethodResolver> exceptionHandlerAdviceCache =
 			new LinkedHashMap<ControllerAdviceBean, ExceptionHandlerMethodResolver>();
@@ -101,7 +100,7 @@ public class ExceptionHandlerExceptionResolver extends AbstractHandlerMethodExce
 	public ExceptionHandlerExceptionResolver() {
 		StringHttpMessageConverter stringHttpMessageConverter = new StringHttpMessageConverter();
 		stringHttpMessageConverter.setWriteAcceptCharset(false);  // see SPR-7316
-
+		// 设置常见的 HttpMessageConverter
 		this.messageConverters = new ArrayList<HttpMessageConverter<?>>();
 		this.messageConverters.add(new ByteArrayHttpMessageConverter());
 		this.messageConverters.add(stringHttpMessageConverter);

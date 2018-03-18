@@ -42,6 +42,7 @@ import org.springframework.http.converter.HttpMessageConversionException;
  * @author Arjen Poutsma
  * @since 3.0
  */
+// 支持从 xml 与 Object 之间进行数据转换的 HttpMessageConverter
 public abstract class AbstractXmlHttpMessageConverter<T> extends AbstractHttpMessageConverter<T> {
 
 	private final TransformerFactory transformerFactory = TransformerFactory.newInstance();

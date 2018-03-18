@@ -50,9 +50,9 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
 
 	/** Logger available to subclasses */
 	protected final Log logger = LogFactory.getLog(getClass());
-
+	// HttpMessageConverter 所支持的 MediaType
 	private List<MediaType> supportedMediaTypes = Collections.emptyList();
-
+	// 默认字符集
 	private Charset defaultCharset;
 
 
@@ -146,9 +146,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
 			return true;
 		}
 		for (MediaType supportedMediaType : getSupportedMediaTypes()) { // 判断 内容转换器是否支持 传入的 MediaType
-			if (supportedMediaType.includes(mediaType)) {
-				return true;
-			}
+			if (supportedMediaType.includes(mediaType)) return true;
 		}
 		return false;
 	}
@@ -177,9 +175,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
 			return true;
 		}
 		for (MediaType supportedMediaType : getSupportedMediaTypes()) { // 判断 内容转换器是否支持 传入的 MediaType
-			if (supportedMediaType.isCompatibleWith(mediaType)) {
-				return true;
-			}
+			if (supportedMediaType.isCompatibleWith(mediaType)) return true;
 		}
 		return false;
 	}
@@ -224,7 +220,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
 			});
 		}
 		else {
-			writeInternal(t, outputMessage);
+			writeInternal(t, outputMessage); // 模版方法, 将数据写入数据输出流中 outputMessage
 			outputMessage.getBody().flush();
 		}
 	}
@@ -305,8 +301,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
 	 * @throws IOException in case of I/O errors
 	 * @throws HttpMessageNotReadableException in case of conversion errors
 	 */
-	protected abstract T readInternal(Class<? extends T> clazz, HttpInputMessage inputMessage)
-			throws IOException, HttpMessageNotReadableException;
+	protected abstract T readInternal(Class<? extends T> clazz, HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException;
 
 	/**
 	 * Abstract template method that writes the actual body. Invoked from {@link #write}.
@@ -315,7 +310,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
 	 * @throws IOException in case of I/O errors
 	 * @throws HttpMessageNotWritableException in case of conversion errors
 	 */
-	protected abstract void writeInternal(T t, HttpOutputMessage outputMessage)   // 模版方法
-			throws IOException, HttpMessageNotWritableException;
+	// 模版方法
+	protected abstract void writeInternal(T t, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException;
 
 }

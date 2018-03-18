@@ -55,6 +55,7 @@ import org.springframework.util.FileCopyUtils;
  * @author Juergen Hoeller
  * @since 4.1
  */
+// 支持数据类型是 com.google.protobuf.Message, 通过 com.google.protobuf.Message.Builder 将 HttpBody 中的数据流转换成指定格式的 Message, 通过 ProtobufFormatter 将 com.google.protobuf.Message 转换成字节流输出到远端
 public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<Message> {
 
 	public static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");

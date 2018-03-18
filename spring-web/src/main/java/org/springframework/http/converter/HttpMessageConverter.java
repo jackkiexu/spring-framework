@@ -30,7 +30,7 @@ import org.springframework.http.MediaType;
  * @author Juergen Hoeller
  * @since 3.0
  */
-// 数据转换器 -> 将数据转换成 requests 或 response
+// 数据转换器 -> 将数据转换成 requests 或 response 中的数据
 public interface HttpMessageConverter<T> {
 
 	/**
@@ -40,7 +40,7 @@ public interface HttpMessageConverter<T> {
 	 * typically the value of a {@code Content-Type} header.
 	 * @return {@code true} if readable; {@code false} otherwise
 	 */
-	// 指定的 class 是否支持读取
+	// 指定的 class 是否支持读取(MediaType 指数据的格式)
 	boolean canRead(Class<?> clazz, MediaType mediaType);
 
 	/**
@@ -70,8 +70,7 @@ public interface HttpMessageConverter<T> {
 	 * @throws HttpMessageNotReadableException in case of conversion errors
 	 */
 	// 从 HttpInputMessage 中读取数据流, 并转化成 T 这站类型
-	T read(Class<? extends T> clazz, HttpInputMessage inputMessage)
-			throws IOException, HttpMessageNotReadableException;
+	T read(Class<? extends T> clazz, HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException;
 
 	/**
 	 * Write an given object to the given output message.
@@ -86,7 +85,6 @@ public interface HttpMessageConverter<T> {
 	 * @throws HttpMessageNotWritableException in case of conversion errors
 	 */
 	// 将 T 里面的数据信息写入到 HttpOutputMessage 的数据流中
-	void write(T t, MediaType contentType, HttpOutputMessage outputMessage)
-			throws IOException, HttpMessageNotWritableException;
+	void write(T t, MediaType contentType, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException;
 
 }

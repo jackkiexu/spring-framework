@@ -351,7 +351,9 @@ public class ExceptionHandlerExceptionResolverTests {
 	@Controller
 	static class ResponseBodyController {
 
-		public void handle() {}
+		public void handle() {
+            System.out.println("handler");
+        }
 
 		@ExceptionHandler
 		@ResponseBody

@@ -39,10 +39,10 @@ public abstract class AbstractHandlerMethodExceptionResolver extends AbstractHan
 	 */
 	@Override
 	protected boolean shouldApplyTo(HttpServletRequest request, Object handler) {
-		if (handler == null) {
+		if (handler == null) {			// 若 hander == null, 则直接交给父类做决策
 			return super.shouldApplyTo(request, handler);
 		}
-		else if (handler instanceof HandlerMethod) {
+		else if (handler instanceof HandlerMethod) {  // 若是 HandlerMethod, 则直接调用父类方法(PS: 父类方法都是交由 mappedHandler, mappedHandlerClasses 方法)
 			HandlerMethod handlerMethod = (HandlerMethod) handler;
 			handler = handlerMethod.getBean();
 			return super.shouldApplyTo(request, handler);

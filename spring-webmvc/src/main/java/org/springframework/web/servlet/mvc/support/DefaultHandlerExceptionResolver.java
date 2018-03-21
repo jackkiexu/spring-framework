@@ -77,7 +77,7 @@ import org.springframework.web.servlet.handler.AbstractHandlerExceptionResolver;
  * @see #handleMissingServletRequestPartException
  * @see #handleBindException
  */
-// 默认异常解析器, 解析常见的异常, 在 Http 头部设置对应的 Code, 最后返回对应的 ModelAndView
+// 默认异常解析器, 进行异常的类型进行相应的解析操作, 在 Http 头部设置对应的 Code, 最后返回对应的 ModelAndView
 public class DefaultHandlerExceptionResolver extends AbstractHandlerExceptionResolver {
 
 	/**
@@ -108,59 +108,75 @@ public class DefaultHandlerExceptionResolver extends AbstractHandlerExceptionRes
 
 		try {
 			// 通过 HttpServletRequest 从 HandlerMapping 中未能获取对应的 HandlerMethod 时就会触发这个异常(设置 404 HttpServletResponse.SC_NOT_FOUND)
+			// 处理 NoSuchRequestHandlingMethodException, 设置 http code 404 --> SC_NOT_FOUND
 			if (ex instanceof org.springframework.web.servlet.mvc.multiaction.NoSuchRequestHandlingMethodException) {
 				return handleNoSuchRequestHandlingMethod((org.springframework.web.servlet.mvc.multiaction.NoSuchRequestHandlingMethodException) ex, request, response, handler);
 			}
+			// 处理 HttpRequestMethodNotSupportedException, 设置 http code 405 -- > SC_METHOD_NOT_ALLOWED
 			else if (ex instanceof HttpRequestMethodNotSupportedException) {
 				return handleHttpRequestMethodNotSupported((HttpRequestMethodNotSupportedException) ex, request,
 						response, handler);
 			}
+			// 处理 HttpMediaTypeNotSupportedException, 设置 http code 415 --> SC_UNSUPPORTED_MEDIA_TYPE
 			else if (ex instanceof HttpMediaTypeNotSupportedException) {
 				return handleHttpMediaTypeNotSupported((HttpMediaTypeNotSupportedException) ex, request, response,
 						handler);
 			}
+			// 处理 HttpMediaTypeNotAcceptableException, 设置 http code 406 --> SC_NOT_ACCEPTABLE
 			else if (ex instanceof HttpMediaTypeNotAcceptableException) {
 				return handleHttpMediaTypeNotAcceptable((HttpMediaTypeNotAcceptableException) ex, request, response,
 						handler);
 			}
+			// 处理 MissingPathVariableException, 设置 http code 500 --> SC_INTERNAL_SERVER_ERROR
 			else if (ex instanceof MissingPathVariableException) {
 				return handleMissingPathVariable((MissingPathVariableException) ex, request,
 						response, handler);
 			}
+			// 处理 MissingServletRequestParameterException, 设置 http code 400 --> SC_BAD_REQUEST
 			else if (ex instanceof MissingServletRequestParameterException) {
 				return handleMissingServletRequestParameter((MissingServletRequestParameterException) ex, request,
 						response, handler);
 			}
+			// 处理 ServletRequestBindingException, 设置 http code 400 --> SC_BAD_REQUEST
 			else if (ex instanceof ServletRequestBindingException) {
 				return handleServletRequestBindingException((ServletRequestBindingException) ex, request, response,
 						handler);
 			}
+			// 处理 ConversionNotSupportedException, 设置 http code 500 --> SC_INTERNAL_SERVER_ERROR
 			else if (ex instanceof ConversionNotSupportedException) {
 				return handleConversionNotSupported((ConversionNotSupportedException) ex, request, response, handler);
 			}
+			// 处理 TypeMismatchException, 设置 http code 400 --> SC_BAD_REQUEST
 			else if (ex instanceof TypeMismatchException) {
 				return handleTypeMismatch((TypeMismatchException) ex, request, response, handler);
 			}
+			// 处理 HttpMessageNotReadableException, 设置 http code 400 --> SC_BAD_REQUEST
 			else if (ex instanceof HttpMessageNotReadableException) {
 				return handleHttpMessageNotReadable((HttpMessageNotReadableException) ex, request, response, handler);
 			}
+			// 处理 HttpMessageNotWritableException, 设置 http code 500 --> SC_INTERNAL_SERVER_ERROR
 			else if (ex instanceof HttpMessageNotWritableException) {
 				return handleHttpMessageNotWritable((HttpMessageNotWritableException) ex, request, response, handler);
 			}
+			// 处理 MethodArgumentNotValidException, 设置 http code 400 --> SC_BAD_REQUEST
 			else if (ex instanceof MethodArgumentNotValidException) {
 				return handleMethodArgumentNotValidException((MethodArgumentNotValidException) ex, request, response,
 						handler);
 			}
+			// 处理 MissingServletRequestPartException, 设置 http code 400 --> SC_BAD_REQUEST
 			else if (ex instanceof MissingServletRequestPartException) {
 				return handleMissingServletRequestPartException((MissingServletRequestPartException) ex, request,
 						response, handler);
 			}
+			// 处理 BindException, 设置 http code 400 --> SC_BAD_REQUEST
 			else if (ex instanceof BindException) {
 				return handleBindException((BindException) ex, request, response, handler);
 			}
+			// 处理 NoHandlerFoundException, 设置 http code 404 --> SC_NOT_FOUND
 			else if (ex instanceof NoHandlerFoundException) {
 				return handleNoHandlerFoundException((NoHandlerFoundException) ex, request, response, handler);
 			}
+			// 处理 AsyncRequestTimeoutException, 设置 http code 503 --> SC_SERVICE_UNAVAILABLE
 			else if (ex instanceof AsyncRequestTimeoutException) {
 				return handleAsyncRequestTimeoutException(
 						(AsyncRequestTimeoutException) ex, request, response, handler);

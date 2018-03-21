@@ -41,7 +41,7 @@ import org.springframework.web.util.WebUtils;
  * @since 22.11.2003
  * @see org.springframework.web.servlet.DispatcherServlet
  */
-// 映射 异常 Class --> ViewName 的 异常处理器
+// 在配置信息中配置 异常Class <-> ViewName的映射的 异常处理器
 public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionResolver {
 
 	/** The default name of the exception attribute: "exception". */
@@ -180,15 +180,14 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 		// Expose ModelAndView for chosen error view. 根据异常获取对应的 ViewName, 一般是通过 Property 配置文件中配置的
 		String viewName = determineViewName(ex, request);
 		if (viewName != null) {
-			// 如果配置了 statusCodes 属性, 则对此异常的状态码进行设置
+			// 根据 viewName 从映射表里面获取指定的 statusCode
 			// Apply HTTP status code for error views, if specified.
 			// Only apply it if we're processing a top-level request.
-			Integer statusCode = determineStatusCode(request, viewName);  // 根据 viewName 从映射表里面获取指定的 statusCode
-			if (statusCode != null) {
-				applyStatusCodeIfPossible(request, response, statusCode); // 设置到 response 中
-			}
-			// 创建 ModelAndView 对象
-			return getModelAndView(viewName, ex, request);                // 根据 viewName, Exception 创建对应的 ModelAndView
+			Integer statusCode = determineStatusCode(request, viewName);
+			// 设置 http code 到 response 中
+			if (statusCode != null) applyStatusCodeIfPossible(request, response, statusCode);
+			// 根据 viewName, Exception 创建对应的 ModelAndView
+			return getModelAndView(viewName, ex, request);
 		}
 		else {
 			return null;

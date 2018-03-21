@@ -91,7 +91,7 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 	 * @param mavContainer the ModelAndViewContainer for this request
 	 * @param providedArgs "given" arguments matched by type (not resolved)
 	 */
-	// 激活方法, 并且通过 HandlerMethodReturnValueHandler 来处理一下返回值
+	// 激活方法, 并且通过 HandlerMethodReturnValueHandler 来处理一下返回值, 这里的参数 providedArgs 是首选参数, 比如说异常处理的 InvocableHandlerMethod, 这时会传来参数 Exception, cause
 	public void invokeAndHandle(ServletWebRequest webRequest, ModelAndViewContainer mavContainer,
 			Object... providedArgs) throws Exception {
 

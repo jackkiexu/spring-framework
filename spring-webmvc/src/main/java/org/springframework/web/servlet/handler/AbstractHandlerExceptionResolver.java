@@ -49,13 +49,13 @@ public abstract class AbstractHandlerExceptionResolver implements HandlerExcepti
 	protected final Log logger = LogFactory.getLog(getClass());
 	// 异常处理类的 优先级
 	private int order = Ordered.LOWEST_PRECEDENCE;
-
+	// 这个 ExceptionResolver 能处理的 handlers, 一般为 null
 	private Set<?> mappedHandlers;
-
+	// 这个 ExceptionResolver 能处理的 handlersClass, 一般为 null
 	private Class<?>[] mappedHandlerClasses;
 
 	private Log warnLogger;
-
+	// 是否阻止 Response 进行 cache
 	private boolean preventResponseCaching = false;
 
 
@@ -127,11 +127,9 @@ public abstract class AbstractHandlerExceptionResolver implements HandlerExcepti
 	@Override
 	public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response,
 			Object handler, Exception ex) {
-		// 判断是否需要解析
+		// 判断是否需要解析 <-- 一般都是交由 mappedHandler, mappedHandlerClasses
 		if (shouldApplyTo(request, handler)) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("Resolving exception from handler [" + handler + "]: " + ex);
-			}
+			this.logger.debug("Resolving exception from handler [" + handler + "]: " + ex);
 			// 此处一般是判断内部属性 preventResponseCaching 是否为 true, 是则设置响应包头 cache-control:no-store
 			prepareResponse(ex, response);
 			// 使用模板方法 doResolveException 方法供子类实现, 其实就是针对特定异常的处理, 返回对应的 ModelAndView
@@ -180,7 +178,7 @@ public abstract class AbstractHandlerExceptionResolver implements HandlerExcepti
 			}
 		}
 		// Else only apply if there are no explicit handler mappings.
-		return (this.mappedHandlers == null && this.mappedHandlerClasses == null);
+		return (this.mappedHandlers == null && this.mappedHandlerClasses == null);  // 若 mappedHandlers, mappedHandlerClasses 都是null, 则直接返回 true
 	}
 
 	/**
@@ -220,7 +218,7 @@ public abstract class AbstractHandlerExceptionResolver implements HandlerExcepti
 	 */
 	protected void prepareResponse(Exception ex, HttpServletResponse response) {
 		if (this.preventResponseCaching) {
-			preventCaching(response);
+			preventCaching(response);  // 是否设置 阻止 caching
 		}
 	}
 

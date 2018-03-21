@@ -70,9 +70,9 @@ public class ExceptionHandlerMethodResolver {
 	 * A constructor that finds {@link ExceptionHandler} methods in the given type.
 	 * @param handlerType the type to introspect
 	 */
-	public ExceptionHandlerMethodResolver(Class<?> handlerType) {
+	public ExceptionHandlerMethodResolver(Class<?> handlerType) {  // 将被 @ExceptionHandler 注解的方法
 		for (Method method : MethodIntrospector.selectMethods(handlerType, EXCEPTION_HANDLER_METHODS)) {
-			for (Class<? extends Throwable> exceptionType : detectExceptionMappings(method)) {		// 将这个 method 支持处理的 异常类型获取
+			for (Class<? extends Throwable> exceptionType : detectExceptionMappings(method)) {		// 将这个 method 支持处理的 异常类型获取 (有在 @ExceptionHandler 中标注的 异常, 有方法的参数直接是 异常)
 				addExceptionMapping(exceptionType, method);		// 将 异常类型 <--> method 放入 mappedMethods
 			}
 		}
@@ -125,7 +125,7 @@ public class ExceptionHandlerMethodResolver {
 	 * @return a Method to handle the exception, or {@code null} if none found
 	 */
 	public Method resolveMethod(Exception exception) {
-		Method method = resolveMethodByExceptionType(exception.getClass());
+		Method method = resolveMethodByExceptionType(exception.getClass());  // 获取能处理 Exception 的 Method
 		if (method == null) {
 			Throwable cause = exception.getCause();
 			if (cause != null) {
@@ -144,7 +144,7 @@ public class ExceptionHandlerMethodResolver {
 	public Method resolveMethodByExceptionType(Class<? extends Throwable> exceptionType) {
 		Method method = this.exceptionLookupCache.get(exceptionType);
 		if (method == null) {
-			method = getMappedMethod(exceptionType);
+			method = getMappedMethod(exceptionType);		// 将 异常类型<--> 异常处理方法 放入 查询的 cache 中
 			this.exceptionLookupCache.put(exceptionType, (method != null ? method : NO_METHOD_FOUND));
 		}
 		return (method != NO_METHOD_FOUND ? method : null);
@@ -153,10 +153,10 @@ public class ExceptionHandlerMethodResolver {
 	/**
 	 * Return the {@link Method} mapped to the given exception type, or {@code null} if none.
 	 */
-	private Method getMappedMethod(Class<? extends Throwable> exceptionType) {
+	private Method getMappedMethod(Class<? extends Throwable> exceptionType) {  // 返回针对异常的方法
 		List<Class<? extends Throwable>> matches = new ArrayList<Class<? extends Throwable>>();
 		for (Class<? extends Throwable> mappedException : this.mappedMethods.keySet()) {
-			if (mappedException.isAssignableFrom(exceptionType)) {
+			if (mappedException.isAssignableFrom(exceptionType)) {  // 异常 exceptionType 是不是 mappedException 的子类
 				matches.add(mappedException);
 			}
 		}

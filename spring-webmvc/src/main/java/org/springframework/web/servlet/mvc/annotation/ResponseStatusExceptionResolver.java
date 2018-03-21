@@ -49,7 +49,7 @@ import org.springframework.web.servlet.handler.AbstractHandlerExceptionResolver;
  *
  * 参考资料
  * http://www.cnblogs.com/question-sky/p/7240628.html
- * 根据异常上面的 @ResponseStatus 中注解的 Http Code 与 reson 进行返回 ModeAndView
+ * 根据异常 class 上面的 @ResponseStatus 中注解的 Http Code 与 reson 进行返回 ModeAndView
  */
 public class ResponseStatusExceptionResolver extends AbstractHandlerExceptionResolver implements MessageSourceAware {
 

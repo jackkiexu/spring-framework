@@ -37,6 +37,7 @@ import org.springframework.web.portlet.ModelAndView;
  * @author Juergen Hoeller
  * @author John A. Lewis
  * @since 2.0
+ * 接口适配器
  */
 public abstract class HandlerInterceptorAdapter implements HandlerInterceptor {
 

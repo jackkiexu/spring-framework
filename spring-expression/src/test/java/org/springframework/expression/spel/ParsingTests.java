@@ -446,7 +446,7 @@ public class ParsingTests {
 	}
 
 	/**
-	 * Parse the supplied expression and then create a string representation of the resultant AST, it should be the
+	 * Parse the supplied expression and then create a string representation of the resultant(合成) AST(Abstract Syntax Tree), it should be the
 	 * expected value.
 	 *
 	 * @param expression the expression to parse

@@ -29,6 +29,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Juergen Hoeller
  * @since 4.2
+ * 对象适配器
  */
 public class FormatterPropertyEditorAdapter extends PropertyEditorSupport {
 

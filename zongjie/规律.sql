@@ -30,7 +30,11 @@
 
 8. 适配器模式, 含有 Adapter 关键字
     正真的适配器: RequestMappingHandlerAdapter
-    接口适配器:  CallableProcessingInterceptorAdapter
+    接口适配器:
+        CallableProcessingInterceptorAdapter
+        HandlerInterceptorAdapter
+    对象适配器
+        FormatterPropertyEditorAdapter
 
 9. 解释器模式, 含有 Parser 关键字
 

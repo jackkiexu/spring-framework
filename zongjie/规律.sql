@@ -15,6 +15,8 @@
       与 UriComponentsBuilder 相似, 只不过是通过 Class, Method 上获取对应 URI 的信息
   2.7 ServletUriComponentsBuilder
       与 UriComponentsBuilder 相似, 只不过是通过 HttpServletRequest 上获取对应 URI 的信息
+  2.8 MessageBuilder
+      消息的建造者, 创建 payload, headers
 
 3. 以 Support 为尾缀命名的类
   3.1 PropertyEditorRegistrySupport: 属性编辑注册器的支持
@@ -58,8 +60,10 @@
 
 19. 面门模式, 含有 Facade 关键字
 
-19. 命令模式,
+20. 命令模式,
     -- 完成一个 Http 请求
+
+21. Handler 结尾的类
 
 ------------------------------------ Spring 里面重要概念 --------------------------------------------
 1. FactoryBean

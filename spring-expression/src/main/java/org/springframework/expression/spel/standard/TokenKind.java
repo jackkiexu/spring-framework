@@ -25,7 +25,7 @@ package org.springframework.expression.spel.standard;
 enum TokenKind {
 
 	// ordered by priority - operands first
-
+	// 文字
 	LITERAL_INT,
 
 	LITERAL_LONG,
@@ -39,7 +39,7 @@ enum TokenKind {
 	LITERAL_REAL,
 
 	LITERAL_REAL_FLOAT,
-
+	// L == left paren == 括号
 	LPAREN("("),
 
 	RPAREN(")"),
@@ -51,11 +51,11 @@ enum TokenKind {
 	COLON(":"),
 
 	HASH("#"),
-
+	// R == right 右, SQUARE == 方括号
 	RSQUARE("]"),
 
 	LSQUARE("["),
-
+	// curly 卷
 	LCURLY("{"),
 
 	RCURLY("}"),

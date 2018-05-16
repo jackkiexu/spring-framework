@@ -453,18 +453,21 @@ class Tokenizer {
 
 	private void lexIdentifier() {
 		int start = this.pos;
+
+		// 不被 Spring Expression 认识的字符, 就直接 break
 		do {
 			this.pos++;
-		}
-		while (isIdentifier(this.toProcess[this.pos]));
+		} while (isIdentifier(this.toProcess[this.pos]));
+
 		char[] subarray = subarray(start, this.pos);
 
 		// Check if this is the alternative (textual) representation of an operator (see
 		// alternativeOperatorNames)
+		// 确认 2|3 个字符 是否是操作符号
 		if ((this.pos - start) == 2 || (this.pos - start) == 3) {
 			String asString = new String(subarray).toUpperCase();
 			int idx = Arrays.binarySearch(ALTERNATIVE_OPERATOR_NAMES, asString);
-			if (idx >= 0) {
+			if (idx >= 0) {  // 将操作符 token 推进去
 				pushOneCharOrTwoCharToken(TokenKind.valueOf(asString), start, subarray);
 				return;
 			}
@@ -517,7 +520,7 @@ class Tokenizer {
 		return result;
 	}
 
-	/**
+	/** 是否是两字节的 符号
 	 * Check if this might be a two character token.
 	 */
 	private boolean isTwoCharToken(TokenKind kind) {
@@ -526,7 +529,7 @@ class Tokenizer {
 				this.toProcess[this.pos + 1] == kind.tokenChars[1]);
 	}
 
-	/**
+	/** Push 一个字节大小的 Token (标志)
 	 * Push a token of just one character in length.
 	 */
 	private void pushCharToken(TokenKind kind) {
@@ -534,7 +537,7 @@ class Tokenizer {
 		this.pos++;
 	}
 
-	/**
+	/** Push 两个字节大小的 Token (标志)
 	 * Push a token of two characters in length.
 	 */
 	private void pushPairToken(TokenKind kind) {
@@ -547,7 +550,7 @@ class Tokenizer {
 	}
 
 	// ID: ('a'..'z'|'A'..'Z'|'_'|'$') ('a'..'z'|'A'..'Z'|'_'|'$'|'0'..'9'|DOT_ESCAPED)*;
-	private boolean isIdentifier(char ch) {
+	private boolean isIdentifier(char ch) { // char 能否被解释器给认识
 		return isAlphabetic(ch) || isDigit(ch) || ch == '_' || ch == '$';
 	}
 

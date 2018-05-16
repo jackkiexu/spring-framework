@@ -774,10 +774,10 @@ class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
 	//constructor
     //:	('new' qualifiedId LPAREN) => 'new' qualifiedId ctorArgs -> ^(CONSTRUCTOR qualifiedId ctorArgs)
 	private boolean maybeEatConstructorReference() {
-		if (peekIdentifierToken("new")) {
+		if (peekIdentifierToken("new")) {  // 判断字符是否是 new 开头
 			Token newToken = nextToken();
 			// It looks like a constructor reference but is NEW being used as a map key?
-			if (peekToken(TokenKind.RSQUARE)) {
+			if (peekToken(TokenKind.RSQUARE)) {          // 若是有括号, 则 new 就是一个 properties
 				// looks like 'NEW]' (so NEW used as map key)
 				push(new PropertyOrFieldReference(false, newToken.data, toPos(newToken)));
 				return true;
@@ -824,6 +824,7 @@ class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
 		return this.constructedNodes.pop();
 	}
 
+	// 读取特定数据
 	//	literal
 	//  : INTEGER_LITERAL
 	//	| boolLiteral
@@ -871,13 +872,13 @@ class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
 		return true;
 	}
 
-	//parenExpr : LPAREN! expression RPAREN!;
+	//parenExpr : LPAREN! expression RPAREN!; (PAREN 括号)
 	private boolean maybeEatParenExpression() {
-		if (peekToken(TokenKind.LPAREN)) {
-			nextToken();
+		if (peekToken(TokenKind.LPAREN)) { // 查看当前是否是 左括弧
+			nextToken();				   //  token 的指针右移
 			SpelNodeImpl expr = eatExpression();
-			eatToken(TokenKind.RPAREN);
-			push(expr);
+			eatToken(TokenKind.RPAREN);    // 检测下一个括号是否是 右括弧
+			push(expr);					   // 将 Node push 到 stack 中
 			return true;
 		}
 		else {
@@ -893,10 +894,10 @@ class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
 		if (t == null) {
 			return null;
 		}
-		if (t.isNumericRelationalOperator()) {
+		if (t.isNumericRelationalOperator()) {  // 是否是 数字类型的 关系操作符号
 			return t;
 		}
-		if (t.isIdentifier()) {
+		if (t.isIdentifier()) {                 // 是否是 identifier 类型
 			String idString = t.stringValue();
 			if (idString.equalsIgnoreCase("instanceof")) {
 				return t.asInstanceOfToken();
@@ -911,6 +912,7 @@ class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
 		return null;
 	}
 
+	// 取出下一个 token, 且 token 必须是 expectedKind 类型
 	private Token eatToken(TokenKind expectedKind) {
 		Token t = nextToken();
 		if (t == null) {
@@ -923,6 +925,7 @@ class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
 		return t;
 	}
 
+	// 查看 token 是否是 desiredToken 类型
 	private boolean peekToken(TokenKind desiredTokenKind) {
 		return peekToken(desiredTokenKind, false);
 	}
@@ -952,6 +955,7 @@ class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
 		return false;
 	}
 
+	// 取出一个 token, 判断是否是 possible1,2
 	private boolean peekToken(TokenKind possible1, TokenKind possible2) {
 		if (!moreTokens()) {
 			return false;
@@ -960,6 +964,7 @@ class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
 		return (t.kind == possible1 || t.kind == possible2);
 	}
 
+	// 取出一个 token, 判断是否是 possible1,2,3
 	private boolean peekToken(TokenKind possible1, TokenKind possible2, TokenKind possible3) {
 		if (!moreTokens()) {
 			return false;
@@ -968,6 +973,7 @@ class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
 		return (t.kind == possible1 || t.kind == possible2 || t.kind == possible3);
 	}
 
+	// 确认下一个 token 是否是 指定字符 identifierString 类型
 	private boolean peekIdentifierToken(String identifierString) {
 		if (!moreTokens()) {
 			return false;
@@ -976,6 +982,7 @@ class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
 		return (t.kind == TokenKind.IDENTIFIER && t.stringValue().equalsIgnoreCase(identifierString));
 	}
 
+	// 判断下一个 token 是否是 select 类型的
 	private boolean peekSelectToken() {
 		if (!moreTokens()) {
 			return false;
@@ -984,10 +991,12 @@ class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
 		return (t.kind == TokenKind.SELECT || t.kind == TokenKind.SELECT_FIRST || t.kind == TokenKind.SELECT_LAST);
 	}
 
+	// 是否还有更多的 Token
 	private boolean moreTokens() {
 		return this.tokenStreamPointer<this.tokenStream.size();
 	}
 
+	// 从 tokenStream 中取出下一个 Token
 	private Token nextToken() {
 		if (this.tokenStreamPointer >= this.tokenStreamLength) {
 			return null;
@@ -995,6 +1004,7 @@ class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
 		return this.tokenStream.get(this.tokenStreamPointer++);
 	}
 
+	// 从 tokenStream 中取出一个 Token
 	private Token peekToken() {
 		if (this.tokenStreamPointer >= this.tokenStreamLength) {
 			return null;
@@ -1006,6 +1016,7 @@ class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
 		throw new InternalParseException(new SpelParseException(this.expressionString, pos, message, inserts));
 	}
 
+	// Token toString 操作
 	public String toString(Token t) {
 		if (t.getKind().hasPayload()) {
 			return t.stringValue();
@@ -1013,17 +1024,20 @@ class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
 		return t.kind.toString().toLowerCase();
 	}
 
+	// 检测左右运算
 	private void checkOperands(Token token, SpelNodeImpl left, SpelNodeImpl right) {
 		checkLeftOperand(token, left);
 		checkRightOperand(token, right);
 	}
 
+	// 左运算 抛出异常
 	private void checkLeftOperand(Token token, SpelNodeImpl operandExpression) {
 		if (operandExpression == null) {
 			raiseInternalException(token.startPos, SpelMessage.LEFT_OPERAND_PROBLEM);
 		}
 	}
 
+	// 右运算 抛出异常
 	private void checkRightOperand(Token token, SpelNodeImpl operandExpression) {
 		if (operandExpression == null) {
 			raiseInternalException(token.startPos, SpelMessage.RIGHT_OPERAND_PROBLEM);

@@ -17,7 +17,7 @@
 package org.springframework.messaging;
 
 /**
- * A {@link MessageChannel} from which messages may be actively received through polling.
+ * A {@link MessageChannel} from which messages may be actively received through polling(拉的方式来接受消息).
  *
  * @author Mark Fisher
  * @since 4.0
@@ -25,14 +25,14 @@ package org.springframework.messaging;
 public interface PollableChannel extends MessageChannel {
 
 	/**
-	 * Receive a message from this channel, blocking indefinitely if necessary.
+	 * Receive a message from this channel, blocking indefinitely(不确定, 不限期) if necessary.
 	 * @return the next available {@link Message} or {@code null} if interrupted
 	 */
 	Message<?> receive();
 
 	/**
 	 * Receive a message from this channel, blocking until either a message is available
-	 * or the specified timeout period elapses.
+	 * or the specified timeout period elapses(流逝).
 	 * @param timeout the timeout in milliseconds or {@link MessageChannel#INDEFINITE_TIMEOUT}.
 	 * @return the next available {@link Message} or {@code null} if the specified timeout
 	 * period elapses or the message reception is interrupted

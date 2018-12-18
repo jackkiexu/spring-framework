@@ -29,8 +29,7 @@ import org.springframework.messaging.converter.MessageConverter;
  * @author Stephane Nicoll
  * @since 4.1
  */
-public abstract class AbstractMessageReceivingTemplate<D> extends AbstractMessageSendingTemplate<D>
-		implements MessageReceivingOperations<D> {
+public abstract class AbstractMessageReceivingTemplate<D> extends AbstractMessageSendingTemplate<D> implements MessageReceivingOperations<D> {
 
 	@Override
 	public Message<?> receive() {

@@ -42,8 +42,7 @@ import org.springframework.util.Assert;
  * @author Rossen Stoyanchev
  * @since 4.0
  */
-public class GenericMessagingTemplate extends AbstractDestinationResolvingMessagingTemplate<MessageChannel>
-		implements BeanFactoryAware {
+public class GenericMessagingTemplate extends AbstractDestinationResolvingMessagingTemplate<MessageChannel> implements BeanFactoryAware {
 
 	private volatile long sendTimeout = -1;
 
@@ -110,7 +109,7 @@ public class GenericMessagingTemplate extends AbstractDestinationResolvingMessag
 		if (accessor != null && accessor.isMutable()) {
 			accessor.setImmutable();
 		}
-
+		// 进行消息的发送
 		long timeout = this.sendTimeout;
 		boolean sent = (timeout >= 0 ? channel.send(message, timeout) : channel.send(message));
 
@@ -125,9 +124,9 @@ public class GenericMessagingTemplate extends AbstractDestinationResolvingMessag
 		Assert.notNull(channel, "MessageChannel is required");
 		Assert.state(channel instanceof PollableChannel, "A PollableChannel is required to receive messages");
 
+		// 通过 Channel 进行消息发送
 		long timeout = this.receiveTimeout;
-		Message<?> message = (timeout >= 0 ?
-				((PollableChannel) channel).receive(timeout) : ((PollableChannel) channel).receive());
+		Message<?> message = (timeout >= 0 ? ((PollableChannel) channel).receive(timeout) : ((PollableChannel) channel).receive());
 
 		if (message == null && this.logger.isTraceEnabled()) {
 			this.logger.trace("Failed to receive message from channel '" + channel + "' within timeout: " + timeout);
@@ -136,6 +135,7 @@ public class GenericMessagingTemplate extends AbstractDestinationResolvingMessag
 		return message;
 	}
 
+	// 发送并接收消息
 	@Override
 	protected final Message<?> doSendAndReceive(MessageChannel channel, Message<?> requestMessage) {
 		Assert.notNull(channel, "'channel' is required");
@@ -143,17 +143,18 @@ public class GenericMessagingTemplate extends AbstractDestinationResolvingMessag
 		Object originalErrorChannelHeader = requestMessage.getHeaders().getErrorChannel();
 
 		TemporaryReplyChannel tempReplyChannel = new TemporaryReplyChannel();
+		// 创建回复 message
 		requestMessage = MessageBuilder.fromMessage(requestMessage).setReplyChannel(tempReplyChannel).
 				setErrorChannel(tempReplyChannel).build();
 
-		try {
+		try { // 进行消息的发送
 			doSend(channel, requestMessage);
 		}
 		catch (RuntimeException ex) {
 			tempReplyChannel.setSendFailed(true);
 			throw ex;
 		}
-
+		// 进行消息的接收
 		Message<?> replyMessage = this.doReceive(tempReplyChannel);
 		if (replyMessage != null) {
 			replyMessage = MessageBuilder.fromMessage(replyMessage)
@@ -167,20 +168,22 @@ public class GenericMessagingTemplate extends AbstractDestinationResolvingMessag
 
 
 	/**
+	 * poll: 投票/轮询
 	 * A temporary channel for receiving a single reply message.
 	 */
 	private class TemporaryReplyChannel implements PollableChannel {
 
 		private final Log logger = LogFactory.getLog(TemporaryReplyChannel.class);
 
+		// 回复闭锁
 		private final CountDownLatch replyLatch = new CountDownLatch(1);
-
+		// 回复的消息
 		private volatile Message<?> replyMessage;
-
+		// 是否已经接收到消息
 		private volatile boolean hasReceived;
-
+		// 是否已经 timeOut
 		private volatile boolean hasTimedOut;
-
+		// 是否发送失败
 		private volatile boolean hasSendFailed;
 
 		public void setSendFailed(boolean hasSendError) {
@@ -195,12 +198,12 @@ public class GenericMessagingTemplate extends AbstractDestinationResolvingMessag
 		@Override
 		public Message<?> receive(long timeout) {
 			try {
-				if (GenericMessagingTemplate.this.receiveTimeout < 0) {
+				if (GenericMessagingTemplate.this.receiveTimeout < 0) { // 没有设置 receiveTimeout, 闭锁一直等待
 					this.replyLatch.await();
 					this.hasReceived = true;
 				}
 				else {
-					if (this.replyLatch.await(GenericMessagingTemplate.this.receiveTimeout, TimeUnit.MILLISECONDS)) {
+					if (this.replyLatch.await(GenericMessagingTemplate.this.receiveTimeout, TimeUnit.MILLISECONDS)) { // 闭锁 等待 receiveTimeout
 						this.hasReceived = true;
 					}
 					else {
@@ -215,7 +218,7 @@ public class GenericMessagingTemplate extends AbstractDestinationResolvingMessag
 		}
 
 		@Override
-		public boolean send(Message<?> message) {
+		public boolean send(Message<?> message) { // 默认的发送消息
 			return this.send(message, -1);
 		}
 

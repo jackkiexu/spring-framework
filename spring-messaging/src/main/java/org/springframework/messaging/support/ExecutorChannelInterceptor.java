@@ -33,6 +33,7 @@ import org.springframework.messaging.MessageHandler;
 public interface ExecutorChannelInterceptor extends ChannelInterceptor {
 
 	/**
+	 * 在 MessageHandler 处理消息前, 可以对消息进行二次加工(PS: 比如 message)
 	 * Invoked inside the {@link Runnable} submitted to the Executor just before
 	 * calling the target MessageHandler to handle the message. Allows for
 	 * modification of the Message if necessary or when {@code null} is returned
@@ -45,6 +46,7 @@ public interface ExecutorChannelInterceptor extends ChannelInterceptor {
 	Message<?> beforeHandle(Message<?> message, MessageChannel channel, MessageHandler handler);
 
 	/**
+	 * 在 MessageHandler 处理好信息后进行处理(PS: 不管是否有返回值), 比如说资源处理
 	 * Invoked inside the {@link Runnable} submitted to the Executor after calling
 	 * the target MessageHandler regardless of the outcome (i.e. Exception raised
 	 * or not) thus allowing for proper resource cleanup.

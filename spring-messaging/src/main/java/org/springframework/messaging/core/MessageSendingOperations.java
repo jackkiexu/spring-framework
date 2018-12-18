@@ -22,6 +22,7 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessagingException;
 
 /**
+ * 定义消息发送的接口
  * Operations for sending messages to a destination.
  *
  * @author Mark Fisher
@@ -32,12 +33,14 @@ import org.springframework.messaging.MessagingException;
 public interface MessageSendingOperations<D> {
 
 	/**
+	 * 发送消息到 destination
 	 * Send a message to a default destination.
 	 * @param message the message to send
 	 */
 	void send(Message<?> message) throws MessagingException;
 
 	/**
+	 * 发送消息到指定的 Destination
 	 * Send a message to the given destination.
 	 * @param destination the target destination
 	 * @param message the message to send
@@ -45,6 +48,7 @@ public interface MessageSendingOperations<D> {
 	void send(D destination, Message<?> message) throws MessagingException;
 
 	/**
+	 * 通过 MessageConverter 进行消息发送
 	 * Convert the given Object to serialized form, possibly using a
 	 * {@link org.springframework.messaging.converter.MessageConverter},
 	 * wrap it as a message and send it to a default destination.
@@ -53,6 +57,7 @@ public interface MessageSendingOperations<D> {
 	void convertAndSend(Object payload) throws MessagingException;
 
 	/**
+	 * 通过 MessageConverter 进行消息发送到指定 destination
 	 * Convert the given Object to serialized form, possibly using a
 	 * {@link org.springframework.messaging.converter.MessageConverter},
 	 * wrap it as a message and send it to the given destination.
@@ -62,6 +67,7 @@ public interface MessageSendingOperations<D> {
 	void convertAndSend(D destination, Object payload) throws MessagingException;
 
 	/**
+	 * 通过 MessageConverter 进行消息发送到指定 destination
 	 * Convert the given Object to serialized form, possibly using a
 	 * {@link org.springframework.messaging.converter.MessageConverter},
 	 * wrap it as a message with the given headers and send it to
@@ -73,6 +79,7 @@ public interface MessageSendingOperations<D> {
 	void convertAndSend(D destination, Object payload, Map<String, Object> headers) throws MessagingException;
 
 	/**
+	 * 通过 MessageConverter 进行消息转换并发送, 最后运用 MessagePostProcessor
 	 * Convert the given Object to serialized form, possibly using a
 	 * {@link org.springframework.messaging.converter.MessageConverter},
 	 * wrap it as a message, apply the given post processor, and send
@@ -82,7 +89,7 @@ public interface MessageSendingOperations<D> {
 	 */
 	void convertAndSend(Object payload, MessagePostProcessor postProcessor) throws MessagingException;
 
-	/**
+	/**通过 MessageConverter 进行消息转换并发送到指定 destination, 最后运用 MessagePostProcessor
 	 * Convert the given Object to serialized form, possibly using a
 	 * {@link org.springframework.messaging.converter.MessageConverter},
 	 * wrap it as a message, apply the given post processor, and send
@@ -94,6 +101,7 @@ public interface MessageSendingOperations<D> {
 	void convertAndSend(D destination, Object payload, MessagePostProcessor postProcessor) throws MessagingException;
 
 	/**
+	 * 通过 MessageConverter 进行消息转换并发送, 最后运用 MessagePostProcessor
 	 * Convert the given Object to serialized form, possibly using a
 	 * {@link org.springframework.messaging.converter.MessageConverter},
 	 * wrap it as a message with the given headers, apply the given post processor,
@@ -103,7 +111,6 @@ public interface MessageSendingOperations<D> {
 	 * @param headers headers for the message to send
 	 * @param postProcessor the post processor to apply to the message
 	 */
-	void convertAndSend(D destination, Object payload, Map<String, Object> headers, MessagePostProcessor postProcessor)
-			throws MessagingException;
+	void convertAndSend(D destination, Object payload, Map<String, Object> headers, MessagePostProcessor postProcessor) throws MessagingException;
 
 }

@@ -20,6 +20,7 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 
 /**
+ * Channel À¹½ØÆ÷µÄÊÊÅäÆ÷
  * A {@link ChannelInterceptor} base class with empty method implementations
  * as a convenience.
  *

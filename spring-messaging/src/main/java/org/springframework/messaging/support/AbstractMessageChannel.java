@@ -40,9 +40,9 @@ import org.springframework.util.ObjectUtils;
 public abstract class AbstractMessageChannel implements MessageChannel, InterceptableChannel, BeanNameAware {
 
 	protected final Log logger = LogFactory.getLog(getClass());
-
+	// channel 的拦截器
 	private final List<ChannelInterceptor> interceptors = new ArrayList<ChannelInterceptor>(5);
-
+	// Spring 中 bean 的名称
 	private String beanName;
 
 
@@ -98,7 +98,7 @@ public abstract class AbstractMessageChannel implements MessageChannel, Intercep
 		return this.interceptors.remove(index);
 	}
 
-
+	// 这个 send 方法使用了默认的 超时时间
 	@Override
 	public final boolean send(Message<?> message) {
 		return send(message, INDEFINITE_TIMEOUT);
@@ -110,13 +110,13 @@ public abstract class AbstractMessageChannel implements MessageChannel, Intercep
 		ChannelInterceptorChain chain = new ChannelInterceptorChain();
 		boolean sent = false;
 		try {
-			message = chain.applyPreSend(message, this);				// 调用消息发送的前置处理器
-			if (message == null) {										// 这里的 message == null, 说明 消息不需要进行发送
+			message = chain.applyPreSend(message, this);   // 调用消息发送的前置处理器
+			if (message == null) {							       // 拦截器作用: 这里通过判断 message == null, 来决定是否需要继续执行下面的流程
 				return false;
 			}
 			sent = sendInternal(message, timeout);
-			chain.applyPostSend(message, this, sent);
-			chain.triggerAfterSendCompletion(message, this, sent, null);
+			chain.applyPostSend(message, this, sent);      // 消息后续处理器
+			chain.triggerAfterSendCompletion(message, this, sent, null); // 消息发送完成触发事件
 			return sent;
 		}
 		catch (Exception ex) {
@@ -134,6 +134,7 @@ public abstract class AbstractMessageChannel implements MessageChannel, Intercep
 		}
 	}
 
+	// 调用模版方法, 可以有同步的, 异步的, 返回值是否有 等等实现
 	protected abstract boolean sendInternal(Message<?> message, long timeout);
 
 
@@ -161,7 +162,7 @@ public abstract class AbstractMessageChannel implements MessageChannel, Intercep
 					if (logger.isDebugEnabled()) {
 						logger.debug(name + " returned null from preSend, i.e. precluding the send.");
 					}
-					triggerAfterSendCompletion(messageToUse, channel, false, null);
+					triggerAfterSendCompletion(messageToUse, channel, false, null); // 若 resolvedMessage == null, 则触发完成事件
 					return null;
 				}
 				messageToUse = resolvedMessage;
@@ -169,13 +170,13 @@ public abstract class AbstractMessageChannel implements MessageChannel, Intercep
 			}
 			return messageToUse;
 		}
-
+		// 发送消息成功后的后置处理
 		public void applyPostSend(Message<?> message, MessageChannel channel, boolean sent) {
 			for (ChannelInterceptor interceptor : interceptors) {
 				interceptor.postSend(message, channel, sent);
 			}
 		}
-
+		// 发送后置处理器
 		public void triggerAfterSendCompletion(Message<?> message, MessageChannel channel, boolean sent, Exception ex) {
 			for (int i = this.sendInterceptorIndex; i >= 0; i--) {
 				ChannelInterceptor interceptor = interceptors.get(i);

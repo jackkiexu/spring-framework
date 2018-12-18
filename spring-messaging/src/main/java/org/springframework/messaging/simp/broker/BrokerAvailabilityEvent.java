@@ -19,6 +19,7 @@ package org.springframework.messaging.simp.broker;
 import org.springframework.context.ApplicationEvent;
 
 /**
+ * message 的 broker 是否 OK 的事件
  * Event raised when a broker's availabilty changes
  *
  * @author Andy Wilkinson

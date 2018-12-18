@@ -41,6 +41,7 @@ import org.springframework.util.Assert;
 public abstract class AbstractMessageSendingTemplate<D> implements MessageSendingOperations<D> {
 
 	/**
+	 * Conversion 的名称
 	 * Name of the header that can be set to provide further information
 	 * (e.g. a {@code MethodParameter} instance) about the origin of the
 	 * payload, to be taken into account as a conversion hint.
@@ -53,10 +54,12 @@ public abstract class AbstractMessageSendingTemplate<D> implements MessageSendin
 
 	private volatile D defaultDestination;
 
+	// 消息格式转换器
 	private volatile MessageConverter converter = new SimpleMessageConverter();
 
 
 	/**
+	 * 设置默认的 消息发送目的地
 	 * Configure the default destination to use in send methods that don't have
 	 * a destination argument. If a default destination is not configured, send methods
 	 * without a destination argument will raise an exception if invoked.
@@ -104,7 +107,7 @@ public abstract class AbstractMessageSendingTemplate<D> implements MessageSendin
 	public void send(D destination, Message<?> message) {
 		doSend(destination, message);
 	}
-
+	// 模版方法, 留给子类进行实现
 	protected abstract void doSend(D destination, Message<?> message);
 
 
@@ -138,7 +141,7 @@ public abstract class AbstractMessageSendingTemplate<D> implements MessageSendin
 	@Override
 	public void convertAndSend(D destination, Object payload, Map<String, Object> headers,
 			MessagePostProcessor postProcessor) throws MessagingException {
-
+		// 进行消息转换
 		Message<?> message = doConvert(payload, headers, postProcessor);
 		send(destination, message);
 	}
@@ -167,6 +170,7 @@ public abstract class AbstractMessageSendingTemplate<D> implements MessageSendin
 		}
 
 		MessageConverter converter = getMessageConverter();
+		// 通过消息转换器转换
 		Message<?> message = (converter instanceof SmartMessageConverter ?
 				((SmartMessageConverter) converter).toMessage(payload, messageHeaders, conversionHint) :
 				converter.toMessage(payload, messageHeaders));
@@ -176,6 +180,7 @@ public abstract class AbstractMessageSendingTemplate<D> implements MessageSendin
 			throw new MessageConversionException("Unable to convert payload with type='" + payloadType +
 					"', contentType='" + contentType + "', converter=[" + getMessageConverter() + "]");
 		}
+		// 通过 后置处理器进行处理消息
 		if (postProcessor != null) {
 			message = postProcessor.postProcessMessage(message);
 		}

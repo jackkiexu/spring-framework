@@ -25,7 +25,7 @@ package org.springframework.messaging;
 public interface MessageChannel {
 
 	/**
-	 * Constant for sending a message without a prescribed timeout.
+	 * Constant for sending a message without a prescribed(规定的) timeout.
 	 */
 	long INDEFINITE_TIMEOUT = -1;
 

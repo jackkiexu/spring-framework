@@ -472,6 +472,7 @@ public abstract class AbstractMessageBrokerConfiguration implements ApplicationC
 	}
 
 
+	// NoOp 类型的 MessageHandler, NoOp 指不做任何事情的意思
 	private class NoOpBrokerMessageHandler extends AbstractBrokerMessageHandler {
 
 		public NoOpBrokerMessageHandler() {

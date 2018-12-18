@@ -39,6 +39,10 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.PathMatcher;
 
 /**
+ * 1. 认别 message type
+ * 2. 追踪订阅者
+ * 3. 发送信息给订阅者
+ *
  * A "simple" message broker that recognizes the message types defined in
  * {@link SimpMessageType}, keeps track of subscriptions with the help of a
  * {@link SubscriptionRegistry} and sends messages to subscribers.
@@ -49,22 +53,30 @@ import org.springframework.util.PathMatcher;
  */
 public class SimpleBrokerMessageHandler extends AbstractBrokerMessageHandler {
 
+	/**
+	 * 1. clientInboundChannel: 从 client 端接收信息处理
+	 * 2. clientOutboundChannel: 发送信息给 client 端
+	 * 3. brokerChannel: 发送消息给 broker 的 channel
+	 */
+
+	// 空 payload
 	private static final byte[] EMPTY_PAYLOAD = new byte[0];
 
 	private final Map<String, SessionInfo> sessions = new ConcurrentHashMap<String, SessionInfo>();
 
+	// 订阅者注册器
 	private SubscriptionRegistry subscriptionRegistry;
-
+	// 路径匹配器
 	private PathMatcher pathMatcher;
-
+	// 缓存限制器
 	private Integer cacheLimit;
-
+	// 任务调度器
 	private TaskScheduler taskScheduler;
 
 	private long[] heartbeatValue;
-
+	// 心跳的 Future
 	private ScheduledFuture<?> heartbeatFuture;
-
+	// 消息头初始器
 	private MessageHeaderInitializer headerInitializer;
 
 
@@ -80,6 +92,7 @@ public class SimpleBrokerMessageHandler extends AbstractBrokerMessageHandler {
 			SubscribableChannel brokerChannel, Collection<String> destinationPrefixes) {
 
 		super(clientInboundChannel, clientOutboundChannel, brokerChannel, destinationPrefixes);
+		// 创建默认的 subscription 注册器
 		this.subscriptionRegistry = new DefaultSubscriptionRegistry();
 	}
 
@@ -167,6 +180,9 @@ public class SimpleBrokerMessageHandler extends AbstractBrokerMessageHandler {
 	}
 
 	/**
+	 * heart-beat 设置:
+	 * 1. 服务端向 client 发送心跳
+	 * 2. 客户端向 server 发送心跳时间
 	 * Configure the value for the heart-beat settings. The first number
 	 * represents how often the server will write or send a heartbeat.
 	 * The second is how often the client should write. 0 means no heartbeats.
@@ -191,6 +207,7 @@ public class SimpleBrokerMessageHandler extends AbstractBrokerMessageHandler {
 	}
 
 	/**
+	 * 设置 message header 初始器
 	 * Configure a {@link MessageHeaderInitializer} to apply to the headers
 	 * of all messages sent to the client outbound channel.
 	 * <p>By default this property is not set.
@@ -211,9 +228,11 @@ public class SimpleBrokerMessageHandler extends AbstractBrokerMessageHandler {
 
 	@Override
 	public void startInternal() {
+		// 发布 BrokerAvailableEvent 事件
 		publishBrokerAvailableEvent();
 		if (getTaskScheduler() != null) {
 			long interval = initHeartbeatTaskDelay();
+			// 若心跳间隔 > 0, 则启动 心跳任务
 			if (interval > 0) {
 				this.heartbeatFuture = this.taskScheduler.scheduleWithFixedDelay(new HeartbeatTask(), interval);
 			}
@@ -225,6 +244,7 @@ public class SimpleBrokerMessageHandler extends AbstractBrokerMessageHandler {
 		}
 	}
 
+	// 获取 heartbeat delay
 	private long initHeartbeatTaskDelay() {
 		if (getHeartbeatValue() == null) {
 			return 0;
@@ -239,6 +259,7 @@ public class SimpleBrokerMessageHandler extends AbstractBrokerMessageHandler {
 
 	@Override
 	public void stopInternal() {
+		// 发布 BrokerUnavailableEvent 事件
 		publishBrokerUnavailableEvent();
 		if (this.heartbeatFuture != null) {
 			this.heartbeatFuture.cancel(true);
@@ -247,45 +268,60 @@ public class SimpleBrokerMessageHandler extends AbstractBrokerMessageHandler {
 
 	@Override
 	protected void handleMessageInternal(Message<?> message) {
+		// 获取消息头
 		MessageHeaders headers = message.getHeaders();
+		// 获取消息的类别
 		SimpMessageType messageType = SimpMessageHeaderAccessor.getMessageType(headers);
+		// 获取消息的 destination
 		String destination = SimpMessageHeaderAccessor.getDestination(headers);
+		// 获取 sessionId
 		String sessionId = SimpMessageHeaderAccessor.getSessionId(headers);
+		// 获取用户
 		Principal user = SimpMessageHeaderAccessor.getUser(headers);
-
+		// 更新 session 的 readTime
 		updateSessionReadTime(sessionId);
-
+		// 通过 destination 来判断
 		if (!checkDestinationPrefix(destination)) {
 			return;
 		}
 
+		// 消息是 message 类别, 则发送给所有 subscriber
 		if (SimpMessageType.MESSAGE.equals(messageType)) {
 			logMessage(message);
 			sendMessageToSubscribers(destination, message);
 		}
 		else if (SimpMessageType.CONNECT.equals(messageType)) {
+			// 请求进行连接
 			logMessage(message);
+			// 获取 heartBeat 设置
 			long[] clientHeartbeat = SimpMessageHeaderAccessor.getHeartbeat(headers);
 			long[] serverHeartbeat = getHeartbeatValue();
+			// 创建 session
 			this.sessions.put(sessionId, new SessionInfo(sessionId, user, clientHeartbeat, serverHeartbeat));
+			// 创建 messageHeader 访问器
 			SimpMessageHeaderAccessor connectAck = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT_ACK);
 			initHeaders(connectAck);
 			connectAck.setSessionId(sessionId);
 			connectAck.setUser(SimpMessageHeaderAccessor.getUser(headers));
+			// 在 header 里面设置 信息
 			connectAck.setHeader(SimpMessageHeaderAccessor.CONNECT_MESSAGE_HEADER, message);
 			connectAck.setHeader(SimpMessageHeaderAccessor.HEART_BEAT_HEADER, serverHeartbeat);
+			// 创建 message, 里面包含 EMPTY_PAYLOAD
 			Message<byte[]> messageOut = MessageBuilder.createMessage(EMPTY_PAYLOAD, connectAck.getMessageHeaders());
 			getClientOutboundChannel().send(messageOut);
 		}
 		else if (SimpMessageType.DISCONNECT.equals(messageType)) {
+			// 断开连接
 			logMessage(message);
 			handleDisconnect(sessionId, user, message);
 		}
 		else if (SimpMessageType.SUBSCRIBE.equals(messageType)) {
+			// 向注册中心注册订阅
 			logMessage(message);
 			this.subscriptionRegistry.registerSubscription(message);
 		}
 		else if (SimpMessageType.UNSUBSCRIBE.equals(messageType)) {
+			// 从订阅中心 unregister
 			logMessage(message);
 			this.subscriptionRegistry.unregisterSubscription(message);
 		}
@@ -314,6 +350,7 @@ public class SimpleBrokerMessageHandler extends AbstractBrokerMessageHandler {
 		}
 	}
 
+	// 断开与 client 端 session 连接
 	private void handleDisconnect(String sessionId, Principal user, Message<?> origMessage) {
 		this.sessions.remove(sessionId);
 		this.subscriptionRegistry.unregisterAllSubscriptions(sessionId);
@@ -329,19 +366,27 @@ public class SimpleBrokerMessageHandler extends AbstractBrokerMessageHandler {
 	}
 
 	protected void sendMessageToSubscribers(String destination, Message<?> message) {
+		// 通过 message 找到 subscription
 		MultiValueMap<String,String> subscriptions = this.subscriptionRegistry.findSubscriptions(message);
 		if (!subscriptions.isEmpty() && logger.isDebugEnabled()) {
 			logger.debug("Broadcasting to " + subscriptions.size() + " sessions.");
 		}
 		long now = System.currentTimeMillis();
+		// 循环遍历 subscription
 		for (Map.Entry<String, List<String>> subscriptionEntry : subscriptions.entrySet()) {
 			for (String subscriptionId : subscriptionEntry.getValue()) {
+				// 获取 messageHeader 访问器
 				SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.create(SimpMessageType.MESSAGE);
 				initHeaders(headerAccessor);
+				// 设置 sessionId
 				headerAccessor.setSessionId(subscriptionEntry.getKey());
+				// 设置 subscriptionId
 				headerAccessor.setSubscriptionId(subscriptionId);
+				//将发来的信息头 copy 回去
 				headerAccessor.copyHeadersIfAbsent(message.getHeaders());
+				// 获取 发来消息的 body
 				Object payload = message.getPayload();
+				// 创建 message
 				Message<?> reply = MessageBuilder.createMessage(payload, headerAccessor.getMessageHeaders());
 				try {
 					getClientOutboundChannel().send(reply);
@@ -352,6 +397,7 @@ public class SimpleBrokerMessageHandler extends AbstractBrokerMessageHandler {
 				finally {
 					SessionInfo info = this.sessions.get(subscriptionEntry.getKey());
 					if (info != null) {
+						// 设置 writeTime
 						info.setLastWriteTime(now);
 					}
 				}
@@ -437,16 +483,24 @@ public class SimpleBrokerMessageHandler extends AbstractBrokerMessageHandler {
 		@Override
 		public void run() {
 			long now = System.currentTimeMillis();
+			// 获取所有的 client sessions
 			for (SessionInfo info : sessions.values()) {
+				// 若 read 间隔设置大于0, 则检测 现在 - 上次channel读取的时间 > 读取间隔
 				if (info.getReadInterval() > 0 && (now - info.getLastReadTime()) > info.getReadInterval()) {
+					// 断开连接
 					handleDisconnect(info.getSessiondId(), info.getUser(), null);
 				}
+				// 若 write 间隔设置 > 0, 则检测 现在 - 上次写的时间 > 写间隔
 				if (info.getWriteInterval() > 0 && (now - info.getLastWriteTime()) > info.getWriteInterval()) {
+					// 创建 messageHeader 访问器
 					SimpMessageHeaderAccessor accessor = SimpMessageHeaderAccessor.create(SimpMessageType.HEARTBEAT);
 					accessor.setSessionId(info.getSessiondId());
 					accessor.setUser(info.getUser());
+					// 初始化 message header accessor
 					initHeaders(accessor);
+					// 获取 message headers
 					MessageHeaders headers = accessor.getMessageHeaders();
+					// 发送 心跳信息
 					getClientOutboundChannel().send(MessageBuilder.createMessage(EMPTY_PAYLOAD, headers));
 				}
 			}

@@ -44,8 +44,7 @@ import org.springframework.util.StringUtils;
  * @author Rossen Stoyanchev
  * @since 4.0
  */
-public class SimpMessagingTemplate extends AbstractMessageSendingTemplate<String>
-		implements SimpMessageSendingOperations {
+public class SimpMessagingTemplate extends AbstractMessageSendingTemplate<String> implements SimpMessageSendingOperations {
 
 	private final MessageChannel messageChannel;
 
@@ -137,19 +136,20 @@ public class SimpMessagingTemplate extends AbstractMessageSendingTemplate<String
 	public void send(Message<?> message) {
 		Assert.notNull(message, "Message is required");
 		String destination = SimpMessageHeaderAccessor.getDestination(message.getHeaders());
+		// 根据 destination 进行消息发送
 		if (destination != null) {
 			sendInternal(message);
 			return;
 		}
+		// 通过 destination 进行发送
 		doSend(getRequiredDefaultDestination(), message);
 	}
 
 	@Override
 	protected void doSend(String destination, Message<?> message) {
 		Assert.notNull(destination, "Destination must not be null");
-
-		SimpMessageHeaderAccessor simpAccessor =
-				MessageHeaderAccessor.getAccessor(message, SimpMessageHeaderAccessor.class);
+		// messageHeader 访问器
+		SimpMessageHeaderAccessor simpAccessor = MessageHeaderAccessor.getAccessor(message, SimpMessageHeaderAccessor.class);
 
 		if (simpAccessor != null) {
 			if (simpAccessor.isMutable()) {
@@ -177,13 +177,15 @@ public class SimpMessagingTemplate extends AbstractMessageSendingTemplate<String
 	}
 
 	private void sendInternal(Message<?> message) {
+		// 获取消息发送的 destination
 		String destination = SimpMessageHeaderAccessor.getDestination(message.getHeaders());
 		Assert.notNull(destination, "Destination header required");
 
 		long timeout = this.sendTimeout;
+		// 通过 messageChannel 进行消息的发送
 		boolean sent = (timeout >= 0 ? this.messageChannel.send(message, timeout) : this.messageChannel.send(message));
 
-		if (!sent) {
+		if (!sent) { // 发信息失败, 则直接抛出异常
 			throw new MessageDeliveryException(message,
 					"Failed to send message to destination '" + destination + "' within timeout: " + timeout);
 		}

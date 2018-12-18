@@ -17,6 +17,7 @@
 package org.springframework.messaging;
 
 /**
+ * 信息处理器
  * Contract for handling a {@link Message}.
  *
  * @author Mark Fisher

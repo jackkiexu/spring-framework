@@ -30,7 +30,7 @@ import org.springframework.util.MultiValueMap;
 /**
  * Abstract base class for implementations of {@link SubscriptionRegistry} that
  * looks up information in messages but delegates to abstract methods for the
- * actual storage and retrieval.
+ * actual storage and retrieval(获取).
  *
  * @author Rossen Stoyanchev
  * @since 4.0
@@ -46,12 +46,13 @@ public abstract class AbstractSubscriptionRegistry implements SubscriptionRegist
 	@Override
 	public final void registerSubscription(Message<?> message) {
 		MessageHeaders headers = message.getHeaders();
-
+		// 获取消息的类型
 		SimpMessageType messageType = SimpMessageHeaderAccessor.getMessageType(headers);
+		// 如果不是订阅的消息, 则直接抛异常
 		if (!SimpMessageType.SUBSCRIBE.equals(messageType)) {
 			throw new IllegalArgumentException("Expected SUBSCRIBE: " + message);
 		}
-
+		// 获取消息 sessionId
 		String sessionId = SimpMessageHeaderAccessor.getSessionId(headers);
 		if (sessionId == null) {
 			if (logger.isErrorEnabled()) {
@@ -59,7 +60,7 @@ public abstract class AbstractSubscriptionRegistry implements SubscriptionRegist
 			}
 			return;
 		}
-
+		// 获取订阅者 Id
 		String subscriptionId = SimpMessageHeaderAccessor.getSubscriptionId(headers);
 		if (subscriptionId == null) {
 			if (logger.isErrorEnabled()) {
@@ -67,7 +68,7 @@ public abstract class AbstractSubscriptionRegistry implements SubscriptionRegist
 			}
 			return;
 		}
-
+		// 获取订阅的目的地
 		String destination = SimpMessageHeaderAccessor.getDestination(headers);
 		if (destination == null) {
 			if (logger.isErrorEnabled()) {

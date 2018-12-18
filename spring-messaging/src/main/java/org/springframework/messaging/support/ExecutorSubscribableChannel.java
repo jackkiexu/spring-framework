@@ -36,7 +36,7 @@ import org.springframework.messaging.SubscribableChannel;
 public class ExecutorSubscribableChannel extends AbstractSubscribableChannel {
 
 	private final Executor executor;
-
+	// 针对 Executor 的 拦截处理器
 	private final List<ExecutorChannelInterceptor> executorInterceptors = new ArrayList<ExecutorChannelInterceptor>(4);
 
 
@@ -64,7 +64,7 @@ public class ExecutorSubscribableChannel extends AbstractSubscribableChannel {
 	}
 
 	@Override
-	public void setInterceptors(List<ChannelInterceptor> interceptors) {
+	public void setInterceptors(List<ChannelInterceptor> interceptors) { // 设置/加载 拦截器
 		super.setInterceptors(interceptors);
 		this.executorInterceptors.clear();
 		for (ChannelInterceptor interceptor : interceptors) {
@@ -88,10 +88,10 @@ public class ExecutorSubscribableChannel extends AbstractSubscribableChannel {
 		for (MessageHandler handler : getSubscribers()) {
 			SendTask sendTask = new SendTask(message, handler);
 			if (this.executor == null) {
-				sendTask.run();
+				sendTask.run(); // 进行消息的发送
 			}
 			else {
-				this.executor.execute(sendTask);
+				this.executor.execute(sendTask); // 进行异步消息的发送
 			}
 		}
 		return true;
@@ -102,9 +102,9 @@ public class ExecutorSubscribableChannel extends AbstractSubscribableChannel {
 	 * Invoke a MessageHandler with ExecutorChannelInterceptors.
 	 */
 	private class SendTask implements MessageHandlingRunnable {
-
+		// 需要发送的消息
 		private final Message<?> inputMessage;
-
+		// 信息处理器
 		private final MessageHandler messageHandler;
 
 		private int interceptorIndex = -1;
@@ -128,15 +128,15 @@ public class ExecutorSubscribableChannel extends AbstractSubscribableChannel {
 		public void run() {
 			Message<?> message = this.inputMessage;
 			try {
-				message = applyBeforeHandle(message);
+				message = applyBeforeHandle(message); // 拦截器先处理一下
 				if (message == null) {
 					return;
 				}
-				this.messageHandler.handleMessage(message);
+				this.messageHandler.handleMessage(message); // messageHandler 进行处理, 一般就是消息的发送
 				triggerAfterMessageHandled(message, null);
 			}
 			catch (Exception ex) {
-				triggerAfterMessageHandled(message, ex);
+				triggerAfterMessageHandled(message, ex); // 拦截后置处理器处理
 				if (ex instanceof MessagingException) {
 					throw (MessagingException) ex;
 				}
@@ -146,7 +146,7 @@ public class ExecutorSubscribableChannel extends AbstractSubscribableChannel {
 			catch (Throwable err) {
 				String description = "Failed to handle " + message + " to " + this + " in " + this.messageHandler;
 				MessageDeliveryException ex2 = new MessageDeliveryException(message, description, err);
-				triggerAfterMessageHandled(message, ex2);
+				triggerAfterMessageHandled(message, ex2); // 拦截后置处理器处理
 				throw ex2;
 			}
 		}

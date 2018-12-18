@@ -23,6 +23,7 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.util.Assert;
 
 /**
+ * 通过 destination 来解决 MessageChannel
  * An implementation of {@link DestinationResolver} that interprets a destination
  * name as the bean name of a {@link MessageChannel} and looks up the bean in
  * the configured {@link BeanFactory}.
@@ -30,8 +31,7 @@ import org.springframework.util.Assert;
  * @author Mark Fisher
  * @since 4.0
  */
-public class BeanFactoryMessageChannelDestinationResolver
-		implements DestinationResolver<MessageChannel>, BeanFactoryAware {
+public class BeanFactoryMessageChannelDestinationResolver implements DestinationResolver<MessageChannel>, BeanFactoryAware {
 
 	private BeanFactory beanFactory;
 
@@ -60,7 +60,7 @@ public class BeanFactoryMessageChannelDestinationResolver
 		this.beanFactory = beanFactory;
 	}
 
-
+	// 通过 destination 来获取对应的 MessageChannel
 	@Override
 	public MessageChannel resolveDestination(String name) {
 		Assert.state(this.beanFactory != null, "No BeanFactory configured");

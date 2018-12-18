@@ -20,6 +20,7 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 
 /**
+ * channel À¹½ØÆ÷
  * Interface for interceptors that are able to view and/or modify the
  * {@link Message Messages} being sent-to and/or received-from a
  * {@link MessageChannel}.

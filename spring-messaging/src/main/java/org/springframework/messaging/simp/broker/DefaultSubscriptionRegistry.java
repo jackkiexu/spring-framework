@@ -64,23 +64,24 @@ public class DefaultSubscriptionRegistry extends AbstractSubscriptionRegistry {
 	/** Default maximum number of entries for the destination cache: 1024 */
 	public static final int DEFAULT_CACHE_LIMIT = 1024;
 
-
+	// 字符串匹配器
 	private PathMatcher pathMatcher = new AntPathMatcher();
-
+	// 缓存大小限制器
 	private volatile int cacheLimit = DEFAULT_CACHE_LIMIT;
 
 	private String selectorHeaderName = "selector";
 
 	private volatile boolean selectorHeaderInUse = false;
-
+	// EL 表达式解析器
 	private final ExpressionParser expressionParser = new SpelExpressionParser();
-
+	// 本地缓存存储器
 	private final DestinationCache destinationCache = new DestinationCache();
 
 	private final SessionSubscriptionRegistry subscriptionRegistry = new SessionSubscriptionRegistry();
 
 
 	/**
+	 * 指定 路径匹配器
 	 * Specify the {@link PathMatcher} to use.
 	 */
 	public void setPathMatcher(PathMatcher pathMatcher) {
@@ -88,6 +89,7 @@ public class DefaultSubscriptionRegistry extends AbstractSubscriptionRegistry {
 	}
 
 	/**
+	 * 返回路径匹配器
 	 * Return the configured {@link PathMatcher}.
 	 */
 	public PathMatcher getPathMatcher() {
@@ -95,6 +97,7 @@ public class DefaultSubscriptionRegistry extends AbstractSubscriptionRegistry {
 	}
 
 	/**
+	 * 设置缓存大小
 	 * Specify the maximum number of entries for the resolved destination cache.
 	 * Default is 1024.
 	 */
@@ -110,9 +113,11 @@ public class DefaultSubscriptionRegistry extends AbstractSubscriptionRegistry {
 	}
 
 	/**
+	 * 设置 header 头选择器, 这样订阅的信息就可以通过 信息头来过滤信息
 	 * Configure the name of a selector header that a subscription message can
 	 * have in order to filter messages based on their headers. The value of the
 	 * header can use Spring EL expressions against message headers.
+	 * 举例, 下面就是 一个 header 过滤器, 过滤条件 foo = 'bar'
 	 * <p>For example the following expression expects a header called "foo" to
 	 * have the value "bar":
 	 * <pre>
@@ -127,6 +132,7 @@ public class DefaultSubscriptionRegistry extends AbstractSubscriptionRegistry {
 	}
 
 	/**
+	 * 返回 header 头选择器的名字
 	 * Return the name for the selector header.
 	 * @since 4.2
 	 */
@@ -135,15 +141,23 @@ public class DefaultSubscriptionRegistry extends AbstractSubscriptionRegistry {
 	}
 
 
+	/**
+	 * 增加 Subscription
+	 * @param sessionId
+	 * @param subsId
+	 * @param destination
+	 * @param message
+	 */
 	@Override
-	protected void addSubscriptionInternal(
-			String sessionId, String subsId, String destination, Message<?> message) {
-
+	protected void addSubscriptionInternal(String sessionId, String subsId, String destination, Message<?> message) {
 		Expression expression = null;
+		// 获取 信息头
 		MessageHeaders headers = message.getHeaders();
+		// 根据 selectorHeader 的名字获取 selector
 		String selector = SimpMessageHeaderAccessor.getFirstNativeHeader(getSelectorHeaderName(), headers);
 		if (selector != null) {
 			try {
+				// 根据 selector 获取 expression
 				expression = this.expressionParser.parseExpression(selector);
 				this.selectorHeaderInUse = true;
 				if (logger.isTraceEnabled()) {
@@ -156,10 +170,13 @@ public class DefaultSubscriptionRegistry extends AbstractSubscriptionRegistry {
 				}
 			}
 		}
+		// 增加 sessionId, subId, destination 及 expression
 		this.subscriptionRegistry.addSubscription(sessionId, subsId, destination, expression);
+		// 在增加 Subscription后 更新缓存
 		this.destinationCache.updateAfterNewSubscription(destination, sessionId, subsId);
 	}
 
+	// 通过 sessionId, subId 移除 Subscription
 	@Override
 	protected void removeSubscriptionInternal(String sessionId, String subsId, Message<?> message) {
 		SessionSubscriptionInfo info = this.subscriptionRegistry.getSubscriptions(sessionId);
@@ -171,6 +188,7 @@ public class DefaultSubscriptionRegistry extends AbstractSubscriptionRegistry {
 		}
 	}
 
+	// 不注册 sessionId
 	@Override
 	public void unregisterAllSubscriptions(String sessionId) {
 		SessionSubscriptionInfo info = this.subscriptionRegistry.removeSubscriptions(sessionId);
@@ -179,14 +197,15 @@ public class DefaultSubscriptionRegistry extends AbstractSubscriptionRegistry {
 		}
 	}
 
+	// 根据 destination, message 获取 Subscription
 	@Override
 	protected MultiValueMap<String, String> findSubscriptionsInternal(String destination, Message<?> message) {
 		MultiValueMap<String, String> result = this.destinationCache.getSubscriptions(destination, message);
 		return filterSubscriptions(result, message);
 	}
 
-	private MultiValueMap<String, String> filterSubscriptions(
-			MultiValueMap<String, String> allMatches, Message<?> message) {
+	// 过滤 Subscriptions
+	private MultiValueMap<String, String> filterSubscriptions(MultiValueMap<String, String> allMatches, Message<?> message) {
 
 		if (!this.selectorHeaderInUse) {
 			return allMatches;
@@ -360,13 +379,14 @@ public class DefaultSubscriptionRegistry extends AbstractSubscriptionRegistry {
 
 
 	/**
+	 * 通过 sessionId 来进行访问 session 注册器
 	 * Provide access to session subscriptions by sessionId.
 	 */
 	private static class SessionSubscriptionRegistry {
 
+		// sessionId -> session 订阅信息
 		// sessionId -> SessionSubscriptionInfo
-		private final ConcurrentMap<String, SessionSubscriptionInfo> sessions =
-				new ConcurrentHashMap<String, SessionSubscriptionInfo>();
+		private final ConcurrentMap<String, SessionSubscriptionInfo> sessions = new ConcurrentHashMap<String, SessionSubscriptionInfo>();
 
 		public SessionSubscriptionInfo getSubscriptions(String sessionId) {
 			return this.sessions.get(sessionId);
@@ -403,15 +423,17 @@ public class DefaultSubscriptionRegistry extends AbstractSubscriptionRegistry {
 
 
 	/**
+	 * session 订阅信息
 	 * Hold subscriptions for a session.
 	 */
 	private static class SessionSubscriptionInfo {
 
+		// sessionId
 		private final String sessionId;
 
+		// 目的地 与 订阅者
 		// destination -> subscriptions
-		private final Map<String, Set<Subscription>> destinationLookup =
-				new ConcurrentHashMap<String, Set<Subscription>>(4);
+		private final Map<String, Set<Subscription>> destinationLookup = new ConcurrentHashMap<String, Set<Subscription>>(4);
 
 		public SessionSubscriptionInfo(String sessionId) {
 			Assert.notNull(sessionId, "'sessionId' must not be null");
@@ -430,6 +452,7 @@ public class DefaultSubscriptionRegistry extends AbstractSubscriptionRegistry {
 			return this.destinationLookup.get(destination);
 		}
 
+		// 通过 subscriptionId 来获取 Subscription 对象
 		public Subscription getSubscription(String subscriptionId) {
 			for (Map.Entry<String, Set<DefaultSubscriptionRegistry.Subscription>> destinationEntry : this.destinationLookup.entrySet()) {
 				Set<Subscription> subs = destinationEntry.getValue();
@@ -444,6 +467,7 @@ public class DefaultSubscriptionRegistry extends AbstractSubscriptionRegistry {
 			return null;
 		}
 
+		// 将 Subscription 注册起来
 		public void addSubscription(String destination, String subscriptionId, Expression selectorExpression) {
 			Set<Subscription> subs = this.destinationLookup.get(destination);
 			if (subs == null) {
@@ -458,6 +482,7 @@ public class DefaultSubscriptionRegistry extends AbstractSubscriptionRegistry {
 			subs.add(new Subscription(subscriptionId, selectorExpression));
 		}
 
+		// 动态的删除 Set 中的属性
 		public String removeSubscription(String subscriptionId) {
 			for (Map.Entry<String, Set<DefaultSubscriptionRegistry.Subscription>> destinationEntry : this.destinationLookup.entrySet()) {
 				Set<Subscription> subs = destinationEntry.getValue();
@@ -484,10 +509,11 @@ public class DefaultSubscriptionRegistry extends AbstractSubscriptionRegistry {
 	}
 
 
+	// 订阅者对象
 	private static final class Subscription {
-
+		// 订阅者 Id
 		private final String id;
-
+		// 选择器表达式
 		private final Expression selectorExpression;
 
 		public Subscription(String id, Expression selector) {
@@ -520,7 +546,7 @@ public class DefaultSubscriptionRegistry extends AbstractSubscriptionRegistry {
 		}
 	}
 
-
+	// 最简单的 Header 属性访问器
 	private static class SimpMessageHeaderPropertyAccessor implements PropertyAccessor {
 
 		@Override

@@ -47,7 +47,7 @@ import org.springframework.util.ObjectUtils;
  * @since 4.0
  */
 public class NativeMessageHeaderAccessor extends MessageHeaderAccessor {
-
+	//
 	public static final String NATIVE_HEADERS = "nativeHeaders";
 
 
@@ -207,6 +207,7 @@ public class NativeMessageHeaderAccessor extends MessageHeaderAccessor {
 		return nativeHeaders.remove(name);
 	}
 
+	// ªÒ»°
 	@SuppressWarnings("unchecked")
 	public static String getFirstNativeHeader(String headerName, Map<String, Object> headers) {
 		Map<String, List<String>> map = (Map<String, List<String>>) headers.get(NATIVE_HEADERS);

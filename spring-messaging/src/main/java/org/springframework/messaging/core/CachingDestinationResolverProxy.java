@@ -23,6 +23,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
 /**
+ * 代理 DestinationResolver 实现 DestinationResolver 接口, 并提供缓存功能(PS: 因为 DestinationResolver 获取 destination 可能比较消耗资源)
  * {@link DestinationResolver} implementation that proxies a target DestinationResolver,
  * caching its {@link #resolveDestination} results. Such caching is particularly useful
  * if the destination resolving process is expensive (e.g. the destination has to be

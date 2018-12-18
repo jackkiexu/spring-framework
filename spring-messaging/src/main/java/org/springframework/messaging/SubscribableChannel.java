@@ -17,6 +17,7 @@
 package org.springframework.messaging;
 
 /**
+ * 提供订阅功能的 MessageChannel
  * A {@link MessageChannel} that maintains a registry of subscribers and invokes
  * them to handle messages sent through this channel.
  *

@@ -30,10 +30,10 @@ import org.springframework.messaging.SubscribableChannel;
  * @since 4.0
  */
 public abstract class AbstractSubscribableChannel extends AbstractMessageChannel implements SubscribableChannel {
-
+	// 消息处理器
 	private final Set<MessageHandler> handlers = new CopyOnWriteArraySet<MessageHandler>();
 
-
+	// 获取所有的 MessageHandler
 	public Set<MessageHandler> getSubscribers() {
 		return Collections.<MessageHandler>unmodifiableSet(this.handlers);
 	}
@@ -42,6 +42,7 @@ public abstract class AbstractSubscribableChannel extends AbstractMessageChannel
 		return this.handlers.contains(handler);
 	}
 
+	// 增加 MessageHandler
 	@Override
 	public boolean subscribe(MessageHandler handler) {
 		boolean result = this.handlers.add(handler);
@@ -53,6 +54,7 @@ public abstract class AbstractSubscribableChannel extends AbstractMessageChannel
 		return result;
 	}
 
+	// 去除 MessageHandler
 	@Override
 	public boolean unsubscribe(MessageHandler handler) {
 		boolean result = this.handlers.remove(handler);

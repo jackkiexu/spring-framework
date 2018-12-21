@@ -25,6 +25,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 /**
+ * Õ®”√ Message
  * An implementation of {@link Message} with a generic payload.
  * Once created, a GenericMessage is immutable.
  *

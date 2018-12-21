@@ -17,6 +17,7 @@
 package org.springframework.messaging;
 
 /**
+ * 消息发送的 channel
  * Defines methods for sending messages.
  *
  * @author Mark Fisher

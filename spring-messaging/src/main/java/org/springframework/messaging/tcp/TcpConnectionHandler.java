@@ -19,6 +19,7 @@ package org.springframework.messaging.tcp;
 import org.springframework.messaging.Message;
 
 /**
+ * 针对 TCP 处理的整个事件的定义
  * A contract for managing lifecycle events for a TCP connection including
  * the handling of incoming messages.
  *

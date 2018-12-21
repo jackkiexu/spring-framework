@@ -19,6 +19,7 @@ package org.springframework.messaging.tcp;
 import org.springframework.util.concurrent.ListenableFuture;
 
 /**
+ * Tcp Á¬½Ó²Ù×÷
  * A contract for establishing TCP connections.
  *
  * @author Rossen Stoyanchev

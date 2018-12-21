@@ -17,6 +17,7 @@
 package org.springframework.messaging.tcp;
 
 /**
+ * 固定时间间隔的重连策略
  * A simple strategy for making reconnect attempts at a fixed interval.
  *
  * @author Rossen Stoyanchev

@@ -26,6 +26,7 @@ import org.springframework.messaging.tcp.TcpConnection;
 import org.springframework.util.concurrent.ListenableFuture;
 
 /**
+ * »ùÓÚ Reactor µÄ TcpConnection
  * An implementation of {@link org.springframework.messaging.tcp.TcpConnection
  * TcpConnection} based on the TCP client support of the Reactor project.
  *
@@ -36,7 +37,7 @@ import org.springframework.util.concurrent.ListenableFuture;
 public class Reactor2TcpConnection<P> implements TcpConnection<P> {
 
 	private final ChannelStream<Message<P>, Message<P>> channelStream;
-
+	// Promise
 	private final Promise<Void> closePromise;
 
 

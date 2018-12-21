@@ -35,6 +35,7 @@ import org.springframework.util.AlternativeJdkIdGenerator;
 import org.springframework.util.IdGenerator;
 
 /**
+ * 通用消息头
  * The headers for a {@link Message}.
  *
  * <p><b>IMPORTANT</b>: This class is immutable. Any mutating operation such as

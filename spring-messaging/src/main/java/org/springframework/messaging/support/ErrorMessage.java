@@ -21,6 +21,7 @@ import java.util.Map;
 import org.springframework.messaging.MessageHeaders;
 
 /**
+ * payload ÊÇ Throwable µÄ message
  * A {@link GenericMessage} with a {@link Throwable} payload.
  *
  * @author Mark Fisher

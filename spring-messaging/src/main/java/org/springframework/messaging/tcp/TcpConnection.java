@@ -22,6 +22,7 @@ import org.springframework.messaging.Message;
 import org.springframework.util.concurrent.ListenableFuture;
 
 /**
+ * 定义通用的 TcpConnection 事件
  * A contract for sending messages and managing a TCP connection.
  *
  * @author Rossen Stoyanchev

@@ -81,8 +81,7 @@ import org.springframework.util.StringValueResolver;
  * @see org.springframework.jms.config.JmsListenerEndpoint
  * @see MethodJmsListenerEndpoint
  */
-public class JmsListenerAnnotationBeanPostProcessor
-		implements MergedBeanDefinitionPostProcessor, Ordered, BeanFactoryAware, SmartInitializingSingleton {
+public class JmsListenerAnnotationBeanPostProcessor implements MergedBeanDefinitionPostProcessor, Ordered, BeanFactoryAware, SmartInitializingSingleton {
 
 	/**
 	 * The bean name of the default {@link JmsListenerContainerFactory}.
@@ -96,8 +95,7 @@ public class JmsListenerAnnotationBeanPostProcessor
 
 	private String containerFactoryBeanName = DEFAULT_JMS_LISTENER_CONTAINER_FACTORY_BEAN_NAME;
 
-	private final MessageHandlerMethodFactoryAdapter messageHandlerMethodFactory =
-			new MessageHandlerMethodFactoryAdapter();
+	private final MessageHandlerMethodFactoryAdapter messageHandlerMethodFactory = new MessageHandlerMethodFactoryAdapter();
 
 	private BeanFactory beanFactory;
 
@@ -107,8 +105,7 @@ public class JmsListenerAnnotationBeanPostProcessor
 
 	private final AtomicInteger counter = new AtomicInteger();
 
-	private final Set<Class<?>> nonAnnotatedClasses =
-			Collections.newSetFromMap(new ConcurrentHashMap<Class<?>, Boolean>(64));
+	private final Set<Class<?>> nonAnnotatedClasses = Collections.newSetFromMap(new ConcurrentHashMap<Class<?>, Boolean>(64));
 
 
 	@Override

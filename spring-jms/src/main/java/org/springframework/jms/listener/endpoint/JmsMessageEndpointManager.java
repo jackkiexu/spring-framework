@@ -49,8 +49,7 @@ import org.springframework.jms.support.destination.DestinationResolver;
  * @see JmsActivationSpecFactory
  * @see JmsMessageEndpointFactory
  */
-public class JmsMessageEndpointManager extends GenericMessageEndpointManager
-		implements BeanNameAware, MessageListenerContainer {
+public class JmsMessageEndpointManager extends GenericMessageEndpointManager implements BeanNameAware, MessageListenerContainer {
 
 	private final JmsMessageEndpointFactory endpointFactory = new JmsMessageEndpointFactory();
 

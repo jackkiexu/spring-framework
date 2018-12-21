@@ -36,8 +36,8 @@ import org.springframework.util.Assert;
  */
 public abstract class AbstractDestinationResolvingMessagingTemplate<D> extends AbstractMessagingTemplate<D>
 		implements DestinationResolvingMessageSendingOperations<D>,
-		DestinationResolvingMessageReceivingOperations<D>,
-		DestinationResolvingMessageRequestReplyOperations<D> {
+		           DestinationResolvingMessageReceivingOperations<D>,
+		           DestinationResolvingMessageRequestReplyOperations<D> {
 
 	private volatile DestinationResolver<D> destinationResolver;
 

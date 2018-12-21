@@ -19,6 +19,7 @@ package org.springframework.messaging;
 import org.springframework.core.NestedRuntimeException;
 
 /**
+ * 通用消息异常
  * The base exception for any failures related to messaging.
  *
  * @author Mark Fisher

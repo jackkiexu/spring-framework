@@ -17,6 +17,7 @@
 package org.springframework.messaging;
 
 /**
+ * 通用消息接口
  * A generic message representation with headers and body.
  *
  * @author Mark Fisher

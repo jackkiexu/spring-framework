@@ -119,15 +119,14 @@ class ConfigurationClassParser {
 	private final Environment environment;
 
 	private final ResourceLoader resourceLoader;
-
+    // BeanDefinition 注册器
 	private final BeanDefinitionRegistry registry;
 
 	private final ComponentScanAnnotationParser componentScanParser;
-
+    // Bean 注入的条件判断器
 	private final ConditionEvaluator conditionEvaluator;
 
-	private final Map<ConfigurationClass, ConfigurationClass> configurationClasses =
-			new LinkedHashMap<ConfigurationClass, ConfigurationClass>();
+	private final Map<ConfigurationClass, ConfigurationClass> configurationClasses = new LinkedHashMap<ConfigurationClass, ConfigurationClass>();
 
 	private final Map<String, ConfigurationClass> knownSuperclasses = new HashMap<String, ConfigurationClass>();
 
@@ -150,9 +149,10 @@ class ConfigurationClassParser {
 		this.problemReporter = problemReporter;
 		this.environment = environment;
 		this.resourceLoader = resourceLoader;
+		// BeanDefinition 注册器
 		this.registry = registry;
-		this.componentScanParser = new ComponentScanAnnotationParser(
-				environment, resourceLoader, componentScanBeanNameGenerator, registry);
+		this.componentScanParser = new ComponentScanAnnotationParser(environment, resourceLoader, componentScanBeanNameGenerator, registry);
+		// Bean 注入的条件判断器
 		this.conditionEvaluator = new ConditionEvaluator(registry, environment, resourceLoader);
 	}
 
@@ -214,6 +214,7 @@ class ConfigurationClassParser {
 
 
 	protected void processConfigurationClass(ConfigurationClass configClass) throws IOException {
+		// 是否会跳过加载 configClass
 		if (this.conditionEvaluator.shouldSkip(configClass.getMetadata(), ConfigurationPhase.PARSE_CONFIGURATION)) {
 			return;
 		}
@@ -277,18 +278,16 @@ class ConfigurationClassParser {
 		}
 
 		// Process any @ComponentScan annotations
-		Set<AnnotationAttributes> componentScans = AnnotationConfigUtils.attributesForRepeatable(
-				sourceClass.getMetadata(), ComponentScans.class, ComponentScan.class);
-		if (!componentScans.isEmpty() &&
-				!this.conditionEvaluator.shouldSkip(sourceClass.getMetadata(), ConfigurationPhase.REGISTER_BEAN)) {
+		Set<AnnotationAttributes> componentScans = AnnotationConfigUtils.attributesForRepeatable(sourceClass.getMetadata(), ComponentScans.class, ComponentScan.class);
+		// componentScans 不为空, 且 条件判断其判断其不会被跳过
+		if (!componentScans.isEmpty() && !this.conditionEvaluator.shouldSkip(sourceClass.getMetadata(), ConfigurationPhase.REGISTER_BEAN)) {
 			for (AnnotationAttributes componentScan : componentScans) {
+			    // 通过 ComponentScanAnnotationParser 解析获取 BeanDefinitionHolder
 				// The config class is annotated with @ComponentScan -> perform the scan immediately
-				Set<BeanDefinitionHolder> scannedBeanDefinitions =
-						this.componentScanParser.parse(componentScan, sourceClass.getMetadata().getClassName());
+				Set<BeanDefinitionHolder> scannedBeanDefinitions = this.componentScanParser.parse(componentScan, sourceClass.getMetadata().getClassName());
 				// Check the set of scanned definitions for any further config classes and parse recursively if needed
 				for (BeanDefinitionHolder holder : scannedBeanDefinitions) {
-					if (ConfigurationClassUtils.checkConfigurationClassCandidate(
-							holder.getBeanDefinition(), this.metadataReaderFactory)) {
+					if (ConfigurationClassUtils.checkConfigurationClassCandidate(holder.getBeanDefinition(), this.metadataReaderFactory)) {
 						parse(holder.getBeanDefinition().getBeanClassName(), holder.getBeanName());
 					}
 				}
@@ -536,6 +535,7 @@ class ConfigurationClassParser {
 		}
 	}
 
+	// Deferred (延期)
 	private void processDeferredImportSelectors() {
 		List<DeferredImportSelectorHolder> deferredImports = this.deferredImportSelectors;
 		this.deferredImportSelectors = null;
@@ -558,9 +558,7 @@ class ConfigurationClassParser {
 		}
 	}
 
-	private void processImports(ConfigurationClass configClass, SourceClass currentSourceClass,
-			Collection<SourceClass> importCandidates, boolean checkForCircularImports) throws IOException {
-
+	private void processImports(ConfigurationClass configClass, SourceClass currentSourceClass, Collection<SourceClass> importCandidates, boolean checkForCircularImports) throws IOException {
 		if (importCandidates.isEmpty()) {
 			return;
 		}
@@ -576,13 +574,10 @@ class ConfigurationClassParser {
 						// Candidate class is an ImportSelector -> delegate to it to determine imports
 						Class<?> candidateClass = candidate.loadClass();
 						ImportSelector selector = BeanUtils.instantiateClass(candidateClass, ImportSelector.class);
-						ParserStrategyUtils.invokeAwareMethods(
-								selector, this.environment, this.resourceLoader, this.registry);
+						ParserStrategyUtils.invokeAwareMethods(selector, this.environment, this.resourceLoader, this.registry);
 						if (this.deferredImportSelectors != null && selector instanceof DeferredImportSelector) {
-							this.deferredImportSelectors.add(
-									new DeferredImportSelectorHolder(configClass, (DeferredImportSelector) selector));
-						}
-						else {
+							this.deferredImportSelectors.add(new DeferredImportSelectorHolder(configClass, (DeferredImportSelector) selector));
+						} else {
 							String[] importClassNames = selector.selectImports(currentSourceClass.getMetadata());
 							Collection<SourceClass> importSourceClasses = asSourceClasses(importClassNames);
 							processImports(configClass, currentSourceClass, importSourceClasses, false);
@@ -592,17 +587,13 @@ class ConfigurationClassParser {
 						// Candidate class is an ImportBeanDefinitionRegistrar ->
 						// delegate to it to register additional bean definitions
 						Class<?> candidateClass = candidate.loadClass();
-						ImportBeanDefinitionRegistrar registrar =
-								BeanUtils.instantiateClass(candidateClass, ImportBeanDefinitionRegistrar.class);
-						ParserStrategyUtils.invokeAwareMethods(
-								registrar, this.environment, this.resourceLoader, this.registry);
+						ImportBeanDefinitionRegistrar registrar = BeanUtils.instantiateClass(candidateClass, ImportBeanDefinitionRegistrar.class);
+						ParserStrategyUtils.invokeAwareMethods(registrar, this.environment, this.resourceLoader, this.registry);
 						configClass.addImportBeanDefinitionRegistrar(registrar, currentSourceClass.getMetadata());
-					}
-					else {
+					} else {
 						// Candidate class not an ImportSelector or ImportBeanDefinitionRegistrar ->
 						// process it as an @Configuration class
-						this.importStack.registerImport(
-								currentSourceClass.getMetadata(), candidate.getMetadata().getClassName());
+						this.importStack.registerImport(currentSourceClass.getMetadata(), candidate.getMetadata().getClassName());
 						processConfigurationClass(candidate.asConfigClass(configClass));
 					}
 				}

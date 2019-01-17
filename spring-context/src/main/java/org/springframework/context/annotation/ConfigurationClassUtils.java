@@ -84,8 +84,7 @@ abstract class ConfigurationClassUtils {
 		}
 
 		AnnotationMetadata metadata;
-		if (beanDef instanceof AnnotatedBeanDefinition &&
-				className.equals(((AnnotatedBeanDefinition) beanDef).getMetadata().getClassName())) {
+		if (beanDef instanceof AnnotatedBeanDefinition && className.equals(((AnnotatedBeanDefinition) beanDef).getMetadata().getClassName())) {
 			// Can reuse the pre-parsed metadata from the given BeanDefinition...
 			metadata = ((AnnotatedBeanDefinition) beanDef).getMetadata();
 		}
@@ -107,10 +106,11 @@ abstract class ConfigurationClassUtils {
 				return false;
 			}
 		}
-
+		// 是否被 @Configuration 注解修饰
 		if (isFullConfigurationCandidate(metadata)) {
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_FULL);
 		}
+		// 是否被 @Bean, @Component, @ComponentScan, @Import, @ImportResource 注解修饰
 		else if (isLiteConfigurationCandidate(metadata)) {
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_LITE);
 		}
@@ -118,6 +118,7 @@ abstract class ConfigurationClassUtils {
 			return false;
 		}
 
+		// 类是否被 @Order 注解修饰
 		// It's a full or lite configuration candidate... Let's determine the order value, if any.
 		Map<String, Object> orderAttributes = metadata.getAnnotationAttributes(Order.class.getName());
 		if (orderAttributes != null) {
@@ -127,7 +128,7 @@ abstract class ConfigurationClassUtils {
 		return true;
 	}
 
-	/**
+	/** 检查给定的 源数据是否是 配置类型的资源(PS: 其实就是检测它是否被指定注解给修饰)
 	 * Check the given metadata for a configuration class candidate
 	 * (or nested component class declared within a configuration/component class).
 	 * @param metadata the metadata of the annotated class
@@ -139,7 +140,8 @@ abstract class ConfigurationClassUtils {
 	}
 
 	/**
-	 * Check the given metadata for a full configuration class candidate
+	 * 检测这个 AnnotationMatadate 是不是被 @Configuration 注解给修饰
+	 * Check the given metadata for a full(这里的 full 应该指完整的 配置类) configuration class candidate
 	 * (i.e. a class annotated with {@code @Configuration}).
 	 * @param metadata the metadata of the annotated class
 	 * @return {@code true} if the given class is to be processed as a full
@@ -150,7 +152,7 @@ abstract class ConfigurationClassUtils {
 	}
 
 	/**
-	 * Check the given metadata for a lite configuration class candidate
+	 * Check the given metadata for a lite(简化) configuration(配置) class candidate(候选)
 	 * (e.g. a class annotated with {@code @Component} or just having
 	 * {@code @Import} declarations or {@code @Bean methods}).
 	 * @param metadata the metadata of the annotated class
@@ -159,10 +161,11 @@ abstract class ConfigurationClassUtils {
 	 */
 	public static boolean isLiteConfigurationCandidate(AnnotationMetadata metadata) {
 		// Do not consider an interface or an annotation...
-		if (metadata.isInterface()) {
+		if (metadata.isInterface()) { // 不考虑注解到接口上
 			return false;
 		}
 
+		// 判断是否被 @Component, @ComponentScan, @Import, @ImportResource
 		// Any of the typical annotations found?
 		for (String indicator : candidateIndicators) {
 			if (metadata.isAnnotated(indicator)) {
@@ -170,6 +173,7 @@ abstract class ConfigurationClassUtils {
 			}
 		}
 
+		// 最后判断是否被 @Bean 注解修饰
 		// Finally, let's look for @Bean methods...
 		try {
 			return metadata.hasAnnotatedMethods(Bean.class.getName());
@@ -183,7 +187,7 @@ abstract class ConfigurationClassUtils {
 	}
 
 	/**
-	 * Determine whether the given bean definition indicates a full {@code @Configuration}
+	 * Determine(决定) whether the given bean definition indicates a full {@code @Configuration}
 	 * class, through checking {@link #checkConfigurationClassCandidate}'s metadata marker.
 	 */
 	public static boolean isFullConfigurationClass(BeanDefinition beanDef) {

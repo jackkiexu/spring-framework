@@ -58,11 +58,9 @@ final class ConfigurationClass {
 
 	private final Set<BeanMethod> beanMethods = new LinkedHashSet<BeanMethod>();
 
-	private final Map<String, Class<? extends BeanDefinitionReader>> importedResources =
-			new LinkedHashMap<String, Class<? extends BeanDefinitionReader>>();
+	private final Map<String, Class<? extends BeanDefinitionReader>> importedResources = new LinkedHashMap<String, Class<? extends BeanDefinitionReader>>();
 
-	private final Map<ImportBeanDefinitionRegistrar, AnnotationMetadata> importBeanDefinitionRegistrars =
-			new LinkedHashMap<ImportBeanDefinitionRegistrar, AnnotationMetadata>();
+	private final Map<ImportBeanDefinitionRegistrar, AnnotationMetadata> importBeanDefinitionRegistrars = new LinkedHashMap<ImportBeanDefinitionRegistrar, AnnotationMetadata>();
 
 	final Set<String> skippedBeanMethods = new HashSet<String>();
 

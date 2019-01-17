@@ -30,6 +30,8 @@ import org.springframework.core.env.StandardEnvironment;
 import org.springframework.util.Assert;
 
 /**
+ * 通过 Annotated 注解修饰的 Class 的 BeanDefinition 读取器
+ * 代码方式注册被注解修饰的 Class , 功能与 ClassPathBeanDefinitionScanner 类似
  * Convenient adapter for programmatic registration of annotated bean classes.
  * This is an alternative to {@link ClassPathBeanDefinitionScanner}, applying
  * the same resolution of annotations but for explicitly registered classes only.
@@ -43,12 +45,16 @@ import org.springframework.util.Assert;
  */
 public class AnnotatedBeanDefinitionReader {
 
+	// BeanDefinition 注册器, 其实现类一般同时也是 BeanFactory
 	private final BeanDefinitionRegistry registry;
 
+	// Bean名称生成器
 	private BeanNameGenerator beanNameGenerator = new AnnotationBeanNameGenerator();
 
+	// Bean 的 scope 的解决器
 	private ScopeMetadataResolver scopeMetadataResolver = new AnnotationScopeMetadataResolver();
 
+	// 是否注入 Class 的评估器
 	private ConditionEvaluator conditionEvaluator;
 
 
@@ -80,6 +86,7 @@ public class AnnotatedBeanDefinitionReader {
 		Assert.notNull(environment, "Environment must not be null");
 		this.registry = registry;
 		this.conditionEvaluator = new ConditionEvaluator(registry, environment, null);
+		// 将常见的 Annotation 处理器注册到 BeanFactory 中
 		AnnotationConfigUtils.registerAnnotationConfigProcessors(this.registry);
 	}
 
@@ -155,8 +162,9 @@ public class AnnotatedBeanDefinitionReader {
 	}
 
 	/**
-	 * Register a bean from the given bean class, deriving its metadata from
-	 * class-declared annotations.
+	 * 将给定的 class 注册到 BeanFactory
+	 * Register a bean from the given bean class, deriving(获取) its metadata(源数据) from class-declared annotations.
+	 *
 	 * @param annotatedClass the class of the bean
 	 * @param name an explicit name for the bean
 	 * @param qualifiers specific qualifier annotations to consider,
@@ -164,15 +172,21 @@ public class AnnotatedBeanDefinitionReader {
 	 */
 	@SuppressWarnings("unchecked")
 	public void registerBean(Class<?> annotatedClass, String name, Class<? extends Annotation>... qualifiers) {
+		// 生成 基于注解的 BeanDefinition
 		AnnotatedGenericBeanDefinition abd = new AnnotatedGenericBeanDefinition(annotatedClass);
+		// 通过 ConditionEvaluator 判断是否需要进行注册这个 class
 		if (this.conditionEvaluator.shouldSkip(abd.getMetadata())) {
 			return;
 		}
-
+		// 获取 这个 Bean  Scope 的源
 		ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(abd);
+		// 在 BeanDefintion 设置 Scope
 		abd.setScope(scopeMetadata.getScopeName());
+		// 生成 beanName
 		String beanName = (name != null ? name : this.beanNameGenerator.generateBeanName(abd, this.registry));
+		// 处理 BeanDefinition 的的通用注解
 		AnnotationConfigUtils.processCommonDefinitionAnnotations(abd);
+
 		if (qualifiers != null) {
 			for (Class<? extends Annotation> qualifier : qualifiers) {
 				if (Primary.class == qualifier) {
@@ -186,9 +200,10 @@ public class AnnotatedBeanDefinitionReader {
 				}
 			}
 		}
-
+		// 包装成 BeanDefinitionHolder
 		BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(abd, beanName);
 		definitionHolder = AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
+		// 将 BeanDefinition 注册到 BeanFactory 中
 		BeanDefinitionReaderUtils.registerBeanDefinition(definitionHolder, this.registry);
 	}
 

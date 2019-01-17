@@ -31,7 +31,7 @@ import org.springframework.core.annotation.AliasFor;
  *
  * <h3>Overview</h3>
  *
- * <p>The names and semantics of the attributes to this annotation are intentionally
+ * <p>The names and semantics of the attributes to this annotation are intentionally(故意的)
  * similar to those of the {@code <bean/>} element in the Spring XML schema. For
  * example:
  *
@@ -47,9 +47,9 @@ import org.springframework.core.annotation.AliasFor;
  *
  * <p>While a {@link #name} attribute is available, the default strategy for
  * determining the name of a bean is to use the name of the {@code @Bean} method.
- * This is convenient and intuitive, but if explicit naming is desired, the
+ * This is convenient and intuitive(凭直觉), but if explicit naming is desired, the
  * {@code name} attribute (or its alias {@code value}) may be used. Also note
- * that {@code name} accepts an array of Strings, allowing for multiple names
+ * that {@code name} accepts(接受) an array of Strings, allowing for multiple names
  * (i.e. a primary bean name plus one or more aliases) for a single bean.
  *
  * <pre class="code">

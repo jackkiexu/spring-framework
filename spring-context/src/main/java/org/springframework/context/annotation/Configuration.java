@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
+ * 显示 这个类通过 @Bean 注解方法并且被 Spring 容器进行处理
  * Indicates that a class declares one or more {@link Bean @Bean} methods and
  * may be processed by the Spring container to generate bean definitions and
  * service requests for those beans at runtime, for example:

@@ -135,6 +135,7 @@ public class AnnotationConfigUtils {
 	}
 
 	/**
+	 * 将 注解相关的 后置处理器注册到 给定的注册器中
 	 * Register all relevant annotation post processors in the given registry.
 	 * @param registry the registry to operate on
 	 * @param source the configuration source element (already extracted)
@@ -142,14 +143,15 @@ public class AnnotationConfigUtils {
 	 * @return a Set of BeanDefinitionHolders, containing all bean definitions
 	 * that have actually been registered by this call
 	 */
-	public static Set<BeanDefinitionHolder> registerAnnotationConfigProcessors(
-			BeanDefinitionRegistry registry, Object source) {
-
+	public static Set<BeanDefinitionHolder> registerAnnotationConfigProcessors(BeanDefinitionRegistry registry, Object source) {
+		// 获取 BeanFactory
 		DefaultListableBeanFactory beanFactory = unwrapDefaultListableBeanFactory(registry);
 		if (beanFactory != null) {
+			// 设置 Bean 的优先级比较器
 			if (!(beanFactory.getDependencyComparator() instanceof AnnotationAwareOrderComparator)) {
 				beanFactory.setDependencyComparator(AnnotationAwareOrderComparator.INSTANCE);
 			}
+			// 设置 自动装配候选 Bean 的解决器
 			if (!(beanFactory.getAutowireCandidateResolver() instanceof ContextAnnotationAutowireCandidateResolver)) {
 				beanFactory.setAutowireCandidateResolver(new ContextAnnotationAutowireCandidateResolver());
 			}
@@ -157,24 +159,28 @@ public class AnnotationConfigUtils {
 
 		Set<BeanDefinitionHolder> beanDefs = new LinkedHashSet<BeanDefinitionHolder>(4);
 
+		// 注册 ConfigurationClassPostProcessor
 		if (!registry.containsBeanDefinition(CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME)) {
 			RootBeanDefinition def = new RootBeanDefinition(ConfigurationClassPostProcessor.class);	// 这里就是注册扫描 classpath 下的类, 并将 Bean 注入到 BeanFactory 里面
 			def.setSource(source);
 			beanDefs.add(registerPostProcessor(registry, def, CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME));
 		}
 
+		// 注册 AutowiredAnnotationBeanPostProcessor
 		if (!registry.containsBeanDefinition(AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME)) {
 			RootBeanDefinition def = new RootBeanDefinition(AutowiredAnnotationBeanPostProcessor.class);
 			def.setSource(source);
 			beanDefs.add(registerPostProcessor(registry, def, AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME));
 		}
 
+		// 注册 RequiredAnnotationBeanPostProcessor
 		if (!registry.containsBeanDefinition(REQUIRED_ANNOTATION_PROCESSOR_BEAN_NAME)) {
 			RootBeanDefinition def = new RootBeanDefinition(RequiredAnnotationBeanPostProcessor.class);
 			def.setSource(source);
 			beanDefs.add(registerPostProcessor(registry, def, REQUIRED_ANNOTATION_PROCESSOR_BEAN_NAME));
 		}
 
+		// 注册 CommonAnnotationBeanPostProcessor
 		// Check for JSR-250 support, and if present add the CommonAnnotationBeanPostProcessor.
 		if (jsr250Present && !registry.containsBeanDefinition(COMMON_ANNOTATION_PROCESSOR_BEAN_NAME)) {
 			RootBeanDefinition def = new RootBeanDefinition(CommonAnnotationBeanPostProcessor.class);
@@ -182,6 +188,7 @@ public class AnnotationConfigUtils {
 			beanDefs.add(registerPostProcessor(registry, def, COMMON_ANNOTATION_PROCESSOR_BEAN_NAME));
 		}
 
+		// 注册 PersistenceAnnotationBeanPostProcessor
 		// Check for JPA support, and if present add the PersistenceAnnotationBeanPostProcessor.
 		if (jpaPresent && !registry.containsBeanDefinition(PERSISTENCE_ANNOTATION_PROCESSOR_BEAN_NAME)) {
 			RootBeanDefinition def = new RootBeanDefinition();
@@ -197,11 +204,14 @@ public class AnnotationConfigUtils {
 			beanDefs.add(registerPostProcessor(registry, def, PERSISTENCE_ANNOTATION_PROCESSOR_BEAN_NAME));
 		}
 
+		// 注册 EventListenerMethodProcessor
 		if (!registry.containsBeanDefinition(EVENT_LISTENER_PROCESSOR_BEAN_NAME)) {
 			RootBeanDefinition def = new RootBeanDefinition(EventListenerMethodProcessor.class);
 			def.setSource(source);
 			beanDefs.add(registerPostProcessor(registry, def, EVENT_LISTENER_PROCESSOR_BEAN_NAME));
 		}
+
+		// 注册 DefaultEventListenerFactory
 		if (!registry.containsBeanDefinition(EVENT_LISTENER_FACTORY_BEAN_NAME)) {
 			RootBeanDefinition def = new RootBeanDefinition(DefaultEventListenerFactory.class);
 			def.setSource(source);
@@ -211,14 +221,18 @@ public class AnnotationConfigUtils {
 		return beanDefs;
 	}
 
-	private static BeanDefinitionHolder registerPostProcessor(
-			BeanDefinitionRegistry registry, RootBeanDefinition definition, String beanName) {
-
-		definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+	// 注册  Spring 容器的基础组件
+	private static BeanDefinitionHolder registerPostProcessor(BeanDefinitionRegistry registry, RootBeanDefinition definition, String beanName) {
+		definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE); //  Spring 容器的基础组件
 		registry.registerBeanDefinition(beanName, definition);
 		return new BeanDefinitionHolder(definition, beanName);
 	}
 
+	/**
+	 * 通过 BeanDefinitionRegistry 获取 DefaultListableBeanFactory
+	 * @param registry
+	 * @return
+	 */
 	private static DefaultListableBeanFactory unwrapDefaultListableBeanFactory(BeanDefinitionRegistry registry) {
 		if (registry instanceof DefaultListableBeanFactory) {
 			return (DefaultListableBeanFactory) registry;
@@ -231,11 +245,13 @@ public class AnnotationConfigUtils {
 		}
 	}
 
+	// 处理 通用的 BeanDefinition 注解
 	public static void processCommonDefinitionAnnotations(AnnotatedBeanDefinition abd) {
 		processCommonDefinitionAnnotations(abd, abd.getMetadata());
 	}
 
 	static void processCommonDefinitionAnnotations(AnnotatedBeanDefinition abd, AnnotatedTypeMetadata metadata) {
+		// 解析 @Lazy 并将其属性运用到 BeanDefinition 中
 		if (metadata.isAnnotated(Lazy.class.getName())) {
 			abd.setLazyInit(attributesFor(metadata, Lazy.class).getBoolean("value"));
 		}
@@ -243,24 +259,31 @@ public class AnnotationConfigUtils {
 			abd.setLazyInit(attributesFor(abd.getMetadata(), Lazy.class).getBoolean("value"));
 		}
 
+		// 解析 @Primary 并将其属性运用到 BeanDefinition 中
 		if (metadata.isAnnotated(Primary.class.getName())) {
 			abd.setPrimary(true);
 		}
+
+		// 解析 @DependsOn 并将其属性运用到 BeanDefinition 中
 		if (metadata.isAnnotated(DependsOn.class.getName())) {
 			abd.setDependsOn(attributesFor(metadata, DependsOn.class).getStringArray("value"));
 		}
 
 		if (abd instanceof AbstractBeanDefinition) {
 			AbstractBeanDefinition absBd = (AbstractBeanDefinition) abd;
+			// 解析 @Role 并将其属性运用到 BeanDefinition 中
 			if (metadata.isAnnotated(Role.class.getName())) {
 				absBd.setRole(attributesFor(metadata, Role.class).getNumber("value").intValue());
 			}
+
+			// 解析 @Description 并将其属性运用到 BeanDefinition 中
 			if (metadata.isAnnotated(Description.class.getName())) {
 				absBd.setDescription(attributesFor(metadata, Description.class).getString("value"));
 			}
 		}
 	}
 
+	// 生成代理 BeanDefinitionHolder
 	static BeanDefinitionHolder applyScopedProxyMode(
 			ScopeMetadata metadata, BeanDefinitionHolder definition, BeanDefinitionRegistry registry) {
 
@@ -280,9 +303,7 @@ public class AnnotationConfigUtils {
 		return AnnotationAttributes.fromMap(metadata.getAnnotationAttributes(annotationClassName, false));
 	}
 
-	static Set<AnnotationAttributes> attributesForRepeatable(AnnotationMetadata metadata,
-			Class<?> containerClass, Class<?> annotationClass) {
-
+	static Set<AnnotationAttributes> attributesForRepeatable(AnnotationMetadata metadata, Class<?> containerClass, Class<?> annotationClass) {
 		return attributesForRepeatable(metadata, containerClass.getName(), annotationClass.getName());
 	}
 

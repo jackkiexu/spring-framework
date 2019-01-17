@@ -35,6 +35,7 @@ public class ContextNamespaceHandler extends NamespaceHandlerSupport {
 		// context:property-placeholder 节点使用 PropertyPlaceholderBeanDefinitionParser 来进行解析
 		registerBeanDefinitionParser("property-placeholder", new PropertyPlaceholderBeanDefinitionParser());
 		registerBeanDefinitionParser("property-override", new PropertyOverrideBeanDefinitionParser());
+		// context:annotation-config    节点使用 AnnotationConfigBeanDefinitionParser 来进行解析
 		registerBeanDefinitionParser("annotation-config", new AnnotationConfigBeanDefinitionParser());
 		registerBeanDefinitionParser("component-scan", new ComponentScanBeanDefinitionParser());
 		registerBeanDefinitionParser("load-time-weaver", new LoadTimeWeaverBeanDefinitionParser());

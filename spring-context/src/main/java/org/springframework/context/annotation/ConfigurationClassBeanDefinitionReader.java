@@ -121,8 +121,7 @@ class ConfigurationClassBeanDefinitionReader {
 	 * Read a particular {@link ConfigurationClass}, registering bean definitions
 	 * for the class itself and all of its {@link Bean} methods.
 	 */
-	private void loadBeanDefinitionsForConfigurationClass(ConfigurationClass configClass,
-			TrackedConditionEvaluator trackedConditionEvaluator) {
+	private void loadBeanDefinitionsForConfigurationClass(ConfigurationClass configClass, TrackedConditionEvaluator trackedConditionEvaluator) {
 
 		if (trackedConditionEvaluator.shouldSkip(configClass)) {
 			String beanName = configClass.getBeanName();
@@ -136,6 +135,7 @@ class ConfigurationClassBeanDefinitionReader {
 		if (configClass.isImported()) {
 			registerBeanDefinitionForImportedConfigurationClass(configClass);
 		}
+		// 处理 @Bean 注解的方法, 加载 BeanDefinition
 		for (BeanMethod beanMethod : configClass.getBeanMethods()) {
 			loadBeanDefinitionsForBeanMethod(beanMethod);
 		}
@@ -165,7 +165,7 @@ class ConfigurationClassBeanDefinitionReader {
 		}
 	}
 
-	/**
+	/** 处理 @Bean 注解的方法, 加载 BeanDefinition
 	 * Read the given {@link BeanMethod}, registering bean definitions
 	 * with the BeanDefinitionRegistry based on its contents.
 	 */
@@ -174,7 +174,10 @@ class ConfigurationClassBeanDefinitionReader {
 		MethodMetadata metadata = beanMethod.getMetadata();
 		String methodName = metadata.getMethodName();
 
-		// Do we need to mark the bean as skipped by its condition?
+		/**
+		 * 是否会 skip 掉加载这个 metaData
+		 * Do we need to mark the bean as skipped by its condition?
+		 */
 		if (this.conditionEvaluator.shouldSkip(metadata, ConfigurationPhase.REGISTER_BEAN)) {
 			configClass.skippedBeanMethods.add(methodName);
 			return;
@@ -304,8 +307,7 @@ class ConfigurationClassBeanDefinitionReader {
 		return true;
 	}
 
-	private void loadBeanDefinitionsFromImportedResources(
-			Map<String, Class<? extends BeanDefinitionReader>> importedResources) {
+	private void loadBeanDefinitionsFromImportedResources(Map<String, Class<? extends BeanDefinitionReader>> importedResources) {
 
 		Map<Class<?>, BeanDefinitionReader> readerInstanceCache = new HashMap<Class<?>, BeanDefinitionReader>();
 

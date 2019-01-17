@@ -143,9 +143,7 @@ public class BeanDefinitionReaderUtils {
 	 * @throws BeanDefinitionStoreException if registration failed
 	 */
 	// 将解析的 BeanDefinitionHold注册到容器中
-	public static void registerBeanDefinition(
-			BeanDefinitionHolder definitionHolder, BeanDefinitionRegistry registry)
-			throws BeanDefinitionStoreException {
+	public static void registerBeanDefinition(BeanDefinitionHolder definitionHolder, BeanDefinitionRegistry registry) throws BeanDefinitionStoreException {
 		// 使用 beanName 做唯一标识注册
 		// 获取解析的 BeanDefinition 的名称
 		// Register bean definition under primary name.

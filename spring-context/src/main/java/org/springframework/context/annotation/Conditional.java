@@ -62,6 +62,7 @@ import java.lang.annotation.Target;
 public @interface Conditional {
 
 	/**
+	 * 需要实现 Condition 接口, 并实现他的 matches 方法
 	 * All {@link Condition}s that must {@linkplain Condition#matches match}
 	 * in order for the component to be registered.
 	 */

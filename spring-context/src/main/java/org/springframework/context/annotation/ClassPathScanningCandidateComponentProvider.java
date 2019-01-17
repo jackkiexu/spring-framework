@@ -75,19 +75,20 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 
 
 	protected final Log logger = LogFactory.getLog(getClass());
-
+	// 默认分 资源模式
 	private String resourcePattern = DEFAULT_RESOURCE_PATTERN;
 
+	// include 类型的 Filters
 	private final List<TypeFilter> includeFilters = new LinkedList<TypeFilter>();
-
+	// 排除类型的 Filters
 	private final List<TypeFilter> excludeFilters = new LinkedList<TypeFilter>();
 
 	private Environment environment;
-
+	// 注入条件评估器
 	private ConditionEvaluator conditionEvaluator;
-
+	// 资源读取器
 	private ResourcePatternResolver resourcePatternResolver;
-
+	// 源数据读取工厂
 	private MetadataReaderFactory metadataReaderFactory;
 
 
@@ -120,6 +121,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 	 * @see #registerDefaultFilters()
 	 */
 	public ClassPathScanningCandidateComponentProvider(boolean useDefaultFilters, Environment environment) {
+		// 是否使用默认的 Filter
 		if (useDefaultFilters) {
 			registerDefaultFilters();
 		}
@@ -236,6 +238,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 	@Override
 	public void setResourceLoader(ResourceLoader resourceLoader) {
 		this.resourcePatternResolver = ResourcePatternUtils.getResourcePatternResolver(resourceLoader);
+		// 缓存类型的 元数据读取器工厂
 		this.metadataReaderFactory = new CachingMetadataReaderFactory(resourceLoader);
 	}
 
@@ -275,8 +278,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 		Set<BeanDefinition> candidates = new LinkedHashSet<BeanDefinition>();
 		try {
 			// 值类似为 classpath*:com/question/sky/**/*.class
-			String packageSearchPath = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX +
-					resolveBasePackage(basePackage) + '/' + this.resourcePattern;
+			String packageSearchPath = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + resolveBasePackage(basePackage) + '/' + this.resourcePattern;
 			// 通过 PathMatchingResourcePatternResolver 来找寻资源
 			// 常用的 Resource 为 FileSystemResource
 			Resource[] resources = this.resourcePatternResolver.getResources(packageSearchPath);
@@ -336,6 +338,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 
 
 	/**
+	 * 包名转换器
 	 * Resolve the specified base package into a pattern specification for
 	 * the package search path.
 	 * <p>The default implementation resolves placeholders against system properties,

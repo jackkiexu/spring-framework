@@ -929,7 +929,7 @@ public abstract class AnnotationUtils {
 	 * @return {@code true} if the annotation is in the {@code java.lang.annotation} package
 	 * @since 4.2
 	 */
-	public static boolean isInJavaLangAnnotationPackage(String annotationType) {					// �Ƿ��� JDK Դ��������ע��
+	public static boolean isInJavaLangAnnotationPackage(String annotationType) {					// ????? JDK ????????????
 		return (annotationType != null && annotationType.startsWith("java.lang.annotation"));
 	}
 
@@ -1079,8 +1079,8 @@ public abstract class AnnotationUtils {
 
 		for (Method method : getAttributeMethods(annotationType)) {
 			try {
-				Object attributeValue = method.invoke(annotation);								// �����, ���ص�����
-				Object defaultValue = method.getDefaultValue();									// ������Ĭ��ֵ
+				Object attributeValue = method.invoke(annotation);								// ??????, ?????????
+				Object defaultValue = method.getDefaultValue();									// ??????????
 				if (defaultValue != null && ObjectUtils.nullSafeEquals(attributeValue, defaultValue)) {
 					attributeValue = new DefaultValueHolder(defaultValue);
 				}
@@ -1238,7 +1238,7 @@ public abstract class AnnotationUtils {
 	 * @see #retrieveAnnotationAttributes(Object, Annotation, boolean, boolean)
 	 * @see #getDefaultValue(Class, String)
 	 *
-	 * ע��ĺ��ô���, ��Ҫ����Ա���֮��Ĵ���
+	 * ??????????, ??????????????????
 	 */
 	static void postProcessAnnotationAttributes(Object annotatedElement,
 			AnnotationAttributes attributes, boolean classValuesAsString, boolean nestedAnnotationsAsMap) {
@@ -1809,7 +1809,7 @@ public abstract class AnnotationUtils {
 	 * @return {@code true} if the method is an attribute method
 	 * @since 4.2
 	 */
-	static boolean isAttributeMethod(Method method) {									// �жϷ����Ƿ��� ��������Է��� (�������� �� ��������ֵ������)
+	static boolean isAttributeMethod(Method method) {
 		return (method != null && method.getParameterTypes().length == 0 && method.getReturnType() != void.class);
 	}
 

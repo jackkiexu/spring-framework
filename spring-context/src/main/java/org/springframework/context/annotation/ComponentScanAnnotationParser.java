@@ -43,6 +43,7 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * @ComponentScan 解析器
  * Parser for the @{@link ComponentScan} annotation.
  *
  * @author Chris Beams
@@ -53,19 +54,17 @@ import org.springframework.util.StringUtils;
  * @see ComponentScanBeanDefinitionParser
  */
 class ComponentScanAnnotationParser {
-
+	// Spring 上下文的环境变量
 	private final Environment environment;
-
+	// 资源加载器
 	private final ResourceLoader resourceLoader;
-
+	// Bean 名称生成器
 	private final BeanNameGenerator beanNameGenerator;
-
+	// BeanDefinition 注册器
 	private final BeanDefinitionRegistry registry;
 
-
-	public ComponentScanAnnotationParser(Environment environment, ResourceLoader resourceLoader,
-			BeanNameGenerator beanNameGenerator, BeanDefinitionRegistry registry) {
-
+	// 创建默认的 @ComponentScan 解析器
+	public ComponentScanAnnotationParser(Environment environment, ResourceLoader resourceLoader, BeanNameGenerator beanNameGenerator, BeanDefinitionRegistry registry) {
 		this.resourceLoader = resourceLoader;
 		this.environment = environment;
 		this.beanNameGenerator = beanNameGenerator;

@@ -22,6 +22,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 
 /**
+ * 上线文信息 用于 @Conditional
  * Context information for use by {@link Condition}s.
  *
  * @author Phillip Webb
@@ -30,6 +31,7 @@ import org.springframework.core.io.ResourceLoader;
 public interface ConditionContext {
 
 	/**
+	 * 获取 BeanDefinition 注册器, 一般用于获取满足条件的  Bean
 	 * Return the {@link BeanDefinitionRegistry} that will hold the bean definition
 	 * should the condition match or {@code null} if the registry is not available.
 	 * @return the registry or {@code null}
@@ -37,6 +39,7 @@ public interface ConditionContext {
 	BeanDefinitionRegistry getRegistry();
 
 	/**
+	 * 返回 BeanFactory
 	 * Return the {@link ConfigurableListableBeanFactory} that will hold the bean
 	 * definition should the condition match or {@code null} if the bean factory
 	 * is not available.
@@ -45,6 +48,7 @@ public interface ConditionContext {
 	ConfigurableListableBeanFactory getBeanFactory();
 
 	/**
+	 * 返回当前程序的环境
 	 * Return the {@link Environment} for which the current application is running
 	 * or {@code null} if no environment is available.
 	 * @return the environment or {@code null}
@@ -52,13 +56,14 @@ public interface ConditionContext {
 	Environment getEnvironment();
 
 	/**
+	 * 返回当前程序的资源加载器
 	 * Return the {@link ResourceLoader} currently being used or {@code null}
 	 * if the resource loader cannot be obtained.
 	 * @return a resource loader or {@code null}
 	 */
 	ResourceLoader getResourceLoader();
 
-	/**
+	/** 返回加载 Conditional 的 ClassLoader
 	 * Return the {@link ClassLoader} that should be used to load additional
 	 * classes or {@code null} if the default classloader should be used.
 	 * @return the class loader or {@code null}

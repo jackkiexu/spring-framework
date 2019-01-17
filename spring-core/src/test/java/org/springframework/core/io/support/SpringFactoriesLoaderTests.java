@@ -33,8 +33,7 @@ public class SpringFactoriesLoaderTests {
 
 	@Test
 	public void loadFactoriesInCorrectOrder() {
-		List<DummyFactory> factories = SpringFactoriesLoader
-				.loadFactories(DummyFactory.class, null);
+		List<DummyFactory> factories = SpringFactoriesLoader.loadFactories(DummyFactory.class, null);
 		assertEquals(2, factories.size());
 		assertTrue(factories.get(0) instanceof MyDummyFactory1);
 		assertTrue(factories.get(1) instanceof MyDummyFactory2);

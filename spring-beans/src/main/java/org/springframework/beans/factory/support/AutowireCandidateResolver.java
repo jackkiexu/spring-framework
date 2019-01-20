@@ -20,8 +20,9 @@ import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.DependencyDescriptor;
 
 /**
+ * 自动装配候选解决器
  * Strategy interface for determining whether a specific bean definition
- * qualifies as an autowire candidate for a specific dependency.
+ * qualifies(限定符号) as an autowire candidate for a specific dependency.
  *
  * @author Juergen Hoeller
  * @author Mark Fisher

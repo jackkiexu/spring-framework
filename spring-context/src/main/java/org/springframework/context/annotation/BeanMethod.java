@@ -21,6 +21,7 @@ import org.springframework.beans.factory.parsing.ProblemReporter;
 import org.springframework.core.type.MethodMetadata;
 
 /**
+ * 代表 被 @Configuration 注解修饰的类中, 被 @Bean 修饰的方法
  * Represents a {@link Configuration} class method marked with the
  * {@link Bean} annotation.
  *

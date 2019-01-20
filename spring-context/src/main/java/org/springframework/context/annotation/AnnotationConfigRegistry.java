@@ -26,6 +26,7 @@ package org.springframework.context.annotation;
 public interface AnnotationConfigRegistry {
 
 	/**
+	 * 注册 one/more annotated class
 	 * Register one or more annotated classes to be processed.
 	 * <p>Calls to {@code register} are idempotent; adding the same
 	 * annotated class more than once has no additional effect.
@@ -34,7 +35,7 @@ public interface AnnotationConfigRegistry {
 	 */
 	void register(Class<?>... annotatedClasses);
 
-	/**
+	/** 指定扫描指定的 packages
 	 * Perform a scan within the specified base packages.
 	 * @param basePackages the packages to check for annotated classes
 	 */

@@ -178,7 +178,7 @@ public class AnnotatedBeanDefinitionReader {
 		if (this.conditionEvaluator.shouldSkip(abd.getMetadata())) {
 			return;
 		}
-		// 获取 这个 Bean  Scope 的源
+		// 获取 这个 Bean 的 ScopeMetadata 数据
 		ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(abd);
 		// 在 BeanDefintion 设置 Scope
 		abd.setScope(scopeMetadata.getScopeName());

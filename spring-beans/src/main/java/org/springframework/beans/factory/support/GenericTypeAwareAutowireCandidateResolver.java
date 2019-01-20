@@ -29,7 +29,7 @@ import org.springframework.core.ResolvableType;
 import org.springframework.util.ClassUtils;
 
 /**
- * Basic {@link AutowireCandidateResolver} that performs a full generic type
+ * Basic {@link AutowireCandidateResolver} that performs a full generic(范型) type(类型)
  * match with the candidate's type if the dependency is declared as a generic type
  * (e.g. Repository&lt;Customer&gt;).
  *
@@ -40,8 +40,7 @@ import org.springframework.util.ClassUtils;
  * @author Juergen Hoeller
  * @since 4.0
  */
-public class GenericTypeAwareAutowireCandidateResolver extends SimpleAutowireCandidateResolver
-		implements BeanFactoryAware {
+public class GenericTypeAwareAutowireCandidateResolver extends SimpleAutowireCandidateResolver implements BeanFactoryAware {
 
 	private BeanFactory beanFactory;
 

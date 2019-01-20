@@ -79,7 +79,7 @@ public class AnnotationScopeMetadataResolver implements ScopeMetadataResolver {
 		ScopeMetadata metadata = new ScopeMetadata();
 		if (definition instanceof AnnotatedBeanDefinition) {
 			AnnotatedBeanDefinition annDef = (AnnotatedBeanDefinition) definition;
-			AnnotationAttributes attributes = AnnotationConfigUtils.attributesFor(
+			AnnotationAttributes attributes = AnnotationConfigUtils.attributesFor( // 获取 AnnotationMetadata 上的注解 scopeAnnotationType
 					annDef.getMetadata(), this.scopeAnnotationType);
 			if (attributes != null) {
 				metadata.setScopeName(attributes.getString("value"));

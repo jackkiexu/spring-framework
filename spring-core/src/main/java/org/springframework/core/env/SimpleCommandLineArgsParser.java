@@ -17,6 +17,7 @@
 package org.springframework.core.env;
 
 /**
+ * 解析 String 数组类型的 command line, 最后产出 CommandLineArgs
  * Parses a {@code String[]} of command line arguments in order to populate a
  * {@link CommandLineArgs} object.
  *
@@ -27,6 +28,7 @@ package org.springframework.core.env;
  * If a value is specified, the name and value must be separated <em>without spaces</em>
  * by an equals sign ("=").
  *
+ *  有效的例子
  * <h4>Valid examples of option arguments</h4>
  * <pre class="code">
  * --foo
@@ -34,6 +36,7 @@ package org.springframework.core.env;
  * --foo="bar then baz"
  * --foo=bar,baz,biz</pre>
  *
+ * 无效的例子
  * <h4>Invalid examples of option arguments</h4>
  * <pre class="code">
  * -foo
@@ -42,6 +45,7 @@ package org.springframework.core.env;
  * --foo=bar --foo=baz --foo=biz</pre>
  *
  * <h3>Working with non-option arguments</h3>
+ * 一定需要以 -- 开头
  * Any and all arguments specified at the command line without the "{@code --}" option
  * prefix will be considered as "non-option arguments" and made available through the
  * {@link CommandLineArgs#getNonOptionArgs()} method.
@@ -52,6 +56,7 @@ package org.springframework.core.env;
 class SimpleCommandLineArgsParser {
 
 	/**
+	 * 解析 给定的 String 数组
 	 * Parse the given {@code String} array based on the rules described {@linkplain
 	 * SimpleCommandLineArgsParser above}, returning a fully-populated
 	 * {@link CommandLineArgs} object.
@@ -59,11 +64,14 @@ class SimpleCommandLineArgsParser {
 	 */
 	public CommandLineArgs parse(String... args) {
 		CommandLineArgs commandLineArgs = new CommandLineArgs();
+		// 遍历 args
 		for (String arg : args) {
+			// arg 是否以 -- 开头
 			if (arg.startsWith("--")) {
 				String optionText = arg.substring(2, arg.length());
 				String optionName;
 				String optionValue = null;
+				// 以 = 分开 arg
 				if (optionText.contains("=")) {
 					optionName = optionText.substring(0, optionText.indexOf("="));
 					optionValue = optionText.substring(optionText.indexOf("=")+1, optionText.length());
@@ -71,9 +79,11 @@ class SimpleCommandLineArgsParser {
 				else {
 					optionName = optionText;
 				}
+				// 若 optionName/optionValue 是空, 则格式不对, 直接报出异常
 				if (optionName.isEmpty() || (optionValue != null && optionValue.isEmpty())) {
 					throw new IllegalArgumentException("Invalid argument syntax: " + arg);
 				}
+				// 将 name, value 加入到 commandLineArgs
 				commandLineArgs.addOptionArg(optionName, optionValue);
 			}
 			else {

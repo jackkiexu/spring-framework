@@ -45,8 +45,7 @@ import org.springframework.context.ApplicationEventPublisherAware;
  * @see org.springframework.context.ApplicationEventPublisher
  * @see org.springframework.context.ApplicationContext
  */
-public class EventPublicationInterceptor
-		implements MethodInterceptor, ApplicationEventPublisherAware, InitializingBean {
+public class EventPublicationInterceptor implements MethodInterceptor, ApplicationEventPublisherAware, InitializingBean {
 
 	private Constructor<?> applicationEventClassConstructor;
 
@@ -94,8 +93,7 @@ public class EventPublicationInterceptor
 	public Object invoke(MethodInvocation invocation) throws Throwable {
 		Object retVal = invocation.proceed();
 
-		ApplicationEvent event = (ApplicationEvent)
-				this.applicationEventClassConstructor.newInstance(new Object[] {invocation.getThis()});
+		ApplicationEvent event = (ApplicationEvent) this.applicationEventClassConstructor.newInstance(new Object[] {invocation.getThis()});
 		this.applicationEventPublisher.publishEvent(event);
 
 		return retVal;

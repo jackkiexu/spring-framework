@@ -35,6 +35,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
 /**
+ * 被 @Configuration 注解修饰的 类
  * Represents a user-defined {@link Configuration @Configuration} class.
  * Includes a set of {@link Bean} methods, including all such methods
  * defined in the ancestry of the class, in a 'flattened-out' manner.
@@ -48,6 +49,7 @@ import org.springframework.util.ClassUtils;
  */
 final class ConfigurationClass {
 
+	// 注解源数据
 	private final AnnotationMetadata metadata;
 
 	private final Resource resource;
@@ -55,7 +57,7 @@ final class ConfigurationClass {
 	private String beanName;
 
 	private final Set<ConfigurationClass> importedBy = new LinkedHashSet<ConfigurationClass>(1);
-
+	// 被 @Bean 修饰的方法
 	private final Set<BeanMethod> beanMethods = new LinkedHashSet<BeanMethod>();
 
 	private final Map<String, Class<? extends BeanDefinitionReader>> importedResources = new LinkedHashMap<String, Class<? extends BeanDefinitionReader>>();
@@ -154,6 +156,7 @@ final class ConfigurationClass {
 	}
 
 	/**
+	 * 判断是否 Configuration Class 是否是因通过 @Import 注解修饰进行注入进去
 	 * Return whether this configuration class was registered via @{@link Import} or
 	 * automatically registered due to being nested within another configuration class.
 	 * @since 3.1.1

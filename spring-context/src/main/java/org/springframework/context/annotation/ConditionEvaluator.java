@@ -73,15 +73,19 @@ class ConditionEvaluator {
 	 * @return if the item should be skipped
 	 */
 	public boolean shouldSkip(AnnotatedTypeMetadata metadata, ConfigurationPhase phase) {
+		// 如果这个类没有被@Conditional注解所修饰，不会skip
 		if (metadata == null || !metadata.isAnnotated(Conditional.class.getName())) {
 			return false;
 		}
-
+		// 如果参数中沒有设置条件注解的生效阶段
+		// 是配置类的话直接使用PARSE_CONFIGURATION阶段
 		if (phase == null) {
+			// 是配置类的话直接使用PARSE_CONFIGURATION阶段
 			if (metadata instanceof AnnotationMetadata &&
 					ConfigurationClassUtils.isConfigurationCandidate((AnnotationMetadata) metadata)) {
 				return shouldSkip(metadata, ConfigurationPhase.PARSE_CONFIGURATION);
 			}
+			// 使用REGISTER_BEAN阶段
 			return shouldSkip(metadata, ConfigurationPhase.REGISTER_BEAN);
 		}
 
@@ -101,6 +105,7 @@ class ConditionEvaluator {
 				requiredPhase = ((ConfigurationCondition) condition).getConfigurationPhase();
 			}
 			if (requiredPhase == null || requiredPhase == phase) {
+				/// 不满足条件的话，返回true并跳过这个bean的解析
 				if (!condition.matches(this.context, metadata)) {
 					return true;
 				}
@@ -110,6 +115,7 @@ class ConditionEvaluator {
 		return false;
 	}
 
+	// 获取被 @Conditional 注解的数据
 	@SuppressWarnings("unchecked")
 	private List<String[]> getConditionClasses(AnnotatedTypeMetadata metadata) {
 		MultiValueMap<String, Object> attributes = metadata.getAllAnnotationAttributes(Conditional.class.getName(), true);

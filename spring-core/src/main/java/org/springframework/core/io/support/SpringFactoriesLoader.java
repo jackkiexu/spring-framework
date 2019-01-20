@@ -107,15 +107,20 @@ public abstract class SpringFactoriesLoader {
 	 * @throws IllegalArgumentException if an error occurs while loading factory names
 	 */
 	public static List<String> loadFactoryNames(Class<?> factoryClass, ClassLoader classLoader) {
+		// 获取 factoryClass 对应的类名
 		String factoryClassName = factoryClass.getName();
 		try {
+			//  获取 META-INF/spring.factories 文件
 			Enumeration<URL> urls = (classLoader != null ? classLoader.getResources(FACTORIES_RESOURCE_LOCATION) :
 					ClassLoader.getSystemResources(FACTORIES_RESOURCE_LOCATION));
 			List<String> result = new ArrayList<String>();
 			while (urls.hasMoreElements()) {
 				URL url = urls.nextElement();
+				// 调用 loadProperties  转成 Properties
 				Properties properties = PropertiesLoaderUtils.loadProperties(new UrlResource(url));
+				// 获取 className
 				String factoryClassNames = properties.getProperty(factoryClassName);
+				// 通过 , 分割封装成 List
 				result.addAll(Arrays.asList(StringUtils.commaDelimitedListToStringArray(factoryClassNames)));
 			}
 			return result;

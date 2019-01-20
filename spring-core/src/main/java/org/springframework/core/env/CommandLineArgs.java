@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * command 命令呈现器
  * A simple representation of command line arguments, broken into "option arguments" and
  * "non-option arguments".
  *
@@ -33,6 +34,7 @@ import java.util.Set;
  */
 class CommandLineArgs {
 
+	// key 是 commandName, value 是一个 list, 里面存储 commandValue
 	private final Map<String, List<String>> optionArgs = new HashMap<String, List<String>>();
 	private final List<String> nonOptionArgs = new ArrayList<String>();
 

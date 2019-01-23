@@ -22,3 +22,12 @@
   2.7 ComponentScanAnnotationParser:
   2.8 ContextAnnotationAutowireCandidateResolver:
   2.9 ImportSelector: 注入的是可以配置为 Configuration 类型的类
+
+
+参考资料:
+  https://blog.csdn.net/qq_26000415/article/details/78947283
+
+设计总结
+  1. 架构体系建立
+    1.1 需要有元数据类型 Meta
+    1.2 建立匹配体系,

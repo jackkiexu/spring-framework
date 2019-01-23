@@ -41,7 +41,6 @@ public interface TypeFilter {
 	 * @return whether this filter matches
 	 * @throws IOException in case of I/O failure when reading metadata
 	 */
-	boolean match(MetadataReader metadataReader, MetadataReaderFactory metadataReaderFactory)
-			throws IOException;
+	boolean match(MetadataReader metadataReader, MetadataReaderFactory metadataReaderFactory) throws IOException;
 
 }

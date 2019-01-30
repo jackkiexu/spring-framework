@@ -84,3 +84,16 @@ Proxy$B extend Proxy implementation A {
     2. 通过类的 InitializingBean 的方法
     3. ApplicationContextAware 来激活(PS: ApplicationContextAwareProcessor 来进行激活)
     4. ApplicationListener 来激活 onApplicationEvent -> ContextRefreshedEvent 事件
+
+3. Spring 里面的难点
+    3.1 Spring 里面 Bean 属性的读取, 绑定转换, 设置;
+        PropertyValues,
+        TypeConverter,
+        PropertyEditorRegistry,
+        PropertyAccessor,
+        ConfigurablePropertyAccessor,
+        AbstractNestablePropertyAccessor
+    3.2 将 PropertyValues 绑定到 Bean 上的过程 DataBinder, BeanWrapper
+    3.3 Spring 中的注解工具类 AnnotationUtils, MetaAnnotationUtils
+    3.4 Spring 中的类型解析类 ResolvableType
+    3.5 Spring 里面的元数据 Meta 属性集合

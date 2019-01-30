@@ -18,7 +18,7 @@ package org.springframework.beans;
 
 /**
  * Interface to be implemented by bean metadata elements
- * that carry a configuration source object.
+ * that carry a configuration(配置) source object.
  *
  * @author Juergen Hoeller
  * @since 2.0
